@@ -1,0 +1,112 @@
+'++LotusScript Development Environment:2:5:(Options):0:66
+Option Public
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Function Partition(namearray() As String, first As Integer, last As Integer) As Integer
+Declare Function sortArray(namearray() As String)
+Declare Function Quicksort(namearray() As String, first As Integer, last As Integer)
+Declare Function FindMatchUp(namearray() As String, startvalue As Integer, testvalue As String) As Integer
+Declare Function FindMatchDown(namearray() As String, startvalue As Integer, testvalue As String) As Integer
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+
+
+'++LotusScript Development Environment:2:1:Partition:1:8
+Function Partition(namearray() As String, first As Integer, last As Integer) As Integer
+'This function is called to find where we should partition the array. This is done using
+'the first element of the current array and finding it's position with all lower values to 
+'its left and higher values to its right.	
+	Dim up As Integer
+	Dim down As Integer
+	Dim testvalue As String
+	up = first
+	down = last
+	
+'This is the first value in the current array, the one we will use for testing	
+	testvalue = namearray(first)
+	
+'Up & Down are counters. Up starts at the bottom of the current array and works up. Down, 
+'starts at the top and works down. When they cross, the current array should have the pivot
+'in the correct place and all lower values lower than it and all higher values higher than it.	
+	While up < down
+		up = FindMatchUp(namearray, up, testvalue)
+		down = FindMatchDown(namearray, down, testvalue)
+		If up < down Then 
+			tmp1 = namearray(up)
+			namearray(up) = namearray(down)
+			namearray(down) = tmp1
+		Else
+'They should now have crossed. Lastly we check the pivot with the value of down to see if we 
+'should swap with the last value.			
+			If Not down <= first Then
+				tmp1 = namearray(first)
+				namearray(first) = namearray(down)
+				namearray(down) = tmp1	
+			End If
+		End If
+	Wend
+'Now we're done, we move the pivot to the value of down, or in the case of no matches found when 
+'moving down the array,move the pivot to first.	
+	If down <= first Then
+		Partition = first
+	Else
+		Partition = down		
+	End If
+End Function
+'++LotusScript Development Environment:2:1:sortArray:1:8
+Function sortArray(namearray() As String)
+'First is the start of the current array that we are working on	
+	Dim first As Integer
+'Last is the end of the current array that we are working on	
+	Dim last As Integer
+'As this is the first run through, use the whole array	
+	first = Lbound(namearray)
+	last = Ubound(namearray)
+	
+	If first < last Then
+		pvindex = Partition(namearray, first, last)
+		Call QuickSort(namearray, first, pvindex-1)
+		Call QuickSort(namearray, pvindex+1, last)
+	End If
+	
+End Function
+'++LotusScript Development Environment:2:1:Quicksort:1:8
+Function Quicksort(namearray() As String, first As Integer, last As Integer)
+'This function is called recursively over various sections of the array.
+'There are two cases in which we should exit the function.
+'Firstly first = last, which means the subset has one element so it's sorted.
+'Secondly first > last, no lower value exists to the right, so it's sorted.	
+	If first < last Then
+'Firstly partition the array,  ie. find the pivot index
+		pvindex = Partition(namearray, first, last)
+'Call Quicksort on the first half of the array		
+		Call QuickSort(namearray, first, pvindex-1)
+'Then call it on the second half		
+		Call QuickSort(namearray, pvindex+1, last)
+	End If
+End Function
+
+
+
+'++LotusScript Development Environment:2:1:FindMatchUp:1:8
+Function FindMatchUp(namearray() As String, startvalue As Integer, testvalue As String) As Integer
+'Starting at the bottom of the current set, increase index until we find a value that is
+'higher than the pivot value. This value then needs swaping with a lower one.	
+	For i = startvalue + 1 To Ubound(namearray)
+		If namearray(i) > testvalue Then
+			Exit For
+		End If
+	Next
+	FindMatchUp = i
+End Function
+'++LotusScript Development Environment:2:1:FindMatchDown:1:8
+Function FindMatchDown(namearray() As String, startvalue As Integer, testvalue As String) As Integer
+'Starting at the top of the current set, decrease index until we find a value that is
+'lower than the pivot value. This value then needs swaping with a higher one.	
+	For i = startvalue To Lbound(namearray) Step -1
+		If namearray(i) < testvalue Then
+			Exit For
+		End If
+	Next
+	FindMatchDown = i
+End Function

@@ -1,0 +1,808 @@
+'++LotusScript Development Environment:2:5:(Options):0:74
+Option Public
+Option Declare
+%Include "lsconst.lss" 
+
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Public Class AppDebug
+Declare Public Class AppCommon
+Declare Public Class AppObject
+Declare Public Class AppItem As AppObject
+Declare Public Class AppProfileManager As AppItem
+Declare Public Class AppProfile As AppItem
+Declare Sub Initialize
+Declare Public Sub Debug(strMsg As String)
+Declare Public Sub LogError(strMsg As String)
+Declare Public Sub Assert(flgAssertion As Integer, strMsg As String)
+Declare Public Sub ShowErrorMsg(strMsg As String)
+Declare Public Sub ShowInfoMsg(strMsg As String)
+Declare Public Function AskQuestion(strMsg As String) As Integer
+
+'++LotusScript Development Environment:2:5:(Declarations):0:10
+
+Public gApp As AppCommon
+
+Public g_dbCurr As NotesDatabase
+Public g_dbReg As NotesDatabase
+Public g_docProfile As NotesDocument
+Public g_strSystemName As String
+Public g_strUserName As String
+Public g_strWebPath As String
+
+
+
+Const ERR_SYSTEM_ERROR = 1001
+Const INT_MAX_LOG_LINES = 500
+
+Public gCommon As AppCommon
+%REM
+	Class AppDebug
+	Description: Common application debugging
+%END REM
+Public Class AppDebug
+	Public g_flgDebugEnabled As Integer       
+	Public g_docLog As NotesDocument
+	Public g_docErrorLog As NotesDocument
+	Private intLineCount As Integer 
+	
+	Sub New
+		intLineCount = 0
+	End Sub
+
+	Sub EnableDebug(strDocTitle As String)
+		'------------------------------------------------------------------------------------------------------
+		'Description
+		'------------------
+		'Enable debugging.  Create a log document with the supplied title.
+		'
+		'Globals Referenced
+		'-------------------------------
+		'g_flgDebugEnabled    - Whether debugging is enabled or not
+		'g_docLog                   - The current log document
+		'     
+		'Return Values
+		'-----------------------
+		'None
+		'------------------------------------------------------------------------------------------------------
+		
+		'Create a new Log document
+		Call CreateDebugLog(strDocTitle)
+		
+		'Enable debugging
+		g_flgDebugEnabled = True
+		
+	End Sub
+	Sub Debug(strMsg As String)
+		'------------------------------------------------------------------------------------------------------
+		'Description
+		'------------------
+		'Given a message, append the message as a new line in the
+		'current Log.  Prefix the message with the current date and time
+		'for non-blank messages.
+		'
+		'Globals Referenced
+		'-------------------------------
+		'g_flgDebugEnabled    - Whether debugging is enabled or not
+		'g_docLog                   - The current log document
+		'     
+		'Return Values
+		'-----------------------
+		'None
+		'------------------------------------------------------------------------------------------------------
+		
+		
+		
+		If (g_flgDebugEnabled = True)Then
+			
+			Dim rtItemLogText As NotesRichTextItem
+			
+			'If log contains too many lines, create a new log document
+			If intLineCount > INT_MAX_LOG_LINES Then
+				Call CreateDebugLog(CStr(g_docLog.DocTitle(0)))
+				intLineCount = 0
+			End If
+			
+			Set rtItemLogText = g_docLog.GetFirstItem("LogText")
+			
+			If strMsg <> "" Then
+				Call rtItemLogText.AppendText(Format(Now(), "mm/dd/yy hh:mm:ss AM/PM"))
+				Call rtItemLogText.AppendText(" ")
+			End If
+			Call rtItemLogText.AppendText(strMsg)
+			Call rtItemLogText.AddNewLine(1)
+			
+			Call g_docLog.Save(True, True)
+			
+			intLineCount = intLineCount + 1
+			
+		End If
+		
+	End Sub
+	
+	Sub LogError(strMsg As String)
+		'------------------------------------------------------------------------------------------------------
+		'Description
+		'------------------
+		'Given a message, append the message as a new line in the
+		'current Error Log.  Prefix the message with the current date and time
+		'for non-blank messages.
+		'
+		'Globals Referenced
+		'-------------------------------
+		'g_docErrorLog                   - The current error log document
+		'     
+		'Return Values
+		'-----------------------
+		'None
+		'------------------------------------------------------------------------------------------------------
+		
+		
+		Dim rtItemLogText As NotesRichTextItem
+		
+		'If there is no Error Log, create one
+		If (g_docErrorLog Is Nothing) Then
+			Call CreateErrorLog(|Error Log|)
+			intLineCount = 0
+		End If
+		
+		'If the Error Log contains too many lines, create a new Error Log
+		If (intLineCount > INT_MAX_LOG_LINES) Then
+			Call CreateErrorLog(CStr(g_docErrorLog.DocTitle(0)))
+			intLineCount = 0
+		End If
+		
+		Set rtItemLogText = g_docErrorLog.GetFirstItem("LogText")
+		
+		If strMsg <> "" Then
+			Call rtItemLogText.AppendText(Format(Now(), "mm/dd/yy hh:mm:ss AM/PM"))
+			Call rtItemLogText.AppendText(" ")
+		End If
+		Call rtItemLogText.AppendText(strMsg)
+		Call rtItemLogText.AddNewLine(1)
+		
+		Call g_docErrorLog.Save(True, True)
+		
+		intLineCount = intLineCount + 1
+		
+	End Sub
+	Sub Assert(flgAssertion As Integer, strMsg As String)
+		'------------------------------------------------------------------------------------------------------
+		'Description
+		'------------------
+		'Given a boolean value, check whether the value is False and
+		'if it is write the supplied message to the debug log.
+		'
+		'Globals Referenced
+		'-------------------------------
+		'g_flgDebugEnabled    - Whether debugging is enabled or not
+		'     
+		'Return Values
+		'-----------------------
+		'None
+		'------------------------------------------------------------------------------------------------------
+		
+		If (g_flgDebugEnabled = True) Then
+			If (Not flgAssertion) Then
+				Call Debug(strMsg)
+				Call LogError(strMsg)
+			End If
+		End If
+		
+	End Sub
+	Sub CreateErrorLog(strDocTitle As String)
+		'------------------------------------------------------------------------------------------------------
+		'Description
+		'------------------
+		'Create a new error log.
+		'
+		'Globals Referenced
+		'-------------------------------
+		'g_docErrorLog                   - The current error log document
+		'     
+		'Return Values
+		'-----------------------
+		'None
+		'------------------------------------------------------------------------------------------------------
+		
+		Dim s As New NotesSession
+		Dim dbCurr As NotesDatabase
+		Dim item As NotesItem
+		Dim rtItemLogText As NotesRichTextItem
+		Dim rtsLogText As NotesRichTextStyle
+		
+		'Point to the current database
+		Set dbCurr = s.CurrentDatabase
+		
+		'Create a new Error Log document
+		Set g_docErrorLog = dbCurr.CreateDocument
+		
+		'Initialise fields in the document
+		g_docErrorLog.Form = "fErrorLog"
+		g_docErrorLog.DocType = "Error Log"
+		g_docErrorLog.DocTitle = strDocTitle
+		g_docErrorLog.RunDate = Now
+		Set item = New NotesItem(g_docErrorLog, "$PublicAccess", "1")
+		g_docErrorLog.CreateRichTextItem("LogText")
+		
+		'Set the style of the text to be Helv 8
+		Set rtItemLogText = g_docErrorLog.GetFirstItem("LogText")
+		Set rtsLogText = s.CreateRichTextStyle
+		
+		rtsLogText.NotesFont = FONT_HELV
+		rtsLogText.FontSize = 8
+		Call rtItemLogText.AppendStyle(rtsLogText)
+		Call rtItemLogText.AddNewLine(1)
+		
+		'Save the Log
+		Call g_docErrorLog.Save(True, True)   
+		
+	End Sub
+	Sub CreateDebugLog(strDocTitle As String)
+		'------------------------------------------------------------------------------------------------------
+		'Description
+		'------------------
+		'Create a new debug log.
+		'
+		'Globals Referenced
+		'-------------------------------
+		'g_docLog                   - The current log document
+		'     
+		'Return Values
+		'-----------------------
+		'None
+		'------------------------------------------------------------------------------------------------------
+		
+		Dim s As New NotesSession
+		Dim dbCurr As NotesDatabase
+		Dim item As NotesItem
+		Dim rtItemLogText As NotesRichTextItem
+		Dim rtsLogText As NotesRichTextStyle
+		
+		'Point to the current database
+		Set dbCurr = s.CurrentDatabase
+		
+		'Create a new Log document
+		Set g_docLog = dbCurr.CreateDocument
+		
+		'Initialise fields in the document
+		g_docLog.Form = "fLog"
+		g_docLog.DocType = "Log"
+		g_docLog.DocTitle = strDocTitle
+		g_docLog.RunDate = Now
+		Set item = New NotesItem(g_docLog, "$PublicAccess", "1")
+		g_docLog.CreateRichTextItem("LogText")
+		
+		'Set the style of the text to be Helv 8
+		Set rtItemLogText = g_docLog.GetFirstItem("LogText")
+		Set rtsLogText = s.CreateRichTextStyle
+		
+		rtsLogText.NotesFont = FONT_HELV
+		rtsLogText.FontSize = 8
+		Call rtItemLogText.AppendStyle(rtsLogText)
+		Call rtItemLogText.AddNewLine(1)
+		
+		'Save the Log
+		Call g_docLog.Save(True, True)     
+		
+	End Sub
+End Class
+%REM
+	Class AppCommon
+	Description: Comments for Class
+%END REM
+Public Class AppCommon
+	Public s As NotesSession
+	Public db As NotesDatabase
+	Public dbProfileDoc As NotesDocument
+	Public profile As AppProfile
+
+	Public systemName As String
+	Public webPath As String
+	Public username As String
+	Private m_debug As AppDebug
+
+	Private m_profiles As AppProfileManager
+
+	Sub CheckField(docCurr As NotesDocument, strFieldName As String, strFieldLabel As String, strMsg As String, strErrorFieldName As String, intCountErrors As Integer)
+		'------------------------------------------------------------------------------------------------------
+		'Description
+		'------------------
+		'Validation function used to validate fields in Notes forms.
+		'
+		'Parameters
+		'-----------------------
+		'docCurr			The document to check.
+		'strFieldName		The name of the field to check.
+		'strFieldLabel		The field label (used in error messages)
+		'strMsg				(Returned)		The validation message appended to strMsg.
+		'strErrorFieldName	(Returned)		If strErrorFieldName was blank and this field failed validation, 
+		'									strErrorFieldName is set to the name of the the field that failed validation.
+		'     
+		'Return Values
+		'-----------------------
+		'None.
+		'------------------------------------------------------------------------------------------------------   
+		
+		Const STR_MODULE_NAME = |CheckField|	
+		
+		'Trap errors
+		On Error GoTo lblError
+		
+		If (CStr(docCurr.GetItemValue(strFieldName)(0)) = "") Then
+			If strErrorFieldName = "" Then
+				strErrorFieldName = strFieldName
+			End If
+			intCountErrors = intCountErrors + 1
+			strMsg = strMsg & " " & strFieldLabel & Chr$(13)
+		End If
+		
+lblExit:
+		
+		Exit Sub
+		
+lblError:
+		
+		Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Call Debug(STR_MODULE_NAME & |: Field name being checked [| & strFieldName & |] Field label [| & strFieldLabel & |]|)
+		Call LogError(STR_MODULE_NAME & |: Field name being checked [| & strFieldName & |] Field label [| & strFieldLabel & |]|)
+		Resume lblExit
+		
+	End Sub	
+	
+	
+	%REM
+		Function getKeywordListAsString
+		Description: Comments for Function
+	%END REM
+	
+%REM
+	Function getKeywordList
+	Description: Returns an array from the standard keyword list view
+%END REM
+Public Function getKeywordList(theName As String)	
+	Const STR_MODULE_NAME = "AppCommon - getKeywordList"
+	On Error GoTo lblError
+	getKeywordList = ""
+
+	Dim tmpView As NotesView
+	Set tmpView = db.Getview("luSSKeywordLists")
+	Dim tmpDoc As NotesDocument
+	
+	Set tmpDoc = tmpView.Getdocumentbykey(theName, true)
+	If tmpDoc Is Nothing Then 
+		Call Debug(STR_MODULE_NAME & |: Keyword | & theName & |not found, returning blank.|)
+		Exit Function
+	End If
+	getKeywordList = tmpDoc.Getitemvalue("kw_Keywords")
+	
+lblExit:
+	
+	Call Debug(STR_MODULE_NAME & |: Finished.|)
+	Exit Function
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call ShowErrorMsg(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)	
+	Resume lblExit
+
+
+End Function
+	
+	
+	'-- CurrentUser - Current users NotesName object (lazy loaded)
+	Private m_CurrentUser As NotesName
+	Public Property Get CurrentUser As NotesName
+		If m_CurrentUser Is Nothing Then
+			Set m_CurrentUser = New NotesName(Me.username)
+		End If
+		Set CurrentUser = m_CurrentUser
+	End Property
+
+	Public Sub Debug(strMsg As String)
+		Call m_debug.Debug(strMsg)
+	End Sub
+
+	%REM
+	Sub LogError
+	Description: Passthrough to global version
+	%END REM
+	Sub LogError(strMsg As String)
+		Call m_debug.LogError(strMsg)
+	End Sub
+
+	%REM
+	Sub Assert
+	Description: Passthrough for debug
+	%END REM
+	Sub Assert(flgAssertion As Integer, strMsg As String)
+		Call m_debug.Assert(Flgassertion, Strmsg)
+	End Sub
+
+	Public Sub BubbleSort(vtList)
+		
+		Dim tmpValue As Variant
+		Dim x As Integer, y As Integer
+		
+		If UBound(vtList) = 1 Then		
+			Exit Sub
+		End If
+		
+		For x = 0 To UBound(vtList)
+			For y = (x + 1) To UBound(vtList)
+				On Error Resume Next
+				If vtList(x) > vtList(y) Then
+					tmpValue = vtList(x)
+					vtList(x) = vtList(y)
+					vtList(y) = tmpValue
+				End If
+			Next
+		Next	
+		
+	End Sub	
+	
+	Public Sub ShowErrorMsg(strMsg As String)
+		'------------------------------------------------------------------------------------------------------
+		'Description
+		'------------------
+		'Display a message box with an Exclamation Icon.
+		'
+		'Parameters
+		'-----------------------
+		'strMsg		The message to display.
+		'     
+		'Return Values
+		'-----------------------
+		'None.
+		'------------------------------------------------------------------------------------------------------   
+		
+		MessageBox strMsg, MB_ICONEXCLAMATION, Me.systemName
+		
+	End Sub
+	
+	Public Sub New
+		Const STR_MODULE_NAME = "AppCommon - Initialize"
+		
+		Set s = New NotesSession
+		Set db = s.CurrentDatabase
+		Set m_debug = New AppDebug
+		Set m_profiles = New AppProfileManager
+		
+		Dim nameCurr As NotesName
+		Dim varResult As Variant
+		
+		'Do not trap errors until we know we can log them
+		On Error Resume Next
+		
+		
+		'If unable to do so, show an error message and exit
+		If (db Is Nothing) Then
+			Error ERR_SYSTEM_ERROR, |Unable to obtain database handle.|	
+			Call ShowErrorMsg(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)	
+			GoTo lblExit
+		End If	
+		
+		Dim tmpProfileView As NotesView
+		Set tmpProfileView =db.getView("luAppProfile")
+
+		'Try to get the Database Profile from an app view or general method
+		If Not tmpProfileView Is Nothing Then 
+			Set dbProfileDoc = tmpProfileView.Getfirstdocument()
+		End If
+		
+		If (dbProfileDoc Is Nothing) Then
+			Set dbProfileDoc = db.GetProfileDocument("fProfile")	
+		End If
+		
+		Set profile = New AppProfile
+		
+		'If unable to do so - that is OK - enable debug by default
+		If (dbProfileDoc Is Nothing) Then
+			'Error ERR_SYSTEM_ERROR, |Unable to find Database Profile.|
+			'Call ShowErrorMsg(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)	
+			'GoTo lblExit
+			Call m_debug.EnableDebug(|Debug Log|)
+			Call Debug(STR_MODULE_NAME & |: No profile document found for this data.|)
+			systemName = "Application"
+		Else
+			Call profile.setDoc(dbProfileDoc)
+			'Check whether debugging is to be enabled and if it is, enable debugging
+			If CStr(dbProfileDoc.dp_EnableDebug(0)) = "Yes" Then
+				Call m_debug.EnableDebug(|Debug Log|)
+			End If    
+			
+			'Log start of processing
+			Call Debug(STR_MODULE_NAME & |: Started.|)
+			
+			'Now that we know that we have a Database Profile document, we can trap errors
+			'and have them written to the debug log (if it has been enabled in the Database Profile)
+			On Error GoTo lblError
+			
+			'Get the system name
+			systemName = CStr(dbProfileDoc.dp_SystemName(0))
+			Call Debug(STR_MODULE_NAME & |: System name is [| & systemName & |].|)	
+			
+			'Get the current user's name
+			Set nameCurr = New NotesName(s.UserName)
+			username = nameCurr.Abbreviated
+			
+			Call Debug(STR_MODULE_NAME & |: Current user is [| & username & |].|)
+			Call Debug(STR_MODULE_NAME & |: Current server is [| & db.Server & |].|)
+			
+			'Get the web path
+			varResult = Evaluate(|@WebDbName|)
+			webPath = |/| & varResult(0)
+			
+			Call Debug(STR_MODULE_NAME & |: Path to database is [| & webPath & |].|)
+		End If
+		
+		
+lblExit:
+		
+		Call Debug(STR_MODULE_NAME & |: Finished.|)
+		
+		Exit Sub
+		
+lblError:
+		
+		Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Call ShowErrorMsg(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)	
+		Resume lblExit
+		
+	End Sub
+	
+	
+	Function intAskQuestion(strMsg As String) As Integer
+		'------------------------------------------------------------------------------------------------------
+		'Description
+		'------------------
+		'Display a message box with Yes/No buttons and return the selected button.
+		'
+		'Parameters
+		'-----------------------
+		'strMsg		The message to display.
+		'     
+		'Return Values
+		'-----------------------
+		'IDYES (6) if the user selected 'Yes'
+		'IDNO (7) if the user selected 'No'
+		'------------------------------------------------------------------------------------------------------   
+		
+		intAskQuestion = MessageBox(strMsg, MB_YESNO + MB_ICONQUESTION, systemname)
+		
+	End Function
+	
+	Sub ShowInfoMsg(strMsg As String)
+		'------------------------------------------------------------------------------------------------------
+		'Description
+		'------------------
+		'Display a message box with an Information Icon.
+		'
+		'Parameters
+		'-----------------------
+		'strMsg		The message to display.
+		'     
+		'Return Values
+		'-----------------------
+		'None.
+		'------------------------------------------------------------------------------------------------------   
+		MessageBox strMsg, MB_ICONINFORMATION, systemname
+	End Sub
+	
+End Class
+
+%REM
+	Class AppObject
+	Description: Common base for all application level objects
+%END REM
+Public Class AppObject
+	Public className As String
+	Sub New
+		Me.className = "AppObject"
+	End Sub
+	
+	Private Function isString(theVar) As Boolean
+		isString (DataType(theVar) = 8) 
+	End Function
+	
+	'--- true if this is an applicaton defined object	
+	Private Function isAppObj(theVar) As Boolean
+		isAppObj (DataType(theVar) = 34) 
+	End Function
+
+	
+End Class
+
+
+Public Class AppItem As AppObject
+	
+	Private m_items List As AppItem 
+
+	Public value As Variant
+	Public id As String
+	
+	Sub New
+		Me.className = "AppItem"
+		value = Null
+	End Sub
+	
+	Function addItem(theItem As AppItem) As AppItem
+		Set addItem = Nothing
+		If( theItem Is Nothing ) Then 
+			Exit Function
+		End If
+		Set addItem = me.addItemById(theItem.id,theItem)
+	End Function
+	
+	Function addItemByID(theItemID As String, theItem As AppItem) As AppItem
+		Set addItemByID = Nothing
+		If( theItemID = "" ) Then 
+			Exit Function
+		End If
+		Set m_items(theItemID) = theItem
+		Set addItemByID = theItem
+	End Function
+
+	Function createItem(theItemID As String, theValue) As AppItem
+		Set createItem = NOthing
+		If( theItemID = "" ) Then 
+			Exit Function
+		End If
+		Dim tmpNewItem As New AppItem
+		tmpNewItem.id = theItemID
+		tmpNewItem.value = theValue
+		Set createItem = me.addItemByID(theItemID,tmpNewItem)
+	End Function
+	
+	Function getItem(theOptions) As AppItem
+		Dim tmpKey As String
+		tmpKey = ""
+
+		If me.Isstring(theOptions) Then 
+			tmpKey = theOptions
+		End If
+		
+		Set getItem = m_items(tmpKey)
+	End Function
+
+	Function getItemByID(theItemID As String) As AppItem
+		Set getItemByID = Me.getItem(theItemID)
+	End Function
+
+	Function hasItemID(theItemID As String) As Boolean 
+		hasItemID = IsElement( m_items(theItemID) )
+	End Function
+	
+	
+End Class
+
+
+%REM
+	Class AppProfileManager
+%END REM
+Public Class AppProfileManager As AppItem
+	
+	Sub New
+		Me.className = "AppProfileManager"
+	End Sub
+
+		
+End Class
+%REM
+	Class AppProfile
+	Description: General Profile object
+	
+	Can be a NotesDocument or Profile loaded from other means 
+%END REM
+Public Class AppProfile As AppItem
+	Private m_doc As NotesDocument
+	Private m_profileType As String
+	Public category As String
+	
+	Sub New
+		Me.className = "AppProfile"
+	End Sub
+
+	%REM
+		Function isDoc
+		Description: Returns true of this is a notes document based profile doc
+	%END REM
+	Public Function isDoc As Boolean
+		isDoc = (Not m_doc Is Nothing) 
+	End Function
+
+	Public Function setDoc(theDoc As NotesDocument) As Boolean
+		Set m_doc = theDoc 
+	End Function
+	Public Function getDoc As NotesDocument
+		Set getDoc = m_doc
+		 
+	End Function
+
+	Public Function getValue(theFieldName As String)
+		If Me.isDoc Then 
+			getValue = m_doc.Getitemvalue(theFieldName)
+		Else
+			Dim tmpItem As AppItem
+			Set tmpItem = me.getItemByID(theFieldName)
+			getValue = tmpItem.value
+		End If	
+	End Function
+
+	Public Function getString(theFieldName As String)
+		If Me.isDoc Then 
+			getString = CStr(m_doc.Getitemvalue(theFieldName)(0))
+		Else
+			Dim tmpItem As AppItem
+			Set tmpItem = me.getItemByID(theFieldName)
+			getString = CStr(tmpItem.value)
+		End If	
+	End Function
+
+	
+		
+		
+End Class
+'++LotusScript Development Environment:2:2:Initialize:1:10
+Sub Initialize
+	'--- Create common global application
+	Set gApp = New AppCommon	
+	
+	'--- Set commonly used globals
+	Set g_dbCurr = gApp.db
+	Set g_docProfile = gApp.dbProfileDoc
+	g_strSystemName = gApp.systemName
+	g_strUserName = gApp.username
+	g_strWebPath = gApp.webPath
+	
+End Sub
+
+
+'++LotusScript Development Environment:2:2:Debug:5:8
+%REM
+	Description: Passthrough functions for backward compatibitlity
+%END REM
+
+Public Sub Debug(strMsg As String)
+	Call gApp.Debug(strMsg)
+End Sub
+
+'++LotusScript Development Environment:2:2:LogError:2:8
+
+Public Sub LogError(strMsg As String)
+	Call gApp.LogError(strMsg)
+End Sub
+
+'++LotusScript Development Environment:2:2:Assert:2:8
+
+Public Sub Assert(flgAssertion As Integer, strMsg As String)
+	Call gApp.Assert(Flgassertion, Strmsg)
+End Sub
+
+
+'++LotusScript Development Environment:2:2:ShowErrorMsg:2:8
+
+Public Sub ShowErrorMsg(strMsg As String)
+	Call gApp.ShowErrorMsg(Strmsg)
+End Sub
+
+'++LotusScript Development Environment:2:2:ShowInfoMsg:2:8
+
+Public Sub ShowInfoMsg(strMsg As String)
+	Call gApp.ShowInfoMsg(Strmsg)	
+End Sub
+
+
+
+'++LotusScript Development Environment:2:1:AskQuestion:1:8
+Public Function AskQuestion(strMsg As String) As Integer
+	AskQuestion = gApp.intAskQuestion(strMsg)	 
+End Function
+
+
+
+

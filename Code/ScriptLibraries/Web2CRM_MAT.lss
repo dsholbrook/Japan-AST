@@ -1,0 +1,2817 @@
+'++LotusScript Development Environment:2:5:(Options):0:66
+Option Public
+Option Explicit
+
+Use "Debug"
+Use "utility"
+
+%INCLUDE "lsconst.lss" 
+
+%REM
+Library Comments:
+
+Author:  Randall Smith (rws)
+
+Please check with Randall before modifying this library.  
+
+Purpose:  This library is for a specific use only.  The purpose is to support the Ring of Fire Agent and process.  
+
+A Boolean var, "continue" is used (pass by reference) as one module calls another.   May be used to halt program execution.
+Any errors are handled at the module where the error takes place.
+While there are Constants in use they are kept to a minimum.
+Please NO Globals in this script library.  (Those are kept in the agent(s) using this library.)  There will be two Const types.
+
+%END REM
+
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub Initialize
+Declare Sub Terminate()
+Declare Function getGRPCanisterInfoDoc(continue As Boolean) As NotesDocument
+Declare Function selectGRPEventProfileDoc(server As String, serverFilePath As String, viewName As String, continue As Boolean) As NotesDocument
+Declare Function docGetAREventProfile(dbAR As NotesDatabase, strEventID As String, continue As Boolean) As NotesDocument
+Declare Function docGetESEventBrief(dbES As NotesDatabase, strEventID As String, continue As Boolean) As NotesDocument
+Declare Function CreateAREventProfile(dbAR As NotesDatabase, continue As Boolean) As NotesDocument
+Declare Sub CopyToAREventProfile(docAREventProfile As NotesDocument, strFieldName As String, varValue As Variant)
+Declare Sub UpdateAREventProfile(dbGRP As NotesDatabase, docGRPdbProfile As NotesDocument, docESEventBrief As NotesDocument, docEventProfile As NotesDocument, docAREventProfile As NotesDocument, strSystemMode As String, continue As Boolean)
+Declare Function getDocMIQuestionSetLookup(strQuestionSetID As String, strLocale As String, dbREF As NotesDatabase, continue As Boolean) As NotesDocument
+Declare Sub storeMIQuestion(docMIQuestionSetLookup As NotesDocument, intQuestionNumber As Integer, docAREventProfile As NotesDocument, continue As Boolean)
+Declare Sub storeAttendeeTypes(docGRPdbProfile As NotesDocument, docAREventProfile As NotesDocument, docEventProfile As NotesDocument, continue As Boolean)
+Declare Function getReferenceDb(continue As Boolean) As NotesDatabase
+Declare Sub getEventSolutionFields(docGRPEventProfile As NotesDocument, docESEventBrief As NotesDocument, continue As Boolean)
+Declare Sub getTacticList(docESEventBrief As NotesDocument, docGRPEventProfile As NotesDocument)
+Declare Function flgUpdateEventDocument(docGRPEventProfile As NotesDocument, doc As NotesDocument) As Boolean
+Declare Function flgUpdateEventDocuments(dbGRP As NotesDatabase, docEventProfile As NotesDocument, flgUpdateUI As Boolean) As Boolean
+Declare Function flgUpdateRegistrationDocuments(dbGRP As NotesDatabase, docEventProfile As NotesDocument, flgUpdateUI As Boolean) As Boolean
+Declare Sub getQTags(docEventProfile As NotesDocument, strarrQTags() As String, intCountQTags As Integer, continue As Boolean)
+Declare Sub updateWeb2CRMSettings(docEventProfile As NotesDocument, docAREventProfile As NotesDocument, strSystemMode As String, continue As Boolean)
+Declare Sub populateFormattedDbInfoListFromDBProfile(dbCodeName As String, dbInfo List As String, doc As NotesDocument, continue As Boolean)
+Declare Sub updateTactics(docAREventProfile As NotesDocument, BATview As NotesView, continue As Boolean)
+Declare Sub getCalendarName(BATdoc As NotesDocument, ptactic As String, battacticname_hold As String, continue As Boolean)
+Declare Function getBatDoc(BATview As NotesView, ptactic As String, tacticType As String, continue As Boolean) As NotesDocument
+Declare Sub UpdatePrimaryTactic(epdoc As NotesDocument, x_a_fieldspairValues() As String)
+Declare Sub UpdateWarmHotTactic(epdoc As NotesDocument, x_a_fieldspairValues() As String)
+Declare Sub UpdateWarmHotTacticNew(epdoc As NotesDocument, x_a_fieldspairValues() As String)
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+
+%REM
+	Please check with Randall before adding or modiying this section.  
+%END REM
+Const STR_WEB2CRM_LIBRARY_NAME = |Web2CRM_MAT|
+Const ERR_WEB2CRM_GENERIC_ERROR = 1001
+
+'++LotusScript Development Environment:2:2:Initialize:1:2
+Sub Initialize
+	
+End Sub
+
+
+
+
+'++LotusScript Development Environment:2:2:Terminate:1:2
+Sub Terminate()
+	
+End Sub
+
+
+'++LotusScript Development Environment:2:1:getGRPCanisterInfoDoc:1:8
+Function getGRPCanisterInfoDoc(continue As Boolean) As NotesDocument
+%REM
+Provides access to the Canister doc in this db which will yield information needed to find the proper GRP canister to pull Event and eventually Reg docs from.
+return handle to canister doc in this database OR return Nothing.  
+
+Parameters:
+	continue:  Set boolean continue as False if error, can be used as a global in controlling agent.
+
+Comments:
+
+	Self contained.
+%END REM
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: getGRPCanisterInfoDoc|
+	Const STR_LOOKUP_VIEW_ALIAS = |vGRPCanisters|
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	On Error Goto lblError
+	
+	Dim workspace As New NotesUIWorkspace
+	Dim session As New NotesSession
+	Dim thisDB As NotesDatabase
+	Dim collection As NotesDocumentCollection
+	Dim msg As String
+	
+	Dim view As NotesView
+	
+	'  set db and view, handle any possible errors
+	Set thisDB = session.CurrentDatabase	
+	If( thisDB Is Nothing ) Then
+		Error ERR_WEB2CRM_GENERIC_ERROR, |Could not set a handle to current database.  |
+	End If
+	Set view = thisDB.GetView(STR_LOOKUP_VIEW_ALIAS)			
+	If( view Is Nothing ) Then     ' handle bad view names here as the PickListCollection below will not follow Notes error handling
+		Error ERR_WEB2CRM_GENERIC_ERROR, |The view alias: | + STR_LOOKUP_VIEW_ALIAS + | is invalid.  |
+	End If
+	
+	Set collection = workspace.PickListCollection( PICKLIST_CUSTOM, False, 	thisDB.Server, thisDB.FileName, _
+	view.Name, "GRP Canisters", "Please select one.") 
+	
+	If (collection.Count>0) Then
+		Set getGRPCanisterInfoDoc = collection.GetFirstDocument
+	Else
+		Set getGRPCanisterInfoDoc = Nothing
+		continue = False
+		Goto lblExit		
+	End If	
+	
+lblExit:
+	Call Debug(STR_MODULE_NAME & |: Finished.|)
+	Exit Function
+lblError:
+	msg = STR_MODULE_NAME & |: | & Err() & |: | & Error() & | Line | & Erl
+	Call Debug( msg )
+	Call LogError( msg )
+	continue = False
+	Msgbox msg,, "Error!"
+	Resume lblExit
+End Function
+
+'++LotusScript Development Environment:2:1:selectGRPEventProfileDoc:1:8
+Function selectGRPEventProfileDoc(server As String, serverFilePath As String, viewName As String, continue As Boolean) As NotesDocument
+%REM  we won't need this if running from the EP doc in GRP.  We'll have event ID already.
+Given a GRP database server, path and view name, prompt the user to select an Event and then return the GRP Event Profile Doc
+Parameters:
+	server, String, server 
+	serverFilePath, String, path to server
+	viewName, String, view name
+	continue, Boolean, can be used from controlling agent as a global to terminate execution if needed
+%END REM
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: selectGRPEventProfileDoc|
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	On Error Goto lblError
+	
+	Dim ws As NotesUIWorkspace
+	Dim msg As String
+	Dim collEventProfiles As NotesDocumentCollection
+	
+	Set ws = New NotesUIWorkspace()
+	
+	'Prompt the user to select an event
+	Set collEventProfiles = ws.PickListCollection( PICKLIST_CUSTOM, False, server, serverFilePath, viewName, "Events", "Please select an event from the list. ")
+	
+	'If the user selected an event, use the event profile for the event they selected
+	If collEventProfiles.Count > 0 Then
+		Set selectGRPEventProfileDoc = collEventProfiles.GetFirstDocument
+		If(selectGRPEventProfileDoc Is Nothing) Then 
+			continue = False
+			Goto lblExit
+		End If		
+	Else
+		continue = False
+	End If
+	
+lblExit:
+	Call Debug(STR_MODULE_NAME & |: Finished.|)	
+	Exit Function
+	
+lblError:
+	msg = STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl
+	msg = msg + "  Problem in module that prompts the user to select a GRP Event, tries to return a handle to the selected GRP Event's profile doc."
+	Call Debug( msg )
+	Call LogError( msg )
+	continue = False
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:1:docGetAREventProfile:1:8
+Function docGetAREventProfile(dbAR As NotesDatabase, strEventID As String, continue As Boolean) As NotesDocument
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given an event ID, check whether an event profile exists in the Attendee Repository (AR) database for the specified event ID.
+	'If one does, return a handle to it, otherwise return Nothing.
+     '
+     'Parameters
+     '----------------
+	' ARDB 					Attendee Repository DB
+     ' strEventID			The event ID to check.
+	' continue				unknown error
+     'Return Values
+     '-------------------
+     'If an event profile exists in Attendee Repository for the event ID the event profile is returned.
+	'Otherwise Nothing is returned.
+     '------------------------------------------------------------------------------------------------------   
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: docGetAREventProfile|
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |lookupepreferenceid|
+	
+	Dim view As NotesView
+	Dim docAREventProfile As NotesDocument
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	Call Debug(STR_MODULE_NAME & |: Started.  Checking whether event profile exists in Attendee Repository for event ID [| & strEventID & |]|) 
+	
+	Set view = dbAR.GetView(STR_LOOKUP_VIEW_ALIAS)
+	Call view.Refresh()  ' attempt to refresh view so newly created AR EPs will show up.
+	
+	'Attempt to find the document in the view
+	Call Debug(STR_MODULE_NAME & |: Searching view [| & STR_LOOKUP_VIEW_ALIAS & |] for document with key [| & strEventID & |].|) 
+	
+	Set docAREventProfile = view.GetDocumentByKey(strEventID, True)
+	
+	If (Not docAREventProfile Is Nothing) Then
+		Call Debug(STR_MODULE_NAME & |: Document found.|) 
+	Else
+		Call Debug(STR_MODULE_NAME & |: Document NOT found.|) 
+	End If
+	
+lblExit:
+	Call Debug(STR_MODULE_NAME & |: Finished.|) 
+	Set docGetAREventProfile = docAREventProfile
+	Exit Function
+	
+lblError:
+	continue = False
+	Set docAREventProfile = Nothing
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Msgbox "Unknown error trying to access AR Event Profile", , "Error"
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:1:docGetESEventBrief:1:8
+Function docGetESEventBrief(dbES As NotesDatabase, strEventID As String, continue As Boolean) As NotesDocument
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given an event ID, check whether an event brief exists in the Event Briefs database for the specified event ID.
+	'If one does, return a handle to it, otherwise return Nothing.
+     '
+     'Parameters
+     '----------------
+	' dbES						Event Solution Briefs db
+     'strEventID					The event ID to check.
+	'continue					Boolean
+     'Return Value
+     '-------------------
+     'If an ES event brief exists for the event ID the event brief is returned.
+	'Otherwise Nothing is returned.
+     '------------------------------------------------------------------------------------------------------   
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: docGetESEventBrief|
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |lookupreferenceid2|
+	
+	Dim view As NotesView
+	Dim docEventBrief As NotesDocument
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	Call Debug(STR_MODULE_NAME & |: Started.  Checking whether event brief exists for event ID [| & strEventID & |]|) 
+	
+	'Find the lookup view
+	Set view = dbES.GetView(STR_LOOKUP_VIEW_ALIAS)
+	
+	'Attempt to find the document in the view
+	Call Debug(STR_MODULE_NAME & |: Searching view [| & STR_LOOKUP_VIEW_ALIAS & |] for document with key [| & strEventID & |].|) 
+	
+	Set docEventBrief = view.GetDocumentByKey(strEventID, True)
+	
+	If (Not docEventBrief Is Nothing) Then
+		Call Debug(STR_MODULE_NAME & |: Document found.|) 
+	Else
+		Call Debug(STR_MODULE_NAME & |: Document NOT found.|) 
+	End If
+	
+lblExit:
+	Call Debug(STR_MODULE_NAME & |: Finished.|) 
+	Set docGetESEventBrief = docEventBrief
+	Exit Function
+	
+lblError:
+	continue = False
+	Set docEventBrief = Nothing
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:1:CreateAREventProfile:1:8
+Function CreateAREventProfile(dbAR As NotesDatabase, continue As Boolean) As NotesDocument
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Attempt to create an event profile in Attendee Repository (AR).  Set the return code based on what happened.
+     '
+     'Parameters
+     '----------------
+	' dbAR							NotesDatabase, AR db
+     'docESEventBrief			An ES event brief
+	'docEventProfile				An event profile
+	' continue						boolean, false if error
+     'Return Values
+     '-------------------
+     ' NotesDocument			created AR Event Profile doc
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: CreateAREventProfile|
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	
+	Dim docAREventProfile As NotesDocument
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	'Create an event profile in Attendee Repository
+	Set docAREventProfile = dbAR.CreateDocument()
+	
+	'Set its form
+	docAREventProfile.form = "areventprofile"
+		
+	If (continue) Then
+		Call Debug(STR_MODULE_NAME & |: Event profile created.|) 
+	End If
+	Set CreateAREventProfile  = docAREventProfile
+	
+lblExit:
+	Call Debug(STR_MODULE_NAME & |: Finished.|) 
+	Exit Function
+	
+lblError:
+	continue = False
+	Set CreateAREventProfile = Nothing
+	Call Debug(STR_MODULE_NAME & |: Finished.  Event profile NOT created.|) 	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:2:CopyToAREventProfile:1:8
+Sub CopyToAREventProfile(docAREventProfile As NotesDocument, strFieldName As String, varValue As Variant)
+	'------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+	'Copy the supplied value to the named field in the supplied Attendee Repository
+	'event profile.
+	'
+     'Parameters
+     '-----------------------
+	'docAREventProfie	 		The AR event profile
+	'strFieldName				The name of the field to copy to	
+	'varValue						The value
+     '     
+     'Return Values
+     '-----------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: CopyToAREventProfile|
+	
+	'Define constant for use with Datatype() built-in function
+	Const INT_IS_STRING = 8
+	Const INT_IS_DYNAMIC_STRING_ARRAY = 8712
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	Call docAREventProfile.ReplaceItemValue(strFieldName, varValue)
+	
+	Select Case Datatype(varValue)
+		
+	Case INT_IS_DYNAMIC_STRING_ARRAY:
+		
+		Call Debug(STR_MODULE_NAME & |: [| & strFieldName & |] set to:|)
+		Forall varItem In varValue
+			Call Debug(STR_MODULE_NAME & |: [| & Cstr(varItem) & |]|)
+		End Forall
+		
+	Case INT_IS_STRING:
+		
+		Call Debug(STR_MODULE_NAME & |: [| & strFieldName & |] set to [| & Cstr(varValue) & |]|)
+		
+	Case Else
+		
+		Call Debug(STR_MODULE_NAME & |: Unexpected datatype for [| & strFieldName & |] datatype [| & Cstr(Datatype(varValue)) & |]|)
+		
+	End Select
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:UpdateAREventProfile:1:8
+Sub UpdateAREventProfile(dbGRP As NotesDatabase, docGRPdbProfile As NotesDocument, docESEventBrief As NotesDocument, docEventProfile As NotesDocument, docAREventProfile As NotesDocument, strSystemMode As String, continue As Boolean)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given an event brief, an event profile in this database and an Attendee Repository event profile,
+	'attempt to update the event profile in Attendee Repository (AR) with information from the event brief and
+	'event profile.  Set the return code based on what happened.
+     '
+     'Parameters
+     '----------------
+	' dbGRP						source GRP database
+	' docGRPdbProfile			GRP database profile doc
+    ' docESEventBrief			An ES event brief
+	' docEventProfile			A GRP event profile
+	' docAREventProfile			An AR event profile
+	' strSystemMode		test/production flag,   ********** RENAME This var *************  //TODO
+	' continue						boolean, set to false on error
+	' intReturnCode				(Returned) The return code.
+	'									One of:
+    '										INT_UPDATED 									The event profile was updated successfully in Attendee Repository
+	'										INT_NOT_UPDATED							The event profile could not be updated
+	'
+     'Return Values
+     '-------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: UpdateAREventProfile|
+	'Define the maximum number of MI questions to process
+	Const INT_MAX_MI_QUESTIONS = 10
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	
+	Dim intReturnCode As Integer
+	Dim intRC As Integer
+	Dim dtNow As New NotesDateTime("")
+	Dim varResult As Variant
+	Dim intCurrQuestion As Integer
+	Dim intCurrIndex As Integer
+	Dim intLen As Integer
+	Dim intPos As Integer
+	Dim strIncluded As String
+	Dim docMIQuestionSetLookup As NotesDocument
+	Dim strMIQuestionSetID As String
+	Dim strCurrServerName As String
+	Dim dbREF As NotesDatabase
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|) 
+	
+	
+	'Set the date/time used to timestamp the update
+	dtNow.SetNow
+	
+	Call CopyToAREventProfile(docAREventProfile, |AS_Type|, |GRP|)
+	Call CopyToAREventProfile(docAREventProfile, |ep_eventname|, docESEventBrief.eventname(0))
+	
+	'Updated 11/7/2008 by TV to support changes to Event Solution where mastereventname is no longer
+	'guaranteed to be available on all event briefs
+	If (docESEventBrief.HasItem(|mastereventname|)) Then
+		Call CopyToAREventProfile(docAREventProfile, |ep_mastereventname|, docESEventBrief.mastereventname(0))
+	Else
+		Call CopyToAREventProfile(docAREventProfile, |ep_mastereventname|, ||)
+	End If	
+	
+	Call CopyToAREventProfile(docAREventProfile, |ep_referenceid|, docESEventBrief.referenceid(0))
+	
+	'Updated 11/7/2008 by TV to support changes to Event Solution where masterid is no longer
+	'guaranteed to be available on all event briefs
+	If (docESEventBrief.HasItem(|masterid|)) Then
+		Call CopyToAREventProfile(docAREventProfile, |ep_masterid|, docESEventBrief.masterid(0))
+	Else
+		Call CopyToAREventProfile(docAREventProfile, |ep_masterid|, ||)
+	End If	
+	
+	Call CopyToAREventProfile(docAREventProfile, |ep_tactic|, docESEventBrief.tactic(0))
+	
+	If docESEventBrief.eventname(0) = "RY" Then
+		Call CopyToAREventProfile(docAREventProfile, |ep_masterroadshow|, "Yes")
+	Else
+		Call CopyToAREventProfile(docAREventProfile, |ep_masterroadshow|, "No")
+	End If
+	
+	Call CopyToAREventProfile(docAREventProfile, |ep_startmonth|, docESEventBrief.startmonth(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_startday|, docESEventBrief.startday(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_startyear|, docESEventBrief.startyear(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_endmonth|, docESEventBrief.endmonth(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_endday|, docESEventBrief.endday(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_endyear|, docESEventBrief.endyear(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_quarter|, docESEventBrief.quarter(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_eventtype|, docESEventBrief.eventtype(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_eventcategory|, docESEventBrief.eventcategory(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_attprimarytype|, docESEventBrief.attpricat(0) + "-" + docESEventBrief.attpri(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_sponsor_bu_pri|, docESEventBrief.sponsor_bu_pri(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_sector|, docESEventBrief.sector(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_industry|, docESEventBrief.industry(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_eventcity|, docESEventBrief.l_city(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_eventstate|, docESEventBrief.l_state(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_eventcountry|, docESEventBrief.l_country(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_eventregion|, docESEventBrief.l_region(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_eventgeo|, docESEventBrief.l_geo(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_campaign|, docESEventBrief.BATCampaign(0))
+	Call CopyToAREventProfile(docAREventProfile, |CDefUniqueID|, docESEventBrief.CDefUniqueID(0))
+	Call CopyToAREventProfile(docAREventProfile, |TDepUniqueID|, docESEventBrief.TDepUniqueID(0))
+	Call CopyToAREventProfile(docAREventProfile, |MTDepUniqueID|, docESEventBrief.MTDepUniqueID(0))
+	
+	'Configure the information on the DB & Import Setup tab
+	Call CopyToAREventProfile(docAREventProfile, |ep_registrations|, "Yes")
+	Call CopyToAREventProfile(docAREventProfile, |ep_dbreplicaid|, dbGRP.ReplicaID)
+	
+	Dim nameServer As New NotesName(dbGRP.Server)
+	strCurrServerName = nameServer.Abbreviated
+	
+	'Updated 7/24/09 by TV to allow agent to set erner name correctly when egnt is run locally
+'	strCurrServerName = |D25DBW06/25/A/IBM|
+	
+	Dim strFilename As String
+	strFilename = |internet\events\wwe\grp\| & dbGRP.FileName
+	
+	Call CopyToAREventProfile(docAREventProfile, |ep_dbserver|, strCurrServerName)
+	'Call CopyToAREventProfile(docAREventProfile, |ep_dbpath|, strFilename)
+	Call CopyToAREventProfile(docAREventProfile, |ep_dbpath|, dbGRP.FilePath)
+	Call CopyToAREventProfile(docAREventProfile, |ep_dbtitle|, dbGRP.Title)
+	
+	Call CopyToAREventProfile(docAREventProfile, |ep_dbtype|, |multiple|)
+	Call CopyToAREventProfile(docAREventProfile, |ep_leaddeveloper|, docGRPdbProfile.dp_ARLeadDeveloper(0))
+	Call CopyToAREventProfile(docAREventProfile, |ep_dbcollection|, {(form = "enrollall") & ep_id = "} & Cstr(docEventProfile.ep_id(0)) & {"})
+	Call CopyToAREventProfile(docAREventProfile, |ep_agentfreq|, docGRPdbProfile.dp_ARAgentFrequency(0))
+	
+	'Configure the information on the Reg. Fields Mapping tab
+	Call CopyToAREventProfile(docAREventProfile, |epmc_prefix|, |en_prefix_trans|)
+	
+	Call CopyToAREventProfile(docAREventProfile, |epmc_first|, |en_first|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_middle|, |en_middle|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_last|, |en_last|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_pronunciation|, |en_pronunciation|)  'pronunciation
+	Call CopyToAREventProfile(docAREventProfile, |epmc_title|, |en_title|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_companyname|, |en_companyname|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_address1|, |en_mailstreet1|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_address2|, |en_mailstreet2|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_city|, |en_city|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_state|, |en_state|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_zip|, |en_zip|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_country|, |en_country_trans|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_region|, ||)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_geo|, |confgeoregion|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_email|, |en_email|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_phone|, |en_phone|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_fax|, |en_fax|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_role|, |en_role|)			' to handle Role
+	Call CopyToAREventProfile(docAREventProfile, |eplmc_acorelabel1|, |IBM Rep can call?|)
+	Call CopyToAREventProfile(docAREventProfile, |epmc_acore1|, |@if(ad_phone_followup_requested = "Yes";"Y";ad_phone_followup_requested = "No";"N";"U")|)
+	Call CopyToAREventProfile(docAREventProfile, |epmo_privacyyes|, |privacyyes|)
+	Call CopyToAREventProfile(docAREventProfile, |epmo_privacyno|, |privacyno|)
+	
+	
+	' Additional Processing Fields, may not need epmc_grpDBReplicaID, search for ep_dbReplicaID
+	Call CopyToAREventProfile(docAREventProfile, |epmc_originCreated|, |en_originCreated|)			' to handle en_originCreated
+	Call CopyToAREventProfile(docAREventProfile, |epmc_originUpdated|, |en_originUpdated|)			' to handle en_originUpdated
+	Call CopyToAREventProfile(docAREventProfile, |epmc_grpDBReplicaID|, |dbReplicaID|)			' to handle dbReplicaID of source db grp canister
+	Call CopyToAREventProfile(docAREventProfile, |epmc_grpRegDocUniqueID|, |docUniqueID|)			' to handle docUniqueID of reg doc in source grp canister
+	
+	Dim strFormula As String	
+	
+	'Q_REGSTATUS  if ad_formstatus = "Attended", mark q_regstatus as "Y" otherwise "N" 
+'	strFormula =  |@if(ad_formstatus = "Attended";"Y";"N")|
+'	Call CopyToAREventProfile(docAREventProfile, |epma_adFormstatus|, strFormula)
+	' Q_PREEVENT and Q_POSTEVENT now replaces Q_REGSTATUS, will pass the value of ad_formstatus directly to the QTag., rws, 2010.10.21, MAT 2.3
+	Call CopyToAREventProfile(docAREventProfile, |epma_adFormstatus|, |ad_formstatus|)
+	
+	'Opt In / Opt Out
+	Call CopyToAREventProfile(docAREventProfile, |epma_optInOutType|, |lc_optInOutType|)
+	Dim strIfContainsOptInOutType
+	Dim oi_in_use As String
+	Dim oo_in_use As String
+	oi_in_use = | oi_in_use := @If(@Trim(en_OIEMAIL) = "" & @Trim(en_OITELE) = "" & @Trim(en_OIPOSTAL) = ""; @False; @True); |
+	oo_in_use = | oo_in_use := @If(@Trim(en_OOEMAIL) = "" & @Trim(en_OOTELE) = "" & @Trim(en_OOPOSTAL) = ""; @False; @True); |
+	'  i.e.  @If((  (!@Contains(@DocFields; "lc_optInOutType")) | lc_optInOutType = "Original"  ); ""; en_OIEMAIL != ""; "Checked"; "Not Checked")
+'	strIfContainsOptInOutType = |@If((  (!@Contains(@DocFields; "lc_optInOutType")) | + "|" + | lc_optInOutType = "Original"  ); ""; |
+	strIfContainsOptInOutType = oi_in_use + oo_in_use + |@If(( lc_optInOutType = "Original"  ); ""; |
+	' en_OIEMAIL   
+	strFormula = strIfContainsOptInOutType + |oo_in_use = @True; ""; (oi_in_use = @False & oo_in_use = @False); ""; en_OIEMAIL != "" & @UpperCase(en_OIEMAIL) != "UNCHECKED"; "Checked"; "Not Checked")|
+	Call CopyToAREventProfile(docAREventProfile, |epma_OIEMAIL|, strFormula)
+	' en_OITELE
+	strFormula = strIfContainsOptInOutType + |oo_in_use = @True; ""; (oi_in_use = @False & oo_in_use = @False); ""; en_OITELE != "" & @UpperCase(en_OITELE) != "UNCHECKED"; "Checked"; "Not Checked")|
+	Call CopyToAREventProfile(docAREventProfile, |epma_OITELE|, strFormula)
+	' en_OIPOSTAL
+	strFormula = strIfContainsOptInOutType + |oo_in_use = @True; ""; (oi_in_use = @False & oo_in_use = @False); ""; en_OIPOSTAL != "" & @UpperCase(en_OIPOSTAL) != "UNCHECKED"; "Checked"; "Not Checked")|
+	Call CopyToAREventProfile(docAREventProfile, |epma_OIPOSTAL|, strFormula)
+	' en_OOEMAIL
+	strFormula = strIfContainsOptInOutType + |oi_in_use = @True; ""; (oi_in_use = @False & oo_in_use = @False); ""; en_OOEMAIL != "" & @UpperCase(en_OOEMAIL) != "UNCHECKED"; "Checked"; "Not Checked")|
+	Call CopyToAREventProfile(docAREventProfile, |epma_OOEMAIL|, strFormula)
+	' en_OOTELE
+	strFormula = strIfContainsOptInOutType + |oi_in_use = @True; ""; (oi_in_use = @False & oo_in_use = @False); ""; en_OOTELE != "" & @UpperCase(en_OOTELE) != "UNCHECKED"; "Checked"; "Not Checked")|
+	Call CopyToAREventProfile(docAREventProfile, |epma_OOTELE|, strFormula)
+	' en_OOPOSTAL
+	strFormula = strIfContainsOptInOutType + |oi_in_use = @True; ""; (oi_in_use = @False & oo_in_use = @False); ""; en_OOPOSTAL != "" & @UpperCase(en_OOPOSTAL) != "UNCHECKED"; "Checked"; "Not Checked")|
+	Call CopyToAREventProfile(docAREventProfile, |epma_OOPOSTAL|, strFormula)
+	
+	'optInOptOut3		' implemented 2010.04.06
+	Call CopyToAREventProfile(docAREventProfile, |epmo_NC_EMAIL|, |NC_EMAIL|)		
+	Call CopyToAREventProfile(docAREventProfile, |epmo_NC_POSTAL|, |NC_POSTAL|)		
+	Call CopyToAREventProfile(docAREventProfile, |epmo_NC_TELE|, |NC_TELE|)	
+	
+	'prep for ongoing virtual events, 2010.07.02
+	If(docEventProfile.Hasitem("ep_IsOn24") And docEventProfile.Getitemvalue("ep_IsOn24")(0) = "Yes") Then
+		Call CopyToAREventProfile(docAREventProfile, |isVirtualEvent|, |Yes|)	
+	Else
+		Call CopyToAREventProfile(docAREventProfile, |isVirtualEvent|, |No|)	
+	End If	
+	
+'	2010.10.11, Q_MATTACT, Q_CONT  (en_MATTACT, en_CONT)  MAT 2.3
+	Call CopyToAREventProfile(docAREventProfile, |epm_MATTACT|, |en_MATTACT|)	
+	Call CopyToAREventProfile(docAREventProfile, |epm_CONT|, |en_CONT|)	
+	
+	'============================================================
+	'Configure the information on the MI Questions Fields tab
+	
+	
+	'Check whether any marketing questions were included
+	strMIQuestionSetID = Cstr(docEventProfile.MIQuestionSet(0))
+	If (strMIQuestionSetID <> "") Then
+		Call Debug(STR_MODULE_NAME & |: Marketing intelligence questions were included from the set [| & Cstr(docEventProfile.MIQuestionSetName(0)) & |].|)
+		'Now get the worldwide (default) question set lookup so that we can get the default question details
+		' see 20101012 note in the getDocMIQuestionSetLookup function, must pass in ref db handle to return ref doc
+		Set dbREF = getReferenceDb(continue)  ' valid checks performed in called function
+		If(Not continue) Then Goto lblExit
+		Set docMIQuestionSetLookup = getDocMIQuestionSetLookup(strMIQuestionSetID, |en_ZZ|, dbREF, continue)
+		If( Not continue ) Then Goto lblExit
+		For intCurrQuestion = 1 To INT_MAX_MI_QUESTIONS
+			strIncluded = docEventProfile.GetItemValue(|ep_MI_Include_Q| & Cstr(intCurrQuestion))(0)
+			If ( strIncluded = "Yes" ) Then
+				Call storeMIQuestion(docMIQuestionSetLookup, intCurrQuestion, docAREventProfile, continue)
+				If( Not continue ) Then Goto lblExit
+			End If
+		Next
+		' en_role code moved from here 
+	Else
+		Call Debug(STR_MODULE_NAME & |: Marketing intelligence questions were not included.|) 
+	End If
+	
+	' handle en_role Role
+	%REM -rws, 2010.09.22
+		This was put in the MI Question set #20 because at the time making changes to the Answer Files took an act of Congress and a certain type 
+		of planetary alignment that is as of yet, undefined.  It was also used because at the time no more than 10 MI Questions were allowed so slot 
+		20 of the MI Question set seemed like a good choice.  
+		
+		No matter what the user selects in terms of sending MI Questions or even if there isn't an MI Question set ID, the label/question 20 will be
+		written as defined below.  This code will be written to the AR Event Profile as ar_question20 and provide the value associated with 
+		the Q_JOBROLE QTag.
+	%END REM
+	Dim strLabel As String			'		Dim strFormula As String   ' declared above
+	strLabel = |What is your primary role(s) in your organization? (please select up to 3)|
+	strFormula = |@ReplaceSubstring(@Implode(@Left(en_role| & |; "="));" ";";")|
+	Call CopyToAREventProfile(docAREventProfile, |eplma_label20|, strLabel)
+	Call CopyToAREventProfile(docAREventProfile, |epma_question20|, strFormula)
+
+
+	'Configure the information on the Registration Admin Fields tab
+	Call CopyToAREventProfile(docAREventProfile, |epmr_attendeeid|, |regid|)
+	Call CopyToAREventProfile(docAREventProfile, |epmr_regtype|, |en_attendeetype_trans|)
+	
+'%REM
+	Call StoreAttendeeTypes(docGRPdbProfile, docAREventProfile, docEventProfile, continue)	
+	If( Not continue ) Then Goto lblExit
+'%END REM
+	
+	Call CopyToAREventProfile(docAREventProfile, |epmr_regstatus|, |ad_formstatus|)
+	Call CopyToAREventProfile(docAREventProfile, |epmr_regattendedstatus|, docGRPdbProfile.dp_ARAttendedStatus(0))
+	
+	'Configure the information on the Metrics tab
+	Call CopyToAREventProfile(docAREventProfile, |ep_resexclude|, |type|)
+	Call CopyToAREventProfile(docAREventProfile, |ep_resattendedstatus|, docGRPdbProfile.dp_ARAttendedStatus(0))	
+	
+	'Add a timestamp to indicate when the update occurred
+	Set docAREventProfile.ep_DateUpdatedByGRPPublish = dtNow	
+	
+	'Only save if in production mode ****************  NO, now we can have Test databases, save regardless.  //TODO Do we even need strSystemMode?
+'	If (strSystemMode = |Production|) Then
+		Call docAREventProfile.ComputeWithForm(True, True)
+		Call docAREventProfile.Save(True, False)
+		Call Debug(STR_MODULE_NAME & |: Event profile for event ID [| & Cstr(docEventProfile.ep_id(0)) & |] was updated in Attendee Repository.|) 		
+	'Else
+	'	Call Debug(STR_MODULE_NAME & |: System is in TEST mode.  Event profile for event ID [| & Cstr(docEventProfile.ep_id(0)) & |] was NOT updated in Attendee Repository.|) 
+	'End If
+	
+lblExit:	
+	If (continue) Then
+		Call Debug(STR_MODULE_NAME & |: Finished.  Event profile updated.|) 
+	Else
+		Call Debug(STR_MODULE_NAME & |: Finished.  Event profile NOT updated.|) 	
+	End If
+	Exit Sub
+	
+lblError:
+	continue = False
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:1:getDocMIQuestionSetLookup:1:8
+Function getDocMIQuestionSetLookup(strQuestionSetID As String, strLocale As String, dbREF As NotesDatabase, continue As Boolean) As NotesDocument
+	 '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given a question set ID and a locale, try to find the MI Question Set Lookup document in the
+	'reference database for that ID and locale.
+     '
+     'Parameters
+     '----------------
+	' thisDb							Current Database
+     'strQuestionSetID			The question set ID
+	'strLocale						The locale
+	' dbREF							' 20101012, must pass this in to maintain scope of returned reference db doc
+	' continue						Boolean, set to false on error
+	'
+     'Return Values
+     '-------------------
+     'If an MI Question Set Lookup document is found, it is returned.
+	'Otherwise Nothing is returned.
+	
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: getDocMIQuestionSetLookup|
+	Const STR_LOOKUP_VIEW_ALIAS = |vLookupQuestionSetLookups|
+	
+	 'Trap errors
+	On Error Goto lblError
+	
+	Call Debug(STR_MODULE_NAME & |: Started.  Checking whether an MI Question Set Lookup exists for question set ID [| & strQuestionSetID & |] locale [| & strLocale & |]|) 
+	
+	Dim view As NotesView
+	Dim docMIQuestionSetLookup As NotesDocument
+	Dim strKey As String
+'	Dim dbREF As NotesDatabase
+	Dim msg As String
+	
+	' Event Reference db, any errors handled and displayed as needed in modules called
+'	Set dbREF = getReferenceDb(continue)
+'	If(Not continue) Then Goto lblExit
+	' We're using a reference db document so make sure this passed in handle is not = Nothing
+	If(dbRef Is Nothing) Then
+		Error ERR_WEB2CRM_GENERIC_ERROR, |Handle to Reference database is nothing.|	
+	End If
+	
+	'Find the lookup view
+	Set view = dbREF.GetView(STR_LOOKUP_VIEW_ALIAS) 
+	
+	strKey = strLocale & strQuestionSetID
+	
+	'Attempt to find the document in the view
+	Call Debug(STR_MODULE_NAME & |: Searching view [| & STR_LOOKUP_VIEW_ALIAS & |] in reference database for document with key [| & strKey & |].|) 
+	
+	Set docMIQuestionSetLookup = view.GetDocumentByKey(strKey, True)
+'	Set qSetDoc = view.GetDocumentByKey(strKey, True)
+	
+	If (Not docMIQuestionSetLookup Is Nothing) Then
+'	If (Not qSetDoc Is Nothing) Then
+		Call Debug(STR_MODULE_NAME & |: Document found.|) 
+'		MsgBox "doc found, ql_Count(0) = " + CStr(qSetDoc.ql_Count(0)),, "info"
+	Else
+		Call Debug(STR_MODULE_NAME & |: Document NOT found.|) 
+	End If
+	
+lblExit:
+	'Set the return value
+	Call Debug(STR_MODULE_NAME & |: Finished. |) 
+	Set getDocMIQuestionSetLookup = docMIQuestionSetLookup
+	Exit Function
+	
+lblError:
+	continue = False
+	If (msg = "") Then 
+		msg = "Unexpected error in " & STR_MODULE_NAME
+	End If		
+	Msgbox msg,, "Error"
+'	Set docMIQuestionSetLookup = Nothing
+	Set docMIQuestionSetLookup = Nothing
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:2:storeMIQuestion:1:8
+Sub storeMIQuestion(docMIQuestionSetLookup As NotesDocument, intQuestionNumber As Integer, docAREventProfile As NotesDocument, continue As Boolean)
+	'------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given an MI question set lookup document,  a question number and an Attendee Repository
+	'event profile, find the requested question in the question set lookup and copy information
+	'from it to the Attendee Repository event profile.
+	'
+     'Parameters
+     '----------------
+	'docMIQuestionSetLookup			The MI question set lookup document.
+     'intQuestionNumber					The question to store.
+	'docAREventProfile						The Attendee Repository event profile to be updated.
+	' continue									Boolean, set to false on error
+	'
+     'Return Values
+     '-------------------
+     'None..
+     '------------------------------------------------------------------------------------------------------   //TODO w/event that use this
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: storeMIQuestion|
+	Call Debug(STR_MODULE_NAME & |: Started.|) 
+	
+	Dim strTargetQuestionNumber As String
+	Dim strIncludedFieldName As String
+	Dim strIncludedValue As String
+	Dim strLabelFieldName As String
+	Dim strLabel As String
+	Dim strTypeFieldName As String
+	Dim strType As String		
+	Dim strFormula As String
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	strTargetQuestionNumber = Cstr(intQuestionNumber)
+	
+	strLabelFieldName = |q| & strTargetQuestionNumber & |_text|
+	strLabel = docMIQuestionSetLookup.GetItemValue(strLabelFieldName)(0)
+	
+	strTypeFieldName = |q| & strTargetQuestionNumber & |_type|
+	strType = docMIQuestionSetLookup.GetItemValue(strTypeFieldName)(0)
+	
+	'Find the formula to use to get the answer(s) to the question based on its type
+	Select Case strType
+	Case |check|:
+		strFormula = |@ReplaceSubstring(@Implode(@Left(en_cicoption| & strTargetQuestionNumber & |; "="));" ";";")|
+	Case |dialog|:
+		strFormula = |@Left(en_cidoption| & strTargetQuestionNumber & |; "=")|
+	Case |radio|:
+		strFormula = |@Left(en_ciroption| & strTargetQuestionNumber & |; "=")|
+	Case |text|:
+		strFormula = |en_citoption| & strTargetQuestionNumber
+	Case Else
+		strFormula = ||
+	End Select
+	
+	'Now set the appropriate field values in the Attendee Repository event profile
+	Call CopyToAREventProfile(docAREventProfile, |eplma_label| & strTargetQuestionNumber, strLabel)
+	Call CopyToAREventProfile(docAREventProfile, |epma_question| & strTargetQuestionNumber, strFormula)
+	
+lblExit:
+	Call Debug(STR_MODULE_NAME & |: Finished. |) 
+	Exit Sub
+	
+lblError:
+	continue = False	
+	Msgbox  "Unexpected error in " & STR_MODULE_NAME,, "Error"
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:storeAttendeeTypes:1:8
+Sub storeAttendeeTypes(docGRPdbProfile As NotesDocument, docAREventProfile As NotesDocument, docEventProfile As NotesDocument, continue As Boolean)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+	'Set the value assigned to the 'Registration type(s) to include' field in the Attendee Repository
+	'event profile as follows:
+	'	
+	'Given a list of possible types of attendees, remove from this list all of the values in 
+	'the 'Attendee types to exclude from metrics' field in the Database Profile.
+	'	
+	'For example, if the list of possible attendee types is:
+		'Customer/Delegate
+		'Business Partner
+		'IBM Executive
+		'IBM Employee
+		'Vendor Staff
+		'Press/Analyst
+		'Speaker
+	'and the 'Attendee types to exclude from metrics' field lists:
+		'IBM Executive
+		'IBM Employee
+		'Vendor Staff
+	'The value assigned to the 'Registration type(s) to include' field is:
+		'Customer/Delegate
+		'Business Partner
+		'Press/Analyst
+		'Speaker
+	'
+     'Parameters
+     '----------------
+	' docGRPdbProfile						GRP DB profile doc
+	'docAREventProfile						The Attendee Repository event profile to be updated.
+	'docEventProfile							The event profile in this database.
+	' continue									Boolean, set to false on error	
+	'
+     'Return Values
+     '-------------------
+     'None..
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: storeAttendeeTypes|
+	Const STR_LOOKUP_VIEW_ALIAS = |vLookupLocaleProfiles|	' view from Reference db to locate Locale Profile
+	
+	Dim dbREF As NotesDatabase
+	Dim view As NotesView
+	
+	Dim strCurrLocale As String	
+	Dim docLocaleProfile As NotesDocument
+	Dim strlstAttendeeTypes List As String
+	Dim strarrAttendeeTypes() As String
+	Dim strTranslatedAttendeeType As String
+	Dim varAttendeeTypes As Variant
+	Dim varExcludedAttendeeTypes As Variant
+	Dim strarrIncludedAttendeeTypes() As String
+	Dim flgInclude As Boolean
+	Dim intCurrIndex As Integer
+	Dim intLen As Integer
+	Dim intPos As Integer
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|) 
+	
+	'To get the possible set of attendee types for the event we have to:
+	'1. Find the locale profile for each locale that is configured for the event
+	'2. Get the set of attendee types that have been specified for that locale
+	'3. Get the English translation of each of these types.
+	'4. Build a list with no duplicates of the English translations of all attendee types for all locales that are configured for the event
+	
+	Erase strlstAttendeeTypes
+	
+	Forall varLocale In docEventProfile.ep_Locales
+		
+		strCurrLocale = Cstr(varLocale)
+		
+		Call Debug(STR_MODULE_NAME & |: Attendee types for locale [| & strCurrLocale & |].|) 
+		
+	'start replace code:  	'Set docLocaleProfile = getDocLocaleProfile(strCurrLocale, continue), for some reason, that function would get a handle to the needed doc but not return it.		
+		' Event Reference db, any errors handled and displayed as needed in getReferenceDb
+		Set dbREF = getReferenceDb(continue)
+		If(Not continue) Then Goto lblExit
+		Set view = dbREF.GetView(STR_LOOKUP_VIEW_ALIAS) 
+		Set docLocaleProfile = view.GetDocumentByKey(strCurrLocale, True)
+	'end replace code 
+		
+		If(Not continue) Then Goto lblExit  ' error besides a "Nothing" doc, program halt
+		If( docLocaleProfile Is Nothing ) Then
+			continue = False
+			Msgbox  "Unexpected error in " & STR_MODULE_NAME & ", unable to find locale profile for " & strCurrLocale,, "Error"
+			Goto lblExit
+		End If
+		
+		Forall varAttendeeTypeValue In docLocaleProfile.lc_AttendeeTypeValues
+			intLen = Len(varAttendeeTypeValue)
+			intPos = Instr(varAttendeeTypeValue, "~")
+			strTranslatedAttendeeType = Right$(Cstr(varAttendeeTypeValue), intLen - intPos)
+			If (Not Iselement(strlstAttendeeTypes(strTranslatedAttendeeType))) Then
+				Call Debug(STR_MODULE_NAME & |: Adding [| & strTranslatedAttendeeType & |].|) 
+				strlstAttendeeTypes(strTranslatedAttendeeType) = strTranslatedAttendeeType		
+			Else
+				Call Debug(STR_MODULE_NAME & |: Skipping [| & strTranslatedAttendeeType & |].  Already in list|) 
+			End If
+		End Forall
+		
+	End Forall
+	
+	'Convert the list to an array for storing
+	intCurrIndex = 0
+	Redim strarrAttendeeTypes(intCurrIndex)
+	
+	Forall varItem In strlstAttendeeTypes
+		Redim Preserve strarrAttendeeTypes(intCurrIndex)
+		strarrAttendeeTypes(intCurrIndex) = Cstr(Listtag(varItem))
+		intCurrIndex = intCurrIndex + 1
+	End Forall
+	
+	Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCurrIndex) & |] attendee types found.|) 
+	
+	'Now get the excluded attendee types
+	varExcludedAttendeeTypes = docGRPdbProfile.dp_ARExclAttendeeTypes
+	
+	'Write to debug log
+	Call Debug(STR_MODULE_NAME & |: List of attendee types to exclude (from database profile):|) 
+	Forall varExcludedAttendeeType In varExcludedAttendeeTypes
+		Call Debug(STR_MODULE_NAME & |: [| & Cstr(varExcludedAttendeeType) & |]|) 
+	End Forall	
+	
+	intCurrIndex = 0
+	Redim strarrIncludedAttendeeTypes(0)
+	
+	Forall varAttendeeType In strarrAttendeeTypes()
+		flgInclude = True
+		intLen = Len(varAttendeeType)
+		intPos = Instr(varAttendeeType, "~")
+		Forall varExcludedAttendeeType In varExcludedAttendeeTypes
+			If (Trim$(Ucase$(Right$(Cstr(varAttendeeType), intLen - intPos))) = Trim$(Ucase$(Cstr(varExcludedAttendeeType)))) Then
+				flgInclude = False
+				Exit Forall
+			End If
+		End Forall
+		If (flgInclude) Then
+			Redim Preserve strarrIncludedAttendeeTypes(intCurrIndex)
+			strarrIncludedAttendeeTypes(intCurrIndex) = Right$(Cstr(varAttendeeType), intLen - intPos)
+			intCurrIndex = intCurrIndex + 1
+		End If		
+	End Forall
+	
+	Call Debug(STR_MODULE_NAME & |: List of attendee types to include (in Attendee Repository event profile):|) 
+	Forall varAttendeeType In strarrIncludedAttendeeTypes()
+		Call Debug(STR_MODULE_NAME & |: [| & Cstr(varAttendeeType) & |]|) 
+	End Forall
+	
+	%REM  2010.09.22
+		It appears to be gathering a list of Include types and placing them in an AR Profile field labeled ep_resexcludetype.
+		
+		Tim's response:
+		
+		Hmm - can't really remember now.  I think it was something to do with passing enough info about the attendee types 
+		to AR so that it knows how to calculate attendee numbers.  I think the logic has changed a few times over the years but 
+		it used to be a way of specifying 'Include these attendee types as 'Customers'  
+		for example at a particular event 'Attendee', 'Speaker', 'Alumni' would all be counted as 'Customer'.  
+		I think there was also some logic that let you do it the other way round, e.g. count all attendee types apart 
+		from say 'Executive' as 'Customer'.  They may be used for two different calculations, e.g. one for who is counted 
+		as a customer, the other for who is counted as an IBMer.
+
+		Tim Vallely
+		IBM World Wide Events
+	%END REM		
+	
+	'Update the AR event profile
+	Call CopyToAREventProfile(docAREventProfile, |epmr_regtypevalues|, strarrAttendeeTypes())	
+	Call CopyToAREventProfile(docAREventProfile, |ep_resexcludetype|, strarrIncludedAttendeeTypes())
+	
+lblExit:
+	Call Debug(STR_MODULE_NAME & |: Finished.|) 
+	Exit Sub
+	
+lblError:
+	continue = False
+	Msgbox  "Unexpected error in " & STR_MODULE_NAME,, "Error"
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:1:getReferenceDb:1:8
+Function getReferenceDb(continue As Boolean) As NotesDatabase
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Return a handle to the Reference database.  The location of the
+	'database is defined in this Database Profile.
+     '
+     'Parameters
+     '----------------
+     ' continue, boolean, set to false on error.
+	'
+     'Return Values
+     '-------------------
+     'A handle to the database if the database could be found and opened successfully,
+	'Otherwise Nothing is returned.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: dbGetReferenceDb|
+	 'Trap errors
+	On Error Goto lblError
+	
+	Dim session As New NotesSession
+	Dim thisDb As NotesDatabase
+	Dim thisDBProfileDoc As NotesDocument
+	Dim dbReference As NotesDatabase
+	Dim msg As String
+	
+	Set thisDB = session.CurrentDatabase
+	Set thisDBProfileDoc = thisDb.GetProfileDocument("fProfile")
+	
+	If (thisDBProfileDoc Is Nothing) Then
+		msg =  |Unable to obtain the Profile Document for this database.|
+		Msgbox STR_MODULE_NAME & msg,,"Error"
+		Error ERR_WEB2CRM_GENERIC_ERROR,msg
+	End If
+	
+'	 Event Reference db
+'	Set dbReference = getDatabase("Event Reference", thisDBProfileDoc.dbREFServer(0), thisDBProfileDoc.dbREFReplicaID(0), continue)	
+'	If continue = False Then  ' msgbox and errors logged in getDatabase()
+'		Set dbReference = Nothing
+'		Goto lblExit 
+'	End If
+	
+	' Event Reference db: gDbREF
+	Dim dbInfo List As String
+	Dim NL As String	
+	NL =  (Chr(13) + Chr(10)) 	
+	Call populateFormattedDbInfoListFromDBProfile("Ref", dbInfo, thisDBProfileDoc, continue)  
+	Set dbReference = getDatabase(dbInfo("title"), dbInfo("server"), dbInfo("repID"), continue)	
+	If ( Not continue And ( dbReference.ReplicaID = dbInfo("repID") ) ) Then
+		msg = (NL + "Unable to connect to: " + dbInfo("title") + NL + NL + dbInfo("server") )
+		Debug(msg)
+		Msgbox msg,,"Error"  
+		Error ERR_WEB2CRM_GENERIC_ERROR, msg
+	End If	
+	
+lblExit:
+	'Set the return values
+	Set getReferenceDb = dbReference
+	Exit Function
+	
+lblError:	
+	continue = False
+	Set dbReference = Nothing
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:2:getEventSolutionFields:1:8
+Sub getEventSolutionFields(docGRPEventProfile As NotesDocument, docESEventBrief As NotesDocument, continue As Boolean)
+	'------------------------------------------------------------------------------------------------------
+     'Description, called from agent module PublishEventToAR 
+     '------------------
+	'Copy fields from the supplied Event Solution Brief into the supplied Event Profile.
+	'
+     'Parameters
+     '-----------------------
+     ' docGRPEventProfile, 		NotesDocument, The GRP Event Profile
+	' docESEventBrief,				NotesDocument, Event Solutions Event Brief
+	' continue, 							Boolean, set to false on error, calling agent can use it or not, if not needed, pass in either.	
+     '     
+     'Return Values
+     '-----------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: GetEventSolutionFields|
+	
+	Dim item As NotesItem
+	Dim strEventName As String
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	'Format the event name by removing any newlines
+	strEventName = strRemoveNewlines(Cstr(docESEventBrief.eventname(0)), continue)
+	
+	docGRPEventProfile.eventname = strEventName	
+	
+	'Updated 11/7/2008 by TV to support changes to Event Solution where mastereventname is no longer
+	'guaranteed to be available on all event briefs
+	If (docESEventBrief.HasItem(|mastereventname|)) Then
+		docGRPEventProfile.mastereventname = docESEventBrief.mastereventname(0)
+	Else
+		docGRPEventProfile.mastereventname = ||
+	End If
+	
+	'Copy event IDs
+	
+	'Updated 11/7/2008 by TV to support changes to Event Solution where masterid is no longer
+	'guaranteed to be available on all event briefs
+	If (docESEventBrief.HasItem(|masterid|)) Then
+		docGRPEventProfile.masterid = docESEventBrief.masterid(0)
+	Else
+		docGRPEventProfile.masterid = ||
+	End If
+	
+	docGRPEventProfile.ep_id = docESEventBrief.referenceid(0)
+	
+	'Copy event abstract
+	docGRPEventProfile.offeringDescription = docESEventBrief.eventsummary(0)
+	
+	'Copy fields needed for Web to CRM process
+	docGRPEventProfile.es_BATCampaign = docESEventBrief.BATCampaign(0)
+	docGRPEventProfile.BATMPID = docESEventBrief.BATMPID(0)
+	docGRPEventProfile.BATTacticname = docESEventBrief.BATTacticname(0)
+	
+	'If there is a surround_values item, copy it
+	Set item = docESEventBrief.GetFirstItem("surround_values")
+	
+	If Not (item Is Nothing) Then 
+		Call item.CopyItemToDocument(docGRPEventProfile, "surround_values")
+	End If
+	
+	'If there is a SurroundGCName item, copy it
+	Set item = docESEventBrief.GetFirstItem("SurroundGCName")
+	
+	If Not (item Is Nothing) Then 
+		Call item.CopyItemToDocument(docGRPEventProfile, "SurroundGCName")
+	End If
+	
+	'If there isa tactics_credited item, copy it
+	Set item = docESEventBrief.GetFirstItem("tactics_credited")
+	
+	If Not (item Is Nothing) Then 
+		Call item.CopyItemToDocument(docGRPEventProfile, "tactics_credited")
+	End If
+	
+	'Get the framework fields
+	docGRPEventProfile.Frame_Program = docESEventBrief.Frame_Program(0)
+	docGRPEventProfile.Frame_SubTheme = docESEventBrief.Frame_SubTheme(0)
+	docGRPEventProfile.Frame_Program_Other = docESEventBrief.Frame_Program_Other(0)
+	docGRPEventProfile.Frame_Tier = docESEventBrief.Frame_Tier
+	
+	'Copy the event dates
+	docGRPEventProfile.startmonth = strPrefixWithZero(Cstr(docESEventBrief.startmonth(0)), continue)
+	docGRPEventProfile.startday = strPrefixWithZero(Cstr(docESEventBrief.startday(0)), continue)
+	docGRPEventProfile.startyear = Cstr(docESEventBrief.startyear(0))
+	docGRPEventProfile.ep_StartDate = strFormatDate(Cstr(docGRPEventProfile.startmonth(0)), Cstr(docGRPEventProfile.startday(0)), Cstr(docGRPEventProfile.startyear(0)), continue)
+	
+	docGRPEventProfile.endmonth = strPrefixWithZero(Cstr(docESEventBrief.endmonth(0)), continue)
+	docGRPEventProfile.endday = strPrefixWithZero(Cstr(docESEventBrief.endday(0)), continue)	
+	docGRPEventProfile.endyear = Cstr(docESEventBrief.endyear(0))
+	docGRPEventProfile.ep_EndDate = strFormatDate(Cstr(docGRPEventProfile.endmonth(0)), Cstr(docGRPEventProfile.endday(0)), Cstr(docGRPEventProfile.endyear(0)), continue)
+	If (Not continue) Then Goto lblExit
+	
+	docGRPEventProfile.quarter = docESEventBrief.quarter
+	docGRPEventProfile.length = docESEventBrief.length
+	
+	'Copy additional reporting fields
+	docGRPEventProfile.sponsor_bu_pri = docESEventBrief.sponsor_bu_pri(0) 
+	docGRPEventProfile.Industry = docESEventBrief.Industry	
+	docGRPEventProfile.tactic = docESEventBrief.tactic(0)	
+	docGRPEventProfile.es_brand = docESEventBrief.sector(0)
+	docGRPEventProfile.es_region = docESEventBrief.l_region(0)
+	docGRPEventProfile.geo = docESEventBrief.l_geo(0)
+	docGRPEventProfile.eventtype = docESEventBrief.eventtype(0)
+	docGRPEventProfile.eventsubtype = docESEventBrief.eventsubtype(0)	
+	docGRPEventProfile.eventcategory = docESEventBrief.eventcategory(0)
+	docGRPEventProfile.l_international = docESEventBrief.l_international
+	docGRPEventProfile.attpri = docESEventBrief.attpri
+	docGRPEventProfile.m_priobj = docESEventBrief.m_priobj
+	docGRPEventProfile.r_numattendees = docESEventBrief.r_numattendees
+	
+	'Copy event contact information
+	docGRPEventProfile.offeringQuestionsName = docESEventBrief.o_pnotesid(0)
+	docGRPEventProfile.offeringQuestionsMail = docESEventBrief.o_pemail(0)
+	
+	'Copy venue information
+	
+	'Updated 11/7/2008 by TV to support changes to Event Solution
+	'The original Event Solution fields l_city, l_state and l_country have been replaced in the latest version
+	'with l_vcity, l_vstate and l_vcountry
+	
+	docGRPEventProfile.loc_conffacility = docESEventBrief.l_vname(0)
+	'Check whether the new ES field is available 
+	If (docESEventBrief.HasItem(|l_vcity|)) Then
+		docGRPEventProfile.loc_confcity = docESEventBrief.l_vcity(0)
+		'Updated 8/3/2009 by TV to store the ES venue city in a non-editable field (so it can be shown in the reporting database)
+		docGRPEventProfile.es_city = docESEventBrief.l_vcity(0)
+	Else
+		docGRPEventProfile.loc_confcity = docESEventBrief.l_city(0)
+		'Updated 8/3/2009 by TV to store the ES venue city in a non-editable field (so it can be shown in the reporting database)		
+		docGRPEventProfile.es_city = docESEventBrief.l_city(0)		
+	End If
+	'Check whether the new ES field is available 		
+	If (docESEventBrief.HasItem(|l_vstate|)) Then
+		docGRPEventProfile.loc_confstate = docESEventBrief.l_vstate(0)
+	Else
+		docGRPEventProfile.loc_confstate = docESEventBrief.l_state(0)
+	End If
+	docGRPEventProfile.loc_confstreet = docESEventBrief.l_vstreet(0)
+	docGRPEventProfile.loc_confzip = docESEventBrief.l_vzip(0)
+	'Check whether the new ES field is available 		
+	If (docESEventBrief.HasItem(|l_vcountry|)) Then
+		docGRPEventProfile.loc_confcountry = docESEventBrief.l_vcountry(0)		
+		docGRPEventProfile.es_country = docESEventBrief.l_vcountry(0)			
+	Else
+		docGRPEventProfile.loc_confcountry = docESEventBrief.l_country(0)		
+		docGRPEventProfile.es_country = docESEventBrief.l_country(0)	
+	End If
+	
+	'New field added 11/7/2008 by TV to indicate that the profile has been updated from the latest version of ES
+	docGRPEventProfile.ep_ESVersion = |8|
+	
+	'New field countrycode added 5/27/09 by TV
+	If (docESEventBrief.HasItem(|countrycode|)) Then
+		docGRPEventProfile.countrycode = docESEventBrief.countrycode(0)
+	Else
+		Dim strEventID As String
+		strEventID = docESEventBrief.referenceid(0)
+		Error ERR_WEB2CRM_GENERIC_ERROR, |No countrycode field in event with event ID [| & strEventID & |].|
+	End If
+	
+	'Also get the tactic list for this event
+	Call GetTacticList(docESEventBrief, docGRPEventProfile)
+	If(Not continue) Then
+		Error ERR_WEB2CRM_GENERIC_ERROR, |Unexpected error.  Check logs|
+	End If
+	
+lblExit:
+	Call Debug(STR_MODULE_NAME & |: Finished.|)	
+	Exit Sub
+	
+lblError:
+	continue = False
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:getTacticList:1:8
+Sub getTacticList(docESEventBrief As NotesDocument, docGRPEventProfile As NotesDocument)
+	'------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+	'The new version of Event Solution stores tactics in separate documents.
+	'
+	'This routine obtains and formats a list of tactics from the supplied Event Solution Brief and any
+	'associated tactic documents.
+	'
+	'The list of tactics is formatted as follows:
+	'
+	'	<Tactic Code> - <Country Code> - <TacticName>
+	'
+     'Parameters
+     '-----------------------
+     'docESEventBrief				The Event Solution brief
+	'docGRPEventProfie			The GRP event profile to update.
+	' continue, 							Boolean, set to false on error, calling agent can use it or not, if not needed, pass in either.	
+     'Return Values
+     '-----------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: GetTacticList|
+	
+	Dim strEventID As String
+	Dim strTactic As String
+	Dim item As NotesItem
+	Dim varTacticList As Variant
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	'TV 5/21/09
+	'			Because of a change in EST the lookup view (lookupsTacticGRP) can no longer supply the country code and tactic
+	'			name for global calendar.  It can only supply the tactic code.  The tactic list can now be obtained from the 
+	'			tactics_credited_multi field in the ES event brief.
+	'			So the way that the GRP event
+	'			profile allows the user to select the tactic code and store this information has to change.
+	'			To allow backward compatibility with existing event profiles any new or updated GRP event profiles will have a new field
+	'			ep_UpdatedTacticList that stores ONLY the tactic code.
+	'			If the new field is present, the GRP event profile can determine what format to expect.
+	'			i.e. If ep_UpdatedTacticList is present it will contain a list of tactic codes
+	'				108AU56M
+	'				108AU23T
+	'				108AU28T
+	'			and these should be shown to the user to select from.
+	'			If ep_UpdatedTacticList is not present, the original format stored in ep_TacticList should be used.
+	'				108AU56M - NA - Some event name
+	'				108AU23T - NA - Some event name - Hot followup
+	'				108AU28T - NA - Some event name - Warm followup
+	'		
+	
+	If (docESEventBrief.HasItem(|tactics_credited_multi|)) Then
+		
+		varTacticList = docESEventBrief.tactics_credited_multi
+		
+		'Update the GRP event profile with the new format tactic list
+		Set item = docGRPEventProfile.ReplaceItemValue(|ep_UpdatedTacticList|, varTacticList)
+		
+		'Remove duplicates
+		varTacticList = Evaluate(|@Trim(@Unique(ep_UpdatedTacticList));|, docGRPEventProfile)
+		
+		Forall varCurrTactic In varTacticList
+			strTactic = Cstr(varCurrTactic)
+			Call Debug(STR_MODULE_NAME & |: Storing tactic [| & strTactic & |].|)						
+		End Forall
+		
+		Set item = docGRPEventProfile.ReplaceItemValue(|ep_UpdatedTacticList|, varTacticList)
+		
+	Else
+		
+		'Get the event ID from the ES brief
+		strEventID = docESEventBrief.referenceid(0)
+		Error ERR_WEB2CRM_GENERIC_ERROR, |No tactics are associated with event ID [| & strEventID & |].|	
+		
+	End If
+	
+lblExit:
+	Call Debug(STR_MODULE_NAME & |: Finished.|)
+	Exit Sub
+	
+lblError:
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:1:flgUpdateEventDocument:1:8
+Function flgUpdateEventDocument(docGRPEventProfile As NotesDocument, doc As NotesDocument) As Boolean
+	'------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+	'Given an event profile and a related event document such as an agenda,
+	'speakers or sponsors page, update the related event document from the
+	'event profile.
+	'
+     'Parameters
+     '-----------------------
+	'docGRPEventProfile 				The event profile
+	'doc									The related event document
+     '     
+     'Return Values
+     '-----------------------
+     'True, if updated successfully, False otherwise.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: flgUpdateEventDocument|
+	
+	Dim flgOK As Boolean	
+	Dim strMsg As String
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'Update fields
+	doc.status  = Cstr(docGRPEventProfile.status(0))	
+	
+	'Set the default return value
+	flgOK = False
+	
+	doc.ep_EventTitle = Cstr(docGRPEventProfile.eventname(0))	
+	
+	'Reset the eventname field
+	doc.startmonth =Cstr(docGRPEventProfile.startmonth(0))
+	doc.startday =Cstr(docGRPEventProfile.startday(0))
+	doc.startyear =Cstr(docGRPEventProfile.startyear(0))	
+	doc.city =Cstr(docGRPEventProfile.loc_confcity(0))
+	doc.state = Cstr(docGRPEventProfile.loc_confstate(0))	
+	doc.country = Cstr(docGRPEventProfile.loc_confcountry(0))	
+	doc.geo = Cstr(docGRPEventProfile.geo(0))
+	
+	'Hide the register button on the agenda if the event website is closed
+	If (Cstr(doc.Form(0)) = |agendacontent|) Then
+		If (Cstr(docGRPEventProfile.kw_RegistrationStatus(0)) = "Closed") Then
+			Call doc.ReplaceItemValue("hideRegisterButton","Y")
+		Else
+			Call doc.ReplaceItemValue("hideRegisterButton","")
+		End If		
+	End If
+	
+	Call doc.Save(True, False)
+	
+	flgOK = True
+	
+	strMsg = |Updated | & Strconv(Cstr(doc.DocType(0)), SC_Lowercase) & | for | & Cstr(doc.LocaleName(0)) & |.|
+	
+	Print strMsg
+	
+	Call Debug(STR_MODULE_NAME & |: | & strMsg)
+	
+lblExit:
+	flgUpdateEventDocument = flgOK
+	Exit Function
+	
+lblError:
+	flgOK = False
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:1:flgUpdateEventDocuments:1:8
+Function flgUpdateEventDocuments(dbGRP As NotesDatabase, docEventProfile As NotesDocument, flgUpdateUI As Boolean) As Boolean
+	'------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+	'Given an event profile, update all of the agenda, speakers and sponsors
+	'documents associated with the event.
+	'
+     'Parameters
+     '-----------------------
+	'docEventProfile			The event profile.
+	'flgUpdateUI				Whether to update the UI or not. 
+	'								(Set to False if calling this function from a back-end agent)
+     '     
+     'Return Values
+     '-----------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: flgUpdateEventDocuments|
+	
+	Dim flgOK As Boolean
+	Dim strEventID As String
+	Dim view As NotesView	
+	Dim coll As NotesDocumentCollection
+	Dim docCurr As NotesDocument	
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'Set the default return value
+	flgOK = False
+	
+	strEventID = Cstr(docEventProfile.ep_id(0))
+	
+	Dim count As Integer
+	count = 0	
+	
+	'Update associated registration profiles
+	Set view = dbGRP.GetView("vLookupRegistrationProfilesByID")	
+	
+	Set coll = view.GetAllDocumentsByKey(strEventID, True)	
+	
+	If (coll.count > 0) Then
+		Set docCurr = coll.GetFirstDocument
+		While Not docCurr Is Nothing	
+			On Error Goto lblErrorNextRegProfile
+			If (Not flgUpdateEventDocument(docEventProfile, docCurr)) Then
+				Error ERR_WEB2CRM_GENERIC_ERROR, |Unable to update registration profile with UNID [| & docCurr.UniversalID & |] associated with event with ID [ & strEventID & ].|	
+			End If
+lblNextRegProfile:	
+			On Error Goto lblError
+			Set docCurr = coll.GetNextDocument(docCurr)		
+		Wend
+	Else
+		Call Debug(STR_MODULE_NAME & |: No registration profiles are associated with this event.|)	
+	End If
+	
+	'Update associated agendas
+	Set view = dbGRP.GetView("vLookupAgendasByID")	
+	
+	Set coll = view.GetAllDocumentsByKey(strEventID, True)	
+	
+	If (coll.count > 0) Then
+		Set docCurr = coll.GetFirstDocument
+		While Not docCurr Is Nothing	
+			On Error Goto lblErrorNextAgenda
+			If (Not flgUpdateEventDocument(docEventProfile, docCurr)) Then
+				Error ERR_WEB2CRM_GENERIC_ERROR, |Unable to update agenda document with UNID [| & docCurr.UniversalID & |] associated with event with ID [ & strEventID & ].|	
+			End If
+lblNextAgenda:	
+			On Error Goto lblError
+			Set docCurr = coll.GetNextDocument(docCurr)		
+		Wend
+	Else
+		Call Debug(STR_MODULE_NAME & |: No agenda documents are associated with this event.|)	
+	End If
+	
+	'Update associated speakers
+	Set view = dbGRP.GetView("vLookupSpeakersByID")	
+	
+	Set coll = view.GetAllDocumentsByKey(docEventProfile.ep_id(0), True)	
+	
+	If (coll.count > 0) Then
+		Set docCurr = coll.GetFirstDocument
+		While Not docCurr Is Nothing	
+			On Error Goto lblErrorNextSpeaker
+			If (Not flgUpdateEventDocument(docEventProfile, docCurr)) Then
+				Error ERR_WEB2CRM_GENERIC_ERROR, |Unable to update speaker document with UNID [| & docCurr.UniversalID & |] associated with event with ID [ & strEventID & ].|	
+			End If
+lblNextSpeaker:	
+			On Error Goto lblError
+			Set docCurr = coll.GetNextDocument(docCurr)		
+		Wend
+	Else
+		Call Debug(STR_MODULE_NAME & |: No speaker documents are associated with this event.|)	
+	End If
+	
+	'Update associated sponsors
+	Set view = dbGRP.GetView("vLookupSponsorsByID")
+	
+	Set coll = view.GetAllDocumentsByKey(docEventProfile.ep_id(0), True)	
+	
+	If (coll.count > 0) Then
+		Set docCurr = coll.GetFirstDocument
+		While Not docCurr Is Nothing	
+			On Error Goto lblErrorNextSponsor
+			If (Not flgUpdateEventDocument(docEventProfile, docCurr)) Then
+				Error ERR_WEB2CRM_GENERIC_ERROR, |Unable to update sponsor document with UNID [| & docCurr.UniversalID & |] associated with event with ID [ & strEventID & ].|	
+			End If
+lblNextSponsor:	
+			On Error Goto lblError
+			Set docCurr = coll.GetNextDocument(docCurr)		
+		Wend
+	Else
+		Call Debug(STR_MODULE_NAME & |: No sponsor documents are associated with this event.|)	
+	End If
+	
+	flgOK = True
+	
+	'Refresh the view that the document was opened from so that the status change is visible in the view
+	If flgUpdateUI Then
+		Dim ws As New NotesUIWorkspace	
+		Call ws.ViewRefresh
+	End If
+	
+lblExit:
+	
+	flgUpdateEventDocuments = flgOK
+	
+	Call Debug(STR_MODULE_NAME & |: Finished.|)
+	
+	Exit Function
+	
+lblError:
+	
+	flgOK = False
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+lblErrorNextRegProfile:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblNextRegProfile
+	
+lblErrorNextAgenda:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblNextAgenda
+	
+lblErrorNextSpeaker:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblNextSpeaker
+	
+lblErrorNextSponsor:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblNextSponsor
+	
+End Function
+
+'++LotusScript Development Environment:2:1:flgUpdateRegistrationDocuments:1:8
+Function flgUpdateRegistrationDocuments(dbGRP As NotesDatabase, docEventProfile As NotesDocument, flgUpdateUI As Boolean) As Boolean
+	'------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+	'Given an event profile, find and update all registrations associated with the event.
+	'
+     'Parameters
+     '-----------------------
+	'docEventProfile				The event profile for the event.
+	'flgUpdateUI				Whether to update the UI or not. 
+	'								(Set to False if calling this function from a back-end agent)	
+     '     
+     'Return Values
+     '-----------------------
+     'True if all associated registrations were successfully updated.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: flgUpdateRegistrationDocuments|
+	
+	Const STR_LOOKUP_REGISTRATIONS = |vLookupRegistrationsByEventID_All|
+	Const STR_LOOKUP_INVITATIONS = |vLookupInvitationsByEventID|	
+	
+	Dim flgOK As Integer
+	Dim viewRegistrations As NotesView
+	Dim viewInvitations As NotesView
+	Dim vc As NotesViewEntryCollection
+	Dim entry As NotesViewEntry
+	Dim docRegistration As NotesDocument
+	Dim docInvitation As NotesDocument
+	Dim strKey As String	
+	Dim intCount As Integer
+	Dim intCountInvitations As Integer
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	If flgUpdateUI Then
+		Print |Searching for registrations for this event...|	
+	End If
+	
+	'Assume that something will go wrong unless proved otherwise
+	flgOK = False
+	
+	'Find the lookup view
+	Set viewRegistrations = dbGRP.GetView(STR_LOOKUP_REGISTRATIONS)
+	
+	'Build a key from the supplied event ID
+	strKey = Cstr(docEventProfile.ep_id(0))
+	
+	'Attempt to find all registrations
+	Call Debug(STR_MODULE_NAME & |: Searching view [| & STR_LOOKUP_REGISTRATIONS & |] for documents with key [| & strKey & |].|) 
+	
+	'Get a collection of all entries
+	Set vc = viewRegistrations.GetAllEntriesByKey(strKey, True) 
+	
+	If (Not vc Is Nothing) Then
+		
+		If (vc.Count > 0) Then
+			
+			If flgUpdateUI Then
+				Print |Updating registrations for this event...|	
+			End If
+			
+			Call Debug(STR_MODULE_NAME & |: Processing | & Cstr(vc.Count) & | registration(s)...|)
+			
+			Set entry = vc.GetFirstEntry()
+			
+			While Not(entry Is Nothing)
+				
+				'Get the associated document
+				Set docRegistration = entry.Document
+				
+				Print |Updating registration | & Cstr(intCount + 1) & | of | & Cstr(vc.Count) & |...|	
+				
+					'TODO: Decide what to do with the following fields:
+				'			brand - should it come from brand or es_brand?  We already have es_brand?
+				'			region - currently comes from es_region so maybe a duplicate field?
+				
+				'Passed the event status to enable the pseudo "Archiving" using Inactive flag
+				docRegistration.ep_status = docEventProfile.status
+				
+				docRegistration.confname = docEventProfile.eventname		
+				docRegistration.confstartdate = docEventProfile.ep_StartDate
+				docRegistration.confenddate = docEventProfile.ep_EndDate
+				docRegistration.confcity = docEventProfile.loc_confcity
+				docRegistration.confstate = docEventProfile.loc_confstate
+				docRegistration.confcountry = docEventProfile.loc_confcountry
+				docRegistration.confgeoregion = docEventProfile.geo
+				docRegistration.category = docEventProfile.category
+				docRegistration.dWArea = docEventProfile.dWArea
+				
+				'Copy fields from Advanced tab of event profile
+				docRegistration.BATTacticname = docEventProfile.BATTacticname
+				docRegistration.es_BATCampaign = docEventProfile.es_BATCampaign
+				docRegistration.BATMPID = docEventProfile.BATMPID
+				docRegistration.tactic = docEventProfile.tactic
+				docRegistration.surround_values = docEventProfile.surround_values
+				docRegistration.tactics_credited = docEventProfile.tactics_credited
+				docRegistration.eventtype = docEventProfile.eventtype
+				docRegistration.eventsubtype = docEventProfile.eventsubtype
+				docRegistration.eventcategory = docEventProfile.eventcategory
+				docRegistration.sponsor_bu_pri = docEventProfile.sponsor_bu_pri
+				docRegistration.es_brand = docEventProfile.es_brand
+				docRegistration.industry = docEventProfile.industry		
+				docRegistration.es_region = docEventProfile.es_region
+				docRegistration.l_international = docEventProfile.l_international 
+				docRegistration.attpri = docEventProfile.attpri
+				docRegistration.m_priobj = docEventProfile.m_priobj
+				docRegistration.r_numattendees = docEventProfile.r_numattendees
+				
+				'Copy program framework fields
+				docRegistration.Frame_Program = docEventProfile.Frame_Program
+				docRegistration.Frame_SubTheme = docEventProfile.Frame_SubTheme
+				docRegistration.Frame_Program_Other = docEventProfile.Frame_Program_Other
+				docRegistration.Frame_Tier = docEventProfile.Frame_Tier
+				
+				'Copy additional items that were originally copied from the event profile
+				docRegistration.quarter = docEventProfile.quarter
+				docRegistration.length = docEventProfile.length
+				
+				'Save the changes
+				Call docRegistration.Save(True, False)
+				
+				'Update the count of registrations processed
+				intCount = intCount + 1
+				
+				'Get the next registration
+				Set entry = vc.GetNextEntry(entry)
+				
+			Wend
+			
+			If flgUpdateUI Then
+				If (intCount = 1) Then
+					Print |1 registration updated.|
+				Else
+					Print Cstr(intCount) & | registrations updated.|
+				End If
+			End If
+			
+		Else
+			
+			If flgUpdateUI Then
+				Print |There are no registrations to update.|	
+			End If
+			
+			Call Debug(STR_MODULE_NAME & |: No registration documents were found.|)
+			
+		End If
+		
+	Else
+		
+		If flgUpdateUI Then
+			Print |There are no registrations to update.|	
+		End If
+		
+		Call Debug(STR_MODULE_NAME & |: No registration documents were found.|)
+		
+	End If
+	
+	'If the event has an invitation process, also update any assoicated invitations
+	If (docEventProfile.ep_EnableInvitations(0) = "Yes") Then
+		
+		'Find the lookup view
+		Set viewInvitations = dbGRP.GetView(STR_LOOKUP_INVITATIONS)
+		
+		'Attempt to find all invitations
+		Call Debug(STR_MODULE_NAME & |: Searching view [| & STR_LOOKUP_INVITATIONS & |] for documents with key [| & strKey & |].|) 
+		
+		'Get a collection of all entries
+		Set vc = viewInvitations.GetAllEntriesByKey(strKey, True) 
+		
+		If (Not vc Is Nothing) Then
+			
+			If (vc.Count > 0) Then
+				
+				If flgUpdateUI Then
+					Print |Updating invitations for this event...|	
+				End If
+				
+				Call Debug(STR_MODULE_NAME & |: Processing | & Cstr(vc.Count) & | invitations(s)...|)
+				
+				Set entry = vc.GetFirstEntry()
+				
+				While Not(entry Is Nothing)
+					
+					'Get the associated document
+					Set docInvitation = entry.Document
+					
+					Print |Updating invitation | & Cstr(intCountInvitations + 1) & | of | & Cstr(vc.Count) & |...|	
+					
+					docInvitation.ep_EventTitle = docEventProfile.eventname		
+					docInvitation.confstartdate = docEventProfile.ep_StartDate
+					docInvitation.confcity = docEventProfile.loc_confcity
+					
+					'Save the changes
+					Call docInvitation.Save(True, False)
+					
+					'Update the count of invitations processed
+					intCountInvitations = intCountInvitations + 1
+					
+					'Get the next invitation
+					Set entry = vc.GetNextEntry(entry)
+					
+				Wend
+				
+				If flgUpdateUI Then
+					If (intCountInvitations = 1) Then
+						Print |1 invitation updated.|
+					Else
+						Print Cstr(intCountInvitations) & | invitations updated.|
+					End If
+				End If
+				
+			Else
+				
+				If flgUpdateUI Then
+					Print |There are no invitations to update.|	
+				End If
+				
+				Call Debug(STR_MODULE_NAME & |: No invitations were found.|)
+				
+			End If
+			
+		Else
+			
+			If flgUpdateUI Then
+				Print |There are no invitations to update.|	
+			End If
+			
+			Call Debug(STR_MODULE_NAME & |: No invitations were found.|)
+			
+		End If
+		
+	End If
+	
+	flgOK = True
+	
+	'Refresh the view that the document was opened from so that the status change is visible in the view
+	If flgUpdateUI Then
+		Dim ws As New NotesUIWorkspace	
+		Call ws.ViewRefresh
+	End If
+	
+lblExit:
+	
+	'Set the return value
+	If (flgOK) Then
+		Call Debug(STR_MODULE_NAME & |: Finished.  | & Cstr(intCount) & | registration(s) updated.| & Cstr(intCountInvitations) & | invitation(s) updated.|)
+	Else
+		Call Debug(STR_MODULE_NAME & |: Finished.|)
+	End If
+	
+	flgUpdateRegistrationDocuments = flgOK
+	
+	Exit Function
+	
+lblError:
+	
+	flgOK = False
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:2:getQTags:1:8
+Sub getQTags(docEventProfile As NotesDocument, strarrQTags() As String, intCountQTags As Integer, continue As Boolean)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given an event profile, check whether an MI question set has been selected.
+	'If one has, then find all of the Web2CRM QTags for the set and return them 
+	'in the supplied array.  Also return a count of the number of QTags.
+     '
+     'Parameters
+     '----------------
+     'docEventProfile					The event profile.
+	'strarrQTags()					(Returned).  An array containing QTags.
+	'intCountQTags					(Returned).  The number of QTags in the array.
+	'
+     'Return Value
+     '-------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: getQTags|
+	
+	Dim dbREF As NotesDatabase
+	Dim strLocale As String
+	Dim strQuestionSetID As String
+	Dim docMIQuestionSetLookup As NotesDocument
+	Dim intCurrQuestion As Integer
+	Dim strCurrQuestion As String
+	Dim strQTagFieldName As String
+	Dim strQTag As String
+	Dim msg As String
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	'Initialize return values
+	intCountQTags = 0
+	Redim strarrQTags(0)
+	
+	'Always lookup the English (Worldwide) set of questions
+	strLocale = |en_ZZ|
+	
+	'Check whether an MI question set has been chosen
+	strQuestionSetID = Cstr(docEventProfile.MIQuestionSet(0))
+	
+	' see 20101012 note in the getDocMIQuestionSetLookup function, must pass in ref db handle to return ref doc
+	Set dbREF = getReferenceDb(continue)  ' valid checks performed in called function
+	If(Not continue) Then Goto lblExit
+	Set docMIQuestionSetLookup = getDocMIQuestionSetLookup(strQuestionSetID, strLocale, dbREF, continue)
+	
+	'If one has then, check in the event profile whether each question is included and if
+	'it is set the values for that question
+	If (Not docMIQuestionSetLookup Is Nothing) Then
+		
+		'Get the question count and resize the array to store the QTags
+		intCountQTags = docMIQuestionSetLookup.ql_Count(0)
+		
+		If intCountQTags > 0 Then
+			
+			Redim strarrQTags(intCountQTags - 1)
+			
+			For intCurrQuestion = 1 To intCountQTags
+				
+				strCurrQuestion = |Q| & Cstr(intCurrQuestion)
+				
+				'Build field name based on the question number
+				strQTagFieldName = strCurrQuestion & |_qtag|
+				
+				strQTag = Cstr(docMIQuestionSetLookup.GetItemValue(strQTagFieldName)(0))
+				
+				Call Debug(STR_MODULE_NAME & |: MI question [| & strCurrQuestion & |] QTAG [| & strQTag & |].|) 
+				
+				strarrQTags(intCurrQuestion - 1) = strQTag
+				
+			Next
+			
+		Else			
+			Error ERR_WEB2CRM_GENERIC_ERROR, |Unable to get QTAGS for event ID [| & docEventProfile.ep_ID(0) & |] locale [| & strLocale & |].  The question count for the question set is zero.|	
+			
+		End If
+		
+	Else
+		Error ERR_WEB2CRM_GENERIC_ERROR, |Unable to find MI question set lookup for event ID [| & docEventProfile.ep_ID(0) & |] locale [| & strLocale & |].|	
+		
+	End If
+	
+lblExit:
+	Exit Sub
+	
+lblError:
+	continue = False
+	msg = STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl
+	Msgbox msg, , "Error"
+	Call Debug(msg)
+	Call LogError(msg)
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:updateWeb2CRMSettings:1:8
+Sub updateWeb2CRMSettings(docEventProfile As NotesDocument, docAREventProfile As NotesDocument, strSystemMode As String, continue As Boolean)
+	'------------------------------------------------------------------------------------------------------
+     'Description 
+     '------------------
+     'Given an event profile and an Attendee Repository event profile, attempt to configure the web2crm section
+	'in the event profile in Attendee Repository.  
+     '
+     'Parameters
+     '----------------
+	'docEventProfile			An event profile
+	'docAREventProfile		An Attendee Repository event profile
+	' strSystemMode		String, branch as needed based on whether we're running in Test or Production
+	' continue					Boolean, on error set to false
+	'
+     'Return Values
+     '-------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: updateWeb2CRMSettings|
+	
+	Dim dtNow As New NotesDateTime("")
+	Dim intCurrQuestion As Integer
+	Dim intCurrIndex As Integer
+	Dim strIncluded As String
+	Dim strTemp As String
+	Dim strCountryCode As String
+	Dim strTacticCode As String
+	Dim strarrQAs() As String
+	Dim strarrQTags() As String
+	Dim intCountQTags As Integer
+	Dim intQTagsIndex As Integer
+	Dim strFormula As String
+	Dim msg As String
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|) 
+	
+	'Set the date/time used to timestamp the update
+	dtNow.SetNow
+	
+	docAREventProfile.ep_msm = "Yes"
+	docAREventProfile.ep_msmcustomcollection = "Yes"
+	
+	'Updated 09/24/08 by TV to build different formulas for different geos
+	'Updated 09/30/09 by RWS to allow for all registration docs to be exported to Siebel
+	'Updated 2010.11.03 by RWS to allow ar_regtype = 'Academic'
+	Select Case docAREventProfile.ep_eventgeo(0)
+	Case "Americas","North America":
+		strFormula = {Form = 'arenrollall' & msmexported = 'No' & (ar_country = 'United States' | ar_country = 'USA' | ar_country = 'US' | ar_country = 'Canada' | ar_country = 'Puerto Rico') & ar_referenceid = '} &Cstr(docEventProfile.ep_id(0)) & {' & (ar_regtype = 'Customer/Delegate' | ar_regtype  = 'Business Partner' | ar_regtype = 'Academic') }
+	Case Else
+		strFormula = {Form = 'arenrollall' & msmexported = 'No' & ar_referenceid = '} &Cstr(docEventProfile.ep_id(0)) & {' & (ar_regtype = 'Customer/Delegate' | ar_regtype  = 'Business Partner' | ar_regtype = 'Academic') }		
+	End Select
+	
+	'Configure the Registration file fields
+	docAREventProfile.re_in_isource = |isource::30|
+	docAREventProfile.co_isource = |Yes|
+	
+	'This identifies the script file used to import data via the Web2CRM process
+	'It has been left as GSWERP because currently GRP can use the same script as already exists for GSWERP
+	docAREventProfile.x_isource = |GSWERP|
+	
+	docAREventProfile.re_in_iordnum = |iordnum::20|
+	docAREventProfile.x_iordnum = |ar_attendeeid|
+	
+	docAREventProfile.re_in_nfname = |nfname::35|
+	docAREventProfile.x_nfname = |ar_first|
+	
+	docAREventProfile.re_in_nlname = |nlname::35|
+	docAREventProfile.x_nlname = |ar_last|
+	
+	docAREventProfile.re_in_ncompany = |ncompany::35|
+	docAREventProfile.x_ncompany = |ar_companyname|
+	
+	docAREventProfile.re_in_nadline1 = |nadline1::35|
+	docAREventProfile.x_nadline1 = |ar_address1|
+	
+	docAREventProfile.re_in_nadline2 = |nadline2::35|
+	docAREventProfile.x_nadline2 = |ar_address2|
+	
+	docAREventProfile.re_in_ncity = |ncity::35|
+	docAREventProfile.x_ncity = |ar_city|
+	
+	docAREventProfile.re_in_nstate = |nstate::18|
+	docAREventProfile.x_nstate = |ar_state|
+	
+	docAREventProfile.re_in_nzip = |nzip::10|
+	docAREventProfile.x_nzip = |ar_zip|
+	
+	docAREventProfile.re_in_ncountry = |ncountry::30|
+	docAREventProfile.x_ncountry = |ar_country|
+	
+	docAREventProfile.re_in_nphone = |nphone::31|
+	docAREventProfile.x_nphone = |ar_phone|
+	
+	docAREventProfile.re_in_nfax = |nfax::31|
+	docAREventProfile.x_nfax = |ar_fax|
+	
+	docAREventProfile.re_in_nelecadr = |nelecadr::60|
+	docAREventProfile.x_nelecadr = |ar_email|
+	
+	docAREventProfile.re_in_ncourtesy = |ncourtesy::10|
+	docAREventProfile.x_ncourtesy = |ar_prefix|
+	
+	docAREventProfile.re_in_nmiddle = |nmiddle::15|
+	docAREventProfile.x_nmiddle = |ar_middle|
+	
+	docAREventProfile.re_in_njobtitle = |njobtitle::40|
+	docAREventProfile.x_njobtitle = |ar_title|
+	
+	docAREventProfile.re_in_cprivacy = |cprivacy::1|
+	docAREventProfile.x_cprivacy = |@If(ar_privacyno != "";"Y";"")|
+	
+	docAREventProfile.re_in_wwscore = |wwscore::4|
+	docAREventProfile.x_wwscore = |@If(ar_privacyyes != "";"Y";"")|
+	
+	strTemp = docEventProfile.BATMPID(0)
+	If Not Instr(strTemp,";") = 0 Then
+		strTemp = Mid(strTemp, 1, Instr(strTemp,";") - 1)
+	End If
+	
+	docAREventProfile.re_in_icampaign = |icampaign::30|
+	docAREventProfile.co_icampaign = "Yes"
+	docAREventProfile.x_icampaign = strTemp
+	
+	'End of configure the Registration file fields
+	
+	
+	'Configure the Answer file fields
+'	intCurrIndex = one more than strarrQAs()
+	intCurrIndex = 28 'pronunciation
+	Redim strarrQAs(27)
+	
+	'  There are some MI Questions that look to the Reference database.  QTags include
+	'  Q_COMPANYSIZE, Q_DESCCOMPANY, Q_HOWDIDHEAR, Q_JOBRESP, Q_OFFERSCONSIDE, Q_OFFERSUSING, Q_REASONATTEND, Q_ROLEACQUIS
+	
+		
+	strTacticCode = docEventProfile.tactic(0)
+	
+	Select Case Len(strTacticCode)
+	Case 8:
+		'Load Q_EVENT_NAME qtag
+		strCountryCode = docEventProfile.countrycode(0)
+		If (strCountryCode = |BE| Or strCountryCode = |LX|) Then		' 2010.09.09, Jamie requested this new requirement.  -rws
+			strCountryCode = |BELUX|
+		End If
+		If (strCountryCode = |AU| Or strCountryCode = |NZ|) Then		' 2010.09.09, Jamie requested this new requirement.  -rws
+			strCountryCode = |ANZ|
+		End If
+		If (strCountryCode = |US| Or strCountryCode = |CA|) Then
+			strCountryCode = |NA|
+		End If
+		
+		strarrQAs(0) = |Q_EVENT_NAME~~| + strTacticCode + | - | & strCountryCode & | - | + docEventProfile.BATTacticname(0) + |~~doccreated~~None~~None~~Yes~~|
+		
+		'Load Q_EVENTCITY qtag
+		strarrQAs(1) = |Q_EVENTCITY~~| + docEventProfile.loc_confcity(0) + |~~doccreated~~None~~None~~Yes~~| 
+		
+		'Load Q_IBMREPCALL qtag
+		strarrQAs(2) = |Q_IBMREPCALL~~ar_acore1~~doccreated~~None~~None~~~~|
+		
+		'Load Q_BUCKET_NAME qtag
+		strarrQAs(3) = |Q_BUCKET_NAME~~| & |@if(ar_acore1 = "Y";"| & docEventProfile.ep_HotTacticCode(0) & | - | & strCountryCode & | - Not available| & |";"| & docEventProfile.ep_WarmTacticCode(0) & | - | & strCountryCode & | - Not available| + |")~~doccreated~~None~~None~~~~|
+		
+		'Load Q_JOBROLE qtag   'from getAnsFieldsConfiguration() in AR Agent:   '  iquesnum ~~ tanswer ~~ tschange ~~ tconstant
+		' Q_JOBROLE while now a core field it is coming thru optional  quetion #20
+		strarrQAs(4) = |Q_JOBROLE~~ar_question20~~doccreated~~None~~None~~~~|	
+		
+		' replaced by Q_PREEVENT and Q_POSTEVENT
+'		strarrQAs(5) = |Q_REGSTATUS~~ar_adFormstatus~~doccreated~~None~~None~~~~|	
+
+		'New Stuff, Q_GOE
+		strarrQAs(5) = |Q_GOE~~~~doccreated~~None~~None~~~~|	' 2010. MAT 2.3
+		
+		'Opt In / Opt Out
+		strarrQAs(6) = |XSYS:OIEMAIL~~ar_OIEMAIL~~doccreated~~None~~None~~~~|		
+		strarrQAs(7) = |XSYS:OITELE~~ar_OITELE~~doccreated~~None~~None~~~~|	
+		strarrQAs(8) = |XSYS:OIPOSTAL~~ar_OIPOSTAL~~doccreated~~None~~None~~~~|
+		strarrQAs(9) = |XSYS:OOEMAIL~~ar_OOEMAIL~~doccreated~~None~~None~~~~|	
+		strarrQAs(10) = |XSYS:OOTELE~~ar_OOTELE~~doccreated~~None~~None~~~~|	
+		strarrQAs(11) = |XSYS:OOPOSTAL~~ar_OOPOSTAL~~doccreated~~None~~None~~~~|	
+		
+		%REM  'optInOptOut3		' implemented 2010.04.06
+			chat from Thierry, copying in a chat from Jamie, field names expected, NO PREFIX, i.e. XSYS required
+			4:25:26 PM: Jamie Wallace: NC_EMAIL, NC_POSTAL, NC_TELE
+		%END REM
+		strarrQAs(12) = |NC_EMAIL~~ar_NC_EMAIL~~doccreated~~None~~None~~~~|
+		strarrQAs(13) = |NC_POSTAL~~ar_NC_POSTAL~~doccreated~~None~~None~~~~|
+		strarrQAs(14) = |NC_TELE~~ar_NC_TELE~~doccreated~~None~~None~~~~|		
+		
+		'OIOO_TYPE
+		strarrQAs(15) = |OO_OI_TYPE~~ar_optInOutType~~doccreated~~None~~None~~~~|
+		
+		'pronunciation 
+		strarrQAs(16) = |Q_KATAKANA~~ar_pronunciation~~doccreated~~None~~None~~~~|			
+		
+		' Q_PREEVENT and Q_POSTEVENT support code
+		Dim todayVar As String
+		Dim startDateVar As String
+		Dim preEventCode As String
+		Dim postEventCode As String
+		Dim zResult As String
+		
+		Dim isVirtualEvent As Boolean
+		isVirtualEvent = False
+		If(docEventProfile.Hasitem("ep_IsOn24") And docEventProfile.Getitemvalue("ep_IsOn24")(0) = "Yes") Then
+			isVirtualEvent = True
+		End If		
+		If(Not isVirtualEvent) Then
+			todayVar = |today := @TextToTime("Today"); |
+			startDateVar = |startDate := @TextToTime(@Trim(ar_startmonth) + "/" + @Trim(ar_startday) + "/" + @Trim(ar_startyear)); |
+			preEventCode = todayVar & startDateVar & |@if(today < startDate; ar_adFormstatus; "" ); |		
+			postEventCode = todayVar & startDateVar & |@if(today < startDate; ""; ar_adFormstatus ); |		
+		Else
+		' 2010.11.15, MAT 2.3, rws
+		%REM  - Virtual Events Only at this point.
+			We now want to base the Pre/Post Event tag on the status.  
+			Confirmed/Cancelled, Pre Event
+			Attended/Did not Attend, Post Event
+			
+			It has also been said that we only update registration records once after the start date.  This is handled from AR Import code.
+		%END REM
+		
+			zResult = |result:= @Trim(@UpperCase(ar_adFormstatus));|
+			preEventCode = zResult + |@if(result = "CONFIRMED" | + "|" + | result = "CANCELLED"; ar_adFormstatus ; "");|
+			postEventCode = zResult + |@if(result = "ATTENDED" | + "|" + | result = "DID NOT ATTEND"; ar_adFormstatus ; "");|
+		End If
+		
+		'Q_PREEVENT 
+		strarrQAs(17) = |Q_PREEVENT~~| + preEventCode + |~~doccreated~~None~~None~~~~|			
+
+		'Q_POSTEVENT 
+		strarrQAs(18) = |Q_POSTEVENT~~| + postEventCode + |~~doccreated~~None~~None~~~~|			
+
+		'Q_CERTIFIED 
+		strarrQAs(19) = |Q_CERTIFIED~~~~doccreated~~None~~None~~~~|	
+				
+		'Q_INDUSTRY 
+		strarrQAs(20) = |Q_INDUSTRY~~~~doccreated~~None~~None~~~~|	
+		
+		'Q_COMMENTS 
+		strarrQAs(21) = |Q_COMMENTS~~~~doccreated~~None~~None~~~~|	
+		
+		'Q_URL 
+		strarrQAs(22) = |Q_URL~~~~doccreated~~None~~None~~~~|	
+		
+		'Q_PEDS 
+		strarrQAs(23) = |Q_PEDS~~~~doccreated~~None~~None~~~~|	
+		
+		'Q_INTERESTA 
+		strarrQAs(24) = |Q_INTERESTA~~~~doccreated~~None~~None~~~~|	
+		
+		'Q_INTERESTB 
+		strarrQAs(25) = |Q_INTERESTB~~~~doccreated~~None~~None~~~~|	
+
+		'Q_MATTACT
+		strarrQAs(26) = |Q_MATTACT~~ar_MATTACT~~doccreated~~None~~None~~~~|	
+		
+		'Q_CONT
+		strarrQAs(27) = |Q_CONT~~ar_CONT~~doccreated~~None~~None~~~~|	
+
+	Case Else
+		
+		Error ERR_WEB2CRM_GENERIC_ERROR, |Unexpected tactic code length for tactic code. [| & strTacticCode & |] for event with event ID [| & docEventProfile.ep_id(0) & |].|	
+		
+	End Select
+	
+	docAREventProfile.tcodecountry = strCountryCode
+	docAREventProfile.primarytcode = strTacticCode
+	docAREventProfile.primarytcodename = docEventProfile.BATTacticname(0)
+	docAREventProfile.warmtcode = docEventProfile.ep_WarmTacticCode(0)
+	docAREventProfile.warmtcodename = |Not available|
+	docAREventProfile.hottcode = docEventProfile.ep_HotTacticCode(0)
+	docAREventProfile.hottcodename = |Not available|
+	
+	'If the event profile specifies to also send MI data then add additional Q tags for all selected questions
+	intQTagsIndex = 0
+	If docEventProfile.ep_SendMIAnswersToCRM(0) = "Yes" Then
+		'TODO: Review with Bhakty what this formula does
+		strFormula =  strFormula & " & (!@Contains(ar_question10;'G') & !@Contains(ar_question10;'H'))"
+		
+		Call GetQTags(docEventProfile, strarrQTags(), intCountQTags, continue)
+		If (Not continue) Then Goto lblExit
+		
+		For intCurrQuestion = 1 To intCountQTags
+			strIncluded = docAREventProfile.GetItemValue(|epma_question| & Cstr(intCurrQuestion))(0)
+			'Include all questions in test mode
+			If (strSystemMode = |Test|) Then
+				strIncluded = |Yes|
+			End If
+			If strIncluded <> "" Then
+				Redim Preserve strarrQAs(intCurrIndex)
+				strarrQAs(intCurrIndex) = strarrQTags(intQTagsIndex) + |~~ar_question| + Cstr(intCurrQuestion) + |~~doccreated~~None~~None~~~~| 
+				intCurrIndex = intCurrIndex + 1			
+				intQTagsIndex = intQTagsIndex + 1
+			End If
+		Next
+	End If
+	
+	docAREventProfile.ep_collectionformula = strFormula
+	Call docAREventProfile.ReplaceItemValue(|x_a_fieldspair|, strarrQAs())
+	
+	Call Debug(STR_MODULE_NAME & |: Start of QA list.|)
+	Forall varItem In strarrQAs()
+		Call Debug(STR_MODULE_NAME & |: [| & Cstr(varItem) & |]|)	
+	End Forall		
+	Call Debug(STR_MODULE_NAME & |: End of QA list.|)
+	
+	'End of configure the Answer file fields
+	
+	docAREventProfile.e_iquesnum = "15"
+	docAREventProfile.e_tschange = "26"
+	docAREventProfile.e_tanswer = "250"
+	
+	'Add a timestamp to indicate when the update occurred
+	Set docAREventProfile.ep_DateUpdatedByGRPWeb2CRM = dtNow	
+	
+	'Only save if in production mode, No need for this, using Test DBs now.
+'	If (strSystemMode = |Production|) Then
+'		Call docAREventProfile.ComputeWithForm(True, True)
+'		Call docAREventProfile.Save(True, False)
+'		Call Debug(STR_MODULE_NAME & |: Event profile for event ID [| & Cstr(docEventProfile.ep_id(0)) & |] was updated in Attendee Repository.|) 		
+'	Else
+'		Call Debug(STR_MODULE_NAME & |: System is in TEST mode.  Event profile for event ID [| & Cstr(docEventProfile.ep_id(0)) & |] was NOT updated in Attendee Repository.|) 
+'	End If
+	Call docAREventProfile.ComputeWithForm(True, True)
+	Call docAREventProfile.Save(True, False)
+	Call Debug(STR_MODULE_NAME & |: Event profile for event ID [| & Cstr(docEventProfile.ep_id(0)) & |] was updated in Attendee Repository.|) 		
+
+	
+lblExit:	
+	Call Debug(STR_MODULE_NAME & |: Finished.|) 
+	Exit Sub
+	
+lblError:
+	continue = False
+	msg = STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl
+	Msgbox msg, , "Error"
+	Call Debug(msg)
+	Call LogError(msg)
+	Resume lblExit
+	
+End Sub
+
+
+'++LotusScript Development Environment:2:2:populateFormattedDbInfoListFromDBProfile:1:8
+Sub populateFormattedDbInfoListFromDBProfile(dbCodeName As String, dbInfo List As String, doc As NotesDocument, continue As Boolean)
+%REM
+rws
+2010.04.08
+Sets dbInfo List (by reference) with data from database profile.  
+
+%END REM
+	Const STR_MODULE_NAME = |Script Library:| + |populateFormattedDbInfoListFromDBProfile|
+	On Error Goto lblError
+	Dim msg As String
+	
+	Dim mode, title, path, server, repID As String
+	Dim prodTitle, prodPath, prodServer, prodRepID As String
+	
+	If(dbCodeName = Null Or dbCodeName = "") Then 
+		Error ERR_WEB2CRM_GENERIC_ERROR, "Invalid Database Code Name"
+	End If
+	
+	mode = dbCodeName + "_Mode"
+	title = "db" + dbCodeName + "Title"
+	path = "db" + dbCodeName + "Path"
+	server = "db" + dbCodeName + "Server"
+	repID = "db" + dbCodeName + "ReplicaID"
+	
+	prodTitle = "defaultProd" + dbCodeName + "Title"
+	prodPath = "defaultProd" + dbCodeName + "Path"
+	prodServer = "defaultProd" + dbCodeName + "Server"
+	prodRepID = "defaultProd" + dbCodeName + "ReplicaID"	
+	
+	' it is possible that the db profile has never been saved since the new fields were added, in that case "?_mode" wouldn't be set	
+	If( (Not doc.Hasitem(mode)) Or (doc.GetItemValue(mode)(0) = Null) Or (doc.GetItemValue(mode)(0) = "") ) Then
+		dbInfo("mode") = "Production"
+	Else
+		dbInfo("mode")  = doc.GetItemValue(mode)(0)
+	End If
+	If(dbInfo("mode") = "Test") Then	
+		dbInfo("title")  = doc.GetItemValue(title)(0)
+		dbInfo("path")  = doc.GetItemValue(path)(0)
+		dbInfo("server")  = doc.GetItemValue(server)(0)
+		dbInfo("repID") = doc.GetItemValue(repID)(0)
+		Call Debug(|AR Test Database, Title: | + dbInfo("title") )
+	Else ' production
+		dbInfo("title")  = doc.GetItemValue(prodTitle)(0)
+		dbInfo("path")  = doc.GetItemValue(prodPath)(0)
+		dbInfo("server")  = doc.GetItemValue(prodServer)(0)
+		dbInfo("repID") = doc.GetItemValue(prodRepID)(0)
+		Call Debug(|AR Production Database, Title: | + dbInfo("title") )
+	End If
+	
+lblExit:
+	Call Debug(STR_MODULE_NAME & |: Finished.|)	
+	Exit Sub
+	
+lblError:
+	msg = STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl
+	Call Debug( msg )
+	Call LogError( msg )
+	continue = False
+	Msgbox msg,, "Error!"
+	Resume lblExit	
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:updateTactics:8:8
+%REM
+	Sub UpdateTactics
+	Description: initially created for use with "Configure AR Profiles" getBATTactics().  
+				
+	docAREventProfile = Event Profile in AR
+	BATView = lookup view in the BAT database
+%END REM
+Sub updateTactics(docAREventProfile As NotesDocument, BATview As NotesView, continue As Boolean)
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: updateTactics|
+	On Error Goto lblError
+	Dim msg As String
+	
+	Dim BATdoc As NotesDocument
+	Dim tcode As String
+	Dim battacticname As String
+	Dim tname As String
+	Dim flgupdatewarmhottactics As Boolean
+	Dim flgsave As Boolean
+	Dim i As Integer
+	
+	'get array of Q&A values
+	Dim x_a_fieldspairValues() As String
+	Dim item As NotesItem
+	Set item = docAREventProfile.GetFirstItem( "x_a_fieldspair" )
+	
+	i = -1
+	Forall x In item.Values
+		If Cstr(x) <> "" Then
+			i = i + 1
+			Redim Preserve x_a_fieldspairValues(i)
+			x_a_fieldspairValues(i) = x		
+		End If          
+	End Forall
+	'end of get array of Q&A values
+	
+	
+	%REM
+		updateWeb2CRMSettings will update the primary, hot and warm tactic codes on the AR Event profile doc:
+				docAREventProfile.primarytcode = strTacticCode
+				docAREventProfile.primarytcodename = docEventProfile.BATTacticname(0)
+				docAREventProfile.warmtcode = docEventProfile.ep_WarmTacticCode(0)
+				docAREventProfile.warmtcodename = |Not available|
+				docAREventProfile.hottcode = docEventProfile.ep_HotTacticCode(0)
+				docAREventProfile.hottcodename = |Not available|
+				
+		primarytcode must 8 characters in length or an error is thrown so if we get this far, we should have at least that code.
+		
+		hot and warm code names if set to "Not available" will not allow the AR EP to pass the export view fitler
+	%END REM
+	
+	flgupdatewarmhottactics = False
+	flgsave = False
+	
+	'check primary tactic
+	tcode = docAREventProfile.primarytcode(0)
+	tname = docAREventProfile.primarytcodename(0)
+	If tcode <> "" Then
+		Set BATdoc = getBatDoc(BATview, tcode, "Primary", continue)  ' get BATdoc for primary tactic
+		If(Not continue) Then Goto lblExit  ' error msg displayed in getBatDoc, bubble error up
+		
+		battacticname = ""
+		Call getCalendarName(BATdoc, tcode, battacticname, continue)
+		If (continue) Then
+			If tname <> battacticname Then
+				docAREventProfile.primarytcodename = battacticname
+				docAREventProfile.primarytcode_status = "Found on: " & Now()
+				Call Debug("[" & tcode & "]:" & " Primary BAT tactic name for Global Calendar changed from: " & tname & " to: " & battacticname)
+				Call UpdatePrimaryTactic(docAREventProfile, x_a_fieldspairValues)
+				flgsave = True
+			End If
+		Else
+			Call Debug("[" & tcode & "]:" & " Primary BAT tactic name for Global Calendar NOT FOUND.")
+			docAREventProfile.primarytcode_status = "Tactic not found on: " & Now()
+			Call docAREventProfile.Save(True, False)
+			Goto lblExit  ' error msg displayed in getCalendarName, bubble error up
+		End If
+	End If	
+	' end check primary tactic
+	
+	'check warm tactic
+	tcode = docAREventProfile.warmtcode(0)
+	tname = docAREventProfile.warmtcodename(0)
+	If tcode <> "" Then
+		Set BATdoc = getBatDoc(BATview, tcode, "Proactive - WARM", continue)  ' get BATdoc for Proactive - WARM tactic
+		If(Not continue) Then Goto lblExit  ' error msg displayed in getBatDoc, bubble error up		
+		
+		battacticname = ""
+		Call getCalendarName(BATdoc, tcode, battacticname, continue)
+		If (continue) Then
+			If tname <> battacticname Then   ' otherwise, no need to update warm tactic values
+				docAREventProfile.warmtcodename = battacticname
+				docAREventProfile.warmtcode_status = "Found on: " & Now()
+				Call Debug("[" & tcode & "]:" & " Proactive - WARM BAT tactic name for Global Calendar changed from: " & tname & " to: " & battacticname)
+				flgupdatewarmhottactics = True
+				flgsave = True
+			End If
+		Else
+			Call Debug("[" & tcode & "]:" & " Proactive - WARM BAT tactic name for Global Calendar NOT FOUND.")
+			docAREventProfile.warmtcode_status = "Tactic not found on: " & Now()
+			Call docAREventProfile.Save(True, False)
+			Goto lblExit  ' error msg displayed in getCalendarName, bubble error up
+		End If
+	End If
+	' end check warm tactic
+	
+	'check hot tactic
+	tcode = docAREventProfile.hottcode(0)
+	tname = docAREventProfile.hottcodename(0)
+	If tcode <> "" Then
+		Set BATdoc = getBatDoc(BATview, tcode, "Reactive - HOT", continue)  ' get BATdoc for Reactive - HOT BAT tactic
+		If(Not continue) Then Goto lblExit  ' error msg displayed in getBatDoc, bubble error up		
+		
+		battacticname = ""
+		Call getCalendarName(BATdoc, tcode, battacticname, continue)
+		If (continue) Then
+			If tname <> battacticname Then   ' otherwise, no need to update hot tactic values
+					docAREventProfile.hottcodename = battacticname
+					docAREventProfile.hottcode_status = "Found on: " & Now()
+				Call Debug("[" & tcode & "]:" & " Reactive - HOT BAT tactic name for Global Calendar changed from: " & tname & " to: " & battacticname)
+				flgupdatewarmhottactics = True
+				flgsave = True
+			End If
+		Else
+			Call Debug("[" & tcode & "]:" & " Reactive - HOT BAT tactic name for Global Calendar NOT FOUND.")
+			docAREventProfile.warmtcode_status = "Tactic not found on: " & Now()
+			Call docAREventProfile.Save(True, False)
+			Goto lblExit  ' error msg displayed in getCalendarName, bubble error up
+		End If
+	End If
+	' end check hot tactic
+	
+	If flgupdatewarmhottactics Then Call UpdateWarmHotTactic(docAREventProfile, x_a_fieldspairValues)
+	If flgsave Then
+		Set item = docAREventProfile.ReplaceItemValue("x_a_fieldspair", x_a_fieldspairValues)
+		Call docAREventProfile.Save(True, False)		
+	Else
+		Call Debug("**NO UPDATES**")
+	End If
+	Call Debug("------------------------------------------------------------------------------------------------")
+		
+lblExit:	
+	Call Debug(STR_MODULE_NAME & |: Finished.|) 
+	Exit Sub
+	
+lblError:
+	continue = False
+	msg = STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl
+	Msgbox msg, , "Error"
+	Call Debug(msg)
+	Call LogError(msg)
+	Resume lblExit
+End Sub
+
+'++LotusScript Development Environment:2:2:getCalendarName:5:8
+%REM
+	Sub getCalendarName
+	Description: called from updateTactics, part of BAT work
+%END REM
+Sub getCalendarName(BATdoc As NotesDocument, ptactic As String, battacticname_hold As String, continue As Boolean)
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: updateTactics|
+	On Error Goto lblError
+	Dim msg As String
+	
+	If BATdoc.Form(0)="MTDEPFM" Then	
+		If BATdoc.HasItem( "T04R01C02" ) And BATdoc.HasItem( "T04R01C03" ) Then 
+			Forall i In BATdoc.T04R01C02
+				If i= ptactic Then
+					battacticname_hold = BATdoc.T04R01C03(Arraygetindex(BATdoc.T04R01C02, ptactic))
+					Goto lblExit
+				End If		
+			End Forall
+		End If
+		
+		If BATdoc.HasItem( "T04R02C02" ) And BATdoc.HasItem( "T04R02C03" ) Then 
+			Forall i In BATdoc.T04R02C02
+				If i=ptactic Then
+					battacticname_hold = BATdoc.T04R02C03(Arraygetindex(BATdoc.T04R02C02, ptactic))
+					Goto lblExit	
+				End If	
+			End Forall
+		End If
+		
+		If BATdoc.HasItem( "T04R03C02" ) And BATdoc.HasItem( "T04R03C03" ) Then 
+			Forall i In BATdoc.T04R03C02
+				If i=ptactic Then
+					battacticname_hold = BATdoc.T04R03C03(Arraygetindex(BATdoc.T04R03C02, ptactic))
+					Goto lblExit	
+				End If
+			End Forall
+		End If
+		If BATdoc.HasItem( "T04R04C02" ) And BATdoc.HasItem( "T04R04C03" ) Then 
+			Forall i In BATdoc.T04R04C02
+				If i=ptactic Then
+					battacticname_hold = BATdoc.T04R04C03(Arraygetindex(BATdoc.T04R04C02, ptactic))
+					Goto lblExit
+				End If
+			End Forall
+		End If
+		
+		If BATdoc.HasItem( "T04R05C02" ) And BATdoc.HasItem( "T04R05C03" ) Then 
+			Forall i In BATdoc.T04R05C02
+				If i=ptactic Then
+					battacticname_hold = BATdoc.T04R05C03(Arraygetindex(BATdoc.T04R05C02, ptactic))
+					Goto lblExit
+				End If
+			End Forall
+		End If
+		
+	Else
+		If BATdoc.HasItem( "T04R01C02" ) And BATdoc.HasItem( "T04R01C03" ) Then 
+			Forall i In BATdoc.T04R01C02
+				If i= ptactic Then
+					battacticname_hold = BATdoc.T04R01C03(Arraygetindex(BATdoc.T04R01C02, ptactic))
+					Goto lblExit
+				End If		
+			End Forall
+		End If
+	End If 
+	
+	msg = "Primary BAT tactic name NOT FOUND."
+	Error ERR_WEB2CRM_GENERIC_ERROR, msg
+
+lblExit:	
+	Call Debug(STR_MODULE_NAME & |: Finished.|) 
+	Exit Sub
+	
+lblError:
+	continue = False
+	msg = STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl
+	Msgbox msg, , "Error"
+	Call Debug(msg)
+	Call LogError(msg)
+	Resume lblExit
+End Sub
+
+'++LotusScript Development Environment:2:1:getBatDoc:1:8
+Function getBatDoc(BATview As NotesView, ptactic As String, tacticType As String, continue As Boolean) As NotesDocument
+	Const STR_MODULE_NAME = |Script Library: | + STR_WEB2CRM_LIBRARY_NAME + |: getBatDoc|
+	On Error Goto lblError
+	Dim msg As String	
+	
+	Dim BATdocT As NotesDocument
+	Dim luKeyT( 1 To 2 ) As String
+	
+	luKeyT(1) =   Left(ptactic,5)  '(i.e."109A307M")
+	luKeyT(2) =   ptactic
+	Set BATdocT = BATview.GetDocumentByKey(luKeyT, True)	
+	
+	If(BATdocT Is Nothing) Then
+		msg = "BAT Document for " + tacticType + " tactic NOT FOUND."
+		Error ERR_WEB2CRM_GENERIC_ERROR, msg
+	End If
+	
+	Set GetBatDoc = BATdocT
+	
+lblExit:
+	Exit Function
+	
+lblError:	
+	continue = False
+	msg = STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl
+	Call Debug(msg)
+	Call LogError(msg)
+	Resume lblExit	
+End Function
+
+'++LotusScript Development Environment:2:2:UpdatePrimaryTactic:1:8
+Sub UpdatePrimaryTactic(epdoc As NotesDocument, x_a_fieldspairValues() As String)
+	'  updated by RWS, 2010.01.11
+	'  Jamie Wallace requires a max length of 100 chars on the primarytcode, country and code name
+	' original:
+	'  x_a_fieldspairValues(0) = |Q_EVENT_NAME~~| + epdoc.primarytcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.primarytcodename(0) + |~~doccreated~~None~~None~~Yes~~|
+	
+	Dim s As String
+	s = epdoc.primarytcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.primarytcodename(0)
+	s = Left$(s, 100)
+	x_a_fieldspairValues(0) = |Q_EVENT_NAME~~| + s + |~~doccreated~~None~~None~~Yes~~|
+End Sub
+
+'++LotusScript Development Environment:2:2:UpdateWarmHotTactic:1:8
+Sub UpdateWarmHotTactic(epdoc As NotesDocument, x_a_fieldspairValues() As String)
+	%REM
+	2009.02.25, Geoff requested changes, original:
+			x_a_fieldspairValues(3) = |Q_BUCKET_NAME~~| & |@if(ar_acore1 = "Y";"| & epdoc.hottcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.hottcodename(0) &_
+			|";"| & epdoc.warmtcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.warmtcodename(0) + |")~~doccreated~~None~~None~~~~|
+			
+	gbullens@us.ibm.com - Geoff Bullens/White Plains/Contr/IBM: 
+	
+	This whole string: epdoc.hottcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.hottcodename(0) needs to be truncated to 100 characters.
+	11:29:50 AM: gbullens@us.ibm.com - Geoff Bullens/White Plains/Contr/IBM: and same for epdoc.warmtcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.warmtcodename(0)			
+	--------------------------------------------------------------------------------
+	
+	2010.09.28,  Jamie notified us that when the hot OR warm T Code is actually contains a T we want to write the information,
+	otherwise, we do not.
+			
+	%END REM
+	
+	Dim hotCode As String
+	Dim warmCode As String
+	Dim sHotCode As String
+	Dim sWarmCode As String
+	
+	hotCode = Ucase(Trim(epdoc.hottcode(0)))
+	warmCode = Ucase(Trim(epdoc.warmtcode(0)))
+	
+	x_a_fieldspairValues(3) = |Q_BUCKET_NAME~~~~doccreated~~None~~None~~~~|
+	
+	If( hotCode <> "" And warmCode <> "" ) Then
+		If( Mid(hotCode, Len(hotCode)) = "T" Or Mid(warmCode, Len(warmCode)) = "T" ) Then
+			sHotCode = epdoc.hottcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.hottcodename(0)
+			sHotCode = Left$(sHotCode, 100)
+			
+			sWarmCode = epdoc.warmtcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.warmtcodename(0)
+			sWarmCode = Left$(sWarmCode, 100)
+			
+			x_a_fieldspairValues(3) = |Q_BUCKET_NAME~~| & |@if(ar_acore1 = "Y";"| & sHotCode &_
+			|";"| & sWarmCode + |")~~doccreated~~None~~None~~~~|
+		End If
+	End If
+	
+End Sub
+
+
+'++LotusScript Development Environment:2:2:UpdateWarmHotTacticNew:1:8
+Sub UpdateWarmHotTacticNew(epdoc As NotesDocument, x_a_fieldspairValues() As String)
+	%REM
+	2009.02.25, Geoff requested changes, original:
+			x_a_fieldspairValues(3) = |Q_BUCKET_NAME~~| & |@if(ar_acore1 = "Y";"| & epdoc.hottcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.hottcodename(0) &_
+			|";"| & epdoc.warmtcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.warmtcodename(0) + |")~~doccreated~~None~~None~~~~|
+			
+gbullens@us.ibm.com - Geoff Bullens/White Plains/Contr/IBM: 
+
+This whole string: epdoc.hottcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.hottcodename(0) needs to be truncated to 100 characters.
+11:29:50 AM: gbullens@us.ibm.com - Geoff Bullens/White Plains/Contr/IBM: and same for epdoc.warmtcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.warmtcodename(0)			
+	--------------------------------------------------------------------------------
+	
+	2010.09.28,  Jamie notified us that when the hot OR warm T Code actually contains a T we want to write the Q_BUCKET_NAME information,
+	otherwise, we do not.
+			
+	2010.11.01,  From Jamie.  Will now allow EITHER a Hot / Warm T Code.  Either or BOTH can be empty.
+	If empty, Q_BUCKET_NAME's (QBN) value = ""
+	If Hot T Code = "" and the user selects to be called by an IBM Rep (ar_acore1), the QBN = ""
+	If Warm T Code = "" and user selects NOT to be called by an IBM Rep, QBN = ""
+	%END REM
+	
+	Dim hotCode As String
+	Dim warmCode As String
+	Dim sHotCode As String
+	Dim sWarmCode As String
+	
+	hotCode = Ucase(Trim(epdoc.hottcode(0)))
+	warmCode = Ucase(Trim(epdoc.warmtcode(0)))
+	
+	x_a_fieldspairValues(3) = |Q_BUCKET_NAME~~~~doccreated~~None~~None~~~~|
+	
+	If( hotCode <> "" Or warmCode <> "" ) Then
+		
+		If( hotCode <> "" And Mid(hotCode, Len(hotCode)) = "T" ) Then
+			sHotCode = epdoc.hottcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.hottcodename(0)
+			sHotCode = Left$(sHotCode, 100)
+		Else
+			sHotCode = ""
+		End If
+		
+		If ( warmCode <> "" And Mid(warmCode, Len(warmCode)) = "T" ) Then
+			sWarmCode = epdoc.warmtcode(0) + | - | & epdoc.tcodecountry(0) & | - | + epdoc.warmtcodename(0)
+			sWarmCode = Left$(sWarmCode, 100)
+		Else
+			sWarmCode = ""
+		End If
+		
+		x_a_fieldspairValues(3) = |Q_BUCKET_NAME~~| & |@if(ar_acore1 = "Y";"| & sHotCode &_
+		|";"| & sWarmCode + |")~~doccreated~~None~~None~~~~|
+		
+	End If
+	
+End Sub

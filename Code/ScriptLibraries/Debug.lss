@@ -1,0 +1,397 @@
+'++LotusScript Development Environment:2:5:(Options):0:66
+'-----------------------------------------------------------------------------------------------------------------
+' Debug
+'-----------------------------------------------------------------------------------------------------------------
+' 
+'This script library contains the functions required to implement simple
+'debugging.  The functions assume that the database contains a 
+'Log Document form (alias fLog) that is used to store the output from
+'the debugging code and a view (Admin\Log Documents alias vDebugLogs)
+'that displays the Log Documents. 
+'
+'1. To enable debugging call the EnableDebug() function.
+'    This function sets a global variable g_flgDebugEnabled to True and
+'    creates a new Log Document and assigns it to a global variable g_docLog.
+'    To disable debugging, remove or comment out the call to EnableDebug().
+'
+'2. To write to the Log Document call the Debug() function and supply the
+'    string to be written to the Log Document.
+'
+' Author: Tim Vallely
+'
+' Revision History:
+'
+' Date                    	   	      By        	      		 Description
+' --------                       	      ---               		 ------------------
+' August 26 2004		      Tim Vallely  		 Initial Version
+'-----------------------------------------------------------------------------------------------------------------
+
+Option Public  
+Option Declare
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub EnableDebug(strDocTitle As String)
+Declare Sub Debug(strMsg As String)
+Declare Sub LogError(strMsg As String)
+Declare Sub Assert(flgAssertion As Integer, strMsg As String)
+Declare Sub EnableDebugMail()
+Declare Sub CreateErrorLog(strDocTitle As String)
+Declare Sub SendErrorEmail(strMsg As String) 
+Declare Sub CreateDebugLog(strDocTitle As String)
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+Public g_flgDebugEnabled As Integer
+Public g_flgDebugEmailEnabled As Integer  
+
+Public g_docLog As NotesDocument
+Public g_docErrorLog As NotesDocument
+
+Const INT_MAX_LOG_LINES = 500
+
+Const STR_FROM_EMAIL_ADDRESS = |Support <support@meetingconsultants.com>|
+
+'++LotusScript Development Environment:2:2:EnableDebug:1:8
+Sub EnableDebug(strDocTitle As String)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Enable debugging.  Create a log document with the supplied title.
+     '
+     'Globals Referenced
+     '-------------------------------
+     'g_flgDebugEnabled    - Whether debugging is enabled or not
+     'g_docLog                   - The current log document
+     '     
+     'Return Values
+     '-----------------------
+     'None
+     '------------------------------------------------------------------------------------------------------
+	
+     'Create a new Log document
+	Call CreateDebugLog(strDocTitle)
+	
+     'Enable debugging
+	g_flgDebugEnabled = True
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:Debug:1:8
+Sub Debug(strMsg As String)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given a message, append the message as a new line in the
+     'current Log.  Prefix the message with the current date and time
+     'for non-blank messages.
+     '
+     'Globals Referenced
+     '-------------------------------
+     'g_flgDebugEnabled    - Whether debugging is enabled or not
+     'g_docLog                   - The current log document
+     '     
+     'Return Values
+     '-----------------------
+     'None
+     '------------------------------------------------------------------------------------------------------
+	
+	Static intLineCount
+	
+	If (g_flgDebugEnabled = True)Then
+		
+		Dim rtItemLogText As NotesRichTextItem
+		
+          'If log contains too many lines, create a new log document
+		If intLineCount > INT_MAX_LOG_LINES Then
+			Call CreateDebugLog(Cstr(g_docLog.DocTitle(0)))
+			intLineCount = 0
+		End If
+		
+		Set rtItemLogText = g_docLog.GetFirstItem("LogText")
+		
+		If strMsg <> "" Then
+			Call rtItemLogText.AppendText(Format(Now(), "mm/dd/yy hh:mm:ss AM/PM"))
+			Call rtItemLogText.AppendText(" ")
+		End If
+		Call rtItemLogText.AppendText(strMsg)
+		Call rtItemLogText.AddNewLine(1)
+		
+		Call g_docLog.Save(True, True)
+		
+		intLineCount = intLineCount + 1
+		
+	End If
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:LogError:1:8
+Sub LogError(strMsg As String)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given a message, append the message as a new line in the
+     'current Error Log.  Prefix the message with the current date and time
+     'for non-blank messages.
+     '
+     'Globals Referenced
+     '-------------------------------
+     'g_docErrorLog                   - The current error log document
+     '     
+     'Return Values
+     '-----------------------
+     'None
+     '------------------------------------------------------------------------------------------------------
+	
+	Static intLineCount
+	
+	Dim rtItemLogText As NotesRichTextItem
+	
+	'If there is no Error Log, create one
+	If (g_docErrorLog Is Nothing) Then
+		Call CreateErrorLog(|Error Log|)
+		intLineCount = 0
+	End If
+	
+     'If the Error Log contains too many lines, create a new Error Log
+	If (intLineCount > INT_MAX_LOG_LINES) Then
+		Call CreateErrorLog(Cstr(g_docErrorLog.DocTitle(0)))
+		intLineCount = 0
+	End If
+	
+	Set rtItemLogText = g_docErrorLog.GetFirstItem("LogText")
+	
+	If strMsg <> "" Then
+		Call rtItemLogText.AppendText(Format(Now(), "mm/dd/yy hh:mm:ss AM/PM"))
+		Call rtItemLogText.AppendText(" ")
+	End If
+	Call rtItemLogText.AppendText(strMsg)
+	Call rtItemLogText.AddNewLine(1)
+	
+	Call g_docErrorLog.Save(True, True)
+	
+	'Send Error e-mail to Dev team if enabled in profile
+	If g_flgDebugEmailEnabled Then
+		Call SendErrorEmail(strMsg)
+	End If
+	
+	intLineCount = intLineCount + 1
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:Assert:1:8
+Sub Assert(flgAssertion As Integer, strMsg As String)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given a boolean value, check whether the value is False and
+	'if it is write the supplied message to the debug log.
+     '
+     'Globals Referenced
+     '-------------------------------
+     'g_flgDebugEnabled    - Whether debugging is enabled or not
+     '     
+     'Return Values
+     '-----------------------
+     'None
+     '------------------------------------------------------------------------------------------------------
+	
+	If (g_flgDebugEnabled = True) Then
+		If (Not flgAssertion) Then
+			Call Debug(strMsg)
+			Call LogError(strMsg)
+		End If
+	End If
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:EnableDebugMail:1:8
+Sub EnableDebugMail()
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Enable sending error e-mails.
+     '
+     'Globals Referenced
+     '-------------------------------
+     'g_flgDebugEnabled    - Whether debugging is enabled or not
+     '     
+     'Return Values
+     '-----------------------
+     'None
+     '------------------------------------------------------------------------------------------------------
+	
+     'Enable debugging
+	g_flgDebugEmailEnabled = True
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:CreateErrorLog:1:8
+Sub CreateErrorLog(strDocTitle As String)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Create a new error log.
+     '
+     'Globals Referenced
+     '-------------------------------
+     'g_docErrorLog                   - The current error log document
+     '     
+     'Return Values
+     '-----------------------
+     'None
+     '------------------------------------------------------------------------------------------------------
+	
+	Dim s As New NotesSession
+	Dim dbCurr As NotesDatabase
+	Dim item As NotesItem
+	Dim rtItemLogText As NotesRichTextItem
+	Dim rtsLogText As NotesRichTextStyle
+	
+     'Point to the current database
+	Set dbCurr = s.CurrentDatabase
+	
+     'Create a new Error Log document
+	Set g_docErrorLog = dbCurr.CreateDocument
+	
+     'Initialise fields in the document
+	g_docErrorLog.Form = "fErrorLog"
+	g_docErrorLog.DocType = "Error Log"
+	g_docErrorLog.DocTitle = strDocTitle
+	g_docErrorLog.RunDate = Now
+	Set item = New NotesItem(g_docErrorLog, "$PublicAccess", "1")
+	g_docErrorLog.CreateRichTextItem("LogText")
+	
+     'Set the style of the text to be Helv 8
+	Set rtItemLogText = g_docErrorLog.GetFirstItem("LogText")
+	Set rtsLogText = s.CreateRichTextStyle
+	
+	rtsLogText.NotesFont = FONT_HELV
+	rtsLogText.FontSize = 8
+	Call rtItemLogText.AppendStyle(rtsLogText)
+	Call rtItemLogText.AddNewLine(1)
+	
+     'Save the Log
+	Call g_docErrorLog.Save(True, True)   
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:SendErrorEmail:1:8
+Sub SendErrorEmail(strMsg As String) 
+	'------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Send an error e-mail.
+     '
+     'Return Values
+     '-----------------------
+     'None
+     '------------------------------------------------------------------------------------------------------
+	
+	Dim s As New NotesSession	
+	Dim dbCurr As NotesDatabase
+	Dim docEmail As NotesDocument
+	Dim rtItem As NotesRichTextItem
+	Dim item As NotesItem
+	Dim docDbProfile As NotesDocument
+	Dim strCurrServerName As String
+	Dim strCurrUserName As String
+	Dim strCurrServerCommonName As String
+	Dim strCurrUserCommonName As String
+	
+	Set dbCurr = s.CurrentDatabase
+	
+	Set docDbProfile = dbCurr.GetProfileDocument("fProfile")
+	
+	Dim nameServer As New NotesName(dbCurr.Server)
+	strCurrServerName = nameServer.Abbreviated
+	strCurrServerCommonName = nameServer.Common
+	
+	If Len(strCurrServerCommonName) >= 2 Then
+		strCurrServerCommonName = Right$(strCurrServerCommonName, 2)
+	End If
+	
+	Dim nameCurrUser As New NotesName(s.UserName)
+	strCurrUserName = nameCurrUser.Abbreviated
+	strCurrUserCommonName = nameCurrUser.Common
+	
+	Set docEmail = dbCurr.CreateDocument
+	
+	docEmail.Form = "Memo"
+	docEmail.Subject = |Error [| & dbCurr.Title & |] - [| & strCurrServerCommonName & |] - [| & dbCurr.FileName & |] - [| & strCurrUserCommonName & |] - [| & Left$(strMsg, 20) & |]|
+	
+	docEmail.ReplyTo = |timval@us.ibm.com|
+	docEmail.Principal = |timval@us.ibm.com|
+	docEmail.From = |timval@us.ibm.com|
+	docEmail.AltFrom = |timval@us.ibm.com|
+	docEmail.INetFrom = |timval@us.ibm.com|
+	
+	Set rtItem = docEmail.CreateRichTextItem("Body")
+	
+	Call rtitem.AppendText(|Error report.| & Chr$(13) & Chr$(13))
+	
+	Call rtitem.AppendText(|From [| & dbCurr.Title & |]| & Chr$(13))
+	Call rtitem.AppendText(|Server [| & strCurrServerName & |]| & Chr$(13))
+	Call rtitem.AppendText(|Filename [| & dbCurr.Filepath & |]| & Chr$(13))
+	Call rtitem.AppendText(|User name [| & strCurrUserName & |]| & Chr$(13) & Chr$(13))	
+	Call rtitem.AppendText(|Error log -> |)
+	Call rtitem.AppendText(|[| & strMsg & |]| & Chr$(13) & Chr$(13))	
+	Call rtItem.AppendDoclink(g_docErrorLog, docDbProfile.dp_SystemName(0))
+	
+	'Send the error e-mail
+	Set item = docDbProfile.GetFirstItem("dp_ErrorReportingEmailAddress")
+	
+	Forall varEmailAddress In item.Values
+		On Error Resume Next
+		Call docEmail.Send(False, Cstr(varEmailAddress))
+	End Forall
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:CreateDebugLog:1:8
+Sub CreateDebugLog(strDocTitle As String)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Create a new debug log.
+     '
+     'Globals Referenced
+     '-------------------------------
+     'g_docLog                   - The current log document
+     '     
+     'Return Values
+     '-----------------------
+     'None
+     '------------------------------------------------------------------------------------------------------
+	
+	Dim s As New NotesSession
+	Dim dbCurr As NotesDatabase
+	Dim item As NotesItem
+	Dim rtItemLogText As NotesRichTextItem
+	Dim rtsLogText As NotesRichTextStyle
+	
+     'Point to the current database
+	Set dbCurr = s.CurrentDatabase
+	
+     'Create a new Log document
+	Set g_docLog = dbCurr.CreateDocument
+	
+     'Initialise fields in the document
+	g_docLog.Form = "fLog"
+	g_docLog.DocType = "Log"
+	g_docLog.DocTitle = strDocTitle
+	g_docLog.RunDate = Now
+	Set item = New NotesItem(g_docLog, "$PublicAccess", "1")
+	g_docLog.CreateRichTextItem("LogText")
+	
+     'Set the style of the text to be Helv 8
+	Set rtItemLogText = g_docLog.GetFirstItem("LogText")
+	Set rtsLogText = s.CreateRichTextStyle
+	
+	rtsLogText.NotesFont = FONT_HELV
+	rtsLogText.FontSize = 8
+	Call rtItemLogText.AppendStyle(rtsLogText)
+	Call rtItemLogText.AddNewLine(1)
+	
+     'Save the Log
+	Call g_docLog.Save(True, True)     
+	
+End Sub

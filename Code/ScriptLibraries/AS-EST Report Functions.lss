@@ -1,0 +1,4872 @@
+'++LotusScript Development Environment:2:5:(Options):0:74
+'-----------------------------------------------------------------------------------------------------------------
+' AS-EST Report Functions
+'-----------------------------------------------------------------------------------------------------------------
+' 
+' This script library contains functions from the GRP Reports database.
+'
+' Author: Tim Vallely 
+'
+' Revision History:
+'
+' Date                       	By       	       		 	Description
+' --------               		--- 	              		------------------
+' March 18 2008				    Tim Vallely  				Initial Version
+' October 19, 2010				Geoff Bullens				Added code to count IBM registrations and write them the to EST
+'-----------------------------------------------------------------------------------------------------------------
+
+Option Public 
+Option Declare
+
+%INCLUDE "lsconst.lss" 
+
+Use "Debug"
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub Initialize
+Declare Sub ValidateReportingEventProfiles(dtTimestamp As NotesDateTime, flgEnableUIMsgs As Boolean)
+Declare Sub UpdateReportingEventProfile(docCanisterProfile As NotesDocument, docEventProfile As NotesDocument, docReportingEventProfile As NotesDocument, dtTimestamp As NotesDateTime)
+Declare Function dbGetGRPDb() As NotesDatabase
+Declare Sub reportingFields
+Declare Function dbGetReferenceDb() As NotesDatabase
+Declare Sub RefreshReportingEventProfilesByCanister(docCanisterProfile As NotesDocument, dtTimestamp As NotesDateTime, flgEnableUIMsgs As Boolean)
+Declare Sub ShowInfoMsg(strMsg As String)
+Declare Function intAskQuestion(strMsg As String) As Integer
+Declare Sub UpdateESEventBriefs(flgEnableUIMsgs As Boolean)
+Declare Sub AddReportingProfileError(docReportingEventProfile As NotesDocument, docarrReportingEventProfileErrors() As NotesDocument)
+Declare Sub RefreshReportingEventProfilesSelected(docCanisterProfile As NotesDocument,docReportingEventProfile As NotesDocument, flgEnableUIMsgs As Boolean)
+Declare Sub tempUpdateESBriefPostEndDateProcessing(docReportingEventProfile As NotesDocument,flgEnableUIMsgs As Boolean)
+Declare Sub LogReportingProfileErrors(docarrReportingEventProfileErrors() As NotesDocument)
+Declare Sub UpdateRegistrationCounts(docReportingEventProfile As NotesDocument, viewRegistrations As NotesView)
+Declare Function docCreateReportingEventProfile(docCanisterProfile As NotesDocument, docEventProfile As NotesDocument, dtTimestamp As NotesDateTime) As NotesDocument
+Declare Sub UpdateESEventBriefsSelectedOLD(docReportingEventProfile As NotesDocument, flgEnableUIMsgs As Boolean)
+Declare Sub UpdateESEventBriefsSelectedOLD_7_12_11(docReportingEventProfile As NotesDocument, flgEnableUIMsgs As Boolean)
+Declare Sub UpdateESEventBriefsOLD(flgEnableUIMsgs As Boolean)
+Declare Sub ShowErrorMsg(strMsg As String)
+Declare Function docGetCanisterProfile(strCanisterID As String) As NotesDocument
+Declare Function flgUpdateESBriefWebAddress(docEventProfile As NotesDocument, flgUpdateUI As Boolean) As Boolean
+Declare Sub RefreshReportingEventProfiles(flgEnableUIMsgs As Boolean)
+Declare Function strGetDefaultURL(docEventProfile) As String
+Declare Sub UpdateESEventBriefsSelected(docReportingEventProfile As NotesDocument, flgEnableUIMsgs As Boolean)
+Declare Function docGetESEventBrief(strEventID As String) As NotesDocument
+Declare Function intCount() As Integer
+Declare Function dbGetEventBriefsDb() As NotesDatabase
+
+'++LotusScript Development Environment:2:5:(Declarations):0:10
+'Name the module
+Const STR_MODULE_NAME = "Common Functions"
+
+'Define global Notes variables
+Dim g_dbCurr As NotesDatabase
+Dim g_docDbProfile As NotesDocument
+Dim g_strSystemName As String
+Dim g_strUserName As String
+Dim g_flgIsOnServer As Boolean
+Dim g_strWebPath As String
+Dim g_strSystemMode As String
+Dim g_strEmailMode As String
+Dim g_vwGRPEvents As NotesView
+Dim g_dbGRP As NotesDatabase
+Dim g_dbReference As NotesDatabase
+Dim g_dbEventBriefs As NotesDatabase
+
+'Define errors
+Const ERR_SYSTEM_ERROR = 1001
+
+'field arrays
+Dim grpProfileFields_C(8) As String
+Dim grpProfileFields_A(8) As String
+Dim grpProfileFields_D(8) As String
+Dim intRegCount(8) As Integer
+Dim intAttendCount(8) As Integer
+Dim dbgLabel(8) As String
+Dim briefField_R(8) As String
+Dim briefField_A(8) As String
+Dim briefField_NP(8) As String
+Dim postField_P(3) As String 'Post Processing Fields
+Dim regTypes(3) As String
+Dim numRegTypes As Integer
+
+
+'++LotusScript Development Environment:2:2:Initialize:1:10
+Sub Initialize
+	'------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Set global variables that are used by other functions.  
+	'
+	'1.	Get a handle to this database.
+	'2.	Check whether the database contains a Database Profile, and if it does whether
+	'	debugging is to be enabled.  If so, enable debugging.
+	'3.	Get the current user's abbreviated Notes name.
+	'
+     'Parameters
+     '-----------------------
+     'None.
+     '     
+     'Return Values
+     '-----------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = "Initialize"
+	
+	Dim s As New NotesSession
+	Dim nameCurr As NotesName
+	Dim varResult As Variant
+	
+	'Do not trap errors until we know we can log them
+	On Error Resume Next
+	
+     'Try to get a handle to the current database
+	Set g_dbCurr = s.CurrentDatabase
+	
+	'If unable to do so, show an error message and exit
+	If (g_dbCurr Is Nothing) Then
+		Error ERR_SYSTEM_ERROR, |Unable to obtain database handle.|	
+		Call ShowErrorMsg(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)	
+		Goto lblExit
+	End If	
+	
+     'Try to get the Database Profile
+	Set g_docDbProfile = g_dbCurr.GetProfileDocument("fProfile")
+	
+	'If unable to do so, show an error message and exit
+	If (g_docDbProfile Is Nothing) Then
+		Error ERR_SYSTEM_ERROR, |Unable to find Database Profile.|
+		Call ShowErrorMsg(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)	
+		Goto lblExit
+	End If
+	
+     'Check whether debugging is to be enabled and if it is, enable debugging
+	If Cstr(g_docDbProfile.dp_EnableDebug(0)) = "Yes" Then
+		Call EnableDebug(|Debug Log|)
+	End If    
+	
+     'Log start of processing
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	
+	'Now that we know that we have a Database Profile document, we can trap errors
+	'and have them written to the debug log (if it has been enabled in the Database Profile)
+	On Error Goto lblError
+	
+     'Get the system name
+	g_strSystemName = Cstr(g_docDbProfile.dp_SystemName(0))
+	Call Debug(STR_MODULE_NAME & |: System name is [| & g_strSystemName & |].|)	
+	
+	'Get the current user's name
+	Set nameCurr = New NotesName(s.UserName)
+	g_strUserName = nameCurr.Abbreviated
+	
+	Call Debug(STR_MODULE_NAME & |: Current user is [| & g_strUserName & |].|)
+	
+	'Check whether the script is running on a server 
+	g_flgIsOnServer = s.IsOnServer
+	
+	If g_flgIsOnServer Then
+		Call Debug(STR_MODULE_NAME & |: Script is running on a server.|)
+	Else
+		Call Debug(STR_MODULE_NAME & |: Script is running locally.|)
+	End If
+	
+	Call Debug(STR_MODULE_NAME & |: Current server is [| & g_dbCurr.Server & |].|)
+	
+	'Get the web path
+	varResult = Evaluate(|@WebDbName|)
+	g_strWebPath = |/| & varResult(0)
+	
+	Call Debug(STR_MODULE_NAME & |: Path to database is [| & g_strWebPath & |].|)
+	
+	'Get the system mode
+	g_strSystemMode = Cstr(g_docDbProfile.dp_SystemMode(0))
+	Call Debug(STR_MODULE_NAME & |: System mode is [| & g_strSystemMode & |].|)		
+	
+	'Get the e-mail mode
+	g_strEmailMode = Cstr(g_docDbProfile.EmailMode(0))
+	Call Debug(STR_MODULE_NAME & |: E-mail mode is [| & g_strEmailMode & |].|)		
+	
+	'Check whether e-mail of error logs is to be enabled and if it is, enable it
+	If Cstr(g_docDbProfile.dp_EnableDebugEmail(0)) = "Yes" Then
+		Call Debug(STR_MODULE_NAME & |: Error reporting e-mails are enabled.|)				
+		Call EnableDebugMail()
+	Else
+		Call Debug(STR_MODULE_NAME & |: Error reporting e-mails are disabled.|)			
+	End If 
+	
+lblExit:
+	
+	Call Debug(STR_MODULE_NAME & |: Finished.|)
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call ShowErrorMsg(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)	
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:ValidateReportingEventProfiles:1:8
+Sub ValidateReportingEventProfiles(dtTimestamp As NotesDateTime, flgEnableUIMsgs As Boolean)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Find any reporting event profiles in this database tha do not have the specified timestamp.
+	'
+     'Parameters
+     '----------------
+	'dtTimestamp				The timestamp for the latest set of updates to reporting event profiles.
+	'flgEnableUIMsgs			If True write status messages to the Notes client status bar.
+	'
+     'Return Values
+     '-------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |ValidateReportingEventProfiles|
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |vLookupEventsByKey|
+	
+	Dim docReportingEventProfile As NotesDocument
+	Dim viewReportingEventProfiles As NotesView
+	Dim vc As NotesViewEntryCollection
+	Dim entryCurr As NotesViewEntry	
+	Dim strEventID As String
+	Dim varTimestamp As Variant
+	Dim dtDocTimestamp As NotesDateTime
+	Dim docarrReportingEventProfileErrors() As NotesDocument
+	Dim flgErrorsFound As Boolean
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'Initialize the array used to store errors
+	Redim docarrReportingEventProfileErrors(0)
+	
+	'For each reporting event profile in this database, check whether there it has the latest timestamp
+	Set viewReportingEventProfiles = g_dbCurr.GetView(STR_LOOKUP_VIEW_ALIAS)
+	
+	Set vc = viewReportingEventProfiles.AllEntries
+	
+	If (Not vc Is Nothing) Then
+		If (vc.Count > 0) Then
+			
+			Call Debug(STR_MODULE_NAME & |: Processing [| & Cstr(vc.Count) & |] reporting event profile(s)...|)
+			If (flgEnableUIMsgs) Then
+				Print |Processing [| & Cstr(vc.Count) & |] reporting event profile(s)...|
+			End If
+			
+			Set entryCurr = vc.GetFirstEntry()
+			
+			While Not (entryCurr Is Nothing)
+				
+				Set docReportingEventProfile = entryCurr.Document
+				
+				strEventID = docReportingEventProfile.ep_id(0)
+				varTimestamp = docReportingEventProfile.GetItemValueDateTimeArray(|rep_DateRefreshed|)
+				Set dtDocTimestamp = varTimestamp(0)
+				
+				If (dtDocTimestamp.TimeDifference(dtTimestamp) <> 0) Then
+					Call Debug(STR_MODULE_NAME & |: Reporting event profile for event with ID [| & strEventID & |] does NOT have the timestamp of the most recent refresh.|)
+					flgErrorsFound = True
+					Call AddReportingProfileError(docReportingEventProfile, docarrReportingEventProfileErrors())
+				Else
+					Call Debug(STR_MODULE_NAME & |: Reporting event profile for event with ID [| & strEventID & |] has the most recent timestamp.|)
+				End If
+				
+				Set entryCurr = vc.GetNextEntry(entryCurr)
+			Wend	
+			
+			'Now check for and log any errors
+			If flgErrorsFound Then
+				Call LogReportingProfileErrors(docarrReportingEventProfileErrors())
+			End If
+			
+		Else
+			Call Debug(STR_MODULE_NAME & |: No reporting event profiles were found.|)
+			If (flgEnableUIMsgs) Then
+				Print |No reporting event profiles were found.|
+			End If					
+		End If
+	Else
+		Call Debug(STR_MODULE_NAME & |: No reporting event profiles were found.|)
+		If (flgEnableUIMsgs) Then
+			Print |No reporting event profiles were found.|
+		End If				
+	End If
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+		Print Error()
+	End If
+	Resume lblExit
+	
+End Sub
+
+
+
+'++LotusScript Development Environment:2:2:UpdateReportingEventProfile:1:8
+Sub UpdateReportingEventProfile(docCanisterProfile As NotesDocument, docEventProfile As NotesDocument, docReportingEventProfile As NotesDocument, dtTimestamp As NotesDateTime)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Update the supplied reporting event profile in this database based on the supplied canister event profile.
+     '
+     'Parameters
+     '----------------
+	'docCanisterProfile					The canister profile in the GRP reference database for the canister that contains the event profile
+     'docEventProfile						An event profile in a GRP canister
+	'docReportingEventProfile		A reporting event profile in this database
+	'dtTimestamp						The timestamp for the update
+	'
+     'Return Values
+     '-------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |UpdateReportingEventProfile|
+	
+	Dim strEventID As String
+	Dim strReportingEventID As String
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	strEventID = docEventProfile.ep_id(0)
+	strReportingEventID = docReportingEventProfile.ep_id(0)	
+	
+	Call Debug(STR_MODULE_NAME & |: Updating event profile for event with ID [| & strEventID & |].|) 
+	
+	Call docEventProfile.CopyAllItems(docReportingEventProfile, True)
+	
+	'Add the canister title
+	docReportingEventProfile.rep_CanisterTitle = docCanisterProfile.cp_SystemName(0)	
+	
+	'Add a timestamp to indicate when the update occurred
+	Set docReportingEventProfile.rep_DateRefreshed = dtTimestamp	
+	
+	Call docReportingEventProfile.Save(True, False)
+	
+lblExit:
+	
+	Call Debug(STR_MODULE_NAME & |: Finished.|) 
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:1:dbGetGRPDb:1:8
+Function dbGetGRPDb() As NotesDatabase
+    '------------------------------------------------------------------------------------------------------
+    'Description
+    '------------------
+    'Return a handle to the GRP database.  The location of the
+	'database is defined in the Database Profile.
+    '
+    'Parameters
+    '----------------
+    'None.
+	'
+    'Return Values
+    '-------------------
+    'A handle to the database if the database could be found and opened successfully,
+	'Otherwise Nothing is returned.
+    '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |dbGetGRPDb|
+	
+	Dim s As New NotesSession	
+	Dim dbGRP As NotesDatabase
+	Dim strGRPServer As String
+	Dim strGRPFilename As String
+	
+     'Trap errors
+	On Error GoTo lblError
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	
+	'If we already have a handle to the database, return it
+	If (Not g_dbGRP Is Nothing) Then
+		Set dbGRP = g_dbGRP
+	Else
+		'Get a handle to the GRP database
+		strGRPServer = CStr(g_docDbProfile.dp_GRP090Server(0))
+		strGRPFilename = CStr(g_docDbProfile.dp_GRP090Filename(0))
+		
+		On Error Resume Next
+		
+		Set dbGRP = s.GetDatabase(strGRPServer, strGRPFilename, False)
+		
+		On Error GoTo lblError		
+		
+		If (dbGRP Is Nothing) Then
+			Call dbGRP.Open(strGRPServer, strGRPFilename)
+			If dbGRP.IsOpen Then
+				Call Debug(STR_MODULE_NAME & |: GRP database is available.|)
+			Else
+				Call Debug(STR_MODULE_NAME & |: Unable to find GRP database.|)	
+			End If
+		Else
+			Call Debug(STR_MODULE_NAME & |: GRP database is available.|)
+		End If
+	End If
+	
+lblExit:
+	
+	'Set the return values
+	Call Debug(STR_MODULE_NAME & |: Finished.|) 
+	
+	Set dbGetGRPDb = dbGRP
+	
+	Exit Function
+	
+lblError:
+	
+	Set dbGRP = Nothing
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:2:reportingFields:1:8
+Sub reportingFields
+		
+	'Confirmed count by type	
+	grpProfileFields_C(1)="rep_CountConfirmedCust"
+	grpProfileFields_C(2)="rep_CountConfirmedEmp"
+	grpProfileFields_C(3)="rep_CountConfirmedExec"
+	grpProfileFields_C(4)="rep_CountConfirmedStaff"
+	grpProfileFields_C(5)="rep_CountConfirmedPress"
+	grpProfileFields_C(6)="rep_CountConfirmedSpeaker"
+	grpProfileFields_C(7)="rep_CountConfirmedAcademic"
+	grpProfileFields_C(8)="rep_CountConfirmedBP"
+	'Attended count by type
+	grpProfileFields_A(1)="rep_CountAttendedCust"
+	grpProfileFields_A(2)="rep_CountAttendedEmp"
+	grpProfileFields_A(3)="rep_CountAttendedExec"
+	grpProfileFields_A(4)="rep_CountAttendedStaff"
+	grpProfileFields_A(5)="rep_CountAttendedPress"
+	grpProfileFields_A(6)="rep_CountAttendedSpeaker"
+	grpProfileFields_A(7)="rep_CountAttendedAcademic"
+	grpProfileFields_A(8)="rep_CountAttendedBP"
+	'Did Not Attend count by type
+	grpProfileFields_D(1)="rep_CountDidNotAttendCust"
+	grpProfileFields_D(2)="rep_CountDidNotAttendEmp"
+	grpProfileFields_D(3)="rep_CountDidNotAttendExec"
+	grpProfileFields_D(4)="rep_CountDidNotAttendStaff"
+	grpProfileFields_D(5)="rep_CountDidNotAttendPress"
+	grpProfileFields_D(6)="rep_CountDidNotAttendSpeaker"
+	grpProfileFields_D(7)="rep_CountDidNotAttendAcademic"
+	grpProfileFields_D(8)="rep_CountDidNotAttendBP"
+	
+	intRegCount(1)=0
+	intRegCount(2)=0
+	intRegCount(3)=0
+	intRegCount(4)=0
+	intRegCount(5)=0
+	intRegCount(6)=0
+	intRegCount(7)=0
+	intRegCount(8)=0
+
+	intAttendCount(1)=0
+	intAttendCount(2)=0
+	intAttendCount(3)=0
+	intAttendCount(4)=0
+	intAttendCount(5)=0
+	intAttendCount(6)=0
+	intAttendCount(7)=0
+	intAttendCount(8)=0
+	
+	dbgLabel(1)="Customers"
+	dbgLabel(2)="IBM Employees"
+	dbgLabel(3)="IBM Executives"
+	dbgLabel(4)="VendorStaff"
+	dbgLabel(5)="Press"
+	dbgLabel(6)="Speakers"
+	dbgLabel(7)="Academics"
+	dbgLabel(8)="Business Partners"
+	
+	briefField_R(1)="res_cust_registered"
+	briefField_R(2)="res_ibmemp_registered"
+	briefField_R(3)="res_ibmexec_registered"
+	briefField_R(4)="res_staff_registered"
+	briefField_R(5)="res_press_registered"
+	briefField_R(6)="res_speakers_registered"
+	briefField_R(7)="res_acad_registered"
+	briefField_R(8)="res_bp_registered"
+
+	briefField_A(1)="res_cust_attended"
+	briefField_A(2)="res_ibmemp_attended"
+	briefField_A(3)="res_ibmexec_attended"
+	briefField_A(4)="res_staff_attended"
+	briefField_A(5)="res_press_attended"
+	briefField_A(6)="res_speakers_attended"
+	briefField_A(7)="res_acad_attended"
+	briefField_A(8)="res_bp_attended"
+	
+	briefField_NP(1)="res_cust_responded"
+	briefField_NP(2)="res_ibmemp_responded"
+	briefField_NP(3)="res_ibmexec_responded"
+	briefField_NP(4)="res_staff_responded"
+	briefField_NP(5)="res_press_responded"
+	briefField_NP(6)="res_speakers_responded"
+	briefField_NP(7)="res_acad_responded"
+	briefField_NP(8)="res_bp_responded"
+	
+	'Post Processing Fields
+	postField_P(1)="postEndDateProcessing"
+	postField_P(2)="ep_SendToCRM"
+	postField_P(3)="postEndDateProcessingDate"
+	
+	'reg types to count as 'Buyers' in EST
+	regTypes(1)="Customer/Delegate"
+	regTypes(2)="Business Partner"
+	regTypes(3)="Academic"
+	
+End Sub
+
+'++LotusScript Development Environment:2:1:dbGetReferenceDb:1:8
+Function dbGetReferenceDb() As NotesDatabase
+    '------------------------------------------------------------------------------------------------------
+    'Description
+    '------------------
+    'Return a handle to the Reference database.  The location of the
+	'database is defined in the Database Profile.
+    '
+    'Parameters
+    '----------------
+    'None.
+	'
+    'Return Values
+    '-------------------
+    'A handle to the database if the database could be found and opened successfully,
+	'Otherwise Nothing is returned.
+    '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |dbGetReferenceDb|
+	
+	Dim s As New NotesSession	
+	Dim dbReference As New NotesDatabase("", "")
+	Dim strReferenceReplicaID As String
+	
+    'Trap errors
+	On Error Goto lblError
+	
+	'Only instantiate if not already done
+	
+	If g_dbReference Is Nothing Then
+		'Get a handle to the Reference database
+		strReferenceReplicaID = Cstr(g_docDbProfile.dp_ReferenceDbReplicaID_NoColon(0))
+		Call Debug(STR_MODULE_NAME & |: Reference database replica ID is [| & strReferenceReplicaID & |].|)	
+		
+		On Error Resume Next	
+		If dbReference.OpenByReplicaID(g_dbCurr.Server, strReferenceReplicaID) Then
+			Call Debug(STR_MODULE_NAME & |: Reference database is available.|)
+		Else
+			Call Debug(STR_MODULE_NAME & |: Unable to find Reference database.|)
+			'Check a server that we know has the refdb
+			If dbReference.OpenByReplicaID(|B01ACIDB502|, strReferenceReplicaID) Then
+				Call Debug(STR_MODULE_NAME & |: Found Reference database on B01ACIDB502.|)
+			End If
+				
+		End If
+		On Error Goto lblError			
+	Else
+		'Already instatiated so, just return the existing handke
+		Set dbReference = g_dbReference
+		Call Debug(STR_MODULE_NAME & |: Reference database is already available.|)		
+	End If
+	
+lblExit:
+	
+	'Set the return values
+	Set dbGetReferenceDb = dbReference
+	
+	Exit Function
+	
+lblError:
+	
+	Set dbReference = Nothing
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:2:RefreshReportingEventProfilesByCanister:1:8
+Sub RefreshReportingEventProfilesByCanister(docCanisterProfile As NotesDocument, dtTimestamp As NotesDateTime, flgEnableUIMsgs As Boolean)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given a canister profile from the reference database, find all event profiles in
+	'that canister and copy them to this database.  
+	'(Ignore canisters that are in Test mode)
+     '
+	'Use the supplied timestamp to timestamp the event profiles in this database.
+	'
+     'Parameters
+     '----------------
+     'docCanisterProfile			A canister profile from the GRP Reference database.
+	'dtTimestamp				A timestamp.
+	'flgEnableUIMsgs			If True write status messages to the Notes client status bar.
+	'
+     'Return Values
+     '-------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |RefreshReportingEventProfilesByCanister|
+	
+	Const STR_CANISTER_LOOKUP_VIEW_ALIAS = |vLookupEventsByKey|
+	Const STR_CANISTER_REG_LOOKUP_VIEW_ALIAS = |vLookupRegistrationsByEventID_All|
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |vLookupEventsByKey|
+	
+	Dim s As New NotesSession
+	Dim dbCanister As NotesDatabase	
+	Dim docRemoteCanisterDbProfile As NotesDocument
+	Dim dtNow As New NotesDateTime("")
+	Dim strCanisterTitle As String
+	Dim docEventProfile As NotesDocument
+	Dim viewEventProfiles As NotesView
+	Dim viewRegistrations As NotesView
+	Dim vc As NotesViewEntryCollection
+	Dim entryCurr As NotesViewEntry	
+	Dim docReportingEventProfile As NotesDocument
+	Dim viewReportingEventProfiles As NotesView
+	Dim strEventID As String
+	Dim strBaseMsg As String
+	Dim intCount As Integer
+	
+	'GB
+	Dim flgUpdateReg As Boolean
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	'Get the remote canister database handle
+	'Set dbCanister = s.GetDatabase(docCanisterProfile.cp_Server(0), docCanisterProfile.cp_Filename(0))
+	'NOTE: Temporarily set to current server (should be 05)
+	Set dbCanister = s.GetDatabase(g_dbCurr.Server, docCanisterProfile.cp_Filename(0))
+	If Not dbCanister.IsOpen Then 'Is Nothing Then ' for 05, most are in internet
+		Call Debug(STR_MODULE_NAME & |: Database [| & docCanisterProfile.cp_Filename(0) & |] not found. Trying internet path.|) 
+		
+		Set dbCanister = s.GetDatabase(g_dbCurr.Server, "internet\" & docCanisterProfile.cp_Filename(0))
+	End If
+	Set docRemoteCanisterDbProfile = dbCanister.GetProfileDocument("fProfile")
+	
+	strCanisterTitle = docCanisterProfile.cp_SystemName(0)
+	
+	'Get the view in this database used to find event profiles
+	Set viewReportingEventProfiles = g_dbCurr.GetView(STR_LOOKUP_VIEW_ALIAS)
+	
+	'new per DD 3/2/11
+	viewReportingEventProfiles.Autoupdate = False
+	
+	'Get the profile and process the events for that canister
+	If Not docRemoteCanisterDbProfile Is Nothing Then
+		
+		'Skip any canisters that are in test mode
+		If docRemoteCanisterDbProfile.dp_SystemMode(0) = |Test| Then
+			If (flgEnableUIMsgs) Then
+				Print |Skipping events from [| & strCanisterTitle & |].  The canister is in Test mode.|
+			End If			
+			Call Debug(STR_MODULE_NAME & |: Skipping events from [| & strCanisterTitle & |].  The canister is in Test mode.|) 
+			Goto lblExit
+		End If
+		
+		Call Debug(STR_MODULE_NAME & |: Refreshing events from | & strCanisterTitle & |...|) 
+		If (flgEnableUIMsgs) Then
+			Print |Processing events from | & strCanisterTitle & |...|
+		End If
+		
+		'For each event in the canister, check whether there is an event profile in this database
+		Set viewEventProfiles = dbCanister.GetView(STR_CANISTER_LOOKUP_VIEW_ALIAS)
+		Set viewRegistrations = dbCanister.GetView(STR_CANISTER_REG_LOOKUP_VIEW_ALIAS)
+		
+		'new per DD 3/2/11
+		viewEventProfiles.Autoupdate = False
+		'new per DD 3/2/11
+		viewRegistrations.Autoupdate = False
+		
+		Set vc = viewEventProfiles.AllEntries
+		
+		If (Not vc Is Nothing) Then
+			If (vc.Count > 0) Then
+				
+				Call Debug(STR_MODULE_NAME & |: Processing [| & Cstr(vc.Count) & |] event profile(s) from canister [| & strCanisterTitle & |]...|)
+				strBaseMsg = |Processing | & Cstr(vc.Count) & | event profile(s) from | & strCanisterTitle & ||
+				If (flgEnableUIMsgs) Then
+					Print strBaseMsg & |...|
+				End If
+				Call Debug(STR_MODULE_NAME & |:| & strBaseMsg) 
+				
+				Set entryCurr = vc.GetFirstEntry()
+				
+				While Not (entryCurr Is Nothing)
+					
+					Set docEventProfile = entryCurr.Document
+					
+					intCount = intCount + 1
+					
+					strEventID = docEventProfile.ep_id(0)
+					
+					Set docReportingEventProfile = viewReportingEventProfiles.GetDocumentByKey(strEventID, True)
+					
+					'If there isn't an event profile in this database, create one
+					If docReportingEventProfile Is Nothing Then
+						Call Debug(STR_MODULE_NAME & |:| & intCount & |] Creating new reporting event profile...|)
+						If (flgEnableUIMsgs) Then
+							Print strBaseMsg & |. [| & intCount & |] Creating new reporting event profile...|
+						End If						
+						Set docReportingEventProfile = docCreateReportingEventProfile(docCanisterProfile, docEventProfile, dtTimestamp)
+						flgUpdateReg = True
+					'ElseIf docReportingEventProfile.status(0) = |Inactive| And docEventProfile.status(0) = |Inactive| Then
+					Elseif docReportingEventProfile.reg_complete(0) = |true| Then
+						'12/30/10 - GB - Check if the Reporting profile and Event Profile in Cannister are inactive
+						'2/13/2010 - GB - Check the postEndDateProcessingDate to make sure they match
+						If docReportingEventProfile.HasItem(|postEndDateProcessingDate|) Then
+							If docEventProfile.HasItem(|postEndDateProcessingDate|) Then
+								If docReportingEventProfile.postEndDateProcessingDate(0) = docEventProfile.postEndDateProcessingDate(0) Then
+									flgUpdateReg = False 'don't need to update because the dates haven't changed
+									If (flgEnableUIMsgs) Then
+										Print strBaseMsg & |. [| & intCount & |] Skipping update of existing reporting event profile...Complete| 'Inactive|
+									End If		
+									Call Debug(STR_MODULE_NAME & |: [| & intCount & |] Skipping update of existing reporting event profile...]| & strEventID & |]...Complete|) 'Inactive|)  
+															
+								Else
+									flgUpdateReg = True 'to catch up									
+								End If
+							Else
+								flgUpdateReg = True 'to catch up
+							End If
+						Else
+							flgUpdateReg = True 'to catch up
+						End If
+						
+					
+					Else
+						'Otherwise update the existing one
+						If (flgEnableUIMsgs) Then
+							Print strBaseMsg & |. [| & intCount & |] Updating existing reporting event profile...|
+						End If		
+						Call Debug(STR_MODULE_NAME & |: [| & intCount & |]	Updating existing reporting event profile...|)					
+						Call UpdateReportingEventProfile(docCanisterProfile, docEventProfile, docReportingEventProfile, dtTimestamp)
+						flgUpdateReg=True
+					End If
+					
+					If flgUpdateReg Then
+						'Now update the enrollment information for the event
+						Call UpdateRegistrationCounts(docReportingEventProfile, viewRegistrations)
+						
+						'If status is inactive, these are final numbers
+						If docEventProfile.postEndDateProcessing(0) = |Completed| And docEventProfile.status(0) = |Inactive|  Then
+							docReportingEventProfile.reg_complete = |true|
+							Call Debug(STR_MODULE_NAME & |: Setting Completed reporting event profile...]| & strEventID & |] to reg_complete|) 'Inactive|)  
+							
+						End If
+						
+						'And save the changes
+						Call docReportingEventProfile.Save(True, False)
+					End If
+					
+					
+					Set entryCurr = vc.GetNextEntry(entryCurr)
+				Wend	
+				
+				Call Debug(STR_MODULE_NAME & |: | & strCanisterTitle & | events refreshed.|) 
+				If (flgEnableUIMsgs) Then
+					Print strCanisterTitle & | events refreshed.|
+				End If				
+			Else
+				Call Debug(STR_MODULE_NAME & |: No event profiles were found in canister [| & strCanisterTitle & |].|)
+				If (flgEnableUIMsgs) Then
+					Print |No event profiles were found in canister [| & strCanisterTitle & |].|
+				End If					
+			End If
+		Else
+			Call Debug(STR_MODULE_NAME & |: No event profiles were found in canister [| & strCanisterTitle & |].|)
+			If (flgEnableUIMsgs) Then
+				Print |No event profiles were found in canister [| & strCanisterTitle & |].|
+			End If				
+		End If
+		
+	Else
+		Error ERR_SYSTEM_ERROR, |Unable to find canister profile.|	
+	End If
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+		Print Error()
+	End If
+	Resume lblExit
+	
+End Sub
+
+
+
+'++LotusScript Development Environment:2:2:ShowInfoMsg:1:8
+Sub ShowInfoMsg(strMsg As String)
+	'------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Display a message box with an Information Icon.
+	'
+     'Parameters
+     '-----------------------
+     'strMsg		The message to display.
+     '     
+     'Return Values
+     '-----------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	'NOTE: 64 = MB_ICONINFORMATION 
+	
+	Messagebox strMsg, 64, g_strSystemName
+	
+End Sub
+
+'++LotusScript Development Environment:2:1:intAskQuestion:1:8
+Function intAskQuestion(strMsg As String) As Integer
+   '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Display a message box with Yes/No buttons and return the selected button.
+	'
+     'Parameters
+     '-----------------------
+     'strMsg		The message to display.
+     '     
+     'Return Values
+     '-----------------------
+     'IDYES (6) if the user selected 'Yes'
+	'IDNO (7) if the user selected 'No'
+     '------------------------------------------------------------------------------------------------------   
+	
+	intAskQuestion = Messagebox(strMsg, MB_YESNO + MB_ICONQUESTION, g_strSystemName)
+	
+End Function
+
+'++LotusScript Development Environment:2:2:UpdateESEventBriefs:5:8
+%REM
+	Sub UpdateESEventBriefs
+	Description: Comments for Sub
+%END REM
+Sub UpdateESEventBriefs(flgEnableUIMsgs As Boolean)
+	'------------------------------------------------------------------------------------------------------
+	'Description
+	'------------------
+	'Find all reporting event profiles in this database and update the confirmed attendance numbers
+	'in the corresponding ES event brief.
+	'
+	'Parameters
+	'----------------
+	'flgEnableUIMsgs			If True write status messages to the Notes client status bar.
+	'
+	'Return Values
+	'-------------------
+	'None.
+	'------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |UpdateESEventBriefs|
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |vLookupEventsESUpdate|
+	
+	Dim dtNow As New NotesDateTime("")
+	Dim vc As NotesViewEntryCollection
+	Dim entryCurr As NotesViewEntry	
+	Dim docReportingEventProfile As NotesDocument
+	Dim doc_GRP090EventProfile As NotesDocument
+	Dim docESEventBrief As NotesDocument
+	Dim viewReportingEventProfiles As NotesView
+	Dim strEventID As String
+	Dim strBaseMsg As String
+	Dim intCount As Integer
+	Dim intCountNonIBM As Integer
+	Dim intCountIBM As Integer
+	Dim intCountBP As Integer
+	Dim intCountCust As Integer	
+	Dim intRegistrationCount As Integer
+	Dim intBriefCustCount As Integer
+	Dim intBriefIBMCount As Integer
+	Dim intBriefBPCount As Integer
+	Dim intCountEmp As Integer
+	Dim intCountExec As Integer
+	Dim intCountStaff As Integer
+	Dim intCountPress As Integer
+	Dim intCountSpeaker As Integer
+	Dim intCountAcademic As Integer
+	
+	Dim intTotalReg As Integer
+	Dim intTotalAttend As Integer
+	Dim intBuyerReg As Integer
+	Dim intBuyerAttend As Integer
+	
+	Dim t As Integer
+	Dim flgSkip As Boolean
+	flgSkip = False
+	
+	Dim briefCount As Integer
+	briefCount = 0
+	
+	Dim flgUpdateRegistrationCount As Boolean
+	Dim strEndDate As String
+	Dim dtToday As NotesDateTime
+	Dim dtEndDate As NotesDateTime	
+	
+	Dim intFinCount As Integer
+	intFinCount = 0
+	
+	Dim strRegStatus As String
+	Dim flgOK As Boolean
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'Open the GRP 090 database
+	Set g_dbGRP = dbGetGRPDb()
+	
+	'Set the date/time used to timestamp the update
+	dtNow.SetNow
+	
+	'Get today's date
+	Set dtToday = New NotesDateTime("Today")	
+	
+	'Get the view in this database used to find reporting event profiles
+	Set viewReportingEventProfiles = g_dbCurr.GetView(STR_LOOKUP_VIEW_ALIAS)
+	
+	'Get the view in the GRP 90 canister used to find reporting event profiles
+	Set g_vwGRPEvents = g_dbGRP.GetView("vLookupEventsByEventID_All")
+	
+	'new per DD 3/2/11
+	viewReportingEventProfiles.AutoUpdate = False
+	
+	Set vc = viewReportingEventProfiles.AllEntries
+	
+	If (Not vc Is Nothing) Then
+		If (vc.Count > 0) Then
+			
+			Call Debug(STR_MODULE_NAME & |: Processing [| & Cstr(vc.Count) & |] reporting event profile(s)...|)
+			strBaseMsg = |Processing | & Cstr(vc.Count) & | reporting event profile(s)|
+			If (flgEnableUIMsgs) Then
+				Print strBaseMsg & |...|
+			End If
+			
+			Set entryCurr = vc.GetFirstEntry()
+			
+			While Not (entryCurr Is Nothing)
+				
+				Set docReportingEventProfile = entryCurr.Document
+				Set doc_GRP090EventProfile = g_vwGRPEvents.Getdocumentbykey(UCase(docReportingEventProfile.ep_id(0)), True)
+				If (doc_GRP090EventProfile Is Nothing) Then
+					Call Debug(STR_MODULE_NAME & |: GRP 090 Event Profile NOT found for | & docReportingEventProfile.ep_id(0) & |.|)
+				End If
+				
+				intCount = intCount + 1
+				
+				strEventID = Cstr(docReportingEventProfile.ep_id(0))
+				
+				Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Processing event ID [| & strEventID & |].|)	
+				
+				On Error Goto lblNext 'adding this 12/27/10 GB to continue processing if type mistmatches occur on individual profiles
+				
+				'load fields array
+				reportingFields
+				
+				'test for the required fields
+				'if not available, skip this profile
+				flgSkip = False
+				For t = 1 To 8 
+					If Not docReportingEventProfile.HasItem(grpProfileFields_C(t)) Then
+						Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Event ID [| & strEventID & |] missing field | & grpProfileFields_C(t) )
+						flgSkip = True
+					End If
+					If Not docReportingEventProfile.HasItem(grpProfileFields_A(t)) Then
+						Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Event ID [| & strEventID & |] missing field | & grpProfileFields_A(t) )
+						flgSkip = True
+					End If
+					If Not docReportingEventProfile.HasItem(grpProfileFields_D(t)) Then
+						Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Event ID [| & strEventID & |] missing field | & grpProfileFields_D(t) )
+						flgSkip = True
+					End If
+				Next
+				
+				If flgSkip Then
+					Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Skipping event ID [| & strEventID & |]. Required fields are not available.|)	
+					Goto lblNext
+				End If
+				
+				
+				'Get the event end date
+				strEndDate = docReportingEventProfile.ep_EndDate(0)
+				Set dtEndDate = New NotesDateTime(strEndDate)
+				
+				'GET THE GRP COUNTS	
+				
+				'1	Cust
+				'2	Emp
+				'3	Exec
+				'4	Staff
+				'5	Press
+				'6	Speaker
+				'7	Academic
+				'8	BP
+				
+				Dim i As Integer
+				Dim c As Integer 'Confirmed
+				Dim a As Integer 'Attended
+				Dim d As Integer 'Did not attend
+				Dim z As Integer
+				Dim p As Integer
+				'count the total registered (confirmed + attended + did not attend) and attended
+				For i=1 To 8
+					c=0
+					a=0
+					d=0
+					c=Cint(docReportingEventProfile.getItemValue(grpProfileFields_C(i))(0))
+					a=Cint(docReportingEventProfile.getItemValue(grpProfileFields_A(i))(0))
+					d=Cint(docReportingEventProfile.getItemValue(grpProfileFields_D(i))(0))
+					intRegCount(i)= c+a+d
+					intAttendCount(i)= a
+					Call Debug(STR_MODULE_NAME & |: Total | & dbgLabel(i) & | registered for event ID [| & strEventID & |] = | & Cstr(intRegCount(i)) &|.|)
+					Call Debug(STR_MODULE_NAME & |: Total | & dbgLabel(i) & | attended for event ID [| & strEventID & |] = | & Cstr(intAttendCount(i)) &|.|)
+				Next
+				
+				'IBM count = IBM Exec + IBM Emp (2 and 3)
+				'Non IBM count = Customers + BP + Academic (1 & 7 & 8)
+				
+				intCountNonIBM = intRegCount(1) + intRegCount(7) + intRegCount(8)				
+				intCountIBM = intRegCount(2) + intRegCount(3) 				
+				
+				intCountCust = intRegCount(1)				
+				intCountEmp = intRegCount(2)				
+				intCountExec = intRegCount(3)				
+				intCountStaff = intRegCount(4)				
+				intCountPress = intRegCount(5)				
+				intCountSpeaker = intRegCount(6)			
+				intCountAcademic = intRegCount(7)
+				intCountBP = intRegCount(8)
+				
+				'total 'em up
+				i = 0
+				intTotalReg = 0
+				For i = 1 To 8
+					intTotalReg = intTotalReg + intRegCount(i)
+				Next
+				
+				intBuyerReg= intRegCount(1) + intRegCount(7) + intRegCount(8)
+				
+				i = 0
+				intTotalAttend = 0
+				For i = 1 To 8
+					intTotalAttend = intTotalAttend + intAttendCount(i)
+				Next
+				
+				intBuyerAttend= intAttendCount(1) + intAttendCount(7) + intAttendCount(8)
+				
+				'FINISH COUNTS
+				
+				If (flgEnableUIMsgs) Then
+					Print strBaseMsg & |. [| & intCount & |]...|
+				End If								
+				
+				'Try to find the corresponding ES event brief
+				Set docESEventBrief = docGetESEventBrief(strEventID)
+				
+				'On Error GoTo lblErrorNext
+				
+				If (docESEventBrief Is Nothing) Then
+					
+					'stamp profile as error to get it out of processing (do this first before error)
+					docReportingEventProfile.error_no_brief=|true|
+					'Save the changes
+					Call docReportingEventProfile.Save(True, False)
+					'Throwing the Error below is returning to the calling agent, which means the rest of the view is not getting processed
+					'Temp change to DEBUG msg
+					'Error ERR_SYSTEM_ERROR, |Unable to find ES event brief for event ID [| & strEventID & |].|		
+					Call Debug(STR_MODULE_NAME & |:	Unable to find ES event brief for event ID [| & strEventID & |].|)				
+					Goto lblNext	
+					'NEW for 3rd Party Canister
+					'ElseIf docReportingEventProfile.eventcategory(0)=|Non-Proprietary| Then
+					'Do the non-prop stuff
+				Elseif docESEventBrief.eventcategory(0) = |Proprietary| Then
+					
+					'DSH 05/03/2015 New status for ES brief
+					'DSH 07/19/2016 Point to GRP 090 event profile
+					If Not (doc_GRP090EventProfile Is Nothing) Then
+						If doc_GRP090EventProfile.HasItem("postEndDateProcessingDate") Then
+							If doc_GRP090EventProfile.postEndDateProcessingDate(0) <> "" Then
+								strRegStatus = |Completed|
+								docESEventBrief.postEndDateProcessingDate = doc_GRP090EventProfile.postEndDateProcessingDate(0)
+							Else
+								strRegStatus = |Live|
+							End If
+						Else
+							strRegStatus = |Live|
+						End If
+					End If
+					
+					Call Debug(STR_MODULE_NAME & |:Proprietary|)			
+					If docESEventBrief.r_regsystem(0) <> |Attendee Solution| And docESEventBrief.r_regsystem(0) <> |AS Import| Then				'stamp profile as error to get it out of processing
+						docReportingEventProfile.error_brief_reg = docESEventBrief.r_regsystem(0)
+						'Save the changes
+						Call docReportingEventProfile.Save(True, False)
+						Call Debug(STR_MODULE_NAME & |: Skipping ES event brief for event ID [| & strEventID & |].  The ES event brief has [| & Cstr(docESEventBrief.r_regsystem(0)) & |] as the registration system.|)
+						Goto lblNext
+					End If
+					
+					'Check for AST Planned and Live Date - mark if not
+					If docESEventBrief.r_regsystem(0) = |Attendee Solution| Then
+						'If docESEventBrief.AttendeeSolutionStatus(0) = |AS Planned| Then
+						If docESEventBrief.AttendeeSolutionStatus(0) <> |AS | & strRegStatus Then
+							docESEventBrief.AttendeeSolutionStatus = |AS | & strRegStatus
+						 	docESEventBrief.AttendeeSolutionStatusAudit = |AS | & strRegStatus & | set by Attendee Solutions (Japan) update agent|
+						End If
+						If docESEventBrief.GRPTimestamp(0) = "" Then
+						 	docESEventBrief.GRPTimestamp= docReportingEventProfile.EP_DATEPUBLISHED(0)
+						End If
+						'DSH, 12/2/2015 - Added below to update the URL in the ES brief document
+						If docESEventBrief.EventWebAddr(0) <> strGetDefaultURL(docReportingEventProfile) Then
+							'Attempt to update the web address in the corrsponding ES brief
+							flgOK = flgUpdateESBriefWebAddress(docReportingEventProfile, False)
+						End If
+					End If
+					
+					If docESEventBrief.r_regsystem(0) = |AS Import| Then
+						If docESEventBrief.AttendeeSolutionStatus(0) <> |AS Import| Then
+							docESEventBrief.AttendeeSolutionStatus=|AS Import|
+							docESEventBrief.AttendeeSolutionStatusAudit=|AS Import set by Attendee Solutions (Japan) update agent|
+						End If
+						If docESEventBrief.GRPTimestamp(0) = "" Then
+							docESEventBrief.GRPTimestamp= docReportingEventProfile.EP_DATEPUBLISHED(0)
+						End If							
+					End If
+					
+					If (Not docESEventBrief.HasItem(|res_contacts_respondaccept|)) Then
+						intRegistrationCount = 0
+						flgUpdateRegistrationCount = True
+					Else
+						'Get the current registration count from the ES brief and check whether it has changed
+						'NOTE: will now need to check if either reg or attended count has changed - GB
+						intRegistrationCount = Cint(docESEventBrief.res_contacts_respondaccept(0))
+						'intBriefCustCount= CInt(docESEventBrief.res_cust_registered(0)) 	
+						'intBriefBPCount= CInt(docESEventBrief.res_bp_registered(0))
+						'intBriefIBMCount= CInt(docESEventBrief.res_ibm_registered(0))
+							If (intRegistrationCount <> intCountNonIBM) Then
+								flgUpdateRegistrationCount = True
+						'	ElseIf (intBriefIBMCount <> intCountIBM) Then 
+						'		flgUpdateRegistrationCount = True
+							Else							
+								flgUpdateRegistrationCount = False
+							End If
+						
+						'Check all the new fields
+						Dim f As Integer
+						For f = 1 To 8
+							If (docESEventBrief.HasItem(briefField_R(f))) Then
+								'if field available, check if it's different from GRP
+								If Cint(docESEventBrief.GetItemValue(briefField_R(f))(0))<> intRegCount(f) Then
+									flgUpdateRegistrationCount = True
+								End If
+							Else
+								'if field not there, always update
+								flgUpdateRegistrationCount = True
+							End If
+							If (docESEventBrief.HasItem(briefField_A(f))) Then
+								'if field available, check if it's different from GRP
+								If Cint(docESEventBrief.GetItemValue(briefField_A(f))(0))<> intAttendCount(f) Then
+									flgUpdateRegistrationCount = True
+								End If
+							Else
+								'if field not there, always update
+								flgUpdateRegistrationCount = True	
+							End If							
+						Next	
+					
+						
+						'	If (docESEventBrief.HasItem(|reg_updated_final|)) Then
+						
+						'		flgUpdateRegistrationCount = False
+						
+						'	Else
+						'		flgUpdateRegistrationCount = False
+						'	End If
+					End If
+
+				Elseif docESEventBrief.eventcategory(0) = |Non-Proprietary| Then
+
+					'DSH 05/03/2015 New status for ES brief
+					'DSH 07/19/2016 Point to GRP 090 event profile
+					If Not (doc_GRP090EventProfile Is Nothing) Then
+						If doc_GRP090EventProfile.HasItem("postEndDateProcessingDate") Then
+							If doc_GRP090EventProfile.postEndDateProcessingDate(0) <> "" Then
+								strRegStatus = |Completed|
+								docESEventBrief.postEndDateProcessingDate = doc_GRP090EventProfile.postEndDateProcessingDate(0)
+							Else
+								strRegStatus = |Live|
+							End If
+						Else
+							strRegStatus = |Live|
+						End If
+					End If
+					
+					Call Debug(STR_MODULE_NAME & |:Non-Proprietary|)
+					If docESEventBrief.r_regsystem(0) <> |Attendee Solution| And docESEventBrief.r_regsystem(0) <> |AS Import| Then 'Added proprietary 4/10/11 - GB						'stamp profile as error to get it out of processing
+						docReportingEventProfile.error_brief_reg=docESEventBrief.r_regsystem(0)
+						'Save the changes
+						Call docReportingEventProfile.Save(True, False)
+						Call Debug(STR_MODULE_NAME & |: Skipping ES event brief for event ID [| & strEventID & |].  The ES event brief has [| & Cstr(docESEventBrief.r_regsystem(0)) & |] as the registration system.|)
+						Goto lblNext
+					End If
+					
+					If docESEventBrief.r_regsystem(0) = |Attendee Solution| Then
+						'If docESEventBrief.AttendeeSolutionStatus(0) = |AS Planned| Then
+						If docESEventBrief.AttendeeSolutionStatus(0) <> |AS | & strRegStatus Then
+							docESEventBrief.AttendeeSolutionStatus = |AS | & strRegStatus
+							docESEventBrief.AttendeeSolutionStatusAudit = |AS | & strRegStatus & | set by Attendee Solutions (Japan) update agent|
+						End If
+						If docESEventBrief.GRPTimestamp(0) = "" Then
+							docESEventBrief.GRPTimestamp= docReportingEventProfile.EP_DATEPUBLISHED(0)
+						End If		
+						'DSH, 12/2/2015 - Added below to update the URL in the ES brief document
+						If docESEventBrief.EventWebAddr(0) <> strGetDefaultURL(docReportingEventProfile) Then
+							'Attempt to update the web address in the corrsponding ES brief
+							flgOK = flgUpdateESBriefWebAddress(docReportingEventProfile, False)
+						End If					
+					End If
+					
+					If docESEventBrief.r_regsystem(0) = |AS Import| Then
+						If docESEventBrief.AttendeeSolutionStatus(0) <> |AS Import| Then
+							docESEventBrief.AttendeeSolutionStatus=|AS Import|
+							docESEventBrief.AttendeeSolutionStatusAudit=|AS Import set by Attendee Solutions (Japan) update agent|
+						End If
+						If docESEventBrief.GRPTimestamp(0) = "" Then
+							docESEventBrief.GRPTimestamp= docReportingEventProfile.EP_DATEPUBLISHED(0)
+						End If							
+					End If
+					
+					If (Not docESEventBrief.HasItem(|res_contacts_respond|)) Then
+						intRegistrationCount = 0
+						flgUpdateRegistrationCount = True
+					Else
+						
+						'Check all the new fields
+						Dim fnp As Integer
+						For fnp = 1 To 8
+							
+							If (docESEventBrief.HasItem(briefField_NP(fnp))) Then
+								'if field available, check if it's different from GRP
+								If Cint(docESEventBrief.GetItemValue(briefField_NP(fnp))(0))<> intAttendCount(fnp) Then
+									flgUpdateRegistrationCount = True
+								End If
+							Else
+								'if field not there, always update
+								flgUpdateRegistrationCount = True	
+							End If							
+						Next						
+						
+						
+					End If
+				End If
+				
+				'Only update the ES event brief if the count has changed
+				If (flgUpdateRegistrationCount) Then
+					'old fields
+					If docESEventBrief.eventcategory(0)="Non-Proprietary" Then
+						'only update the contacts responding for non-prop
+						Call Debug(STR_MODULE_NAME & |:flgUpdateRegistrationCount: Non-Proprietary|)
+						docESEventBrief.res_contacts_respond = intAttendCount(1) + intAttendCount(7) + intAttendCount(8)
+						docESEventBrief.res_total_responded=intTotalAttend
+						docESEventBrief.res_buyers_responded=intBuyerAttend
+												
+					Else
+						'update registered and attended for prop
+						Call Debug(STR_MODULE_NAME & |:flgUpdateRegistrationCount: Proprietary|)
+						docESEventBrief.res_contacts_respondaccept = intCountNonIBM
+						docESEventBrief.r_postnumattendees =  intAttendCount(1) + intAttendCount(7) + intAttendCount(8)												
+						docESEventBrief.res_total_registered=intTotalReg
+						docESEventBrief.res_buyers_registered=intBuyerReg
+						docESEventBrief.res_total_attended=intTotalAttend
+						docESEventBrief.res_buyers_attended=intBuyerAttend
+						
+					End If
+					'add a breakdown of IBM
+					If docESEventBrief.eventcategory(0)="Proprietary" Then
+						docESEventBrief.res_ibm_registered = intCountIBM
+					End If					
+					
+					Set docESEventBrief.reg_updated = dtNow
+					Set docESEventBrief.res_reg_updated = dtNow 'new
+					'new 2/9/2011
+					
+					For p = 1 To 3
+						If Not (doc_GRP090EventProfile Is Nothing) Then
+							If doc_GRP090EventProfile.Hasitem(postField_P(p)) Then
+								Call Debug(STR_MODULE_NAME & |: | & strEventID & | has | & postField_P(p) & | -- setting brief to match|)
+								Call docESEventBrief.Replaceitemvalue(postField_P(p), doc_GRP090EventProfile.GetItemValue(postField_P(p))(0))
+							End If	
+						End If
+					Next
+					
+					'new 1/31/10
+					
+					For z = 1 To 8
+						If docESEventBrief.eventcategory(0)="Non-Proprietary" Then
+							Call docESEventBrief.Replaceitemvalue(briefField_NP(z), intAttendCount(z))
+						Else
+							Call docESEventBrief.Replaceitemvalue(briefField_R(z), intRegCount(z))
+							Call docESEventBrief.Replaceitemvalue(briefField_A(z), intAttendCount(z))	
+						End If 
+												
+					Next	
+					
+					docESEventBrief.res_reg_source = docReportingEventProfile.REP_CANISTERTITLE(0)
+					docESEventBrief.res_reg_source_link = docReportingEventProfile.dp_canisterid(0)
+					
+					'If these are final numbers, stamp the brief
+					'2/11/11 turning off until we know things are in sync
+					'If docReportingEventProfile.HasItem(|reg_complete|) And docReportingEventProfile.reg_complete(0)=|true| Then
+					'	docESEventBrief.reg_updated_final=|true|
+					'	Call Debug(STR_MODULE_NAME & |: Event brief for event ID [| & strEventID & |] marked Final.|)						
+					
+					'End If
+					
+					'Save the changes
+					
+					Call docESEventBrief.Save(True, False)
+					briefCount = briefCount + 1
+					Call Debug(STR_MODULE_NAME & |: Count of confirmed/attended attendees for event ID [| & strEventID & |] updated from [| & intRegistrationCount & |] to [| & intCountNonIBM & |].|)						
+					'Update the repoprting event profile timestamp too
+					Set docReportingEventProfile.reg_updated = dtNow
+					'If these are final numbers, stamp the profile
+					If docReportingEventProfile.HasItem(|reg_complete|) And docReportingEventProfile.reg_complete(0)="true" Then
+						'	docReportingEventProfile.reg_updated_final=|true|
+						'	Call Debug(STR_MODULE_NAME & |: Reporting profile for event ID [| & strEventID & |] marked Final.|)						
+						intFinCount = intFinCount + 1
+					End If
+					'Save the changes
+					Call docReportingEventProfile.Save(True, False)
+				Else
+					Call Debug(STR_MODULE_NAME & |: Counts for event ID [| & strEventID & |] has not changed.|)						
+				End If
+				
+				'6/22/11 - add code to check if PEDP and PEDPdate need to be updated in brief even if reg counts do not change
+				If Not (flgUpdateRegistrationCount) Then
+					For p = 1 To 3
+						If Not (doc_GRP090EventProfile Is Nothing) Then
+							If doc_GRP090EventProfile.Hasitem(postField_P(p))  Then
+								If doc_GRP090EventProfile.Getitemvalue(postField_P(p))(0) <> "" Then
+									If docESEventBrief.Hasitem(postField_P(p)) Then
+										If doc_GRP090EventProfile.GetItemValue(postField_P(p))(0) <> docESEventBrief.GetItemValue(postField_P(p))(0) Then
+											Call Debug(STR_MODULE_NAME & |: | & strEventID & | has different '| & postField_P(p) & |' -- setting brief to match|)
+											Call docESEventBrief.Replaceitemvalue(postField_P(p), doc_GRP090EventProfile.GetItemValue(postField_P(p))(0)) 'UPDATE
+											Call docESEventBrief.Save(True, False)	'SAVE
+										Else
+											Call Debug(STR_MODULE_NAME & |: | & strEventID & | brief and GRP 090 have the same value for '| & postField_P(p) & |'. NO UPDATE.|) 'NO UPDATE
+										End If
+									Else
+										Call Debug(STR_MODULE_NAME & |: | & strEventID & | brief does not have '| & postField_P(p) & |' -- setting brief to match AST (Japan)|)
+										Call docESEventBrief.Replaceitemvalue(postField_P(p), doc_GRP090EventProfile.GetItemValue(postField_P(p))(0)) 'UPDATE
+										Call docESEventBrief.Save(True, False) 'SAVE	
+									End If
+								Else
+									Call Debug(STR_MODULE_NAME & |: | & strEventID & | in GRP 090 has NO VALUE in '| & postField_P(p) & |'.|) 'NO UPDATE
+								End If		
+							Else
+								Call Debug(STR_MODULE_NAME & |: | & strEventID & | in GRP 090 does not have '| & postField_P(p) & |'.|) 'NO UPDATE
+							End If
+						End If
+					Next
+				End If
+			
+lblNext:
+			
+			'Restore standard error handling
+			'On Error Goto lblError
+			Call Debug(STR_MODULE_NAME & |: Getting next entry|) 'TEMP					
+			
+			Set entryCurr = vc.GetNextEntry(entryCurr)
+		Wend	
+		
+		'Restore standard error handling
+		On Error Goto lblError
+		
+		Call Debug(STR_MODULE_NAME & |: | & Cstr(intCount) & | reporting event profile(s) processed.|)
+		Call Debug(STR_MODULE_NAME & |: | & Cstr(briefCount) & | event brief(s) updated.|) 
+		If (flgEnableUIMsgs) Then
+			Print Cstr(intCount) & | reporting event profile(s) processed.|			
+		End If				
+	Else
+		Call Debug(STR_MODULE_NAME & |: No reporting event profiles were found.|)
+		If (flgEnableUIMsgs) Then
+			Print |No reporting event profiles were found.|
+		End If					
+	End If
+Else
+	Call Debug(STR_MODULE_NAME & |: No reporting event profiles were found.|)
+	If (flgEnableUIMsgs) Then
+		Print |No reporting event profiles were found.|
+	End If				
+End If
+	
+lblExit:
+	Call Debug(STR_MODULE_NAME & |: | & Cstr(intFinCount) & | reporting profiles marked Final.|)
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+	Print Error()
+End If
+	Resume lblExit
+	
+lblErrorNext:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+	Print Error()
+End If
+	Resume lblNext
+End Sub
+
+
+
+'++LotusScript Development Environment:2:2:AddReportingProfileError:1:8
+Sub AddReportingProfileError(docReportingEventProfile As NotesDocument, docarrReportingEventProfileErrors() As NotesDocument)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Add the supplied reporting profile to the set of reporting profiles to be reported
+	'as having possible errors.
+	'
+     'Parameters
+     '----------------
+	'docReportingEventProfile						The reporting event profile.
+	'docarrReportingEventProfileErrors			(Modified) The array containing documents with possible errors.
+	'
+     'Return Values
+     '-------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |AddReportingProfileError|
+	
+	Dim intCurrIndex As Integer
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	intCurrIndex = Ubound(docarrReportingEventProfileErrors)
+	
+	If (intCurrIndex = 0) Then
+		If docarrReportingEventProfileErrors(0) Is Nothing Then
+			Set docarrReportingEventProfileErrors(0) = docReportingEventProfile
+		Else
+			Redim Preserve docarrReportingEventProfileErrors(1)
+			Set docarrReportingEventProfileErrors(1) = docReportingEventProfile
+		End If
+	Else
+		intCurrIndex = intCurrIndex + 1
+		Redim Preserve docarrReportingEventProfileErrors(intCurrIndex)
+		Set docarrReportingEventProfileErrors(intCurrIndex) = docReportingEventProfile
+	End If
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:RefreshReportingEventProfilesSelected:6:8
+%REM
+	Sub RefreshReportingEventProfilesSelected
+	Description: This will update the registration/attendance counts on anything selected in the view
+	there is no time or status checking
+%END REM
+Sub RefreshReportingEventProfilesSelected(docCanisterProfile As NotesDocument,docReportingEventProfile As NotesDocument, flgEnableUIMsgs As Boolean)
+	Const STR_MODULE_NAME = |RefreshReportingEventProfilesSelected|
+	
+	Const STR_CANISTER_LOOKUP_VIEW_ALIAS = |vLookupEventsByKey|
+	Const STR_CANISTER_REG_LOOKUP_VIEW_ALIAS = |vLookupRegistrationsByEventID_All|
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |vLookupEventsByKey|
+	
+	Dim s As New NotesSession
+	Dim dbCanister As NotesDatabase	
+	Dim docRemoteCanisterDbProfile As NotesDocument
+	Dim dtNow As New NotesDateTime("")
+	Dim strCanisterTitle As String
+	Dim docEventProfile As NotesDocument
+	Dim viewEventProfiles As NotesView
+	Dim viewRegistrations As NotesView
+	Dim vc As NotesViewEntryCollection
+	Dim entryCurr As NotesViewEntry	
+	'Dim docReportingEventProfile As NotesDocument
+	Dim viewReportingEventProfiles As NotesView
+	Dim strEventID As String
+	Dim strBaseMsg As String
+	Dim intCount As Integer
+	
+	'GB
+	Dim flgUpdateReg As Boolean
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'Get the remote canister database handle
+	Set dbCanister = s.GetDatabase(docCanisterProfile.cp_Server(0), docCanisterProfile.cp_Filename(0))
+	'NOTE: Temporarily set to current server
+	'Set dbCanister = s.GetDatabase(g_dbCurr.Server, docCanisterProfile.cp_Filename(0))
+	Set docRemoteCanisterDbProfile = dbCanister.GetProfileDocument("fProfile")
+	
+	strCanisterTitle = docCanisterProfile.cp_SystemName(0)
+	
+	'Get the view in this database used to find event profiles
+	Set viewReportingEventProfiles = g_dbCurr.GetView(STR_LOOKUP_VIEW_ALIAS)
+	
+	'Get the profile and process the events for that canister
+	If Not docRemoteCanisterDbProfile Is Nothing Then
+		
+		
+		Set viewRegistrations = dbCanister.GetView(STR_CANISTER_REG_LOOKUP_VIEW_ALIAS)
+		
+		
+		
+		Call Debug(STR_MODULE_NAME & |: Processing event profile(s) from canister [| & strCanisterTitle & |]...|)
+		strBaseMsg = |Processing event profile(s) from | & strCanisterTitle & ||
+		If (flgEnableUIMsgs) Then
+			Print strBaseMsg & |...|
+		End If
+		
+		
+		
+		intCount = intCount + 1
+		
+		strEventID = docReportingEventProfile.ep_id(0)
+		
+		Set docEventProfile = dbCanister.GetView(STR_CANISTER_LOOKUP_VIEW_ALIAS).Getdocumentbykey(strEventID, True)
+		
+		'Otherwise update the existing one
+		If (flgEnableUIMsgs) Then
+			Print strBaseMsg & |. [| & intCount & |] Updating existing reporting event profile...|
+		End If								
+		'Call UpdateReportingEventProfile(docCanisterProfile, docEventProfile, docReportingEventProfile, dtTimestamp)
+		flgUpdateReg=True
+		
+		If flgUpdateReg Then
+			'Now update the enrollment information for the event
+			Call UpdateRegistrationCounts(docReportingEventProfile, viewRegistrations)
+			
+			If docEventProfile.HasItem(|postEndDateProcessingDate|) Then
+				If docReportingEventProfile.postEndDateProcessingDate(0) = docEventProfile.postEndDateProcessingDate(0) Then
+					If (flgEnableUIMsgs) Then
+						Print strBaseMsg & |. [| & intCount & |] PEDP date same in canister and reports| 'Inactive|
+					End If		
+					Call Debug(STR_MODULE_NAME & |: [| & intCount & |] PEDP date same in canister and reports..]| & strEventID ) 'Inactive|)  
+				Else
+					docReportingEventProfile.postEndDateProcessingDate = docEventProfile.postEndDateProcessingDate(0)						
+					If (flgEnableUIMsgs) Then
+						Print strBaseMsg & |. [| & intCount & |] PEDP date updated from canister |
+					End If		
+					Call Debug(STR_MODULE_NAME & |: [| & intCount & |] PEDP date updated from canister ..]| & strEventID ) 'Inactive|)  
+					
+				End If
+			Else
+				If (flgEnableUIMsgs) Then
+					Print strBaseMsg & |. [| & intCount & |] PEDP dat not available in canister|
+				End If		
+				Call Debug(STR_MODULE_NAME & |: [| & intCount & |] PEDP date not available in canister..]| & strEventID ) 
+				
+			
+			End If
+			
+			
+			'And save the changes
+			Call docReportingEventProfile.Save(True, False)
+		End If
+		
+		
+		
+		
+		Call Debug(STR_MODULE_NAME & |: | & strCanisterTitle & | events refreshed.|) 
+		If (flgEnableUIMsgs) Then
+			Print strCanisterTitle & | events refreshed.|
+		End If				
+		
+		
+		
+	Else
+		Error ERR_SYSTEM_ERROR, |Unable to find canister profile.|	
+	End If
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+		Print Error()
+	End If
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:tempUpdateESBriefPostEndDateProcessing:5:8
+%REM
+	Sub tempUpdateESBriefPostEndDateProcessing
+	Description: Comments for Sub
+%END REM
+Sub tempUpdateESBriefPostEndDateProcessing(docReportingEventProfile As NotesDocument,flgEnableUIMsgs As Boolean)
+	Const STR_MODULE_NAME = |tempUpdateESBriefPostEndDateProcessing|
+		
+	Dim docESEventBrief As NotesDocument
+	Dim strEventID As String
+		
+	'Trap errors
+	On Error Goto lblError	
+	
+	strEventID = Cstr(docReportingEventProfile.ep_id(0))
+	
+	Call Debug(STR_MODULE_NAME & |: Processing event ID [| & strEventID & |].|)	
+		
+	'load fields array
+	reportingFields
+		
+	Dim p As Integer
+	Dim fldUpdateCount As Integer	
+			
+	'Try to find the corresponding ES event brief
+	Set docESEventBrief = docGetESEventBrief(strEventID)
+
+	fldUpdateCount=0
+		
+	For p = 1 To 3
+		If docReportingEventProfile.Hasitem(postField_P(p)) Then
+			
+			If docReportingEventProfile.GetItemValue(postField_P(p))(0) <> docESEventBrief.GetItemValue(postField_P(p))(0) Then
+				Call Debug(STR_MODULE_NAME & |: | & strEventID & | has different | & postField_P(p) & | -- setting brief to match|)
+				Call docESEventBrief.Replaceitemvalue(postField_P(p), docReportingEventProfile.GetItemValue(postField_P(p))(0))
+				fldUpdateCount = fldUpdateCount + 1
+				
+			End If
+			
+		Else
+			Call Debug(STR_MODULE_NAME & |: | & strEventID & | does not have | & postField_P(p) & | field|)
+			
+			
+		End If							
+	Next	
+	
+	If fldUpdateCount > 0 Then
+		Call docESEventBrief.Save(True, False)
+		
+	End If	
+	
+			
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+		Print Error()
+	End If
+	Resume lblExit
+	
+
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:LogReportingProfileErrors:1:8
+Sub LogReportingProfileErrors(docarrReportingEventProfileErrors() As NotesDocument)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given an array of reporting profiles to be logged as having possible errors,
+	'log details to the error log.
+	'
+     'Parameters
+     '----------------
+	'docarrReportingEventProfileErrors		The array containing documents with possible errors.
+	'
+     'Return Values
+     '-------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |LogReportingProfileErrors|
+	
+	Dim strCurrMsg As String
+	Dim strErrorMsg As String
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	Forall varReportingEventProfile In docarrReportingEventProfileErrors()
+		strCurrMsg = |Canister ID [| & varReportingEventProfile.dp_canisterid(0) & |] Canister title [| & varReportingEventProfile.rep_CanisterTitle(0) & |] Event ID [| & varReportingEventProfile.ep_id(0) & |] Event Title [| & varReportingEventProfile.eventname(0) & |]|
+		If strErrorMsg = || Then
+			strErrorMsg = strCurrMsg
+		Else
+			strErrorMsg = strErrorMsg & Chr$(13) & strCurrMsg
+		End If
+	End Forall
+	
+	strErrorMsg = |Event profile(s) for the following reporting event profile(s) could not be found in any GRP canister:| & Chr$(13) & strErrorMsg & Chr$(13) & |Please check whether the reporting event profile(s) should be removed from the GRP reporting database.|
+	
+	'Log the error
+	Call LogError(STR_MODULE_NAME & |: | & strErrorMsg)
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:2:UpdateRegistrationCounts:1:8
+Sub UpdateRegistrationCounts(docReportingEventProfile As NotesDocument, viewRegistrations As NotesView)
+	'------------------------------------------------------------------------------------------------------
+    'Description
+    '------------------
+    'Update the registration counts in the supplied reporting event profile using
+	'the supplied view.
+    '
+    'Parameters
+    '-----------------------	
+	'docReportingEventProfile			The reporting event profile.
+	'viewRegistrations						The view in the canister 
+    '     
+    'Return Values
+    '-----------------------
+    'None.
+    '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |UpdateRegistrationCounts|
+	
+	Const STR_DNA = |Did not Attend|
+	
+	Dim dtNow As New NotesDateTime("")
+	
+	Dim strEventID As String
+	Dim collRegistrations As NotesDocumentCollection
+	
+	Dim strarrKey(1) As String
+	Dim intCountConfirmed As Integer
+	Dim intCountAttended As Integer
+	Dim intCountCancelled As Integer
+	
+	Dim strarrNonIBMKey(2) As String	
+	Dim intCountConfirmedNonIBM As Integer
+	Dim intCountAttendedNonIBM As Integer
+	Dim intCountCancelledNonIBM As Integer
+	
+	Dim strarrBPKey(3) As String	
+	Dim intCountConfirmedBP As Integer
+	Dim intCountAttendedBP As Integer
+	Dim intCountCancelledBP As Integer	
+	
+	Dim strarrIBMKey(4) As String	
+	Dim intCountConfirmedIBM As Integer
+	Dim intCountAttendedIBM As Integer
+	Dim intCountCancelledIBM As Integer
+	
+	Dim strarrCustKey(5) As String	
+	Dim intCountConfirmedCust As Integer
+	Dim intCountAttendedCust As Integer
+	Dim intCountCancelledCust As Integer
+
+	Dim strarrEmpKey(6) As String	'IBM Employee
+	Dim intCountConfirmedEmp As Integer
+	Dim intCountAttendedEmp As Integer
+	Dim intCountCancelledEmp As Integer
+
+	Dim strarrExecKey(7) As String	'IBM Exec
+	Dim intCountConfirmedExec As Integer
+	Dim intCountAttendedExec As Integer
+	Dim intCountCancelledExec As Integer
+
+	Dim strarrStaffKey(8) As String	'Vendor Staff
+	Dim intCountConfirmedStaff As Integer
+	Dim intCountAttendedStaff As Integer
+	Dim intCountCancelledStaff As Integer
+
+	Dim strarrPressKey(9) As String	'Press
+	Dim intCountConfirmedPress As Integer
+	Dim intCountAttendedPress As Integer
+	Dim intCountCancelledPress As Integer
+
+	Dim strarrSpeakerKey(10) As String	
+	Dim intCountConfirmedSpeaker As Integer
+	Dim intCountAttendedSpeaker As Integer
+	Dim intCountCancelledSpeaker As Integer
+
+	Dim strarrAcademicKey(11) As String	'Academic
+	Dim intCountConfirmedAcademic As Integer
+	Dim intCountAttendedAcademic As Integer
+	Dim intCountCancelledAcademic As Integer
+	
+	'Start checking for 'Did not Attend' in status - GB - 1/10/11
+	Dim intCountDidNotAttend As Integer 'for backward compat
+	Dim intCountDidNotAttendNonIBM As Integer 'for backward compat
+	Dim intCountDidNotAttendBP  As Integer
+	Dim intCountDidNotAttendIBM As Integer 'for backward compat
+	Dim intCountDidNotAttendCust As Integer
+	Dim intCountDidNotAttendEmp As Integer
+	Dim intCountDidNotAttendExec As Integer
+	Dim intCountDidNotAttendStaff As Integer
+	Dim intCountDidNotAttendPress As Integer
+	Dim intCountDidNotAttendSpeaker As Integer
+	Dim intCountDidNotAttendAcademic As Integer
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	
+	'Set the date/time used to timestamp the update
+	dtNow.SetNow
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	strEventID = docReportingEventProfile.ep_id(0)
+	
+	Call Debug(STR_MODULE_NAME & |: Getting registration counts for event ID [| & strEventID & |].|)
+	
+	'Get the requested information
+	strarrKey(0) = strEventID 
+	
+	strarrKey(1) = |Confirmed|
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrKey(), True)	
+	intCountConfirmed = collRegistrations.Count
+	
+	strarrKey(1) = |Attended|
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrKey(), True)	
+	intCountAttended = collRegistrations.Count
+	
+	strarrKey(1) = |Cancelled|
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrKey(), True)	
+	intCountCancelled = collRegistrations.Count
+	
+	strarrKey(1) = STR_DNA
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrKey(), True)	
+	intCountDidNotAttend = collRegistrations.Count
+	
+	'Now get counts of all non IBM registrations (i.e. excluded IBM Employee, IBM Executive and Vendor Staff from the count)
+	strarrNonIBMKey(0) = strEventID 
+	
+	strarrNonIBMKey(1) = |Confirmed|
+	strarrNonIBMKey(2) = |Yes|	
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrNonIBMKey(), True)	
+	intCountConfirmedNonIBM = collRegistrations.Count
+	
+	strarrNonIBMKey(1) = |Attended|
+	strarrNonIBMKey(2) = |Yes|	
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrNonIBMKey(), True)	
+	intCountAttendedNonIBM = collRegistrations.Count
+	
+	strarrNonIBMKey(1) = |Cancelled|
+	strarrNonIBMKey(2) = |Yes|
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrNonIBMKey(), True)	
+	intCountCancelledNonIBM = collRegistrations.Count
+	
+	strarrNonIBMKey(1) = STR_DNA
+	strarrNonIBMKey(2) = |Yes|
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrNonIBMKey(), True)	
+	intCountDidNotAttendNonIBM = collRegistrations.Count
+	
+	'Now get counts of all BP registrations
+	strarrBPKey(0) = strEventID 
+	
+	strarrBPKey(1) = |Confirmed|
+	strarrBPKey(2) = |Yes|
+	strarrBPKey(3) = |Yes| ' IsBP = 'Yes'
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrBPKey(), True)	
+	intCountConfirmedBP = collRegistrations.Count
+	
+	strarrBPKey(1) = |Attended|
+	strarrBPKey(2) = |Yes|
+	strarrBPKey(3) = |Yes| ' IsBP = 'Yes'
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrBPKey(), True)	
+	intCountAttendedBP = collRegistrations.Count
+	
+	strarrBPKey(1) = |Cancelled|
+	strarrBPKey(2) = |Yes|
+	strarrBPKey(3) = |Yes| ' IsBP = 'Yes'
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrBPKey(), True)	
+	intCountCancelledBP = collRegistrations.Count
+	
+	strarrBPKey(1) = STR_DNA
+	strarrBPKey(2) = |Yes|
+	strarrBPKey(3) = |Yes| ' IsBP = 'Yes'
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrBPKey(), True)	
+	intCountDidNotAttendBP = collRegistrations.Count
+	
+	'Now get counts of all IBM registrations
+	strarrIBMKey(0) = strEventID 
+	
+	strarrIBMKey(1) = |Confirmed|
+	strarrIBMKey(2) = |No|
+	strarrIBMKey(3) = |No|
+	strarrIBMKey(4) = |Yes| ' IsIBM = 'Yes'
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrIBMKey(), True)	
+	intCountConfirmedIBM = collRegistrations.Count
+	
+	strarrIBMKey(1) = |Attended|
+	strarrIBMKey(2) = |No|
+	strarrIBMKey(3) = |No|
+	strarrIBMKey(4) = |Yes| ' IsIBM = 'Yes'
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrIBMKey(), True)	
+	intCountAttendedIBM = collRegistrations.Count
+	
+	strarrIBMKey(1) = |Cancelled|
+	strarrIBMKey(2) = |No|
+	strarrIBMKey(3) = |No|
+	strarrIBMKey(4) = |Yes| ' IsIBM = 'Yes'
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrIBMKey(), True)	
+	intCountCancelledIBM = collRegistrations.Count
+	
+	strarrIBMKey(1) = STR_DNA
+	strarrIBMKey(2) = |No|
+	strarrIBMKey(3) = |No|
+	strarrIBMKey(4) = |Yes| ' IsIBM = 'Yes'
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrIBMKey(), True)	
+	intCountDidNotAttendIBM = collRegistrations.Count
+	
+	'Now get counts of all Cust registrations
+	strarrCustKey(0) = strEventID 
+	
+	strarrCustKey(1) = |Confirmed|
+	strarrCustKey(2) = |Yes|
+	strarrCustKey(3) = |No|
+	strarrCustKey(4) = |No| 
+	strarrCustKey(5) = |Yes| ' IsCust = 'Yes'
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrCustKey(), True)	
+	intCountConfirmedCust = collRegistrations.Count
+	
+	strarrCustKey(1) = |Attended|
+	strarrCustKey(2) = |Yes|
+	strarrCustKey(3) = |No|
+	strarrCustKey(4) = |No|
+	strarrCustKey(5) = |Yes| ' IsCust = 'Yes'
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrCustKey(), True)	
+	intCountAttendedCust = collRegistrations.Count
+	
+	strarrCustKey(1) = |Cancelled|
+	strarrCustKey(2) = |Yes|
+	strarrCustKey(3) = |No|
+	strarrCustKey(4) = |No|
+	strarrCustKey(5) = |Yes| ' IsCust = 'Yes'
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrCustKey(), True)	
+	intCountCancelledCust = collRegistrations.Count
+	
+	strarrCustKey(1) = STR_DNA
+	strarrCustKey(2) = |Yes|
+	strarrCustKey(3) = |No|
+	strarrCustKey(4) = |No|
+	strarrCustKey(5) = |Yes| ' IsCust = 'Yes'
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrCustKey(), True)	
+	intCountDidNotAttendCust = collRegistrations.Count
+	
+	'Now get counts of all Emp registrations
+	strarrEmpKey(0) = strEventID 
+	
+	strarrEmpKey(1) = |Confirmed|
+	strarrEmpKey(2) = |No|
+	strarrEmpKey(3) = |No|
+	strarrEmpKey(4) = |Yes| 
+	strarrEmpKey(5) = |No| 
+	strarrEmpKey(6) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrEmpKey(), True)	
+	intCountConfirmedEmp = collRegistrations.Count
+	
+	strarrEmpKey(1) = |Attended|
+	strarrEmpKey(2) = |No|
+	strarrEmpKey(3) = |No|
+	strarrEmpKey(4) = |Yes| 
+	strarrEmpKey(5) = |No| 
+	strarrEmpKey(6) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrEmpKey(), True)	
+	intCountAttendedEmp = collRegistrations.Count
+	
+	strarrEmpKey(1) = |Cancelled|
+	strarrEmpKey(2) = |No|
+	strarrEmpKey(3) = |No|
+	strarrEmpKey(4) = |Yes| 
+	strarrEmpKey(5) = |No| 
+	strarrEmpKey(6) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrEmpKey(), True)	
+	intCountCancelledEmp = collRegistrations.Count
+	
+	strarrEmpKey(1) = STR_DNA
+	strarrEmpKey(2) = |No|
+	strarrEmpKey(3) = |No|
+	strarrEmpKey(4) = |Yes| 
+	strarrEmpKey(5) = |No| 
+	strarrEmpKey(6) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrEmpKey(), True)	
+	intCountDidNotAttendEmp = collRegistrations.Count
+	
+	'Now get counts of all Exec registrations
+	strarrExecKey(0) = strEventID 
+	
+	strarrExecKey(1) = |Confirmed|
+	strarrExecKey(2) = |No|
+	strarrExecKey(3) = |No|
+	strarrExecKey(4) = |Yes| 
+	strarrExecKey(5) = |No| 
+	strarrExecKey(6) = |No|
+	strarrExecKey(7) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrExecKey(), True)	
+	intCountConfirmedExec = collRegistrations.Count
+	
+	strarrExecKey(1) = |Attended|
+	strarrExecKey(2) = |No|
+	strarrExecKey(3) = |No|
+	strarrExecKey(4) = |Yes| 
+	strarrExecKey(5) = |No| 
+	strarrExecKey(6) = |No|
+	strarrExecKey(7) = |Yes|  
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrExecKey(), True)	
+	intCountAttendedExec = collRegistrations.Count
+	
+	strarrExecKey(1) = |Cancelled|
+	strarrExecKey(2) = |No|
+	strarrExecKey(3) = |No|
+	strarrExecKey(4) = |Yes| 
+	strarrExecKey(5) = |No| 
+	strarrExecKey(6) = |No|
+	strarrExecKey(7) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrExecKey(), True)	
+	intCountCancelledExec = collRegistrations.Count
+	
+	strarrExecKey(1) = STR_DNA
+	strarrExecKey(2) = |No|
+	strarrExecKey(3) = |No|
+	strarrExecKey(4) = |Yes| 
+	strarrExecKey(5) = |No| 
+	strarrExecKey(6) = |No|
+	strarrExecKey(7) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrExecKey(), True)	
+	intCountDidNotAttendExec = collRegistrations.Count
+	
+	'Now get counts of all Staff registrations
+	strarrStaffKey(0) = strEventID 
+	
+	strarrStaffKey(1) = |Confirmed|
+	strarrStaffKey(2) = |No|
+	strarrStaffKey(3) = |No|
+	strarrStaffKey(4) = |No| 
+	strarrStaffKey(5) = |No| 
+	strarrStaffKey(6) = |No|
+	strarrStaffKey(7) = |No|
+	strarrStaffKey(8) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrStaffKey(), True)	
+	intCountConfirmedStaff = collRegistrations.Count
+	
+	strarrStaffKey(1) = |Attended|
+	strarrStaffKey(2) = |No|
+	strarrStaffKey(3) = |No|
+	strarrStaffKey(4) = |No| 
+	strarrStaffKey(5) = |No| 
+	strarrStaffKey(6) = |No|
+	strarrStaffKey(7) = |No|
+	strarrStaffKey(8) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrStaffKey(), True)	
+	intCountAttendedStaff = collRegistrations.Count
+	
+	strarrStaffKey(1) = |Cancelled|
+	strarrStaffKey(2) = |No|
+	strarrStaffKey(3) = |No|
+	strarrStaffKey(4) = |No| 
+	strarrStaffKey(5) = |No| 
+	strarrStaffKey(6) = |No|
+	strarrStaffKey(7) = |No|
+	strarrStaffKey(8) = |Yes|  
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrStaffKey(), True)	
+	intCountCancelledStaff = collRegistrations.Count
+	
+	strarrStaffKey(1) = STR_DNA
+	strarrStaffKey(2) = |No|
+	strarrStaffKey(3) = |No|
+	strarrStaffKey(4) = |No| 
+	strarrStaffKey(5) = |No| 
+	strarrStaffKey(6) = |No|
+	strarrStaffKey(7) = |No|
+	strarrStaffKey(8) = |Yes|  
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrStaffKey(), True)	
+	intCountDidNotAttendStaff = collRegistrations.Count
+	
+	'Now get counts of all Press registrations
+	strarrPressKey(0) = strEventID 
+	
+	strarrPressKey(1) = |Confirmed|
+	strarrPressKey(2) = |No|
+	strarrPressKey(3) = |No|
+	strarrPressKey(4) = |No| 
+	strarrPressKey(5) = |No| 
+	strarrPressKey(6) = |No|
+	strarrPressKey(7) = |No|
+	strarrPressKey(8) = |No|
+	strarrPressKey(9) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrPressKey(), True)	
+	intCountConfirmedPress = collRegistrations.Count
+	
+	strarrPressKey(1) = |Attended|
+	strarrPressKey(2) = |No|
+	strarrPressKey(3) = |No|
+	strarrPressKey(4) = |No| 
+	strarrPressKey(5) = |No| 
+	strarrPressKey(6) = |No|
+	strarrPressKey(7) = |No|
+	strarrPressKey(8) = |No|
+	strarrPressKey(9) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrPressKey(), True)	
+	intCountAttendedPress = collRegistrations.Count
+	
+	strarrPressKey(1) = |Cancelled|
+	strarrPressKey(2) = |No|
+	strarrPressKey(3) = |No|
+	strarrPressKey(4) = |No| 
+	strarrPressKey(5) = |No| 
+	strarrPressKey(6) = |No|
+	strarrPressKey(7) = |No|
+	strarrPressKey(8) = |No|
+	strarrPressKey(9) = |Yes|  
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrPressKey(), True)	
+	intCountCancelledPress = collRegistrations.Count
+	
+	strarrPressKey(1) = STR_DNA
+	strarrPressKey(2) = |No|
+	strarrPressKey(3) = |No|
+	strarrPressKey(4) = |No| 
+	strarrPressKey(5) = |No| 
+	strarrPressKey(6) = |No|
+	strarrPressKey(7) = |No|
+	strarrPressKey(8) = |No|
+	strarrPressKey(9) = |Yes|  
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrPressKey(), True)	
+	intCountDidNotAttendPress = collRegistrations.Count
+	
+	'Now get counts of all Speaker registrations
+	strarrSpeakerKey(0) = strEventID 
+	
+	strarrSpeakerKey(1) = |Confirmed|
+	strarrSpeakerKey(2) = |No|
+	strarrSpeakerKey(3) = |No|
+	strarrSpeakerKey(4) = |No| 
+	strarrSpeakerKey(5) = |No| 
+	strarrSpeakerKey(6) = |No|
+	strarrSpeakerKey(7) = |No|
+	strarrSpeakerKey(8) = |No|
+	strarrSpeakerKey(9) = |No|
+	strarrSpeakerKey(10) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrSpeakerKey(), True)	
+	intCountConfirmedSpeaker = collRegistrations.Count
+	
+	strarrSpeakerKey(1) = |Attended|
+	strarrSpeakerKey(2) = |No|
+	strarrSpeakerKey(3) = |No|
+	strarrSpeakerKey(4) = |No| 
+	strarrSpeakerKey(5) = |No| 
+	strarrSpeakerKey(6) = |No|
+	strarrSpeakerKey(7) = |No|
+	strarrSpeakerKey(8) = |No|
+	strarrSpeakerKey(9) = |No|
+	strarrSpeakerKey(10) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrSpeakerKey(), True)	
+	intCountAttendedSpeaker = collRegistrations.Count
+	
+	strarrSpeakerKey(1) = |Cancelled|
+	strarrSpeakerKey(2) = |No|
+	strarrSpeakerKey(3) = |No|
+	strarrSpeakerKey(4) = |No| 
+	strarrSpeakerKey(5) = |No| 
+	strarrSpeakerKey(6) = |No|
+	strarrSpeakerKey(7) = |No|
+	strarrSpeakerKey(8) = |No|
+	strarrSpeakerKey(9) = |No|
+	strarrSpeakerKey(10) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrSpeakerKey(), True)	
+	intCountCancelledSpeaker = collRegistrations.Count
+	
+	strarrSpeakerKey(1) = STR_DNA
+	strarrSpeakerKey(2) = |No|
+	strarrSpeakerKey(3) = |No|
+	strarrSpeakerKey(4) = |No| 
+	strarrSpeakerKey(5) = |No| 
+	strarrSpeakerKey(6) = |No|
+	strarrSpeakerKey(7) = |No|
+	strarrSpeakerKey(8) = |No|
+	strarrSpeakerKey(9) = |No|
+	strarrSpeakerKey(10) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrSpeakerKey(), True)	
+	intCountDidNotAttendSpeaker = collRegistrations.Count
+	
+	'Now get counts of all Academic registrations
+	strarrAcademicKey(0) = strEventID 
+	
+	strarrAcademicKey(1) = |Confirmed|
+	strarrAcademicKey(2) = |No|
+	strarrAcademicKey(3) = |No|
+	strarrAcademicKey(4) = |No| 
+	strarrAcademicKey(5) = |No| 
+	strarrAcademicKey(6) = |No|
+	strarrAcademicKey(7) = |No|
+	strarrAcademicKey(8) = |No|
+	strarrAcademicKey(9) = |No|
+	strarrAcademicKey(10) = |No|
+	strarrAcademicKey(11) = |Yes| 
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrAcademicKey(), True)	
+	intCountConfirmedAcademic = collRegistrations.Count
+	
+	strarrAcademicKey(1) = |Attended|
+	strarrAcademicKey(2) = |No|
+	strarrAcademicKey(3) = |No|
+	strarrAcademicKey(4) = |No| 
+	strarrAcademicKey(5) = |No| 
+	strarrAcademicKey(6) = |No|
+	strarrAcademicKey(7) = |No|
+	strarrAcademicKey(8) = |No|
+	strarrAcademicKey(9) = |No|
+	strarrAcademicKey(10) = |No|
+	strarrAcademicKey(11) = |Yes|
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrAcademicKey(), True)	
+	intCountAttendedAcademic = collRegistrations.Count
+	
+	strarrAcademicKey(1) = |Cancelled|
+	strarrAcademicKey(2) = |No|
+	strarrAcademicKey(3) = |No|
+	strarrAcademicKey(4) = |No| 
+	strarrAcademicKey(5) = |No| 
+	strarrAcademicKey(6) = |No|
+	strarrAcademicKey(7) = |No|
+	strarrAcademicKey(8) = |No|
+	strarrAcademicKey(9) = |No|
+	strarrAcademicKey(10) = |No|
+	strarrAcademicKey(11) = |Yes|
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrAcademicKey(), True)	
+	intCountCancelledAcademic = collRegistrations.Count
+	
+	strarrAcademicKey(1) = STR_DNA
+	strarrAcademicKey(2) = |No|
+	strarrAcademicKey(3) = |No|
+	strarrAcademicKey(4) = |No| 
+	strarrAcademicKey(5) = |No| 
+	strarrAcademicKey(6) = |No|
+	strarrAcademicKey(7) = |No|
+	strarrAcademicKey(8) = |No|
+	strarrAcademicKey(9) = |No|
+	strarrAcademicKey(10) = |No|
+	strarrAcademicKey(11) = |Yes|
+	Set collRegistrations = viewRegistrations.GetAllDocumentsByKey(strarrAcademicKey(), True)	
+	intCountDidNotAttendAcademic = collRegistrations.Count
+	
+
+lblExit:
+	
+	'Update the return values
+	If (Not docReportingEventProfile Is Nothing) Then
+		docReportingEventProfile.rep_CountConfirmed = intCountConfirmed		
+		docReportingEventProfile.rep_CountAttended = intCountAttended
+		docReportingEventProfile.rep_CountCancelled = intCountCancelled
+		docReportingEventProfile.rep_CountDidNotAttend = intCountDidNotAttend
+		
+		docReportingEventProfile.rep_CountConfirmedNonIBM = intCountConfirmedNonIBM
+		docReportingEventProfile.rep_CountAttendedNonIBM  = intCountAttendedNonIBM
+		docReportingEventProfile.rep_CountCancelledNonIBM = intCountCancelledNonIBM
+		
+		docReportingEventProfile.rep_CountConfirmedBP = intCountConfirmedBP
+		docReportingEventProfile.rep_CountAttendedBP = intCountAttendedBP
+		docReportingEventProfile.rep_CountCancelledBP = intCountCancelledBP	
+		
+		docReportingEventProfile.rep_CountConfirmedIBM = intCountConfirmedIBM
+		docReportingEventProfile.rep_CountAttendedIBM  = intCountAttendedIBM
+		docReportingEventProfile.rep_CountCancelledIBM = intCountCancelledIBM
+		
+	
+		docReportingEventProfile.rep_CountConfirmedCust = intCountConfirmedCust
+		docReportingEventProfile.rep_CountAttendedCust  = intCountAttendedCust
+		docReportingEventProfile.rep_CountCancelledCust = intCountCancelledCust	
+		
+		docReportingEventProfile.rep_CountConfirmedEmp = intCountConfirmedEmp
+		docReportingEventProfile.rep_CountAttendedEmp  = intCountAttendedEmp
+		docReportingEventProfile.rep_CountCancelledEmp = intCountCancelledEmp	
+		
+		docReportingEventProfile.rep_CountConfirmedExec = intCountConfirmedExec
+		docReportingEventProfile.rep_CountAttendedExec  = intCountAttendedExec
+		docReportingEventProfile.rep_CountCancelledExec = intCountCancelledExec	
+		
+		docReportingEventProfile.rep_CountConfirmedStaff = intCountConfirmedStaff
+		docReportingEventProfile.rep_CountAttendedStaff  = intCountAttendedStaff
+		docReportingEventProfile.rep_CountCancelledStaff = intCountCancelledStaff
+		
+		docReportingEventProfile.rep_CountConfirmedPress = intCountConfirmedPress
+		docReportingEventProfile.rep_CountAttendedPress  = intCountAttendedPress
+		docReportingEventProfile.rep_CountCancelledPress = intCountCancelledPress
+		
+		docReportingEventProfile.rep_CountConfirmedSpeaker = intCountConfirmedSpeaker
+		docReportingEventProfile.rep_CountAttendedSpeaker  = intCountAttendedSpeaker
+		docReportingEventProfile.rep_CountCancelledSpeaker = intCountCancelledSpeaker	
+		
+		docReportingEventProfile.rep_CountConfirmedAcademic = intCountConfirmedAcademic
+		docReportingEventProfile.rep_CountAttendedAcademic  = intCountAttendedAcademic
+		docReportingEventProfile.rep_CountCancelledAcademic = intCountCancelledAcademic	
+		
+		'new counts to cover the did not attend status
+		docReportingEventProfile.rep_CountDidNotAttendNonIBM = intCountDidNotAttendNonIBM
+		docReportingEventProfile.rep_CountDidNotAttendBP = intCountDidNotAttendBP
+		docReportingEventProfile.rep_CountDidNotAttendIBM = intCountDidNotAttendIBM
+		docReportingEventProfile.rep_CountDidNotAttendCust = intCountDidNotAttendCust
+		docReportingEventProfile.rep_CountDidNotAttendEmp = intCountDidNotAttendEmp
+		docReportingEventProfile.rep_CountDidNotAttendExec = intCountDidNotAttendExec
+		docReportingEventProfile.rep_CountDidNotAttendStaff = intCountDidNotAttendStaff
+		docReportingEventProfile.rep_CountDidNotAttendPress = intCountDidNotAttendPress
+		docReportingEventProfile.rep_CountDidNotAttendSpeaker = intCountDidNotAttendSpeaker
+		docReportingEventProfile.rep_CountDidNotAttendAcademic = intCountDidNotAttendAcademic
+		
+		'Update the repoprting event profile timestamp too
+		Set docReportingEventProfile.reg_counts_updated = dtNow
+		
+	End If
+	
+	Call Debug(STR_MODULE_NAME & |: Finished.|)
+	Call Debug(STR_MODULE_NAME & |: All registrations: Confirmed: [| & Cstr(intCountConfirmed) & |] Attended: [| & Cstr(intCountAttended) & |] Cancelled: [| & Cstr(intCountCancelled) & |] Did Not Attend: [| & Cstr(intCountDidNotAttend) & |]|)
+	Call Debug(STR_MODULE_NAME & |: Non IBM registrations: Confirmed: [| & Cstr(intCountConfirmedNonIBM) & |] Attended: [| & Cstr(intCountAttendedNonIBM) & |] Cancelled: [| & Cstr(intCountCancelledNonIBM) & |]|)
+	Call Debug(STR_MODULE_NAME & |: BP registrations: Confirmed: [| & Cstr(intCountConfirmedBP) & |] Attended: [| & Cstr(intCountAttendedBP) & |] Cancelled: [| & Cstr(intCountCancelledBP) & |]|)
+	Call Debug(STR_MODULE_NAME & |: IBM registrations: Confirmed: [| & Cstr(intCountConfirmedIBM) & |] Attended: [| & Cstr(intCountAttendedIBM) & |] Cancelled: [| & Cstr(intCountCancelledIBM) & |]|)
+	Call Debug(STR_MODULE_NAME & |: Customer registrations: Confirmed: [| & Cstr(intCountConfirmedCust) & |] Attended: [| & Cstr(intCountAttendedCust) & |] Cancelled: [| & Cstr(intCountCancelledCust) & |]|)
+	Call Debug(STR_MODULE_NAME & |: IBM Employee registrations: Confirmed: [| & Cstr(intCountConfirmedEmp) & |] Attended: [| & Cstr(intCountAttendedEmp) & |] Cancelled: [| & Cstr(intCountCancelledEmp) & |]|)
+	Call Debug(STR_MODULE_NAME & |: IBM Exec registrations: Confirmed: [| & Cstr(intCountConfirmedExec) & |] Attended: [| & Cstr(intCountAttendedExec) & |] Cancelled: [| & Cstr(intCountCancelledExec) & |]|)
+	Call Debug(STR_MODULE_NAME & |: Staff registrations: Confirmed: [| & Cstr(intCountConfirmedStaff) & |] Attended: [| & Cstr(intCountAttendedStaff) & |] Cancelled: [| & Cstr(intCountCancelledStaff) & |]|)
+	Call Debug(STR_MODULE_NAME & |: Press registrations: Confirmed: [| & Cstr(intCountConfirmedPress) & |] Attended: [| & Cstr(intCountAttendedPress) & |] Cancelled: [| & Cstr(intCountCancelledPress) & |]|)
+	Call Debug(STR_MODULE_NAME & |: Speaker registrations: Confirmed: [| & Cstr(intCountConfirmedSpeaker) & |] Attended: [| & Cstr(intCountAttendedSpeaker) & |] Cancelled: [| & Cstr(intCountCancelledSpeaker) & |]|)
+	Call Debug(STR_MODULE_NAME & |: Academic registrations: Confirmed: [| & Cstr(intCountConfirmedAcademic) & |] Attended: [| & Cstr(intCountAttendedAcademic) & |] Cancelled: [| & Cstr(intCountCancelledAcademic) & |]|)
+	
+	Exit Sub
+	
+lblError:
+	
+	intCountAttended = 0
+	intCountCancelled = 0
+	intCountConfirmed = 0
+	
+	intCountAttendedNonIBM = 0
+	intCountCancelledNonIBM = 0
+	intCountConfirmedNonIBM = 0
+	
+	intCountConfirmedBP = 0
+	intCountAttendedBP = 0
+	intCountCancelledBP = 0	
+	
+	intCountAttendedIBM = 0
+	intCountCancelledIBM = 0
+	intCountConfirmedIBM = 0
+
+	intCountAttendedCust = 0
+	intCountCancelledCust = 0
+	intCountConfirmedCust = 0
+	
+	intCountAttendedEmp=0
+	intCountCancelledEmp=0
+	intCountConfirmedEmp=0
+
+	intCountAttendedExec=0
+	intCountCancelledExec=0
+	intCountConfirmedExec=0
+
+	intCountAttendedStaff=0
+	intCountCancelledStaff=0
+	intCountConfirmedStaff=0
+
+	intCountAttendedPress=0
+	intCountCancelledPress=0
+	intCountConfirmedPress=0
+
+	intCountAttendedSpeaker=0
+	intCountCancelledSpeaker=0
+	intCountConfirmedSpeaker=0
+
+	intCountAttendedAcademic=0
+	intCountCancelledAcademic=0
+	intCountConfirmedAcademic=0
+	
+	intCountDidNotAttend = 0
+	intCountDidNotAttendNonIBM = 0
+	intCountDidNotAttendBP  = 0
+	intCountDidNotAttendIBM = 0
+	intCountDidNotAttendCust = 0
+	intCountDidNotAttendEmp = 0
+	intCountDidNotAttendExec = 0
+	intCountDidNotAttendStaff = 0
+	intCountDidNotAttendPress = 0
+	intCountDidNotAttendSpeaker = 0
+	intCountDidNotAttendAcademic = 0
+	
+
+	Call Debug(STR_MODULE_NAME    & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit	
+	
+End Sub
+
+
+
+'++LotusScript Development Environment:2:1:docCreateReportingEventProfile:1:8
+Function docCreateReportingEventProfile(docCanisterProfile As NotesDocument, docEventProfile As NotesDocument, dtTimestamp As NotesDateTime) As NotesDocument
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Create a new reporting event profile in this database based on the supplied canister event profile.
+     '
+     'Parameters
+     '----------------
+	'docCanisterProfile			The canister profile in the GRP reference database for the canister that contains the event profile	
+     'docEventProfile				An event profile in a GRP canister
+	'dtTimestamp				The timestamp for the update
+	'
+     'Return Values
+     '-------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |CreateReportingEventProfile|
+	
+	Dim strEventID As String
+	Dim docReportingEventProfile As NotesDocument
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	strEventID = docEventProfile.ep_id(0)
+	
+	Call Debug(STR_MODULE_NAME & |: Creating event profile for event with ID [| & strEventID & |].|) 
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	Set docReportingEventProfile = docEventProfile.CopyToDatabase(g_dbCurr)
+	
+	'Add the canister title
+	docReportingEventProfile.rep_CanisterTitle = docCanisterProfile.cp_SystemName(0)	
+	
+	'Add a timestamp to indicate when the update occurred
+	Set docReportingEventProfile.rep_DateRefreshed = dtTimestamp	
+	
+	Call docReportingEventProfile.Save(True, False)
+	
+lblExit:
+	
+	'Set the return value
+	Set docCreateReportingEventProfile = docReportingEventProfile
+	
+	Call Debug(STR_MODULE_NAME & |: Finished.|) 
+	
+	Exit Function
+	
+lblError:
+	
+	Set docReportingEventProfile = Nothing
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:2:UpdateESEventBriefsSelectedOLD:3:8
+
+
+Sub UpdateESEventBriefsSelectedOLD(docReportingEventProfile As NotesDocument, flgEnableUIMsgs As Boolean)
+
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given a reporting event profiles, update the confirmed attendance numbers
+	'in the corresponding ES event brief.
+     '
+     'Parameters
+     '----------------
+	'flgEnableUIMsgs			If True write status messages to the Notes client status bar.
+	'
+     'Return Values
+     '-------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	Const STR_MODULE_NAME = |UpdateESEventBriefsSelected|
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |vLookupEventsESUpdate|
+	
+	Dim dtNow As New NotesDateTime("")	
+	Dim vc As NotesViewEntryCollection
+	Dim entryCurr As NotesViewEntry	
+	'Dim docReportingEventProfile As NotesDocument
+	Dim docESEventBrief As NotesDocument
+	Dim viewReportingEventProfiles As NotesView
+	Dim strEventID As String
+	Dim strBaseMsg As String
+	Dim intCount As Integer
+	Dim intCountConfirmedNonIBM As Integer
+	Dim intCountAttendedNonIBM As Integer
+	Dim intCountNonIBM As Integer
+	Dim intCountConfirmedIBM As Integer
+	Dim intCountAttendedIBM As Integer
+	Dim intCountIBM As Integer
+	Dim intCountConfirmedBP As Integer
+	Dim intCountAttendedBP As Integer
+	Dim intCountBP As Integer
+	Dim intCountConfirmedCust As Integer
+	Dim intCountAttendedCust As Integer
+	Dim intCountCust As Integer	
+	Dim intRegistrationCount As Integer
+	'new for 12/18
+	Dim intBriefCustCount As Integer
+	Dim intBriefIBMCount As Integer
+	Dim intBriefBPCount As Integer
+	'new for 12/24
+	Dim intBriefIBMExecCount As Integer
+	Dim intBriefIBMEmpCount As Integer
+	Dim intBriefStaffCount As Integer
+	Dim intBriefPressCount As Integer
+	Dim intBriefSpeakerCount As Integer
+	Dim intBriefAcademicCount As Integer
+	
+	
+	Dim intCountConfirmedEmp As Integer
+	Dim intCountAttendedEmp As Integer
+	
+	
+	Dim intCountConfirmedExec As Integer
+	Dim intCountAttendedExec As Integer
+	
+	
+	Dim intCountConfirmedStaff As Integer
+	Dim intCountAttendedStaff As Integer
+	
+	
+	Dim intCountConfirmedPress As Integer
+	Dim intCountAttendedPress As Integer
+	
+	
+	Dim intCountConfirmedSpeaker As Integer
+	Dim intCountAttendedSpeaker As Integer
+	
+
+	
+	Dim intCountConfirmedAcademic As Integer
+	Dim intCountAttendedAcademic As Integer
+	
+	'-------new to cover DNA
+	Dim intCountDidNotAttendCust As Integer
+	
+	Dim intCountDidNotAttendBP As Integer
+	
+	Dim intCountDidNotAttendIBM As Integer
+	
+	Dim intCountDidNotAttendNonIBM As Integer
+
+	Dim intCountDidNotAttendEmp As Integer
+	
+	Dim intCountDidNotAttendExec As Integer
+
+	Dim intCountDidNotAttendStaff As Integer
+	
+	Dim intCountDidNotAttendPress As Integer
+
+	Dim intCountDidNotAttendSpeaker As Integer
+	
+	Dim intCountDidNotAttendAcademic As Integer
+	'-------
+	
+	Dim intCountEmp As Integer
+	Dim intCountExec As Integer
+	Dim intCountStaff As Integer
+	Dim intCountPress As Integer
+	Dim intCountSpeaker As Integer
+	Dim intCountAcademic As Integer
+	
+	Dim briefCount As Integer
+	briefCount = 0
+	
+	'
+	Dim flgUpdateRegistrationCount As Boolean
+	Dim strEndDate As String
+	Dim dtToday As NotesDateTime
+	Dim dtEndDate As NotesDateTime	
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'Set the date/time used to timestamp the update
+	dtNow.SetNow
+	
+	'Get today's date
+	Set dtToday = New NotesDateTime("Today")	
+	
+	'Get the view in this database used to find reporting event profiles
+	'Set viewReportingEventProfiles = g_dbCurr.GetView(STR_LOOKUP_VIEW_ALIAS)
+	
+	'Set vc = viewReportingEventProfiles.AllEntries
+	
+	'If (Not vc Is Nothing) Then
+		'If (vc.Count > 0) Then
+			
+			'Call Debug(STR_MODULE_NAME & |: Processing [| & CStr(vc.Count) & |] reporting event profile(s)...|)
+			'strBaseMsg = |Processing | & CStr(vc.Count) & | reporting event profile(s)|
+			'If (flgEnableUIMsgs) Then
+			'	Print strBaseMsg & |...|
+			'End If
+			
+			'Set entryCurr = vc.GetFirstEntry()
+			
+			'While Not (entryCurr Is Nothing)
+				
+				'Set docReportingEventProfile = entryCurr.Document
+				
+				intCount = intCount + 1
+				
+				strEventID = Cstr(docReportingEventProfile.ep_id(0))
+				
+				Call Debug(STR_MODULE_NAME & |: Processing event ID [| & strEventID & |].|)	
+				
+				On Error Goto lblNext 'adding this 12/27/10 GB to continue processing if type mistmatches occur on individual profiles
+				
+				'Get the event end date
+				strEndDate = docReportingEventProfile.ep_EndDate(0)
+				Set dtEndDate = New NotesDateTime(strEndDate)
+				
+				'If the time difference between today and the end date is positive so the event is over so ignore it
+				If dtToday.TimeDifference(dtEndDate) > 0  Then
+					Call Debug(STR_MODULE_NAME & |: Event ID [| & strEventID & |].  The event end date [| & strEndDate & |] is in the past.|)	
+					'GoTo lblNext
+				End If
+				
+				
+				Call Debug(STR_MODULE_NAME & |: Counting NonIBM for event ID [| & strEventID & |].|)	
+				
+				
+				intCountConfirmedNonIBM = Cint(docReportingEventProfile.rep_CountConfirmedNonIBM(0))
+				intCountAttendedNonIBM = Cint(docReportingEventProfile.rep_CountAttendedNonIBM(0))
+				
+	intCountDidNotAttendNonIBM = Cint(docReportingEventProfile.rep_CountDidNotAttendNonIBM(0))
+				
+	intCountNonIBM = intCountConfirmedNonIBM + intCountAttendedNonIBM + intCountDidNotAttendNonIBM
+				
+				Call Debug(STR_MODULE_NAME & |: Counting IBM for event ID [| & strEventID & |].|)
+				'count the number of registered/attended IBMers 
+				intCountConfirmedIBM = Cint(docReportingEventProfile.rep_CountConfirmedIBM(0))
+				intCountAttendedIBM = Cint(docReportingEventProfile.rep_CountAttendedIBM(0))
+				
+	intCountDidNotAttendIBM = Cint(docReportingEventProfile.rep_CountDidNotAttendIBM(0))
+				
+	intCountIBM = intCountConfirmedIBM + intCountAttendedIBM + intCountDidNotAttendIBM
+				
+				Call Debug(STR_MODULE_NAME & |: Counting BP for event ID [| & strEventID & |].|)
+				'count the number of registered/attended BPs
+				intCountConfirmedBP = Cint(docReportingEventProfile.rep_CountConfirmedBP(0))
+				intCountAttendedBP = Cint(docReportingEventProfile.rep_CountAttendedBP(0))
+				
+	intCountDidNotAttendBP = Cint(docReportingEventProfile.rep_CountDidNotAttendBP(0))
+				
+	intCountBP = intCountConfirmedBP + intCountAttendedBP + intCountDidNotAttendBP
+				
+				'count the number of registered/attended Customers by subracting BPs from the Non-IBMers
+				'intCountConfirmedCust = Cint(docReportingEventProfile.rep_CountConfirmedNonIBM(0)) - Cint(docReportingEventProfile.rep_CountConfirmedBP(0))
+				'intCountAttendedCust = Cint(docReportingEventProfile.rep_CountAttendedNonIBM(0))  - Cint(docReportingEventProfile.rep_CountAttendedBP(0))
+				'intCountCust = intCountConfirmedCust + intCountAttendedCust
+				
+				Call Debug(STR_MODULE_NAME & |: Counting Cust for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedCust
+				intCountConfirmedCust= Cint(docReportingEventProfile.rep_CountConfirmedCust(0))
+				intCountAttendedCust= Cint(docReportingEventProfile.rep_CountAttendedCust(0))
+				
+	intCountDidNotAttendCust= Cint(docReportingEventProfile.rep_CountDidNotAttendCust(0))
+				
+	intCountCust = intCountConfirmedCust+ intCountAttendedCust + intCountDidNotAttendCust
+	
+				Call Debug(STR_MODULE_NAME & |: Counting Emp for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedEmp
+				intCountConfirmedEmp= Cint(docReportingEventProfile.rep_CountConfirmedEmp(0))
+				intCountAttendedEmp= Cint(docReportingEventProfile.rep_CountAttendedEmp(0))
+				
+	intCountDidNotAttendEmp= Cint(docReportingEventProfile.rep_CountDidNotAttendEmp(0))
+	
+	intCountEmp = intCountConfirmedEmp+ intCountAttendedEmp + intCountDidNotAttendEmp
+	
+				Call Debug(STR_MODULE_NAME & |: Counting Exec for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedExec
+				intCountConfirmedExec= Cint(docReportingEventProfile.rep_CountConfirmedExec(0))
+				intCountAttendedExec= Cint(docReportingEventProfile.rep_CountAttendedExec(0))
+				
+	intCountDidNotAttendExec= Cint(docReportingEventProfile.rep_CountDidNotAttendExec(0))
+				
+				
+	intCountExec = intCountConfirmedExec+ intCountAttendedExec + intCountDidNotAttendExec
+	
+				Call Debug(STR_MODULE_NAME & |: Counting Staff for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedStaff
+				intCountConfirmedStaff= Cint(docReportingEventProfile.rep_CountConfirmedStaff(0))
+				intCountAttendedStaff= Cint(docReportingEventProfile.rep_CountAttendedStaff(0))
+				
+	intCountDidNotAttendStaff= Cint(docReportingEventProfile.rep_CountDidNotAttendStaff(0))
+				
+	intCountStaff = intCountConfirmedStaff+ intCountAttendedStaff + intCountDidNotAttendStaff
+	
+				Call Debug(STR_MODULE_NAME & |: Counting Press for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedPressPress
+				intCountConfirmedPress= Cint(docReportingEventProfile.rep_CountConfirmedPress(0))
+				intCountAttendedPress= Cint(docReportingEventProfile.rep_CountAttendedPress(0))
+				
+	intCountDidNotAttendPress= Cint(docReportingEventProfile.rep_CountDidNotAttendPress(0))
+	
+	intCountPress = intCountConfirmedPress+ intCountAttendedPress + intCountDidNotAttendPress
+	
+				Call Debug(STR_MODULE_NAME & |: Counting Speakers for event ID [| & strEventID & |].|)				
+				'count the number of registered/attendedSpeaker
+				intCountConfirmedSpeaker= Cint(docReportingEventProfile.rep_CountConfirmedSpeaker(0))
+				intCountAttendedSpeaker= Cint(docReportingEventProfile.rep_CountAttendedSpeaker(0))
+				
+	intCountDidNotAttendSpeaker= Cint(docReportingEventProfile.rep_CountDidNotAttendSpeaker(0))
+				
+	intCountSpeaker = intCountConfirmedSpeaker+ intCountAttendedSpeaker + intCountDidNotAttendSpeaker
+				
+				Call Debug(STR_MODULE_NAME & |: Counting Academics for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedAcademic
+				intCountConfirmedAcademic= Cint(docReportingEventProfile.rep_CountConfirmedAcademic(0))
+				intCountAttendedAcademic= Cint(docReportingEventProfile.rep_CountAttendedAcademic(0))
+				
+	intCountDidNotAttendAcademic= Cint(docReportingEventProfile.rep_CountDidNotAttendAcademic(0))
+				
+	intCountAcademic = intCountConfirmedAcademic+ intCountAttendedAcademic + intCountDidNotAttendAcademic
+				
+				
+				If (flgEnableUIMsgs) Then
+					Print strBaseMsg & |. [| & intCount & |]...|
+				End If								
+				
+				'Try to find the corresponding ES event brief
+				Set docESEventBrief = docGetESEventBrief(strEventID)
+				
+				On Error Goto lblErrorNext
+				
+				If (docESEventBrief Is Nothing) Then
+					Error ERR_SYSTEM_ERROR, |Unable to find ES event brief for event ID [| & strEventID & |].|		
+				Else
+					If docESEventBrief.r_regsystem(0) <> |Global Registration Portal (GRP)| Then
+						Call Debug(STR_MODULE_NAME & |: Skipping ES event brief for event ID [| & strEventID & |].  The ES event brief has [| & Cstr(docESEventBrief.r_regsystem(0)) & |] as the registration system.|)
+						Goto lblNext
+					End If
+					%REM
+					If (Not docESEventBrief.HasItem(|res_contacts_respondaccept|)) Then
+						intRegistrationCount = 0
+						flgUpdateRegistrationCount = True
+					Else
+						'Get the current registration count from the ES brief and check whether it has changed
+						'NOTE: will now need to check if either reg or attended count has changed - GB
+						intRegistrationCount = CInt(docESEventBrief.res_contacts_respondaccept(0))
+						intBriefCustCount= CInt(docESEventBrief.res_cust_registered(0)) 'new 12/18
+						intBriefBPCount= CInt(docESEventBrief.res_bp_registered(0))'new 12/18
+						intBriefIBMCount= CInt(docESEventBrief.res_ibm_registered(0))'new 12/18
+						If (intRegistrationCount <> intCountNonIBM) Then
+							flgUpdateRegistrationCount = True
+						ElseIf (intBriefCustCount <> intCountCust) Then 'new 12/18
+							flgUpdateRegistrationCount = True 'new 12/18
+						ElseIf (intBriefBPCount <> intCountBP) Then 'new 12/18
+							flgUpdateRegistrationCount = True 'new 12/18
+						ElseIf (intBriefIBMCount <> intCountIBM) Then 'new 12/18
+							flgUpdateRegistrationCount = True 'new 12/18
+						Else							
+							flgUpdateRegistrationCount = False
+						End If
+					End If
+					%ENDREM
+					flgUpdateRegistrationCount = True
+					
+					If (flgUpdateRegistrationCount) Then
+						'old fields
+						'turning these off for a test
+						'docESEventBrief.res_contacts_respondaccept = intCountCust + intCountBP + intCountAcademic'intCountNonIBM
+						'docESEventBrief.r_postnumattendees =  intCountAttendedCust + intCountAttendedBP + intCountAttendedAcademic												
+						'add a breakdown of Cust, IBM, BP
+						docESEventBrief.res_cust_registered = intCountCust
+						docESEventBrief.res_bp_registered = intCountBP
+						docESEventBrief.res_ibm_registered = intCountIBM
+						Set docESEventBrief.reg_updated = dtNow
+						Set docESEventBrief.res_reg_updated = dtNow 'new
+						'new 12/24/2010
+						docESEventBrief.res_ibmemp_registered = intCountEmp
+						docESEventBrief.res_ibmexec_registered =  intCountExec
+						docESEventBrief.res_staff_registered =  intCountStaff
+						docESEventBrief.res_press_registered =  intCountPress
+						docESEventBrief.res_speakers_registered = intCountSpeaker
+						docESEventBrief.res_acad_registered = intCountAcademic
+
+
+						docESEventBrief.res_cust_attended = intCountAttendedCust
+						docESEventBrief.res_bp_attended = intCountAttendedBP
+						docESEventBrief.res_ibmemp_attended = intCountAttendedEmp
+						docESEventBrief.res_ibmexec_attended =  intCountAttendedExec
+						docESEventBrief.res_staff_attended =  intCountAttendedStaff
+						docESEventBrief.res_press_attended =  intCountAttendedPress
+						docESEventBrief.res_speakers_attended = intCountAttendedSpeaker
+						docESEventBrief.res_acad_attended = intCountAttendedAcademic
+						
+						docESEventBrief.res_reg_source = docReportingEventProfile.REP_CANISTERTITLE(0)
+						docESEventBrief.res_reg_source_link=docReportingEventProfile.dp_canisterid(0)
+						'Save the changes
+						Call docESEventBrief.Save(True, False)
+						briefCount = briefCount + 1
+						Call Debug(STR_MODULE_NAME & |: Count of confirmed/attended attendees for event ID [| & strEventID & |] updated from [| & intRegistrationCount & |] to [| & intCountNonIBM & |].|)						
+						'Update the repoprting event profile timestamp too
+						Set docReportingEventProfile.reg_updated = dtNow
+						'Save the changes
+						Call docReportingEventProfile.Save(True, False)
+					Else
+						Call Debug(STR_MODULE_NAME & |: Count of confirmed attendees for event ID [| & strEventID & |] has not changed.|)						
+					End If
+				End If
+				
+lblNext:
+				
+				'Restore standard error handling
+				'On Error Goto lblError
+				
+			'	Set entryCurr = vc.GetNextEntry(entryCurr)
+			'Wend	
+			
+			'Restore standard error handling
+			On Error Goto lblError
+			
+			Call Debug(STR_MODULE_NAME & |: | & Cstr(intCount) & | reporting event profile(s) processed.|)
+			Call Debug(STR_MODULE_NAME & |: | & Cstr(briefCount) & | event brief(s) updated.|) 
+			If (flgEnableUIMsgs) Then
+				Print Cstr(intCount) & | reporting event profile(s) processed.|			
+			End If				
+		
+	
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+		Print Error()
+	End If
+	Resume lblExit
+	
+lblErrorNext:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+		Print Error()
+	End If
+	Resume lblNext
+	
+
+
+End Sub
+
+'++LotusScript Development Environment:2:2:UpdateESEventBriefsSelectedOLD_7_12_11:3:8
+
+
+Sub UpdateESEventBriefsSelectedOLD_7_12_11(docReportingEventProfile As NotesDocument, flgEnableUIMsgs As Boolean)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given a reporting event profiles, update the confirmed attendance numbers
+	'in the corresponding ES event brief.
+     '
+     'Parameters
+     '----------------
+	'flgEnableUIMsgs			If True write status messages to the Notes client status bar.
+	'
+     'Return Values
+     '-------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	Const STR_MODULE_NAME = |UpdateESEventBriefsSelected|
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |vLookupEventsESUpdate|
+	
+	Dim dtNow As New NotesDateTime("")	
+	Dim vc As NotesViewEntryCollection
+	Dim entryCurr As NotesViewEntry	
+	'Dim docReportingEventProfile As NotesDocument
+	Dim docESEventBrief As NotesDocument
+	Dim viewReportingEventProfiles As NotesView
+	Dim strEventID As String
+	Dim strBaseMsg As String
+	Dim intCount As Integer
+	Dim intCountConfirmedNonIBM As Integer
+	Dim intCountAttendedNonIBM As Integer
+	Dim intCountNonIBM As Integer
+	Dim intCountConfirmedIBM As Integer
+	Dim intCountAttendedIBM As Integer
+	Dim intCountIBM As Integer
+	Dim intCountConfirmedBP As Integer
+	Dim intCountAttendedBP As Integer
+	Dim intCountBP As Integer
+	Dim intCountConfirmedCust As Integer
+	Dim intCountAttendedCust As Integer
+	Dim intCountCust As Integer	
+	Dim intRegistrationCount As Integer
+	'new for 12/18
+	Dim intBriefCustCount As Integer
+	Dim intBriefIBMCount As Integer
+	Dim intBriefBPCount As Integer
+	'new for 12/24
+	Dim intBriefIBMExecCount As Integer
+	Dim intBriefIBMEmpCount As Integer
+	Dim intBriefStaffCount As Integer
+	Dim intBriefPressCount As Integer
+	Dim intBriefSpeakerCount As Integer
+	Dim intBriefAcademicCount As Integer
+	
+	
+	Dim intCountConfirmedEmp As Integer
+	Dim intCountAttendedEmp As Integer
+	
+	
+	Dim intCountConfirmedExec As Integer
+	Dim intCountAttendedExec As Integer
+	
+	
+	Dim intCountConfirmedStaff As Integer
+	Dim intCountAttendedStaff As Integer
+	
+	
+	Dim intCountConfirmedPress As Integer
+	Dim intCountAttendedPress As Integer
+	
+	
+	Dim intCountConfirmedSpeaker As Integer
+	Dim intCountAttendedSpeaker As Integer
+	
+
+	
+	Dim intCountConfirmedAcademic As Integer
+	Dim intCountAttendedAcademic As Integer
+	
+	'-------new to cover DNA
+	Dim intCountDidNotAttendCust As Integer
+	
+	Dim intCountDidNotAttendBP As Integer
+	
+	Dim intCountDidNotAttendIBM As Integer
+	
+	Dim intCountDidNotAttendNonIBM As Integer
+
+	Dim intCountDidNotAttendEmp As Integer
+	
+	Dim intCountDidNotAttendExec As Integer
+
+	Dim intCountDidNotAttendStaff As Integer
+	
+	Dim intCountDidNotAttendPress As Integer
+
+	Dim intCountDidNotAttendSpeaker As Integer
+	
+	Dim intCountDidNotAttendAcademic As Integer
+	'-------
+	
+	Dim intCountEmp As Integer
+	Dim intCountExec As Integer
+	Dim intCountStaff As Integer
+	Dim intCountPress As Integer
+	Dim intCountSpeaker As Integer
+	Dim intCountAcademic As Integer
+	
+	Dim briefCount As Integer
+	briefCount = 0
+	
+	Dim intTotalReg As Integer
+	Dim intTotalAttend As Integer
+	Dim intBuyerReg As Integer
+	Dim intBuyerAttend As Integer
+	
+	Dim t As Integer
+	Dim flgSkip As Boolean
+	flgSkip = False
+	'
+	Dim flgUpdateRegistrationCount As Boolean
+	Dim strEndDate As String
+	Dim dtToday As NotesDateTime
+	Dim dtEndDate As NotesDateTime	
+	
+	Dim intFinCount As Integer
+	intFinCount = 0
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'Set the date/time used to timestamp the update
+	dtNow.SetNow
+	
+	'Get today's date
+	Set dtToday = New NotesDateTime("Today")	
+	
+	'Get the view in this database used to find reporting event profiles
+	'Set viewReportingEventProfiles = g_dbCurr.GetView(STR_LOOKUP_VIEW_ALIAS)
+	
+	'Set vc = viewReportingEventProfiles.AllEntries
+	
+	'If (Not vc Is Nothing) Then
+		'If (vc.Count > 0) Then
+			
+			'Call Debug(STR_MODULE_NAME & |: Processing [| & CStr(vc.Count) & |] reporting event profile(s)...|)
+			'strBaseMsg = |Processing | & CStr(vc.Count) & | reporting event profile(s)|
+			'If (flgEnableUIMsgs) Then
+			'	Print strBaseMsg & |...|
+			'End If
+			
+			'Set entryCurr = vc.GetFirstEntry()
+			
+			'While Not (entryCurr Is Nothing)
+				
+				'Set docReportingEventProfile = entryCurr.Document
+				
+	intCount = intCount + 1
+	
+	strEventID = Cstr(docReportingEventProfile.ep_id(0))
+	
+	Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Processing event ID [| & strEventID & |].|)	
+	
+	On Error Goto lblNext 'adding this 12/27/10 GB to continue processing if type mistmatches occur on individual profiles
+	
+	'load fields array
+	reportingFields
+	
+	'test for the required fields
+	'if not available, skip this profile
+	flgSkip = False
+	For t = 1 To 8 
+		If Not docReportingEventProfile.HasItem(grpProfileFields_C(t)) Then
+			Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Event ID [| & strEventID & |] missing field | & grpProfileFields_C(t) )
+			flgSkip = True
+		End If
+		If Not docReportingEventProfile.HasItem(grpProfileFields_A(t)) Then
+			Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Event ID [| & strEventID & |] missing field | & grpProfileFields_A(t) )
+			flgSkip = True
+		End If
+		If Not docReportingEventProfile.HasItem(grpProfileFields_D(t)) Then
+			Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Event ID [| & strEventID & |] missing field | & grpProfileFields_D(t) )
+			flgSkip = True
+		End If
+	Next
+	
+	If flgSkip Then
+		Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Skipping event ID [| & strEventID & |]. Required fields are not available.|)	
+		Goto lblNext
+	End If
+	
+	
+	'Get the event end date
+	strEndDate = docReportingEventProfile.ep_EndDate(0)
+	Set dtEndDate = New NotesDateTime(strEndDate)
+	
+	'GET THE GRP COUNTS	
+	
+	'1	Cust
+	'2	Emp
+	'3	Exec
+	'4	Staff
+	'5	Press
+	'6	Speaker
+	'7	Academic
+	'8	BP
+	
+	Dim i As Integer
+	Dim c As Integer 'Confirmed
+	Dim a As Integer 'Attended
+	Dim d As Integer 'Did not attend
+	Dim z As Integer
+	Dim p As Integer
+	'count the total registered (confirmed + attended + did not attend) and attended
+	For i=1 To 8
+		c=0
+		a=0
+		d=0
+		c=Cint(docReportingEventProfile.getItemValue(grpProfileFields_C(i))(0))
+		a=Cint(docReportingEventProfile.getItemValue(grpProfileFields_A(i))(0))
+		d=Cint(docReportingEventProfile.getItemValue(grpProfileFields_D(i))(0))
+		intRegCount(i)= c+a+d
+		intAttendCount(i)= a
+		Call Debug(STR_MODULE_NAME & |: Total | & dbgLabel(i) & | registered for event ID [| & strEventID & |] = | & Cstr(intRegCount(i)) &|.|)
+		Call Debug(STR_MODULE_NAME & |: Total | & dbgLabel(i) & | attended for event ID [| & strEventID & |] = | & Cstr(intAttendCount(i)) &|.|)
+	Next
+	
+	
+	'IBM count = IBM Exec + IBM Emp (2 and 3)
+	'Non IBM count = Customers + BP + Academic (1 & 7 & 8)
+	
+	intCountNonIBM = intRegCount(1) + intRegCount(7) + intRegCount(8)				
+	intCountIBM = intRegCount(2) + intRegCount(3) 				
+	
+	intCountCust = intRegCount(1)				
+	intCountEmp = intRegCount(2)				
+	intCountExec = intRegCount(3)				
+	intCountStaff = intRegCount(4)				
+	intCountPress = intRegCount(5)				
+	intCountSpeaker = intRegCount(6)			
+	intCountAcademic = intRegCount(7)
+	intCountBP = intRegCount(8)
+	
+	'total 'em up
+	i = 0
+	intTotalReg = 0
+	For i = 1 To 8
+		intTotalReg = intTotalReg + intRegCount(i)
+	Next
+	
+	intBuyerReg= intRegCount(1) + intRegCount(7) + intRegCount(8)
+	
+	i = 0
+	intTotalAttend = 0
+	For i = 1 To 8
+		intTotalAttend = intTotalAttend + intAttendCount(i)
+	Next
+	
+	intBuyerAttend= intAttendCount(1) + intAttendCount(7) + intAttendCount(8)
+	
+	
+	'FINISH COUNTS
+	
+	If (flgEnableUIMsgs) Then
+		Print strBaseMsg & |. [| & intCount & |]...|
+	End If								
+	
+	'Try to find the corresponding ES event brief
+	Set docESEventBrief = docGetESEventBrief(strEventID)
+	
+	'On Error GoTo lblErrorNext
+	
+	If (docESEventBrief Is Nothing) Then
+		
+		'stamp profile as error to get it out of processing (do this first before error)
+		docReportingEventProfile.error_no_brief=|true|
+		'Save the changes
+		Call docReportingEventProfile.Save(True, False)
+		'Throwing the Error below is returning to the calling agent, which means the rest of the view is not getting processed
+		'Temp change to DEBUG msg
+		'Error ERR_SYSTEM_ERROR, |Unable to find ES event brief for event ID [| & strEventID & |].|		
+		Call Debug(STR_MODULE_NAME & |:	Unable to find ES event brief for event ID [| & strEventID & |].|)				
+		Goto lblNext	
+		'NEW for 3rd Party Canister
+		'ElseIf docReportingEventProfile.eventcategory(0)=|Non-Proprietary| Then
+		'Do the non-prop stuff
+	Elseif docESEventBrief.eventcategory(0)=|Proprietary| Then
+		Call Debug(STR_MODULE_NAME & |:Proprietary|)			
+		If docESEventBrief.r_regsystem(0) <> |Global Registration Portal (GRP)| And docESEventBrief.r_regsystem(0) <> |GRP Import| Then 'Added proprietary 4/10/11 - GB						'stamp profile as error to get it out of processing
+			docReportingEventProfile.error_brief_reg=docESEventBrief.r_regsystem(0)
+			'Save the changes
+			Call docReportingEventProfile.Save(True, False)
+			Call Debug(STR_MODULE_NAME & |: Skipping ES event brief for event ID [| & strEventID & |].  The ES event brief has [| & Cstr(docESEventBrief.r_regsystem(0)) & |] as the registration system.|)
+			Goto lblNext
+		End If
+		
+		If (Not docESEventBrief.HasItem(|res_contacts_respondaccept|)) Then
+			intRegistrationCount = 0
+			flgUpdateRegistrationCount = True
+		Else
+			'Get the current registration count from the ES brief and check whether it has changed
+			'NOTE: will now need to check if either reg or attended count has changed - GB
+			intRegistrationCount = Cint(docESEventBrief.res_contacts_respondaccept(0))
+			intBriefCustCount= Cint(docESEventBrief.res_cust_registered(0)) 	
+			intBriefBPCount= Cint(docESEventBrief.res_bp_registered(0))
+			intBriefIBMCount= Cint(docESEventBrief.res_ibm_registered(0))
+			If (intRegistrationCount <> intCountNonIBM) Then
+				flgUpdateRegistrationCount = True
+			Elseif (intBriefIBMCount <> intCountIBM) Then 
+				flgUpdateRegistrationCount = True
+			Else							
+				flgUpdateRegistrationCount = False
+			End If
+			
+			'Check all the new fields
+			Dim f As Integer
+			For f = 1 To 8
+				If (docESEventBrief.HasItem(briefField_R(f))) Then
+					'if field available, check if it's different from GRP
+					If Cint(docESEventBrief.GetItemValue(briefField_R(f))(0))<> intRegCount(f) Then
+						flgUpdateRegistrationCount = True
+					End If
+				Else
+					'if field not there, always update
+					flgUpdateRegistrationCount = True
+				End If
+				If (docESEventBrief.HasItem(briefField_A(f))) Then
+					'if field available, check if it's different from GRP
+					If Cint(docESEventBrief.GetItemValue(briefField_A(f))(0))<> intAttendCount(f) Then
+						flgUpdateRegistrationCount = True
+					End If
+				Else
+					'if field not there, always update
+					flgUpdateRegistrationCount = True	
+				End If							
+			Next	
+			
+			
+			
+			'	If (docESEventBrief.HasItem(|reg_updated_final|)) Then
+			
+			'		flgUpdateRegistrationCount = False
+			
+			'	Else
+			'		flgUpdateRegistrationCount = False
+			'	End If
+		End If
+
+	Elseif docESEventBrief.eventcategory(0)=|Non-Proprietary| Then
+		Call Debug(STR_MODULE_NAME & |:Non-Proprietary|)
+		If docESEventBrief.r_regsystem(0) <> |Global Registration Portal (GRP)| And docESEventBrief.r_regsystem(0) <> |GRP Import| Then 'Added proprietary 4/10/11 - GB						'stamp profile as error to get it out of processing
+			docReportingEventProfile.error_brief_reg=docESEventBrief.r_regsystem(0)
+			'Save the changes
+			Call docReportingEventProfile.Save(True, False)
+			Call Debug(STR_MODULE_NAME & |: Skipping ES event brief for event ID [| & strEventID & |].  The ES event brief has [| & Cstr(docESEventBrief.r_regsystem(0)) & |] as the registration system.|)
+			Goto lblNext
+		End If
+		
+		If (Not docESEventBrief.HasItem(|res_contacts_respond|)) Then
+			intRegistrationCount = 0
+			flgUpdateRegistrationCount = True
+		Else
+			
+			'Check all the new fields
+			Dim fnp As Integer
+			For fnp = 1 To 8
+				
+				If (docESEventBrief.HasItem(briefField_NP(fnp))) Then
+					'if field available, check if it's different from GRP
+					If Cint(docESEventBrief.GetItemValue(briefField_NP(fnp))(0))<> intAttendCount(fnp) Then
+						flgUpdateRegistrationCount = True
+					End If
+				Else
+					'if field not there, always update
+					flgUpdateRegistrationCount = True	
+				End If							
+			Next						
+			
+			
+		End If
+	End If
+	
+	
+	
+	
+	'Only update the ES event brief if the count has changed
+	If (flgUpdateRegistrationCount) Then
+		'old fields
+		If docESEventBrief.eventcategory(0)="Non-Proprietary" Then
+			'only update the contacts responding for non-prop
+			Call Debug(STR_MODULE_NAME & |:flgUpdateRegistrationCount: Non-Proprietary|)
+			docESEventBrief.res_contacts_respond = intAttendCount(1) + intAttendCount(7) + intAttendCount(8)
+			docESEventBrief.res_total_responded=intTotalAttend
+			docESEventBrief.res_buyers_responded=intBuyerAttend
+			
+		Else
+			'update registered and attended for prop
+			Call Debug(STR_MODULE_NAME & |:flgUpdateRegistrationCount: Proprietary|)
+			docESEventBrief.res_contacts_respondaccept = intCountNonIBM
+			docESEventBrief.r_postnumattendees =  intAttendCount(1) + intAttendCount(7) + intAttendCount(8)												
+			docESEventBrief.res_total_registered=intTotalReg
+			docESEventBrief.res_buyers_registered=intBuyerReg
+			docESEventBrief.res_total_attended=intTotalAttend
+			docESEventBrief.res_buyers_attended=intBuyerAttend
+			
+		End If
+		'add a breakdown of IBM
+		If docESEventBrief.eventcategory(0)="Proprietary" Then
+			docESEventBrief.res_ibm_registered = intCountIBM
+		End If					
+		
+		Set docESEventBrief.reg_updated = dtNow
+		Set docESEventBrief.res_reg_updated = dtNow 'new
+		'new 2/9/2011
+		
+		For p = 1 To 3
+			If docReportingEventProfile.Hasitem(postField_P(p)) Then
+				Call Debug(STR_MODULE_NAME & |: | & strEventID & | has | & postField_P(p) & | -- setting brief to match|)
+				Call docESEventBrief.Replaceitemvalue(postField_P(p), docReportingEventProfile.GetItemValue(postField_P(p))(0))
+			End If							
+		Next
+		
+		'new 1/31/10
+		
+		For z=1 To 8
+			If docESEventBrief.eventcategory(0)="Non-Proprietary" Then
+				Call docESEventBrief.Replaceitemvalue(briefField_NP(z), intAttendCount(z))
+			Else
+				Call docESEventBrief.Replaceitemvalue(briefField_R(z), intRegCount(z))
+				Call docESEventBrief.Replaceitemvalue(briefField_A(z), intAttendCount(z))	
+			End If 
+			
+		Next	
+		
+		docESEventBrief.res_reg_source = docReportingEventProfile.REP_CANISTERTITLE(0)
+		docESEventBrief.res_reg_source_link=docReportingEventProfile.dp_canisterid(0)
+		
+		'If these are final numbers, stamp the brief
+		'2/11/11 turning off until we know things are in sync
+		'If docReportingEventProfile.HasItem(|reg_complete|) And docReportingEventProfile.reg_complete(0)=|true| Then
+		'	docESEventBrief.reg_updated_final=|true|
+		'	Call Debug(STR_MODULE_NAME & |: Event brief for event ID [| & strEventID & |] marked Final.|)						
+		
+		'End If
+		
+		'Save the changes
+		
+		Call docESEventBrief.Save(True, False)
+		briefCount = briefCount + 1
+		Call Debug(STR_MODULE_NAME & |: Count of confirmed/attended attendees for event ID [| & strEventID & |] updated from [| & intRegistrationCount & |] to [| & intCountNonIBM & |].|)						
+		'Update the repoprting event profile timestamp too
+		Set docReportingEventProfile.reg_updated = dtNow
+		'If these are final numbers, stamp the profile
+		If docReportingEventProfile.HasItem(|reg_complete|) And docReportingEventProfile.reg_complete(0)="true" Then
+			'	docReportingEventProfile.reg_updated_final=|true|
+			'	Call Debug(STR_MODULE_NAME & |: Reporting profile for event ID [| & strEventID & |] marked Final.|)						
+			intFinCount = intFinCount + 1
+		End If
+		'Save the changes
+		Call docReportingEventProfile.Save(True, False)
+	Else
+		Call Debug(STR_MODULE_NAME & |: Counts for event ID [| & strEventID & |] has not changed.|)						
+	End If
+	
+				
+lblNext:
+				
+				'Restore standard error handling
+				'On Error Goto lblError
+				
+			'	Set entryCurr = vc.GetNextEntry(entryCurr)
+			'Wend	
+			
+			'Restore standard error handling
+			On Error Goto lblError
+			
+			Call Debug(STR_MODULE_NAME & |: | & Cstr(intCount) & | reporting event profile(s) processed.|)
+			Call Debug(STR_MODULE_NAME & |: | & Cstr(briefCount) & | event brief(s) updated.|) 
+			If (flgEnableUIMsgs) Then
+				Print Cstr(intCount) & | reporting event profile(s) processed.|			
+			End If				
+			
+			
+	
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+		Print Error()
+	End If
+	Resume lblExit
+	
+lblErrorNext:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+		Print Error()
+	End If
+	Resume lblNext
+	
+
+
+End Sub
+
+
+
+'++LotusScript Development Environment:2:2:UpdateESEventBriefsOLD:1:8
+Sub UpdateESEventBriefsOLD(flgEnableUIMsgs As Boolean)
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Find all reporting event profiles in this database and update the confirmed attendance numbers
+	'in the corresponding ES event brief.
+     '
+     'Parameters
+     '----------------
+	'flgEnableUIMsgs			If True write status messages to the Notes client status bar.
+	'
+     'Return Values
+     '-------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |UpdateESEventBriefs|
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |vLookupEventsESUpdate|
+	
+	Dim dtNow As New NotesDateTime("")	
+	Dim vc As NotesViewEntryCollection
+	Dim entryCurr As NotesViewEntry	
+	Dim docReportingEventProfile As NotesDocument
+	Dim docESEventBrief As NotesDocument
+	Dim viewReportingEventProfiles As NotesView
+	Dim strEventID As String
+	Dim strBaseMsg As String
+	Dim intCount As Integer
+	Dim intCountConfirmedNonIBM As Integer
+	Dim intCountAttendedNonIBM As Integer
+	Dim intCountNonIBM As Integer
+	Dim intCountConfirmedIBM As Integer
+	Dim intCountAttendedIBM As Integer
+	Dim intCountIBM As Integer
+	Dim intCountConfirmedBP As Integer
+	Dim intCountAttendedBP As Integer
+	Dim intCountBP As Integer
+	Dim intCountConfirmedCust As Integer
+	Dim intCountAttendedCust As Integer
+	Dim intCountCust As Integer	
+	Dim intRegistrationCount As Integer
+	'new for 12/18
+	Dim intBriefCustCount As Integer
+	Dim intBriefIBMCount As Integer
+	Dim intBriefBPCount As Integer
+	'new for 12/24
+	Dim intBriefIBMExecCount As Integer
+	Dim intBriefIBMEmpCount As Integer
+	Dim intBriefStaffCount As Integer
+	Dim intBriefPressCount As Integer
+	Dim intBriefSpeakerCount As Integer
+	Dim intBriefAcademicCount As Integer
+	
+	
+	Dim intCountConfirmedEmp As Integer
+	Dim intCountAttendedEmp As Integer
+	
+	
+	Dim intCountConfirmedExec As Integer
+	Dim intCountAttendedExec As Integer
+	
+	
+	Dim intCountConfirmedStaff As Integer
+	Dim intCountAttendedStaff As Integer
+	
+	
+	Dim intCountConfirmedPress As Integer
+	Dim intCountAttendedPress As Integer
+	
+	
+	Dim intCountConfirmedSpeaker As Integer
+	Dim intCountAttendedSpeaker As Integer
+	
+
+	
+	Dim intCountConfirmedAcademic As Integer
+	Dim intCountAttendedAcademic As Integer
+	
+	Dim intCountEmp As Integer
+	Dim intCountExec As Integer
+	Dim intCountStaff As Integer
+	Dim intCountPress As Integer
+	Dim intCountSpeaker As Integer
+	Dim intCountAcademic As Integer
+	
+	Dim briefCount As Integer
+	briefCount = 0
+	
+	'
+	Dim flgUpdateRegistrationCount As Boolean
+	Dim strEndDate As String
+	Dim dtToday As NotesDateTime
+	Dim dtEndDate As NotesDateTime	
+	
+	Dim intFinCount As Integer
+	intFinCount = 0
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	'Set the date/time used to timestamp the update
+	dtNow.SetNow
+	
+	'Get today's date
+	Set dtToday = New NotesDateTime("Today")	
+	
+	'Get the view in this database used to find reporting event profiles
+	Set viewReportingEventProfiles = g_dbCurr.GetView(STR_LOOKUP_VIEW_ALIAS)
+	
+	Set vc = viewReportingEventProfiles.AllEntries
+	
+	If (Not vc Is Nothing) Then
+		If (vc.Count > 0) Then
+			
+			Call Debug(STR_MODULE_NAME & |: Processing [| & Cstr(vc.Count) & |] reporting event profile(s)...|)
+			strBaseMsg = |Processing | & Cstr(vc.Count) & | reporting event profile(s)|
+			If (flgEnableUIMsgs) Then
+				Print strBaseMsg & |...|
+			End If
+			
+			Set entryCurr = vc.GetFirstEntry()
+			
+			While Not (entryCurr Is Nothing)
+				
+				Set docReportingEventProfile = entryCurr.Document
+				
+				intCount = intCount + 1
+				
+				strEventID = Cstr(docReportingEventProfile.ep_id(0))
+				
+				Call Debug(STR_MODULE_NAME & |: Processing event ID [| & strEventID & |].|)	
+				
+				On Error Goto lblNext 'adding this 12/27/10 GB to continue processing if type mistmatches occur on individual profiles
+				
+				'Get the event end date
+				strEndDate = docReportingEventProfile.ep_EndDate(0)
+				Set dtEndDate = New NotesDateTime(strEndDate)
+				
+				'If the time difference between today and the end date is positive so the event is over so ignore it
+				'If dtToday.TimeDifference(dtEndDate) > 0  Then
+				'	Call Debug(STR_MODULE_NAME & |: Skipping event with event ID [| & strEventID & |].  The event end date [| & strEndDate & |] is in the past.|)	
+				'	Goto lblNext
+				'End If
+				'ABOVE: Not going to look at end date anymore. Let view control which briefs gets updated 1/24/11
+				
+				Call Debug(STR_MODULE_NAME & |: Counting NonIBM for event ID [| & strEventID & |].|)	
+				
+				
+				intCountConfirmedNonIBM = Cint(docReportingEventProfile.rep_CountConfirmedNonIBM(0))
+				intCountAttendedNonIBM = Cint(docReportingEventProfile.rep_CountAttendedNonIBM(0))
+				
+				intCountNonIBM = intCountConfirmedNonIBM + intCountAttendedNonIBM
+				
+				Call Debug(STR_MODULE_NAME & |: Counting IBM for event ID [| & strEventID & |].|)
+				'count the number of registered/attended IBMers 
+				intCountConfirmedIBM = Cint(docReportingEventProfile.rep_CountConfirmedIBM(0))
+				intCountAttendedIBM = Cint(docReportingEventProfile.rep_CountAttendedIBM(0))
+				intCountIBM = intCountConfirmedIBM + intCountAttendedIBM
+				
+				Call Debug(STR_MODULE_NAME & |: Counting BP for event ID [| & strEventID & |].|)
+				'count the number of registered/attended BPs
+				intCountConfirmedBP = Cint(docReportingEventProfile.rep_CountConfirmedBP(0))
+				intCountAttendedBP = Cint(docReportingEventProfile.rep_CountAttendedBP(0))
+				intCountBP = intCountConfirmedBP + intCountAttendedBP
+				
+				'count the number of registered/attended Customers by subracting BPs from the Non-IBMers
+				'intCountConfirmedCust = Cint(docReportingEventProfile.rep_CountConfirmedNonIBM(0)) - Cint(docReportingEventProfile.rep_CountConfirmedBP(0))
+				'intCountAttendedCust = Cint(docReportingEventProfile.rep_CountAttendedNonIBM(0))  - Cint(docReportingEventProfile.rep_CountAttendedBP(0))
+				'intCountCust = intCountConfirmedCust + intCountAttendedCust
+				
+				Call Debug(STR_MODULE_NAME & |: Counting Cust for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedCust
+				intCountConfirmedCust= Cint(docReportingEventProfile.rep_CountConfirmedCust(0))
+				intCountAttendedCust= Cint(docReportingEventProfile.rep_CountAttendedCust(0))
+				intCountCust = intCountConfirmedCust+ intCountAttendedCust
+				Call Debug(STR_MODULE_NAME & |: Counting Emp for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedEmp
+				intCountConfirmedEmp= Cint(docReportingEventProfile.rep_CountConfirmedEmp(0))
+				intCountAttendedEmp= Cint(docReportingEventProfile.rep_CountAttendedEmp(0))
+				intCountEmp = intCountConfirmedEmp+ intCountAttendedEmp
+				Call Debug(STR_MODULE_NAME & |: Counting Exec for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedExec
+				intCountConfirmedExec= Cint(docReportingEventProfile.rep_CountConfirmedExec(0))
+				intCountAttendedExec= Cint(docReportingEventProfile.rep_CountAttendedExec(0))
+				intCountExec = intCountConfirmedExec+ intCountAttendedExec
+				Call Debug(STR_MODULE_NAME & |: Counting Staff for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedStaff
+				intCountConfirmedStaff= Cint(docReportingEventProfile.rep_CountConfirmedStaff(0))
+				intCountAttendedStaff= Cint(docReportingEventProfile.rep_CountAttendedStaff(0))
+				intCountStaff = intCountConfirmedStaff+ intCountAttendedStaff
+				Call Debug(STR_MODULE_NAME & |: Counting Press for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedPressPress
+				intCountConfirmedPress= Cint(docReportingEventProfile.rep_CountConfirmedPress(0))
+				intCountAttendedPress= Cint(docReportingEventProfile.rep_CountAttendedPress(0))
+				intCountPress = intCountConfirmedPress+ intCountAttendedPress
+				Call Debug(STR_MODULE_NAME & |: Counting Speakers for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedSpeaker
+				intCountConfirmedSpeaker= Cint(docReportingEventProfile.rep_CountConfirmedSpeaker(0))
+				intCountAttendedSpeaker= Cint(docReportingEventProfile.rep_CountAttendedSpeaker(0))
+				intCountSpeaker = intCountConfirmedSpeaker+ intCountAttendedSpeaker
+				Call Debug(STR_MODULE_NAME & |: Counting Academics for event ID [| & strEventID & |].|)
+				'count the number of registered/attendedAcademic
+				intCountConfirmedAcademic= Cint(docReportingEventProfile.rep_CountConfirmedAcademic(0))
+				intCountAttendedAcademic= Cint(docReportingEventProfile.rep_CountAttendedAcademic(0))
+				intCountAcademic = intCountConfirmedAcademic+ intCountAttendedAcademic
+				
+				
+				If (flgEnableUIMsgs) Then
+					Print strBaseMsg & |. [| & intCount & |]...|
+				End If								
+				
+				'Try to find the corresponding ES event brief
+				Set docESEventBrief = docGetESEventBrief(strEventID)
+				
+				On Error Goto lblErrorNext
+				
+				If (docESEventBrief Is Nothing) Then
+					
+					'stamp profile as error to get it out of processing (do this first before error)
+					docReportingEventProfile.error_no_brief=|true|
+					'Save the changes
+					Call docReportingEventProfile.Save(True, False)
+					'Throwing the Error below is returning to the calling agent, which means the rest of the view is not getting processed
+					'Temp change to DEBUG msg
+					'Error ERR_SYSTEM_ERROR, |Unable to find ES event brief for event ID [| & strEventID & |].|		
+					Call Debug(STR_MODULE_NAME & |:	Unable to find ES event brief for event ID [| & strEventID & |].|)				
+					Goto lblNext				
+				Else
+					If docESEventBrief.r_regsystem(0) <> |Global Registration Portal (GRP)| Then
+						'stamp profile as error to get it out of processing
+						docReportingEventProfile.error_brief_reg=docESEventBrief.r_regsystem(0)
+						'Save the changes
+						Call docReportingEventProfile.Save(True, False)
+						Call Debug(STR_MODULE_NAME & |: Skipping ES event brief for event ID [| & strEventID & |].  The ES event brief has [| & Cstr(docESEventBrief.r_regsystem(0)) & |] as the registration system.|)
+						Goto lblNext
+					End If
+					
+					If (Not docESEventBrief.HasItem(|res_contacts_respondaccept|)) Then
+						intRegistrationCount = 0
+						flgUpdateRegistrationCount = True
+					Else
+						'1/24/11 - FOR NOW UPDATE the BRIEF unless final numbers have been written
+						'Get the current registration count from the ES brief and check whether it has changed
+						'NOTE: will now need to check if either reg or attended count has changed - GB
+						%REM
+						intRegistrationCount = Cint(docESEventBrief.res_contacts_respondaccept(0))
+						intBriefCustCount= CInt(docESEventBrief.res_cust_registered(0)) 'new 12/18
+						intBriefBPCount= CInt(docESEventBrief.res_bp_registered(0))'new 12/18
+						intBriefIBMCount= CInt(docESEventBrief.res_ibm_registered(0))'new 12/18
+						If (intRegistrationCount <> intCountNonIBM) Then
+							flgUpdateRegistrationCount = True
+						ElseIf (intBriefCustCount <> intCountCust) Then 'new 12/18
+							flgUpdateRegistrationCount = True 'new 12/18
+						ElseIf (intBriefBPCount <> intCountBP) Then 'new 12/18
+							flgUpdateRegistrationCount = True 'new 12/18
+						ElseIf (intBriefIBMCount <> intCountIBM) Then 'new 12/18
+							flgUpdateRegistrationCount = True 'new 12/18
+						Else							
+							flgUpdateRegistrationCount = False
+						End If
+						%ENDREM
+						If (Not docESEventBrief.HasItem(|reg_updated_final|)) Then
+							
+							flgUpdateRegistrationCount = True
+						
+						Else
+							flgUpdateRegistrationCount = False
+						End If
+					End If
+					'Only update the ES event brief if the count has changed
+					If (flgUpdateRegistrationCount) Then
+						docESEventBrief.res_contacts_respondaccept = intCountNonIBM + intCountAcademic
+						
+						'test Attended  - GB
+						docESEventBrief.r_postnumattendees = intCountAttendedNonIBM + intCountAttendedAcademic
+						'docESEventBrief.res_testattended = intCountAttendedNonIBM
+						
+						'add a breakdown of Cust, IBM, BP
+						docESEventBrief.res_cust_registered = intCountCust
+						docESEventBrief.res_bp_registered = intCountBP
+						docESEventBrief.res_ibm_registered = intCountIBM
+						Set docESEventBrief.reg_updated = dtNow
+						Set docESEventBrief.res_reg_updated = dtNow 'new
+						'new 12/24/2010
+						docESEventBrief.res_ibmemp_registered = intCountEmp
+						docESEventBrief.res_ibmexec_registered =  intCountExec
+						docESEventBrief.res_staff_registered =  intCountStaff
+						docESEventBrief.res_press_registered =  intCountPress
+						docESEventBrief.res_speakers_registered = intCountSpeaker
+						docESEventBrief.res_acad_registered = intCountAcademic
+
+
+						docESEventBrief.res_cust_attended = intCountAttendedCust
+						docESEventBrief.res_bp_attended = intCountAttendedBP
+						docESEventBrief.res_ibmemp_attended = intCountAttendedEmp
+						docESEventBrief.res_ibmexec_attended =  intCountAttendedExec
+						docESEventBrief.res_staff_attended =  intCountAttendedStaff
+						docESEventBrief.res_press_attended =  intCountAttendedPress
+						docESEventBrief.res_speakers_attended = intCountAttendedSpeaker
+						docESEventBrief.res_acad_attended = intCountAttendedAcademic
+						
+						docESEventBrief.res_reg_source = docReportingEventProfile.REP_CANISTERTITLE(0)
+						docESEventBrief.res_reg_source_link=docReportingEventProfile.dp_canisterid(0)
+						
+						'If these are final numbers, stamp the brief
+						If docReportingEventProfile.HasItem(|reg_complete|) And docReportingEventProfile.reg_complete(0)="true" Then
+							docESEventBrief.reg_updated_final=|true|
+							Call Debug(STR_MODULE_NAME & |: Event brief for event ID [| & strEventID & |] marked Final.|)						
+							
+						End If
+						
+						'Save the changes
+						
+						Call docESEventBrief.Save(True, False)
+						briefCount = briefCount + 1
+						Call Debug(STR_MODULE_NAME & |: Count of confirmed/attended attendees for event ID [| & strEventID & |] updated from [| & intRegistrationCount & |] to [| & intCountNonIBM & |].|)						
+						'Update the repoprting event profile timestamp too
+						Set docReportingEventProfile.reg_updated = dtNow
+						'If these are final numbers, stamp the profile
+						If docReportingEventProfile.HasItem(|reg_complete|) And docReportingEventProfile.reg_complete(0)="true" Then
+							docReportingEventProfile.reg_updated_final=|true|
+							Call Debug(STR_MODULE_NAME & |: Reporting profile for event ID [| & strEventID & |] marked Final.|)						
+							intFinCount = intFinCount + 1
+						End If
+						'Save the changes
+						Call docReportingEventProfile.Save(True, False)
+					Else
+						Call Debug(STR_MODULE_NAME & |: Count of confirmed attendees for event ID [| & strEventID & |] has not changed.|)						
+					End If
+				End If
+				
+lblNext:
+				
+				'Restore standard error handling
+				'On Error Goto lblError
+				Call Debug(STR_MODULE_NAME & |: Getting next entry|) 'TEMP					
+				
+								
+				Set entryCurr = vc.GetNextEntry(entryCurr)
+			Wend	
+			
+			'Restore standard error handling
+			On Error Goto lblError
+			
+			Call Debug(STR_MODULE_NAME & |: | & Cstr(intCount) & | reporting event profile(s) processed.|)
+			Call Debug(STR_MODULE_NAME & |: | & Cstr(briefCount) & | event brief(s) updated.|) 
+			If (flgEnableUIMsgs) Then
+				Print Cstr(intCount) & | reporting event profile(s) processed.|			
+			End If				
+		Else
+			Call Debug(STR_MODULE_NAME & |: No reporting event profiles were found.|)
+			If (flgEnableUIMsgs) Then
+				Print |No reporting event profiles were found.|
+			End If					
+		End If
+	Else
+		Call Debug(STR_MODULE_NAME & |: No reporting event profiles were found.|)
+		If (flgEnableUIMsgs) Then
+			Print |No reporting event profiles were found.|
+		End If				
+	End If
+	
+lblExit:
+	Call Debug(STR_MODULE_NAME & |: | & Cstr(intFinCount) & | reporting profiles marked Final.|)
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+		Print Error()
+	End If
+	Resume lblExit
+	
+lblErrorNext:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+		Print Error()
+	End If
+	Resume lblNext
+	
+End Sub
+
+
+
+'++LotusScript Development Environment:2:2:ShowErrorMsg:1:8
+Sub ShowErrorMsg(strMsg As String)
+   '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Display a message box with an Exclamation Icon.
+	'
+     'Parameters
+     '-----------------------
+     'strMsg		The message to display.
+     '     
+     'Return Values
+     '-----------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Messagebox strMsg, MB_ICONEXCLAMATION, g_strSystemName
+	
+End Sub
+
+'++LotusScript Development Environment:2:1:docGetCanisterProfile:1:8
+Function docGetCanisterProfile(strCanisterID As String) As NotesDocument
+	 '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given a canister ID, try to find the canister profile in the reference database for the
+	'specified canister ID.
+     '
+     'Parameters
+     '----------------
+	'strCanisterID						The canister ID.
+	'
+     'Return Values
+     '-------------------
+     'If a canister profile is found, it is returned.
+	'Otherwise Nothing is returned.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |docGetCanisterProfile|
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |vLookupCanisterProfiles|
+	
+	Dim view As NotesView
+	Dim docCanisterProfile As NotesDocument
+	Dim strKey As String
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	Call Debug(STR_MODULE_NAME & |: Started.  Looking for canister profile for canister ID [| & strCanisterID & |]|) 
+	
+	'Find the lookup view
+	Set g_dbReference = dbGetReferenceDb()
+	
+	Set view = g_dbReference.GetView(STR_LOOKUP_VIEW_ALIAS) 
+	
+	strKey = strCanisterID
+	
+	'Attempt to find the document in the view
+	Call Debug(STR_MODULE_NAME & |: Searching view [| & STR_LOOKUP_VIEW_ALIAS & |] in reference database for document with key [| & strKey & |].|) 
+	
+	Set docCanisterProfile = view.GetDocumentByKey(strKey, True)
+	
+	If (Not docCanisterProfile Is Nothing) Then
+		Call Debug(STR_MODULE_NAME & |: Document found.|) 
+	Else
+		Call Debug(STR_MODULE_NAME & |: Document NOT found.|) 
+	End If
+	
+lblExit:
+	
+	'Set the return value
+	Call Debug(STR_MODULE_NAME & |: Finished. |) 
+	
+	Set docGetCanisterProfile = docCanisterProfile
+	
+	Exit Function
+	
+lblError:
+	
+	Set docCanisterProfile = Nothing
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:1:flgUpdateESBriefWebAddress:1:8
+Function flgUpdateESBriefWebAddress(docEventProfile As NotesDocument, flgUpdateUI As Boolean) As Boolean
+	'------------------------------------------------------------------------------------------------------
+    'Description
+    '------------------
+    'Given an event profile, attempt to find the corresponding ES brief and 
+	'update the web address related fields in the ES brief.
+	'
+    'Parameters
+    '-----------------------
+    'docEventProfile 		The event profile.
+	'flgUpdateUI			Whether to update the UI or not. 
+	'						(Set to False if calling this function from a back-end agent)		
+    '     
+    'Return Values
+    '-----------------------
+    'True if the ES brief was found and updated successfully, False otherwise.
+    '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |flgUpdateESBriefWebAddress|
+	
+	Dim flgOK As Boolean
+	Dim strEventID As String
+	Dim docESEventBrief As NotesDocument
+	Dim strHasWebAddress As String
+	Dim flgHasWebAddress As Boolean
+	Dim dtNow As New NotesDateTime("")	
+	Dim flgUpdateRequired As Boolean
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|)
+	
+     'Trap errors
+	On Error Goto lblError	
+	
+	'Set the default return code
+	flgOK = False
+	
+	'Assume that the ES brief does not need updating until we know that is does
+	flgUpdateRequired = False
+	
+	If flgUpdateUI Then
+		Print |Checking Event Solution event brief...|	
+	End If
+	
+	'Set the date/time used to timestamp the event profiles
+	dtNow.SetNow
+	
+	'Use the event reference ID in the AS event profile to find the corresponding event brief in ES.  (If unable to find a corresponding brief, write an error to the GRP log, and exit)
+	strEventID = Cstr(docEventProfile.ep_id(0))
+	
+	Set docESEventBrief = docGetESEventBrief(strEventID)
+	
+	If (docESEventBrief Is Nothing) Then
+		Error ERR_SYSTEM_ERROR, |Unable to find ES event brief for event ID [| & strEventID & |].|		
+	Else
+		Call Debug(STR_MODULE_NAME & |: Found ES event brief for event ID [| & strEventID & |].|)
+	End If
+	
+	'Check the webaddressYN field in the ES brief to see whether it needs to be updated or not
+	If (Not docESEventBrief.HasItem(|webaddressYN|)) Then
+		flgHasWebAddress = False
+	Else
+		strHasWebAddress = Cstr(docESEventBrief.webaddressYN(0)) 
+		Select Case strHasWebAddress
+		Case |WN|, ||:
+			flgHasWebAddress = False
+		Case |WY|:
+			flgHasWebAddress = True
+		Case Else
+			Error ERR_SYSTEM_ERROR, |An unexpected value [| & strHasWebAddress & |] was found for the 'webaddressYN' field in the ES event brief for event ID [| & strEventID & |].|		
+		End Select		
+	End If
+	
+	'If the ES brief is marked as not yet having a web address, (i.e. the value of the 'webaddressYN' field is 'WN' or blank), add the web address
+	If (Not flgHasWebAddress) Then
+		'Change the value to 'WY'
+		docESEventBrief.webaddressYN = |WY|
+		'Set the value of the EventWebAddr field in the ES brief to the default URL for the default locale for the event
+		'(i.e. If the registration page is the default web page and the default locale is English (United States), set the URL to the English (United States) version of the reg page.
+		docESEventBrief.EventWebAddr = strGetDefaultURL(docEventProfile)
+		flgUpdateRequired = True
+	Else
+		'The value is 'WY', i.e. The ES event brief has already been updated to say that there is a web site associated with the event
+		
+		'Check whether the EventWebAddr field in the ES brief is blank (i.e. The radio button says 'Yes' there is a web site, but the web site URL has not been filled in for some reason)
+		
+		'If it is, then
+		If ((Cstr(docESEventBrief.EventWebAddr(0)) = ||) Or (Cstr(docESEventBrief.EventWebAddr(0)) <> strGetDefaultURL(docEventProfile))) Then	
+			'Set the value of the EventWebAddr field in the ES brief to the default URL for the default locale for the event
+			'(i.e. If the registration page is the default web page and the default locale is English (United States), set the URL to the English (United States) version of the reg page.
+			docESEventBrief.EventWebAddr = strGetDefaultURL(docEventProfile)	
+			flgUpdateRequired = True
+		End If
+	End If
+	
+	If (docESEventBrief.r_regsystem(0) <> |Attendee Solution|) Then
+		'Set the value of the r_regsystem field in the ES brief to 'Attendee Solutions'
+		docESEventBrief.r_regsystem = |Attendee Solution|
+		flgUpdateRequired = True
+	End If
+	
+	If (docESEventBrief.AttendeeSolutionStatus(0) <> |AS Completed|) Then
+		'Set the value of the r_regsystem field in the ES brief to 'Attendee Solutions'
+		docESEventBrief.AttendeeSolutionStatus = |AS Completed|
+		flgUpdateRequired = True
+	End If
+	
+	'Save the ES brief if necessary and update the AS event profile with a timestamp for the update
+	If (flgUpdateRequired) Then
+		'Added by TV 7/9/09 to timestamp the ES brief when it has been updated
+		'Set the ASTimestamp field in the ES brief to the current date/time
+		Set docESEventBrief.ASTimestamp = dtNow
+		Call docESEventBrief.Save(True, False)
+		'Write a message to the AS log that the ES brief was updated.
+		Call Debug(STR_MODULE_NAME & |: ES event brief for event ID [| & strEventID & |] updated.|)	
+		'Set the ep_DateESWebAddressUpdated field in the GRP event profile to the current date/time.
+		Set docEventProfile.ep_DateESWebAddressUpdated = dtNow
+		'Save the GRP event profile.	
+		Call docEventProfile.Save(True, False)		
+	Else
+		Call Debug(STR_MODULE_NAME & |: ES event brief for event ID [| & strEventID & |] does not need be to updated.|)	
+	End If
+	
+	flgOK = True
+	
+lblExit:
+	
+	flgUpdateESBriefWebAddress = flgOK
+	
+	If (flgOK) Then
+		If flgUpdateUI Then
+			If (flgUpdateRequired) Then			
+				Print |The Event Solution event brief was updated.|	
+			Else
+				Print |The Event Solution event brief did not need to be updated.|	
+			End If
+		End If
+	Else
+		If flgUpdateUI Then
+			Print |Unable to update Event Solution event brief.|	
+		End If		
+		Call Debug(STR_MODULE_NAME & |: Finished.  Unable to update ES event brief web address.|)	
+	End If
+	
+	Exit Function
+	
+lblError:
+	
+	flgOK = False
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:2:RefreshReportingEventProfiles:1:8
+Sub RefreshReportingEventProfiles(flgEnableUIMsgs As Boolean)
+	'------------------------------------------------------------------------------------------------------
+    'Description
+    '------------------
+	'Refresh all of the event profiles in this database.
+	'
+	'NOTE:	This routine is designed to be called from the 'Daily Event Profile Refresh' agent.
+	'
+    'Parameters
+    '-----------------------
+	'flgEnableUIMsgs			If True write status messages to the Notes client status bar.
+    '     
+    'Return Values
+    '-----------------------
+    'None.
+    '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |RefreshReportingEventProfiles| 
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |vLookupCanisterProfiles|
+	
+	Dim dtNow As New NotesDateTime("")
+	Dim strCanisterTitle As String
+	Dim docCanisterProfile As NotesDocument
+	Dim viewCanisterProfiles As NotesView
+	Dim vc As NotesViewEntryCollection
+	Dim entryCurr As NotesViewEntry	
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|) 
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	'Set the date/time used to timestamp the update
+	dtNow.SetNow
+	
+	'Find the reference database that contains all of the canister profiles
+	Set g_dbReference = dbGetReferenceDb()
+	
+	'Get lookup view
+	Set viewCanisterProfiles = g_dbReference.GetView(STR_LOOKUP_VIEW_ALIAS)		
+	
+	Set vc = viewCanisterProfiles.AllEntries
+	
+	If (Not vc Is Nothing) Then
+		If (vc.Count > 0) Then
+			
+			Call Debug(STR_MODULE_NAME & |: Processing [| & Cstr(vc.Count) & |] canister profile(s)...|)
+			
+			Set entryCurr = vc.GetFirstEntry()
+			
+			While Not (entryCurr Is Nothing)
+				
+				Set docCanisterProfile = entryCurr.Document
+				
+				strCanisterTitle = docCanisterProfile.cp_SystemName(0)
+				
+				If (flgEnableUIMsgs) Then
+					Print |Processing events from | & strCanisterTitle & |...|
+				End If	
+				
+				Call RefreshReportingEventProfilesByCanister(docCanisterProfile, dtNow, flgEnableUIMsgs)
+				
+				Set entryCurr = vc.GetNextEntry(entryCurr)
+			Wend	
+		Else
+			Call Debug(STR_MODULE_NAME & |: No canister profiles were found.|)
+			If (flgEnableUIMsgs) Then
+				Print |No canister profiles were found.|
+			End If	
+		End If
+	Else
+		Call Debug(STR_MODULE_NAME & |: No canister profiles were found.|)
+		If (flgEnableUIMsgs) Then
+			Print |No canister profiles were found.|
+		End If			
+	End If
+	
+	'Now find any reporting event profiles that were not updated in the current run and report these as errors
+	'because this means that a reporting event profile exists that does not have a corresponding event profile
+	'in any GRP canister.
+	'Call ValidateReportingEventProfiles(dtNow, flgEnableUIMsgs) '12-29-10 - Turning off until we get caught up
+	
+lblExit:
+	
+	Call Debug(STR_MODULE_NAME & |: Finished.|)
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Sub
+
+'++LotusScript Development Environment:2:1:strGetDefaultURL:1:8
+Function strGetDefaultURL(docEventProfile) As String
+	'------------------------------------------------------------------------------------------------------
+    'Description
+    '------------------
+	'Given an event profile, return the default URL for the default language.
+	'
+    'Parameters
+    '-----------------------
+	'docEventProfile			The event profile.
+    '     
+    'Return Values
+    '-----------------------
+    'The URL if found or the empty string if not found.
+    '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |strGetDefaultURL|
+	
+	Dim strEventID As String
+	Dim strDefaultURL As String	
+	Dim strDefaultLocale As String
+	Dim intCurrLocale As Integer
+	Dim strIsAvailableFieldName As String
+	Dim strLocaleFieldName As String
+	Dim strDefaultURLFieldName As String
+	Dim strCurrLocale As String
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'Set the default return value
+	strDefaultURL = ||
+	
+	'Get the event ID 
+	strEventID = Cstr(docEventProfile.ep_id(0))
+	
+	'Get the default locale for the event
+	strDefaultLocale = Cstr(docEventProfile.ep_DefaultLocale(0))
+	
+	'Check each locale to find the name of the field that contains the default URL for this locale
+	For intCurrLocale = 1 To 5
+		strIsAvailableFieldName = |ep_IsAvailable_L| & Cstr(intCurrLocale)
+		strLocaleFieldName = |ep_Locale_L| & Cstr(intCurrLocale)
+		strDefaultURLFieldName = |ep_DefaultURL_L| & Cstr(intCurrLocale)		
+		'If the locale is available, get information about it
+		If (Cint(docEventProfile.GetItemValue(strIsAvailableFieldName)(0)) = 1) Then
+			strCurrLocale = docEventProfile.GetItemValue(strLocaleFieldName)(0)
+			If (strDefaultLocale = strCurrLocale) Then
+				strDefaultURL = docEventProfile.GetItemValue(strDefaultURLFieldName)(0)
+				Exit For
+			End If
+		End If
+	Next
+	
+	'If unable to find a default URL something is wrong with the event profile so flag an error
+	If (strDefaultURL = ||) Then
+		Error ERR_SYSTEM_ERROR, |Unable to find default URL for event ID [| & strEventID & |].|		
+	End If
+	
+lblExit:
+	
+	strGetDefaultURL = strDefaultURL
+	
+	Call Debug(STR_MODULE_NAME & |: Finished. Default locale is [| & strDefaultLocale & |].  Default URL is [|& strDefaultURL & |].|)
+	
+	Exit Function
+	
+lblError:
+	
+	strDefaultURL = ||
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:2:UpdateESEventBriefsSelected:5:8
+%REM
+	Sub UpdateESEventBriefsSelected
+	Description: Comments for Sub
+%END REM
+Sub UpdateESEventBriefsSelected(docReportingEventProfile As NotesDocument, flgEnableUIMsgs As Boolean)
+	'------------------------------------------------------------------------------------------------------
+	'Description
+	'------------------
+	'Given a reporting event profiles, update the confirmed attendance numbers
+	'in the corresponding ES event brief.  
+	'
+	'Parameters
+	'----------------
+	'docReportingEventProfile	The profile to process. Based on a UI selection in the view.
+	'flgEnableUIMsgs			If True write status messages to the Notes client status bar.
+	'
+	'Return Values
+	'-------------------
+	'None.
+	'------------------------------------------------------------------------------------------------------   
+	Const STR_MODULE_NAME = |UpdateESEventBriefsSelected|
+	
+	Dim dtNow As New NotesDateTime("")	
+	Dim vc As NotesViewEntryCollection
+	Dim entryCurr As NotesViewEntry	
+	'Dim docReportingEventProfile As NotesDocument
+	Dim docESEventBrief As NotesDocument
+	Dim viewReportingEventProfiles As NotesView
+	Dim strEventID As String
+	Dim strBaseMsg As String
+	Dim intCount As Integer
+	Dim intCountNonIBM As Integer
+	Dim intCountIBM As Integer
+	Dim intCountBP As Integer
+	Dim intCountCust As Integer	
+	Dim intRegistrationCount As Integer
+	Dim intBriefCustCount As Integer
+	Dim intBriefIBMCount As Integer
+	Dim intBriefBPCount As Integer
+	Dim intCountEmp As Integer
+	Dim intCountExec As Integer
+	Dim intCountStaff As Integer
+	Dim intCountPress As Integer
+	Dim intCountSpeaker As Integer
+	Dim intCountAcademic As Integer
+	
+	Dim intTotalReg As Integer
+	Dim intTotalAttend As Integer
+	Dim intBuyerReg As Integer
+	Dim intBuyerAttend As Integer
+	
+	Dim t As Integer
+	Dim flgSkip As Boolean
+	flgSkip = False
+	
+	
+	Dim briefCount As Integer
+	briefCount = 0
+	
+	'
+	Dim flgUpdateRegistrationCount As Boolean
+	Dim strEndDate As String
+	Dim dtToday As NotesDateTime
+	Dim dtEndDate As NotesDateTime	
+	
+	Dim intFinCount As Integer
+	intFinCount = 0
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'Set the date/time used to timestamp the update
+	dtNow.SetNow
+	
+	'Get today's date
+	Set dtToday = New NotesDateTime("Today")	
+	
+    intCount = intCount + 1
+	
+	strEventID = Cstr(docReportingEventProfile.ep_id(0))
+	
+	Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Processing event ID [| & strEventID & |].|)	
+	
+
+	'load fields array
+	reportingFields
+	
+	'test for the required fields
+	'if not available, skip this profile
+	flgSkip = False
+	For t = 1 To 8 
+		If Not docReportingEventProfile.HasItem(grpProfileFields_C(t)) Then
+			Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Event ID [| & strEventID & |] missing field | & grpProfileFields_C(t) )
+			flgSkip = True
+		End If
+		If Not docReportingEventProfile.HasItem(grpProfileFields_A(t)) Then
+			Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Event ID [| & strEventID & |] missing field | & grpProfileFields_A(t) )
+			flgSkip = True
+		End If
+		If Not docReportingEventProfile.HasItem(grpProfileFields_D(t)) Then
+			Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Event ID [| & strEventID & |] missing field | & grpProfileFields_D(t) )
+			flgSkip = True
+		End If
+	Next
+	
+	If flgSkip Then
+		Call Debug(STR_MODULE_NAME & |: [| & Cstr(intCount) & |] Skipping event ID [| & strEventID & |]. Required fields are not available.|)	
+		Goto lblExit
+	End If
+	
+	
+	'Get the event end date
+	strEndDate = docReportingEventProfile.ep_EndDate(0)
+	Set dtEndDate = New NotesDateTime(strEndDate)
+	
+	'GET THE GRP COUNTS	
+	
+	'1	Cust
+	'2	Emp
+	'3	Exec
+	'4	Staff
+	'5	Press
+	'6	Speaker
+	'7	Academic
+	'8	BP
+	
+	Dim i As Integer
+	Dim c As Integer 'Confirmed
+	Dim a As Integer 'Attended
+	Dim d As Integer 'Did not attend
+	Dim z As Integer
+	Dim p As Integer
+	'count the total registered (confirmed + attended + did not attend) and attended
+	For i=1 To 8
+		c=0
+		a=0
+		d=0
+		c=Cint(docReportingEventProfile.getItemValue(grpProfileFields_C(i))(0))
+		a=Cint(docReportingEventProfile.getItemValue(grpProfileFields_A(i))(0))
+		d=Cint(docReportingEventProfile.getItemValue(grpProfileFields_D(i))(0))
+		intRegCount(i)= c+a+d
+		intAttendCount(i)= a
+		Call Debug(STR_MODULE_NAME & |: Total | & dbgLabel(i) & | registered for event ID [| & strEventID & |] = | & Cstr(intRegCount(i)) &|.|)
+		Call Debug(STR_MODULE_NAME & |: Total | & dbgLabel(i) & | attended for event ID [| & strEventID & |] = | & Cstr(intAttendCount(i)) &|.|)
+	Next
+	
+	
+	'IBM count = IBM Exec + IBM Emp (2 and 3)
+	'Non IBM count = Customers + BP + Academic (1 & 7 & 8)
+	
+	intCountNonIBM = intRegCount(1) + intRegCount(7) + intRegCount(8)				
+	intCountIBM = intRegCount(2) + intRegCount(3) 				
+	
+	intCountCust = intRegCount(1)				
+	intCountEmp = intRegCount(2)				
+	intCountExec = intRegCount(3)				
+	intCountStaff = intRegCount(4)				
+	intCountPress = intRegCount(5)				
+	intCountSpeaker = intRegCount(6)			
+	intCountAcademic = intRegCount(7)
+	intCountBP = intRegCount(8)
+	
+	'total 'em up
+	i = 0
+	intTotalReg = 0
+	For i = 1 To 8
+		intTotalReg = intTotalReg + intRegCount(i)
+	Next
+	
+	intBuyerReg= intRegCount(1) + intRegCount(7) + intRegCount(8)
+	
+	i = 0
+	intTotalAttend = 0
+	For i = 1 To 8
+		intTotalAttend = intTotalAttend + intAttendCount(i)
+	Next
+	
+	intBuyerAttend= intAttendCount(1) + intAttendCount(7) + intAttendCount(8)
+	
+	
+	'FINISH COUNTS
+	
+	If (flgEnableUIMsgs) Then
+		Print strBaseMsg & |. [| & intCount & |]...|
+	End If								
+	
+	'Try to find the corresponding ES event brief
+	Set docESEventBrief = docGetESEventBrief(strEventID)
+	
+	'On Error GoTo lblErrorNext
+	
+	If (docESEventBrief Is Nothing) Then
+		
+		'stamp profile as error to get it out of processing (do this first before error)
+		docReportingEventProfile.error_no_brief=|true|
+		'Save the changes
+		Call docReportingEventProfile.Save(True, False)
+		'Throwing the Error below is returning to the calling agent, which means the rest of the view is not getting processed
+		'Temp change to DEBUG msg
+		'Error ERR_SYSTEM_ERROR, |Unable to find ES event brief for event ID [| & strEventID & |].|		
+		Call Debug(STR_MODULE_NAME & |:	Unable to find ES event brief for event ID [| & strEventID & |].|)				
+		Goto lblExit
+		'NEW for 3rd Party Canister
+		'ElseIf docReportingEventProfile.eventcategory(0)=|Non-Proprietary| Then
+		'Do the non-prop stuff
+	Elseif docESEventBrief.eventcategory(0)=|Proprietary| Then
+		Call Debug(STR_MODULE_NAME & |:Proprietary|)			
+		If docESEventBrief.r_regsystem(0) <> |Global Registration Portal (GRP)| And docESEventBrief.r_regsystem(0) <> |GRP Import| Then 'Added proprietary 4/10/11 - GB						'stamp profile as error to get it out of processing
+			docReportingEventProfile.error_brief_reg=docESEventBrief.r_regsystem(0)
+			'Save the changes
+			Call docReportingEventProfile.Save(True, False)
+			Call Debug(STR_MODULE_NAME & |: Skipping ES event brief for event ID [| & strEventID & |].  The ES event brief has [| & Cstr(docESEventBrief.r_regsystem(0)) & |] as the registration system.|)
+			Goto lblExit
+		End If
+		
+		'6/22/11 - Check for GRP Used and Live Date - mark if not
+		If docESEventBrief.r_regsystem(0) = |Global Registration Portal (GRP)| Then
+			If docESEventBrief.AttendeeSolutionStatus(0) = |GRP Pending| Then
+				docESEventBrief.AttendeeSolutionStatus=|GRP Used|
+				docESEventBrief.AttendeeSolutionStatusAudit=|GRP Used set by GRP Reports update agent|
+			End If
+			If docESEventBrief.GRPTimestamp(0) = "" Then
+				docESEventBrief.GRPTimestamp= docReportingEventProfile.EP_DATEPUBLISHED(0)
+			End If							
+		End If
+		
+		If docESEventBrief.r_regsystem(0) = |GRP Import| Then
+			If docESEventBrief.AttendeeSolutionStatus(0) <> |GRP Import| Then
+				docESEventBrief.AttendeeSolutionStatus=|GRP Import|
+				docESEventBrief.AttendeeSolutionStatusAudit=|GRP Import set by GRP Reports update agent|
+			End If
+			If docESEventBrief.GRPTimestamp(0) = "" Then
+				docESEventBrief.GRPTimestamp= docReportingEventProfile.EP_DATEPUBLISHED(0)
+			End If							
+		End If
+		
+		If (Not docESEventBrief.HasItem(|res_contacts_respondaccept|)) Then
+			intRegistrationCount = 0
+			flgUpdateRegistrationCount = True
+		Else
+			'Get the current registration count from the ES brief and check whether it has changed
+			'NOTE: will now need to check if either reg or attended count has changed - GB
+			intRegistrationCount = Cint(docESEventBrief.res_contacts_respondaccept(0))
+			'intBriefCustCount= CInt(docESEventBrief.res_cust_registered(0)) 	
+			'intBriefBPCount= CInt(docESEventBrief.res_bp_registered(0))
+			'intBriefIBMCount= CInt(docESEventBrief.res_ibm_registered(0))
+			If (intRegistrationCount <> intCountNonIBM) Then
+				flgUpdateRegistrationCount = True
+				'	ElseIf (intBriefIBMCount <> intCountIBM) Then 
+				'		flgUpdateRegistrationCount = True
+			Else							
+				flgUpdateRegistrationCount = False
+			End If
+			
+			'Check all the new fields
+			Dim f As Integer
+			For f = 1 To 8
+				If (docESEventBrief.HasItem(briefField_R(f))) Then
+					'if field available, check if it's different from GRP
+					Call Debug(STR_MODULE_NAME & |:Checking field | & briefField_R(f))
+					If Cint(docESEventBrief.GetItemValue(briefField_R(f))(0))<> intRegCount(f) Then
+						flgUpdateRegistrationCount = True
+					End If
+				Else
+					'if field not there, always update
+					flgUpdateRegistrationCount = True
+				End If
+				If (docESEventBrief.HasItem(briefField_A(f))) Then
+					'if field available, check if it's different from GRP
+					If Cint(docESEventBrief.GetItemValue(briefField_A(f))(0))<> intAttendCount(f) Then
+						flgUpdateRegistrationCount = True
+					End If
+				Else
+					'if field not there, always update
+					flgUpdateRegistrationCount = True	
+				End If							
+			Next	
+			
+			
+			
+			'	If (docESEventBrief.HasItem(|reg_updated_final|)) Then
+			
+			'		flgUpdateRegistrationCount = False
+			
+			'	Else
+			'		flgUpdateRegistrationCount = False
+			'	End If
+		End If
+
+	Elseif docESEventBrief.eventcategory(0)=|Non-Proprietary| Then
+		Call Debug(STR_MODULE_NAME & |:Non-Proprietary|)
+		If docESEventBrief.r_regsystem(0) <> |Global Registration Portal (GRP)| And docESEventBrief.r_regsystem(0) <> |GRP Import| Then 'Added proprietary 4/10/11 - GB						'stamp profile as error to get it out of processing
+			docReportingEventProfile.error_brief_reg=docESEventBrief.r_regsystem(0)
+			'Save the changes
+			Call docReportingEventProfile.Save(True, False)
+			Call Debug(STR_MODULE_NAME & |: Skipping ES event brief for event ID [| & strEventID & |].  The ES event brief has [| & Cstr(docESEventBrief.r_regsystem(0)) & |] as the registration system.|)
+			Goto lblExit
+		End If
+		
+		If docESEventBrief.r_regsystem(0) = |Global Registration Portal (GRP)| Then
+			If docESEventBrief.AttendeeSolutionStatus(0) = |GRP Pending| Then
+				docESEventBrief.AttendeeSolutionStatus=|GRP Used|
+				docESEventBrief.AttendeeSolutionStatusAudit=|GRP Used set by GRP Reports update agent|
+			End If
+			If docESEventBrief.GRPTimestamp(0) = "" Then
+				docESEventBrief.GRPTimestamp= docReportingEventProfile.EP_DATEPUBLISHED(0)
+			End If							
+		End If
+		
+		If docESEventBrief.r_regsystem(0) = |GRP Import| Then
+			If docESEventBrief.AttendeeSolutionStatus(0) <> |GRP Import| Then
+				docESEventBrief.AttendeeSolutionStatus=|GRP Import|
+				docESEventBrief.AttendeeSolutionStatusAudit=|GRP Import set by GRP Reports update agent|
+			End If
+			If docESEventBrief.GRPTimestamp(0) = "" Then
+				docESEventBrief.GRPTimestamp= docReportingEventProfile.EP_DATEPUBLISHED(0)
+			End If							
+		End If
+		
+		If (Not docESEventBrief.HasItem(|res_contacts_respond|)) Then
+			intRegistrationCount = 0
+			flgUpdateRegistrationCount = True
+		Else
+			
+			'Check all the new fields
+			Dim fnp As Integer
+			For fnp = 1 To 8
+				
+				If (docESEventBrief.HasItem(briefField_NP(fnp))) Then
+					'if field available, check if it's different from GRP
+					If Cint(docESEventBrief.GetItemValue(briefField_NP(fnp))(0))<> intAttendCount(fnp) Then
+						flgUpdateRegistrationCount = True
+					End If
+				Else
+					'if field not there, always update
+					flgUpdateRegistrationCount = True	
+				End If							
+			Next						
+			
+			
+		End If
+	End If
+	
+	
+	
+	
+	'Only update the ES event brief if the count has changed
+	If (flgUpdateRegistrationCount) Then
+		'old fields
+		If docESEventBrief.eventcategory(0)="Non-Proprietary" Then
+			'only update the contacts responding for non-prop
+			Call Debug(STR_MODULE_NAME & |:flgUpdateRegistrationCount: Non-Proprietary|)
+			docESEventBrief.res_contacts_respond = intAttendCount(1) + intAttendCount(7) + intAttendCount(8)
+			docESEventBrief.res_total_responded=intTotalAttend
+			docESEventBrief.res_buyers_responded=intBuyerAttend
+			
+		Else
+			'update registered and attended for prop
+			Call Debug(STR_MODULE_NAME & |:flgUpdateRegistrationCount: Proprietary|)
+			docESEventBrief.res_contacts_respondaccept = intCountNonIBM
+			docESEventBrief.r_postnumattendees =  intAttendCount(1) + intAttendCount(7) + intAttendCount(8)												
+			docESEventBrief.res_total_registered=intTotalReg
+			docESEventBrief.res_buyers_registered=intBuyerReg
+			docESEventBrief.res_total_attended=intTotalAttend
+			docESEventBrief.res_buyers_attended=intBuyerAttend
+			
+		End If
+		'add a breakdown of IBM
+		If docESEventBrief.eventcategory(0)="Proprietary" Then
+			docESEventBrief.res_ibm_registered = intCountIBM
+		End If					
+		
+		Set docESEventBrief.reg_updated = dtNow
+		Set docESEventBrief.res_reg_updated = dtNow 'new
+		'new 2/9/2011
+		
+		For p = 1 To 3
+			If docReportingEventProfile.Hasitem(postField_P(p)) Then
+				Call Debug(STR_MODULE_NAME & |: | & strEventID & | has | & postField_P(p) & | -- setting brief to match|)
+				Call docESEventBrief.Replaceitemvalue(postField_P(p), docReportingEventProfile.GetItemValue(postField_P(p))(0))
+			End If							
+		Next
+		
+		'new 1/31/10
+		
+		For z=1 To 8
+			If docESEventBrief.eventcategory(0)="Non-Proprietary" Then
+				Call docESEventBrief.Replaceitemvalue(briefField_NP(z), intAttendCount(z))
+			Else
+				Call docESEventBrief.Replaceitemvalue(briefField_R(z), intRegCount(z))
+				Call docESEventBrief.Replaceitemvalue(briefField_A(z), intAttendCount(z))	
+			End If 
+			
+		Next	
+		
+		docESEventBrief.res_reg_source = docReportingEventProfile.REP_CANISTERTITLE(0)
+		docESEventBrief.res_reg_source_link=docReportingEventProfile.dp_canisterid(0)
+		
+		'If these are final numbers, stamp the brief
+		'2/11/11 turning off until we know things are in sync
+		'If docReportingEventProfile.HasItem(|reg_complete|) And docReportingEventProfile.reg_complete(0)=|true| Then
+		'	docESEventBrief.reg_updated_final=|true|
+		'	Call Debug(STR_MODULE_NAME & |: Event brief for event ID [| & strEventID & |] marked Final.|)						
+		
+		'End If
+		
+		'Save the changes
+		
+		Call docESEventBrief.Save(True, False)
+		briefCount = briefCount + 1
+		Call Debug(STR_MODULE_NAME & |: Count of confirmed/attended attendees for event ID [| & strEventID & |] updated from [| & intRegistrationCount & |] to [| & intCountNonIBM & |].|)						
+		'Update the repoprting event profile timestamp too
+		Set docReportingEventProfile.reg_updated = dtNow
+		'If these are final numbers, stamp the profile
+		If docReportingEventProfile.HasItem(|reg_complete|) And docReportingEventProfile.reg_complete(0)="true" Then
+			'	docReportingEventProfile.reg_updated_final=|true|
+			'	Call Debug(STR_MODULE_NAME & |: Reporting profile for event ID [| & strEventID & |] marked Final.|)						
+			intFinCount = intFinCount + 1
+		End If
+		'Save the changes
+		Call docReportingEventProfile.Save(True, False)
+	Else
+		Call Debug(STR_MODULE_NAME & |: Counts for event ID [| & strEventID & |] has not changed.|)						
+	End If
+	
+	'6/22/11 - add code to check if PEDP and PEDPdate need to be updated in brief even if reg counts do not change
+	If Not (flgUpdateRegistrationCount) Then
+		For p = 1 To 3
+			If docReportingEventProfile.Hasitem(postField_P(p))  Then
+				If docReportingEventProfile.Getitemvalue(postField_P(p))(0)<> "" Then
+					If docESEventBrief.Hasitem(postField_P(p)) Then
+						If docReportingEventProfile.GetItemValue(postField_P(p))(0) <> docESEventBrief.GetItemValue(postField_P(p))(0) Then
+							Call Debug(STR_MODULE_NAME & |: | & strEventID & | has different | & postField_P(p) & | -- setting brief to match|)
+							Call docESEventBrief.Replaceitemvalue(postField_P(p), docReportingEventProfile.GetItemValue(postField_P(p))(0)) 'UPDATE
+							Call docESEventBrief.Save(True, False)	'SAVE
+						Else
+							Call Debug(STR_MODULE_NAME & |: | & strEventID & | brief and GRP reports have the same value for | & postField_P(p) & |. NO UPDATE.|) 'NO UPDATE
+						End If
+					Else
+						Call Debug(STR_MODULE_NAME & |: | & strEventID & | brief does not have | & postField_P(p) & | -- setting brief to match GRP Reports|)
+						Call docESEventBrief.Replaceitemvalue(postField_P(p), docReportingEventProfile.GetItemValue(postField_P(p))(0)) 'UPDATE
+						Call docESEventBrief.Save(True, False) 'SAVE	
+					End If
+				Else
+					Call Debug(STR_MODULE_NAME & |: | & strEventID & | in GRP Reports has NO VALUE in | & postField_P(p) & |.|) 'NO UPDATE
+				End If		
+			Else
+				Call Debug(STR_MODULE_NAME & |: | & strEventID & | in GRP Reports does not have | & postField_P(p) & |.|) 'NO UPDATE
+			End If							
+		Next
+	End If
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	If (flgEnableUIMsgs) Then
+		Print Error()
+	End If
+	Resume lblExit	
+	
+End Sub
+
+'++LotusScript Development Environment:2:1:docGetESEventBrief:1:8
+Function docGetESEventBrief(strEventID As String) As NotesDocument
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Given an event ID, check whether an event brief exists in the Event
+	'Briefs database for the specified event ID.
+	'If one does, return a handle to it, otherwise return Nothing.
+     '
+     'Parameters
+     '----------------
+     'strEventID					The event ID to check.
+	'
+     'Return Value
+     '-------------------
+     'If anevent brief exists for the event ID the event brief is returned.
+	'Otherwise Nothing is returned.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |docGetESEventBrief|
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |lookupreferenceid2|
+	
+	Dim strKey As String
+	Dim view As NotesView
+	Dim docEventBrief As NotesDocument
+	
+     'Trap errors
+	'On Error Goto lblError 'TEST NOT TRAPPING THE ERROR HERE
+	
+	'Open the Event Solution database
+	Set g_dbEventBriefs = dbGetEventBriefsDb()	
+	
+	'Find the lookup view
+	Set view = g_dbEventBriefs.GetView(STR_LOOKUP_VIEW_ALIAS)
+	
+	'new per DD 3/2/11
+	view.AutoUpdate=False
+	
+	'Build a key from the supplied email address
+	strKey = strEventID
+	
+	'Attempt to find the document in the view
+	
+	Set docEventBrief = view.GetDocumentByKey(strKey, True)
+	
+	If (Not docEventBrief Is Nothing) Then
+		Call Debug(STR_MODULE_NAME & |: Event Brief found for | & strKey & |.|)
+		'Set the return values
+		Set docGetESEventBrief = docEventBrief
+	Else
+		Call Debug(STR_MODULE_NAME & |: Event Brief NOT found for | & strKey & |.|)
+		Set docGetESEventBrief = Nothing
+	End If
+		
+lblExit:
+	
+	'Set the return values
+	'Set docGetESEventBrief = docEventBrief
+	
+	Exit Function
+	
+lblError:
+	
+	Set docEventBrief = Nothing
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function
+
+'++LotusScript Development Environment:2:1:intCount:5:8
+%REM
+	Function intCount
+	Description: Comments for Function
+%END REM
+Function intCount() As Integer
+		
+End Function
+
+'++LotusScript Development Environment:2:1:dbGetEventBriefsDb:1:8
+Function dbGetEventBriefsDb() As NotesDatabase
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Return a handle to the Event Briefs database.  The location of the
+	'database is defined in the Database Profile.
+     '
+     'Parameters
+     '----------------
+     'None.
+	'
+     'Return Values
+     '-------------------
+     'A handle to the database if the database could be found and opened successfully,
+	'Otherwise Nothing is returned.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |dbGetEventBriefsDb|
+	
+	Dim s As New NotesSession	
+	Dim dbEventBriefs As NotesDatabase
+	Dim strEventBriefsServer As String
+	Dim strEventBriefsFilename As String
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	Call Debug(STR_MODULE_NAME & |: Started.|) 
+	
+	'Moving these out here for testing - GB
+	'Get a handle to the Event Briefs database
+	strEventBriefsServer = Cstr(g_docDbProfile.dp_EventBriefsServer(0))
+	'TEMP Use Local
+	'strEventBriefsServer = g_dbCurr.Server
+	strEventBriefsFilename = Cstr(g_docDbProfile.dp_EventBriefsFilename(0))
+	
+	Call Debug(STR_MODULE_NAME & |: Event Briefs server is [| & strEventBriefsServer & |].|)	
+	Call Debug(STR_MODULE_NAME & |: Event Briefs filename is [| & strEventBriefsFilename & |].|)
+	
+	
+	'If we already have a handle to the database, return it
+	If (Not g_dbEventBriefs Is Nothing) Then
+		Call Debug(STR_MODULE_NAME & |: Event Briefs database is available.|)
+		Set dbEventBriefs = g_dbEventBriefs
+	Else
+		'Get a handle to the Event Briefs database
+		strEventBriefsServer = Cstr(g_docDbProfile.dp_EventBriefsServer(0))
+		'TEMP Use Local
+		'strEventBriefsServer = g_dbCurr.Server
+		strEventBriefsFilename = Cstr(g_docDbProfile.dp_EventBriefsFilename(0))
+		
+		Call Debug(STR_MODULE_NAME & |: Event Briefs server is [| & strEventBriefsServer & |].|)	
+		Call Debug(STR_MODULE_NAME & |: Event Briefs filename is [| & strEventBriefsFilename & |].|)
+		
+		On Error Resume Next
+		
+		Set dbEventBriefs = s.GetDatabase(strEventBriefsServer, strEventBriefsFilename, False)
+		
+		On Error Goto lblError		
+		
+		If (dbEventBriefs Is Nothing) Then
+			Call dbEventBriefs.Open(strEventBriefsServer, strEventBriefsFilename)
+			If dbEventBriefs.IsOpen Then
+				Call Debug(STR_MODULE_NAME & |: Event Briefs database is available.|)
+			Else
+				Call Debug(STR_MODULE_NAME & |: Unable to find Event Briefs database.|)	
+			End If	
+		Else
+			Call Debug(STR_MODULE_NAME & |: Event Briefs database is available.|)
+		End If
+	End If
+	
+lblExit:
+	
+	'Set the return values
+	Call Debug(STR_MODULE_NAME & |: Finished.|) 
+	
+	Set dbGetEventBriefsDb = dbEventBriefs
+	
+	Exit Function
+	
+lblError:
+	
+	Set dbEventBriefs = Nothing
+	Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+	Resume lblExit
+	
+End Function

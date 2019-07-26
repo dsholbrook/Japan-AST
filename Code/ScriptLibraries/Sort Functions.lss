@@ -1,0 +1,856 @@
+'++LotusScript Development Environment:2:5:(Options):0:66
+Option Public
+Option Declare
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+'sortingAlgorithms: 
+
+
+Class sortingAlgorithms
+	
+	
+	
+	Private m_direction As Integer
+	
+	
+	
+'//Establishes the sorting direction 
+	Property Get direction As Integer
+		
+		direction = m_direction
+		
+	End Property
+	Property Set direction As Integer
+		
+		m_direction = direction
+		
+	End Property
+	
+	
+	
+'//Constructor, defaults direction to ascending 
+	Sub new()
+		
+		Randomize
+		m_direction = 1
+		
+	End Sub
+	
+	
+	
+'//====== Comparison Function ====== 
+	Private Function c(var1 As Variant, var2 As Variant) As Integer
+		
+		If var1 < var2 Then
+			
+			c = -1
+			
+		Elseif var1 > var2 Then
+			
+			c = 1
+			
+		End If
+		c = c * m_direction
+		
+	End Function
+	
+	
+	
+'//====== Quicksort Algorithm ====== 
+	Private Sub qs(var As Variant, intB As Integer, intE As Integer)
+		
+		
+		
+		Dim varO As Variant
+		Dim int1 As Integer
+		Dim int2 As Integer
+		Dim intR As Integer
+		Dim intD As Integer
+		
+		
+		
+		intD = intE - intB
+		
+		
+		
+		If intD <= 0 Then
+			
+			Exit Sub
+			
+		Elseif intD < 15 Then
+			
+			Call ss(var, intB, intE)
+			Exit Sub
+			
+		End If
+		
+		
+		
+		intR = intB + (Rnd * intD)
+		varO = var(intR)
+		var(intR) = var(intE)
+		int1 = intB - 1
+		int2 = intE
+		
+		
+		
+bottomUp:
+		
+		While (int1 < int2) 
+			
+			int1 = int1 + 1
+			If c(var(int1), varO) > 0 Then
+				
+				var(int2) = var(int1)
+				Goto topDown
+				
+			End If
+			
+		Wend
+		Goto theRecursion
+		
+		
+		
+topDown:
+		
+		While (int2 > int1)
+			
+			int2 = int2 - 1
+			If c(var(int2), varO) < 0 Then
+				
+				var(int1) = var(int2)
+				Goto bottomUp
+				
+			End If
+			
+		Wend
+		Goto theRecursion
+		
+		
+		
+theRecursion:
+		
+		var(int2) = varO
+		Call qs(var, intB, int2 - 1)
+		Call qs(var, int2 + 1, intE)
+		
+	End Sub
+	
+	
+	
+'//====== Quicksort for Objects ====== 
+'//Saves checking if there are objects all the time 
+'//This won't normally matter but if there are 1000 
+'//elements or more then it will 
+	Private Sub qso(var As Variant, intB As Integer, intE As Integer)
+		
+		Dim varO As Variant
+		Dim int1 As Integer
+		Dim int2 As Integer
+		Dim intR As Integer
+		Dim intD As Integer
+		
+		
+		
+		intD = intE - intB
+		
+		
+		
+		If intD <= 0 Then
+			
+			Exit Sub
+			
+		Elseif intD < 12 Then
+			
+			Call sso(var, intB, intE)
+			Exit Sub
+			
+		End If
+		
+		
+		
+		intR = intB + (Rnd * intD)
+		Set varO = var(intR)
+		Set var(intR) = var(intE)
+		int1 = intB - 1
+		int2 = intE
+		
+		
+		
+bottomUp:
+		
+		While Not (int1 > int2) 
+			
+			int1 = int1 + 1
+			If c(var(int1), varO) > 0 Then
+				
+				Set var(int2) = var(int1)
+				Goto topDown
+				
+			End If
+			
+		Wend
+		Goto theRecursion
+		
+		
+		
+topDown:
+		
+		While Not (int2 < int1)
+			
+			int2 = int2 - 1
+			If c(var(int2), varO) < 0 Then
+				
+				Set var(int1) = var(int2)
+				Goto bottomUp
+				
+			End If
+			
+		Wend
+		Goto theRecursion
+		
+		
+		
+theRecursion:
+		
+		Set var(int2) = varO
+		Call qso(var, intB, int2 - 1)
+		Call qso(var, int2 + 1, intE)
+		
+	End Sub
+	
+	
+	
+'//====== Merge Sort ====== 
+	Private Sub ms(var As Variant, intB As Integer, intE As Integer)
+		
+		Dim intPivot As Integer
+		Dim int1 As Integer
+		Dim int2 As Integer
+		Dim intM As Integer
+		Dim varM() As Variant
+		
+		
+		
+		If intE - intB < 8 Then
+			
+			Call ss(var, intB, intE)
+			Exit Sub
+			
+		End If
+		
+		
+		
+		intPivot = getPivot(Clng(intB), Clng(intE))
+		
+		
+		
+		Call ms(var, intB, intPivot)
+		Call ms(var, intPivot + 1, intE)
+		
+		
+		
+		int1 = intB
+		int2 = intPivot + 1
+		intM = int1
+		Redim varM(intB To intE) As Variant
+		
+		
+		
+		While(int1 <= intPivot And int2 <= intE)
+			
+			If c(var(int1), var(int2)) < 0 Then
+				
+				varM(intM) = var(int1)
+				int1 = int1 + 1
+				
+			Else
+				
+				varM(intM) = var(int2)
+				int2 = int2 + 1
+				
+			End If
+			intM = intM + 1
+			
+		Wend
+		While(int1 <= intPivot)
+			
+			varM(intM) = var(int1)
+			int1 = int1 + 1
+			intM = intM + 1
+			
+		Wend
+		While(int2 <= intE)
+			
+			varM(intM) = var(int2)
+			int2 = int2 + 1
+			intM = intM + 1
+			
+		Wend
+		For intM = intB To intE
+			
+			var(intM) = varM(intM)
+			
+		Next intM
+		
+		
+		
+	End Sub
+	
+	
+'//====== Merge Sort ====== 
+	
+	Private Sub mso(var As Variant, intB As Integer, intE As Integer)
+		
+		Dim intPivot As Integer
+		Dim int1 As Integer
+		Dim int2 As Integer
+		Dim intM As Integer
+		Dim varM() As Variant
+		
+		
+		
+		If intE - intB < 8 Then
+			
+			Call sso(var, intB, intE)
+			Exit Sub
+			
+		End If
+		
+		
+		
+		intPivot = getPivot(Clng(intB), Clng(intE))
+		
+		
+		
+		Call mso(var, intB, intPivot)
+		Call mso(var, intPivot + 1, intE)
+		
+		
+		
+		int1 = intB
+		int2 = intPivot + 1
+		intM = int1
+		Redim varM(intB To intE) As Variant
+		
+		
+		
+		While(int1 <= intPivot And int2 <= intE)
+			
+			If c(var(int1), var(int2)) < 0 Then
+				
+				Set varM(intM) = var(int1)
+				int1 = int1 + 1
+				
+			Else
+				
+				Set varM(intM) = var(int2)
+				int2 = int2 + 1
+				
+			End If
+			intM = intM + 1
+			
+		Wend
+		While(int1 <= intPivot)
+			
+			Set varM(intM) = var(int1)
+			int1 = int1 + 1
+			intM = intM + 1
+			
+		Wend
+		While(int2 <= intE)
+			
+			Set varM(intM) = var(int2)
+			int2 = int2 + 1
+			intM = intM + 1
+			
+		Wend
+		For intM = intB To intE
+			
+			Set var(intM) = varM(intM)
+			
+		Next intM
+		
+		
+		
+	End Sub
+	
+	
+	
+	Private Function getPivot(int1 As Long, int2 As Long) As Integer
+		
+		getPivot = int1 + (2 ^ (Len(Bin$(Abs(int2 - int1) - 1)) - 1) - 1)
+		
+	End Function
+	
+	
+	
+'//====== Selection sort ====== 
+	Private Sub ss(var As Variant, intB As Integer, intE As Integer)
+		
+		Dim varB As Variant
+		Dim varT As Variant
+		Dim intI As Integer
+		Dim int1 As Integer
+		Dim int2 As Integer
+		int2 = intB
+		For int1 = intB To intE - 1
+			
+'Setup 
+			varB = var(int1)
+			intI = int1
+			
+			
+			
+'Get lowest item 
+			For int2 = int1 + 1 To intE
+				
+				If c(var(int2), varB) < 0 Then
+					
+					varB = var(int2)
+					intI = int2
+					
+				End If
+				
+			Next int2
+			
+			
+			
+'Swaps 
+			varT = var(int1)
+			var(int1) = varB
+			var(intI) = varT
+			
+		Next int1
+		
+	End Sub
+	
+	
+	
+'//====== Selection sort for Objects ====== 
+	Private Sub sso(var As Variant, intB As Integer, intE As Integer)
+		
+		Dim varB As Variant
+		Dim varT As Variant
+		Dim intI As Integer
+		Dim int1 As Integer
+		Dim int2 As Integer
+		int2 = intB
+		For int1 = intB To intE - 1
+			
+'Setup 
+			Set varB = var(int1)
+			intI = int1
+			
+			
+			
+'Get lowest item 
+			For int2 = int1 + 1 To intE
+				
+				If c(var(int2), varB) < 0 Then
+					
+					Set varB = var(int2)
+					intI = int2
+					
+				End If
+				
+			Next int2
+			
+			
+			
+'Swaps 
+			Set varT = var(int1)
+			Set var(int1) = varB
+			Set var(intI) = varT
+			
+		Next int1
+		
+	End Sub
+	
+	
+	
+'//====== Bubble algorithm ====== 
+	Private Sub bs(var As Variant, intB As Integer, intE As Integer)
+		
+		Dim int1 As Integer
+		Dim varT As Variant
+		Dim unsorted As Integer
+		
+		
+		
+		Do
+			
+			unsorted = False
+			For int1 = intB To intE - 1
+				
+				If c(var(int1), var(int1 + 1)) > 0 Then
+					
+					unsorted = True
+					varT = var(int1)
+					var(int1) = var(int1 + 1)
+					var(int1 + 1) = varT
+					
+				End If
+				
+			Next int1
+			For int1 = intE - 1 To intB Step -1
+				
+				If c(var(int1), var(int1 + 1)) > 0 Then
+					
+					unsorted = True
+					varT = var(int1)
+					var(int1) = var(int1 + 1)
+					var(int1 + 1) = varT
+					
+				End If
+				
+			Next int1
+			
+		Loop While unsorted
+		
+	End Sub
+	
+	
+	
+'//====== Randomise algorithm ====== 
+	Private Sub randomise(var As Variant, intB As Integer, intE As Integer)
+		
+		Dim varT As Variant
+		Dim int1 As Integer
+		Dim int2 As Integer
+		
+		
+		
+		For int1 = intB To intE
+			
+			varT = var(int1)
+			int2 = ((intE - intB) * Rnd()) + intB
+			var(int1) = var(int2)
+			var(int2) = varT
+			
+		Next int1
+		
+	End Sub
+	
+	
+	
+End Class
+
+Public Class arraySorter As sortingAlgorithms
+	
+	
+	
+	Public Sub merge(var As Variant)
+		
+		Call ms(var, Lbound(var), Ubound(var))
+		
+	End Sub
+	
+	
+	
+	Public Sub quick(var As Variant)
+		
+		Call qs(var, Lbound(var), Ubound(var))
+		
+	End Sub
+	
+	
+	
+	Public Sub selection(var As Variant)
+		
+		Call ss(var, Lbound(var), Ubound(var))
+		
+	End Sub
+	
+	
+	
+	Public Sub scatter(var As Variant)
+		
+		Call randomise(var, Lbound(var), Ubound(var))
+		
+	End Sub
+	
+	
+	
+	Public Sub bubble(var As Variant)
+		
+		Call bs(var, Lbound(var), Ubound(var))
+		
+	End Sub
+	
+	
+	
+End Class
+
+Class CNotesDocumentCollection As sortingAlgorithms
+	
+	
+	Private m_ndbParent As NotesDatabase
+	Private m_varDocumentArray As Variant
+	Private m_varDocumentNIDs As Variant
+	Private m_lngBoundary As Long
+	Private m_lngPointer As Long
+	Private m_strQuery As String
+	Private m_varSortBy As Variant 
+	
+	
+	
+	Sub new(dc As NotesDocumentCollection)
+		
+		Dim doc As NotesDocument
+		Dim intLoop As Integer
+		
+		
+		
+		Set m_ndbParent = dc.Parent
+		m_lngBoundary = dc.Count - 1
+		If m_lngBoundary < 0 Then Exit Sub
+		Redim m_varDocumentArray(m_lngBoundary)
+		Redim m_varDocumentNIDs(m_lngBoundary)
+		
+		
+		
+		Set doc = dc.GetFirstDocument
+		
+		
+		
+		For intLoop = 0 To m_lngBoundary
+			
+			Set m_varDocumentArray(intLoop) = doc
+			m_varDocumentNIDs(intLoop) = doc.NoteID
+			Set doc = dc.GetNextDocument(doc)
+			
+		Next intLoop
+		
+	End Sub
+	
+	
+	
+	Public Sub Sort(varFieldnameArray As Variant, intSortOptions As Integer)
+		
+		Dim varSortBy As Variant
+		Dim intLoop As Integer
+		
+		
+		
+		If m_lngBoundary < 0 Then Exit Sub
+		
+		
+		
+		m_direction = intSortOptions
+		
+		
+		
+		If m_direction = 0 Then Exit Sub
+		
+		
+		
+		If Isscalar(varFieldnameArray) Then
+			
+			Redim varSortBy(0)
+			varSortBy(0) = varFieldnameArray
+			
+		Else
+			
+			varSortBy = varFieldnameArray
+			
+		End If
+		
+		
+		
+		m_varSortBy = varSortBy
+		
+		Call mso(m_varDocumentArray, 0, Cint(m_lngBoundary))
+		
+		
+		
+'Unfortunately we also have to update the NID Array now. 
+		Forall x In m_varDocumentArray
+			
+			m_varDocumentNIDs(intLoop) = x.NoteID
+			intLoop = intLoop + 1
+			
+		End Forall
+		
+	End Sub
+	
+	
+	
+'//Overridden Comparison function used by the sort. 
+	Private Function c(var1 As Variant, var2 As Variant) As Integer
+		
+		Forall x In m_varSortBy
+			
+			If var1.GetItemValue(x)(0) < _
+			var2.GetItemValue(x)(0) Then
+				
+				c = -1
+				Exit Forall
+				
+				Elseif var1.GetItemValue(x)(0) > _
+			var2.GetItemValue(x)(0) Then
+				
+				c = 1
+				Exit Forall
+				
+			End If
+			
+		End Forall
+		c = c * m_direction
+		
+	End Function
+	
+	
+	
+'//Accessors making the Interface like a real notesDocumentCollection 
+	Private Function GetPointerForDocument(doc As NotesDocument) As Long
+		
+		Dim strNID As String
+		Dim intLoop As Long
+		strNID = doc.NoteID
+		Forall x In m_varDocumentNIDs
+			
+			If x = strNID Then Exit Forall
+			intLoop = intLoop + 1
+			
+		End Forall
+		If intLoop > m_lngBoundary Then Exit Function
+		GetPointerForDocument = intLoop
+		
+	End Function
+	
+	
+	
+	Property Get GetFirstDocument As NotesDocument
+		
+		If m_lngBoundary < 0 Then Exit Property
+		m_lngPointer = 0
+		Set GetFirstDocument = m_varDocumentArray(m_lngPointer)
+		
+	End Property
+	
+	
+	
+	Property Get GetLastDocument As NotesDocument
+		
+		If m_lngBoundary < 0 Then Exit Property
+		m_lngPointer = m_lngBoundary
+		Set GetLastDocument = m_varDocumentArray(m_lngPointer)
+		
+	End Property
+	
+	
+	
+	Property Get GetNextDocument(doc As NotesDocument) As NotesDocument
+		
+'In the interests of speed we have a record of where we are, but 
+'in order to keep this as like the real thing as possible there 
+'is the option of giving a document as a reference. Check it and 
+'then decide... 
+		If m_lngBoundary < 0 Then Exit Property
+		
+		
+		
+		If doc.NoteID <> m_varDocumentNIDs(m_lngPointer) Then
+			
+			m_lngPointer = GetPointerForDocument(doc)
+			
+		End If
+		
+		
+		
+		m_lngPointer = m_lngPointer + 1
+		
+		
+		
+		If m_lngPointer > m_lngBoundary Or m_lngPointer < 0 Then
+			
+			Set GetNextDocument = Nothing
+			
+		Else
+			
+			Set GetNextDocument = m_varDocumentArray(m_lngPointer)
+			
+		End If
+		
+	End Property
+	
+	
+	
+	Property Get GetPreviousDocument(doc As NotesDocument) As NotesDocument
+		
+		If m_lngBoundary < 0 Then Exit Property
+		
+		
+		
+		If doc.NoteID <> m_varDocumentNIDs(m_lngPointer) Then
+			
+			m_lngPointer = GetPointerForDocument(doc)
+			
+		End If
+		
+		
+		
+		m_lngPointer = m_lngPointer - 1
+		
+		
+		
+		If m_lngPointer > m_lngBoundary Or m_lngPointer < 0 Then
+			
+			Set GetPreviousDocument = Nothing
+			
+		Else
+			
+			Set GetPreviousDocument = m_varDocumentArray(m_lngPointer)
+			
+		End If
+		
+	End Property
+	
+	
+	
+	Property Get GetNthDocument(lngIndex As Long) As NotesDocument
+		
+		If m_lngBoundary < 0 Then Exit Property
+		m_lngPointer = lngIndex - 1
+		If m_lngPointer > m_lngBoundary Or m_lngPointer < 0 Then
+			
+			Set GetNthDocument = Nothing
+			
+		Else
+			
+			Set GetNthDocument = m_varDocumentArray(m_lngPointer)
+			
+		End If
+		
+	End Property
+	
+	
+	
+	Property Get Count As Long
+		
+		Count = m_lngBoundary + 1
+		
+	End Property
+	
+	
+	
+	Property Get Parent As NotesDatabase
+		
+		Set Parent = m_ndbParent
+		
+	End Property
+	
+	
+	
+	Property Get Query As String
+		
+		Query = m_strQuery
+		
+	End Property
+	
+	
+	
+End Class

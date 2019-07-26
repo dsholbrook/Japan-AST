@@ -1,0 +1,71 @@
+'++LotusScript Development Environment:2:5:(Options):0:66
+Option Public
+Option Declare
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub RunLogEnd(db As NotesDatabase)
+Declare Sub RunLogWarning(errmsg As String, str_Routine As String)
+Declare Sub RunLogFatal(fmsg As String, str_Routine As String, db As NotesDatabase)
+Declare Sub RunLogMessage(newmsg As String, str_Routine As String)
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+Public msg( ) As String
+Public nmsg As Integer
+Public errflag As String
+
+'++LotusScript Development Environment:2:2:RunLogEnd:1:8
+Sub RunLogEnd(db As NotesDatabase)
+	Dim session As New NotesSession
+	Dim dt As New NotesDateTime("")
+	Dim logDoc As NotesDocument
+	Dim rtitem As NotesRichTextItem
+	Dim strMsg As String, intCtr As Integer
+	If (db.IsOpen = False) Then
+		Set db = session.CurrentDatabase
+	End If
+	Set logDoc = db.CreateDocument
+	logDoc.Form = "fLog"
+	logDoc.DocType = "Log"
+	dt.SetNow
+	Set logDoc.RunDate = dt
+	'logDoc.Messages = msg
+	Set rtitem = New NotesRichTextItem(logDoc, "LogText")
+	Forall i In msg
+		If intCtr = 0 Then
+			strMsg = i
+		Else
+			strMsg = strMsg & Chr(13) & i
+		End If
+		intCtr = intCtr + 1
+	End Forall
+	Call rtitem.AppendText(strMsg)
+	If errflag = "Y" Then
+		logDoc.Errors = errflag
+	Else
+		logDoc.Errors = "N"
+	End If
+	logDoc.Save True, True
+	Redim msg(0 To 0) As String
+	nmsg = 0
+	errflag = ""
+End Sub
+
+'++LotusScript Development Environment:2:2:RunLogWarning:1:8
+Sub RunLogWarning(errmsg As String, str_Routine As String)
+	RunLogMessage errmsg, str_Routine
+	errflag = "Y"
+End Sub
+
+'++LotusScript Development Environment:2:2:RunLogFatal:1:8
+Sub RunLogFatal(fmsg As String, str_Routine As String, db As NotesDatabase)
+	RunLogWarning fmsg, str_Routine
+	RunLogEnd db
+	End
+End Sub
+
+'++LotusScript Development Environment:2:2:RunLogMessage:1:8
+Sub RunLogMessage(newmsg As String, str_Routine As String)
+	Redim Preserve msg(nmsg)
+	msg(nmsg) = newmsg + " (" + str_Routine + ")"
+	nmsg = nmsg + 1
+End Sub
