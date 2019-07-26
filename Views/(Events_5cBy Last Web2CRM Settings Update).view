@@ -1,0 +1,189 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Events\By Last Web2CRM Settings Update)' alias='vEventsARWeb2CRMSettingsUpdate'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' showinmenu='false' publicaccess='false'
+ designerversion='8.5.3' unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator'
+ headers='simple' opencollapsed='true' showresponsehierarchy='false' showmargin='true'
+ shrinkrows='true' extendlastcolumn='true' showhierarchies='false' unreadcolor='black'
+ rowlinecount='9' headerlinecount='3' rowspacing='1' bgcolor='white' altrowcolor='#efefef'
+ totalscolor='gray' headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='14352' unid='794704ADC342EF95852575E600538188' sequence='11'>
+<created><datetime dst='true'>20090701T111206,48-04</datetime></created>
+<modified><datetime dst='true'>20180929T235549,53-05</datetime></modified>
+<revised><datetime>20160310T111709,98-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235549,53-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235549,53-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby><code
+ event='selection'><formula>SELECT Form = "fEventProfile"</formula></code><code
+ event='postopen'><formula>@Command([ViewCollapseAll])</formula></code><code
+ event='querypaste'><lotusscript>Sub Querypaste(Source As Notesuiview, Continue As Variant)
+	Messagebox "Documents cannot be pasted into this view.", MB_OK + MB_ICONINFORMATION, "IBM Global Registration Portal"
+	Continue = False
+End Sub
+</lotusscript></code>
+<actionbar linestyle='twoline' bgcolor='#c8d7e3' bordercolor='#bfbfff'><actionbarstyle
+ height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/></actionbar>
+<column totals='total' hidedetailrows='true' itemname='$22' width='4.3750'
+ resizable='false' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='#'><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@If(form = "fEventProfile"; 1; 0)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$74' width='4' resizable='false'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ hidden='true'><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Sort'><font size='9pt'
+ color='red' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='date' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/><code
+ event='value'><formula>@If(ep_DateWeb2CRMInfoSentToAR = ""; 2; 1)</formula></code></column>
+<column sort='descending' hidedetailrows='false' itemname='$73' width='1'
+ resizable='false' separatemultiplevalues='true' sortnoaccent='true' sortnocase='true'
+ showaslinks='false' categorized='true' twisties='true'><font size='9pt' color='#424282'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader><datetimeformat show='date' date='yearmonthday'
+ fourdigityearfor21stcentury='true' time='hourminute' zone='never' dateformat='weekdaymonthdayyear'
+ dayformat='twodigitday' monthformat='twodigitmonth' yearformat='fourdigityear'
+ weekdayformat='shortname' dateseparator1=' ' dateseparator2='/' dateseparator3='/'
+ timeseparator=':' preference='usersetting'/><numberformat format='general'
+ punctuated='false' parens='false' percent='false' bytes='false'/><code event='value'><formula
+>@If(ep_DateWeb2CRMInfoSentToAR = ""; "GRP has not updated the Web2CRM settings in the AR profile for these events"; @Date(ep_DateWeb2CRMInfoSentToAR))</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$67' width='45'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Event name'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(Form = "fEventProfile"; eventname + "  (" + loc_confcity + " - " + ep_StartDate + ")"; ep_EventTitle)</formula></code></column>
+<column sort='descending' resort='ascending' hidedetailrows='false' itemname='$55'
+ width='12.8750' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Event start date'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@Date(@TextToNumber(startyear); @TextToNumber(startmonth); @TextToNumber(startday))</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='ep_id' width='11.2500'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Reference ID'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='EP_WEB2CRMINFOSENTTOAR'
+ width='10.5000' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Send to CRM button clicked?'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='countrycode' width='8'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Country code'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/></column>
+<column resort='ascending' hidedetailrows='false' listseparator='newline'
+ itemname='Tactic' width='10' resizable='true' separatemultiplevalues='false'
+ sortnoaccent='true' sortnocase='true' showaslinks='false'><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Event tactic code'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><datetimeformat show='datetime'
+ date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/></column>
+<column resort='ascending' hidedetailrows='false' itemname='ep_WarmTacticCode'
+ width='12' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Selected Warm Tactic'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/></column>
+<column resort='ascending' hidedetailrows='false' itemname='ep_HotTacticCode'
+ width='12' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Selected Hot Tactic'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/></column>
+<column resort='ascending' hidedetailrows='false' itemname='ep_SendMIAnswersToCRM'
+ width='14' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Send MI answers to CRM option selected?'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/></column>
+<column resort='ascending' hidedetailrows='false' itemname='ep_DateAttendanceUpdateComplete'
+ width='14' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Date attendance update marked as complete'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/></column>
+<column resort='ascending' hidedetailrows='false' itemname='ep_DateCreatedInAR'
+ width='14' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Date AR event profile created'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/></column>
+<column resort='ascending' hidedetailrows='false' itemname='ep_DateUpdatedInAR'
+ width='14' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Date AR event profile updated'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/></column>
+<column resort='ascending' hidedetailrows='false' itemname='ep_DateRegistrationsSentToAR'
+ width='14' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Date registrations made available to AR'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/></column>
+<column resort='ascending' hidedetailrows='false' itemname='ep_DateWeb2CRMInfoSentToAR'
+ width='14' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Date Web2CRM info made available to AR'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/></column>
+<column hidedetailrows='false' itemname='$65' width='10' resizable='false'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader><code event='value'><formula>""</formula></code></column></view>
+

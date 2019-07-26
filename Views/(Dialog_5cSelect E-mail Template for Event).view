@@ -1,0 +1,160 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Dialog\Select E-mail Template for Event)' alias='vDialogSelectEmailTemplateForEvent'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' showinmenu='false' publicaccess='false'
+ designerversion='8.5.3' unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator'
+ headers='simple' opencollapsed='true' showresponsehierarchy='true' showmargin='true'
+ shrinkrows='true' extendlastcolumn='false' showhierarchies='false' unreadcolor='red'
+ rowlinecount='9' headerlinecount='1' rowspacing='1.25' bgcolor='white' altrowcolor='#efefef'
+ totalscolor='gray' headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false' formatnoteid='1F2262DD6A97A01C85256EFC00733C20'>
+<noteinfo noteid='1441e' unid='88C21E15FC98330A8525740200550DE4' sequence='19'>
+<created><datetime>20080304T102901,16-05</datetime></created>
+<modified><datetime dst='true'>20180929T235550,55-05</datetime></modified>
+<revised><datetime>20160310T111710,62-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235550,55-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235550,55-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+</lotusscript></code><code event='declarations'><lotusscript>Const INT_OK = 1
+Const INT_CANCEL = 2
+
+</lotusscript></code><code event='SaveTemplateDetails'><lotusscript>Sub SaveTemplateDetails(intButton As Integer)
+     '------------------------------------------------------------------------------------------------------
+     'Description 
+     '------------------
+     'Save information about a selected e-mail template in the environment.
+	'
+	'This function is designed to be called from the OK and Cancel view actions
+	'in the (Dialog\Select E-mail Template) view.
+	'
+     'Parameters
+     '-----------------------
+	'intButton				The button that was clicked in the view.
+	'							INT_OK					OK was clicked.
+	'							INT_CANCEL			Cancel was clicked.
+	'
+     'Return Values
+     '-----------------------
+     'None.
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |SaveTemplateDetails|
+	
+	Dim s As New NotesSession 
+	Dim col As NotesDocumentCollection 
+	Dim docEmailTemplate As NotesDocument
+	Dim doc As NotesDocument
+	Dim ws As New NotesUIWorkspace
+	Dim uidoc As NotesUIDocument
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Started.|)
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	'Get a handle to the dialog
+	Set uidoc = ws.CurrentDocument	
+	
+	Select Case intButton
+		
+	Case INT_OK:
+		
+		'Get the selected document
+		Set col = g_dbCurr.UnprocessedDocuments 
+		Set docEmailTemplate = col.GetFirstDocument()
+		
+		If Not docEmailTemplate Is Nothing Then
+			Set doc = uidoc.Document
+			Call s.SetEnvironmentVar(|AS_OK|, |Yes|)
+			Call s.SetEnvironmentVar(|AS_TITLE|, Cstr(docEmailTemplate.mt_Name(0)))
+			Call s.SetEnvironmentVar(|AS_DESC|, Cstr(docEmailTemplate.mt_Desc(0)))
+			Call s.SetEnvironmentVar(|AS_UNID|, Cstr(docEmailTemplate.et_UNID(0)))
+			Call Debug(STR_MODULE_NAME &amp; |: Title[| &amp; Cstr(docEmailTemplate.mt_Name(0)) &amp; |] UNID [| &amp; Cstr(docEmailTemplate.et_UNID(0)) &amp; |]|)
+			
+		Else
+			Call s.SetEnvironmentVar(|AS_OK|, ||)
+			Call s.SetEnvironmentVar(|AS_TITLE|, ||)
+			Call s.SetEnvironmentVar(|AS_DESC|, ||)
+			Call s.SetEnvironmentVar(|AS_UNID|, ||)		
+		End If
+		
+	Case INT_CANCEL:
+		
+		Call s.SetEnvironmentVar(|AS_OK|, ||)
+		Call s.SetEnvironmentVar(|AS_TITLE|, ||)
+		Call s.SetEnvironmentVar(|AS_DESC|, ||)		
+		Call s.SetEnvironmentVar(|AS_UNID|, ||)		
+		
+	Case Else
+		
+		Error ERR_SYSTEM_ERROR, |An unknown button ID [| &amp; Cstr(intButton) &amp; |] was supplied to the function.|	
+		
+	End Select
+	
+	'Close the dialog
+	Call uidoc.Close()
+	
+lblExit: 
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Finished.|)
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub</lotusscript></code></globals><code event='selection'><formula>SELECT DocType = "Merge Template" &amp; mt_Usage = "Single"</formula></code><code
+ event='querypaste'><lotusscript>Sub Querypaste(Source As Notesuiview, Continue As Variant)
+	Messagebox "Documents cannot be pasted into this view.", MB_OK + MB_ICONINFORMATION, "IBM Global Registration Portal"
+	Continue = False
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5f84'/>
+<action title='  OK  ' showinmenu='false'><code event='click'><lotusscript
+>Sub Click(Source As Button)
+	
+	Call SaveTemplateDetails(INT_OK)
+	
+End Sub
+</lotusscript></code></action>
+<action title=' Cancel ' showinmenu='false'><code event='click'><lotusscript
+>Sub Click(Source As Button)
+	
+	Call SaveTemplateDetails(INT_CANCEL)
+	
+End Sub
+</lotusscript></code></action></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='$7' width='1' resizable='false'
+ separatemultiplevalues='true' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ categorized='true' twisties='true'><font size='9pt' color='#424282' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader><datetimeformat legacy='true' show='date' date='yearmonthday'
+ time='hourminute' zone='never'/><code event='value'><formula>mt_Category + mt_Locale + ep_id</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='mt_Name' width='26'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Name'><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='date' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column hidedetailrows='false' itemname='mt_Desc' width='36' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Description'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><datetimeformat legacy='true'
+ show='date' date='yearmonthday' time='hourminute' zone='never'/></column>
+<item name='TmpViewDesignCollation'><text>ja@UCA</text></item></view>
+

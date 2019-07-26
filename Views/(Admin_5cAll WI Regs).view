@@ -1,0 +1,63 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Admin\All WI Regs)' alias='vAllWIRegs' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ showinmenu='false' publicaccess='false' designerversion='8.5.3' unreadmarks='standard'
+ onopengoto='lastopened' onrefresh='displayindicator' headers='simple' opencollapsed='false'
+ showresponsehierarchy='true' showmargin='true' shrinkrows='false' extendlastcolumn='false'
+ showhierarchies='false' unreadcolor='red' rowlinecount='1' headerlinecount='1'
+ rowspacing='1.25' bgcolor='white' altrowcolor='#efefef' totalscolor='gray'
+ headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false' formatnoteid='1F2262DD6A97A01C85256EFC00733C20'>
+<noteinfo noteid='1466a' unid='9B936B7310C274DA85257554000E6FAF' sequence='20'>
+<created><datetime>20090204T213740,95-05</datetime></created>
+<modified><datetime dst='true'>20180929T235553,51-05</datetime></modified>
+<revised><datetime>20160310T111712,17-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235553,51-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235553,51-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+</lotusscript></code></globals><code event='selection'><formula>SELECT (form = "enrollall") &amp; (ivuser!= "")</formula></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<sharedactionref id='5'>
+<action title='Edit Profile' icon='5' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([EditProfile]; "fProfile")</formula></code></action></sharedactionref></actionbar>
+<column totals='total' hidedetailrows='true' itemname='$22' width='4.3750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font name='Helv' pitch='variable' truetype='false' familyid='20'/><columnheader
+ title='#'><font style='bold' name='Helv' pitch='variable' truetype='false'
+ familyid='20'/></columnheader><code event='value'><formula>1</formula></code></column>
+<column sort='ascending' resort='both' hidedetailrows='false' itemname='DocType'
+ width='19' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Document type'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='date' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column sort='descending' resort='both' hidedetailrows='false' itemname='$5'
+ width='15' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Last modified'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/><code
+ event='value'><formula>@Modified</formula></code></column>
+<column hidedetailrows='false' itemname='ivuser' width='17.2500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='ivuser'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><datetimeformat legacy='true'
+ show='date' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column hidedetailrows='false' itemname='ivuser' width='10' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+><font size='9pt' style='bold'/></columnheader></column></view>
+

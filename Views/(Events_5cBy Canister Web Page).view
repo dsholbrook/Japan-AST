@@ -1,0 +1,129 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Events\By Canister Web Page)' alias='vEventsByCanisterWebPage'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' showinmenu='false' publicaccess='false'
+ designerversion='8.5.3' unreadmarks='none' onopengoto='top' onrefresh='refreshtop'
+ headers='simple' opencollapsed='true' showresponsehierarchy='false' showmargin='true'
+ shrinkrows='true' extendlastcolumn='true' showhierarchies='false' unreadcolor='black'
+ rowlinecount='9' headerlinecount='2' rowspacing='1' bgcolor='white' altrowcolor='#efefef'
+ totalscolor='gray' headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='1531a' unid='E9569409BCE2C7878625804B007AF0A8' sequence='3'>
+<created><datetime dst='true'>20161013T172250,00-05</datetime></created>
+<modified><datetime dst='true'>20180930T002152,56-05</datetime></modified>
+<revised><datetime dst='true'>20170810T182609,49-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002152,56-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002152,56-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='selection'><formula>dpCanister := @TextToNumber(dp_canisterID);
+SELECT form = "fEventProfile" &amp; status != "Inactive" &amp; status != "Cancelled" &amp; VIRTUALEVENT != "Virtual"</formula></code><code
+ event='querypaste'><lotusscript>Sub Querypaste(Source As Notesuiview, Continue As Variant)
+	Messagebox "Documents cannot be pasted into this view.", MB_OK + MB_ICONINFORMATION, "IBM Global Registration Portal"
+	Continue = False
+End Sub</lotusscript></code>
+<actionbar linestyle='twoline' bgcolor='#c8d7e3' bordercolor='#bfbfff'><actionbarstyle
+ height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<action title='Expand All' icon='154' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([ViewExpandAll])</formula></code></action>
+<action title='Collapse All' icon='155' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([ViewCollapseAll])</formula></code></action>
+<action title='Event Info' icon='23' showinmenu='false' showinrightbuttonmenu='true'
+ hide='web mobile'><code event='click'><formula>@Command([ToolsRunMacro]; "eventInfo)")</formula></code><code
+ event='hidewhen'><formula>namesList :=  "CN=Michael Kennedy/OU=White Plains/OU=Contr/O=IBM" : "CN=Anilkumar Hulikal/OU=Somers/OU=Contr/O=IBM" : "CN=Bhakty Gozaine/OU=White Plains/OU=Contr/O=IBM" : "CN=Bhaskar Tailigeri/OU=White Plains/OU=Contr/O=IBM" : "CN=Chris Negron/OU=Armonk/OU=Contr/O=IBM" : "CN=Connie Smith/OU=Armonk/OU=Contr/O=IBM" : "CN=Darice George/OU=White Plains/OU=Contr/O=IBM" : "CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM" : "CN=Deirdre Donnelly/OU=White Plains/OU=Contr/O=IBM" : "CN=Geoff Bullens/OU=White Plains/OU=Contr/O=IBM" : "CN=Joseph Francis/OU=Boca Raton/OU=Contr/O=IBM" : "CN=Kevin J Kelley/OU=White Plains/OU=Contr/O=IBM" : "CN=Srihari Kancharla/OU=White Plains/OU=Contr/O=IBM" : "CN=Steve Handel/OU=White Plains/OU=Contr/O=IBM" : "CN=Thierry Dupard/OU=White Plains/OU=Contr/O=IBM" : "CN=Tim Vallely/OU=White Plains/OU=Contr/O=IBM" : "CN=Tyler Churchill/OU=ATLANTA/OU=Contr/O=IBM" : "CN=Vik Bangarala/OU=White Plains/OU=Contr/O=IBM" : "CN=DB Smith/OU=Albany/OU=Contr/O=IBM" : "CN=Bianca Brown/OU=Armonk/OU=Contr/O=IBM" : "CN=Randall Smith/OU=Armonk/OU=Contr/O=IBM" : "CN=David Welch/OU=Armonk/OU=Contr/O=IBM" : "CN=Sue Welch/OU=Armonk/OU=Contr/O=IBM" : "CN=Bill Long/OU=Armonk/OU=Contr/O=IBM" : "CN=Allison Janicki/OU=Armonk/OU=Contr/O=IBM" : "CN=Darlene DaSilva/OU=Armonk/OU=Contr/O=IBM" : "CN=EventSol/OU=Armonk/O=IBM";
+
+!@Contains(@LowerCase(namesList); @LowerCase(@UserName))</formula></code></action>
+<action title='Open Associated EST Brief' icon='93' showinmenu='false' showinrightbuttonmenu='true'><code
+ event='click'><formula>@Command([ToolsRunMacro]; "(openAssociatedESTBrief)")</formula></code></action></actionbar>
+<column align='right' totals='total' hidedetailrows='true' itemname='$22'
+ width='5' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='# of events'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><numberformat
+ format='general' varying='true' punctuated='true' parens='false' percent='false'
+ bytes='false' decimalsym='.' thousandssep=',' currencysymtype='custom' currencysym='$'
+ usecustomsym='false'/><code event='value'><formula>@If(form = "fEventProfile"; 1; 0)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='rep_CanisterTitle'
+ width='1' resizable='false' separatemultiplevalues='true' sortnoaccent='true'
+ sortnocase='true' showaslinks='false' categorized='true' twisties='true'><font
+ size='9pt' color='#424282' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column sort='ascending' hidedetailrows='false' itemname='status' width='1'
+ resizable='false' separatemultiplevalues='true' sortnoaccent='true' sortnocase='true'
+ showaslinks='false' categorized='true' twisties='true'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader></column>
+<column sort='ascending' hidedetailrows='false' itemname='ep_id' width='5.6250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false' hidden='true'><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><columnheader title='Sort key'><font
+ size='9pt' color='red' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='EventName' width='28.2500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Event Title'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column align='center' sort='descending' resort='ascending' hidedetailrows='false'
+ itemname='$55' width='8.5000' resizable='true' separatemultiplevalues='false'
+ sortnoaccent='true' sortnocase='true' showaslinks='false'><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Start date'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@TextToTime(startmonth + "/" + startday + "/" + startyear)</formula></code></column>
+<column align='center' resort='ascending' hidedetailrows='false' itemname='ep_id'
+ width='8' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Reference ID'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column align='center' resort='ascending' hidedetailrows='false' itemname='status'
+ width='7.2500' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Status'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='sponsor_bu_pri' width='12' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Business Unit'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='$100' width='10' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Locale(s)'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@Implode(ep_Locales; ", ")</formula></code></column>
+<column align='center' totals='total' hidedetailrows='false' itemname='$90'
+ width='5.5000' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader align='center' title='Reg. (All)'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><numberformat
+ format='general' varying='true' punctuated='true' parens='false' percent='false'
+ bytes='false' decimalsym='.' thousandssep=',' currencysymtype='custom' currencysym='$'
+ usecustomsym='false'/><code event='value'><formula>rep_CountConfirmed + rep_CountAttended + rep_CountDidNotAttend</formula></code></column>
+<column hidedetailrows='false' listseparator='newline' itemname='$95' width='68'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Web Pages'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>wPagev17 := "https://www.ibm.com/events/wwe/japan/ASJapan.nsf/v17_enrollall?openform&amp;seminar=" + ep_id + "&amp;locale=";
+wPagev18 := "https://www.ibm.com/events/wwe/grp/grp" + dp_canisterid + ".nsf/Registration.xsp?OpenPage&amp;seminar=" + ep_id + "&amp;locale=";
+wPagev17 + ep_Locales</formula></code></column>
+<column align='right' hidedetailrows='false' listseparator='newline' itemname='ep_WebPages'
+ width='12.6250' resizable='true' separatemultiplevalues='false' sortnoaccent='false'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Add. Web Pages'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column align='center' hidedetailrows='false' listseparator='newline' itemname='postEventUpDays'
+ width='6.6250' resizable='true' separatemultiplevalues='false' sortnoaccent='false'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Post Days'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<item name='TmpViewDesignCollation'><text>ja@UCA</text></item></view>
+

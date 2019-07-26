@@ -1,0 +1,72 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Admin\All Documents)' alias='vAll' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ showinmenu='false' publicaccess='false' designerversion='8.5.3' default='true'
+ unreadmarks='standard' onopengoto='lastopened' onrefresh='displayindicator'
+ headers='simple' opencollapsed='false' showresponsehierarchy='true' showmargin='true'
+ shrinkrows='false' extendlastcolumn='false' showhierarchies='false' unreadcolor='red'
+ rowlinecount='1' headerlinecount='1' rowspacing='1.25' bgcolor='white' altrowcolor='#efefef'
+ totalscolor='gray' headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false' formatnoteid='1F2262DD6A97A01C85256EFC00733C20'>
+<noteinfo noteid='14616' unid='C371629BBAFEC4D785257328004E4255' sequence='24'>
+<created><datetime dst='true'>20070730T101447,89-04</datetime></created>
+<modified><datetime dst='true'>20180929T235553,09-05</datetime></modified>
+<revised><datetime>20161115T123936,00-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20190329T112641,75-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235553,09-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+</lotusscript></code></globals><code event='selection'><formula>SELECT @All</formula></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<sharedactionref id='312'>
+<action title='Reset MAT Sent Status' icon='145' showinmenu='false'><code
+ event='click'><formula>@Command([ToolsRunMacro]; "ResetSentStatus")</formula></code><code
+ event='hidewhen'><formula>tmpCurrServer := @Subset(@DbName; 1);
+!((@IsMember("[Admin]"; @UserRoles) | @IsMember("[Developer]"; @UserRoles)) &amp; tmpCurrServer != "")</formula></code></action></sharedactionref></actionbar>
+<column sort='ascending' resort='both' hidedetailrows='false' itemname='Form'
+ width='24.7500' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Form'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='date' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column sort='ascending' resort='both' hidedetailrows='false' itemname='DocType'
+ width='19' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Document type'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='date' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column sort='descending' resort='both' hidedetailrows='false' itemname='$5'
+ width='15' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Last modified'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/><code
+ event='value'><formula>@Modified</formula></code></column>
+<column resort='both' hidedetailrows='false' itemname='$6' width='30' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='UNID'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><datetimeformat legacy='true'
+ show='date' date='yearmonthday' time='hourminute' zone='never'/><code event='value'><formula
+>@Text(@DocumentUniqueID)</formula></code></column>
+<column resort='both' hidedetailrows='false' itemname='ToBeDeleted' width='12.6250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='To be deleted?'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='date' date='yearmonthday' time='hourminute' zone='never'/></column>
+<item name='TmpViewDesignCollation'><text>ja@UCA</text></item></view>
+

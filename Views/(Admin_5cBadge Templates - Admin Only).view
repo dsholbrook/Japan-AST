@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Admin\Badge Templates - Admin Only)' alias='vAdminBadgeTemplates_AdminOnly'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' showinmenu='false' publicaccess='false'
+ designerversion='8.5.3' unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator'
+ headers='simple' opencollapsed='true' showresponsehierarchy='false' showmargin='true'
+ shrinkrows='false' extendlastcolumn='false' showhierarchies='false' unreadcolor='black'
+ rowlinecount='1' headerlinecount='1' rowspacing='1' bgcolor='white' altrowcolor='#efefef'
+ totalscolor='gray' headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='14b1a' unid='2766F2E7B719F808852573DB0051EA5E' sequence='26'>
+<created><datetime>20080125T095444,14-05</datetime></created>
+<modified><datetime dst='true'>20180929T235559,51-05</datetime></modified>
+<revised><datetime>20160310T111708,01-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235559,51-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235559,51-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+
+</lotusscript></code></globals><code event='selection'><formula>SELECT Form = "fBadgeTemplate"</formula></code><code
+ event='querypaste'><lotusscript>Sub Querypaste(Source As Notesuiview, Continue As Variant)
+	continue = False
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='#bfbfff'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<sharedactionref id='87'>
+<action title='Add Badge Template' icon='30' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([Compose]; "fBadgeTemplate")</formula></code></action></sharedactionref></actionbar>
+<column sort='ascending' resort='descending' hidedetailrows='false' itemname='bt_LocaleName'
+ width='20' resizable='false' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Language'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='bt_Name' width='21.7500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Name'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column sort='ascending' hidedetailrows='false' itemname='bt_Desc' width='41.1250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Description'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column></view>
+

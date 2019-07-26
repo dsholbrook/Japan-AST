@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Dialog\Select Venue)' alias='vDialogSelectVenue' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ showinmenu='true' publicaccess='false' designerversion='8.5.3' unreadmarks='none'
+ onopengoto='lastopened' onrefresh='displayindicator' headers='simple' opencollapsed='false'
+ showresponsehierarchy='true' showmargin='true' shrinkrows='true' extendlastcolumn='false'
+ showhierarchies='false' unreadcolor='black' rowlinecount='9' headerlinecount='1'
+ rowspacing='1' bgcolor='white' altrowcolor='#efefef' totalscolor='gray' headerbgcolor='#c8d7e3'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='146f2' unid='0DB9793B4DCF6F648525737F006C4B77' sequence='19'>
+<created><datetime dst='true'>20071025T154252,07-04</datetime></created>
+<modified><datetime dst='true'>20180929T235554,19-05</datetime></modified>
+<revised><datetime>20160310T111705,78-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235554,19-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235554,19-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby><code
+ event='selection'><formula>SELECT Form = "fEventProfile"</formula></code><code
+ event='querypaste'><lotusscript>Sub Querypaste(Source As Notesuiview, Continue As Variant)
+	Messagebox "Documents cannot be pasted into this view.", MB_OK + MB_ICONINFORMATION, "IBM Global Registration Portal"
+	Continue = False
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='silver' bordercolor='black'>
+<actionbuttonstyle bgcolor='silver'/><font size='9pt'/><border width='0px 0px 1px'/></actionbar>
+<column sort='ascending' resort='both' hidedetailrows='false' itemname='loc_conffacility'
+ width='25' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Venue'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column sort='ascending' resort='both' hidedetailrows='false' itemname='loc_confcountry'
+ width='16' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Country'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column sort='ascending' resort='both' hidedetailrows='false' itemname='loc_confstate'
+ width='10' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='State'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column sort='ascending' resort='both' hidedetailrows='false' itemname='loc_confcity'
+ width='20' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='City'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column sort='ascending' resort='both' hidedetailrows='false' itemname='loc_comments'
+ width='25' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Comments'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column></view>
+

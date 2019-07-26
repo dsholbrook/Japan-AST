@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(CoreWeb Lists\Web Files - Single)' alias='listCoreWebFilesSingle'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' showinmenu='false' publicaccess='false' designerversion='8.5.3'
+ unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator' headers='beveled'
+ opencollapsed='false' showresponsehierarchy='true' showmargin='true' shrinkrows='false'
+ extendlastcolumn='false' showhierarchies='false' unreadcolor='black' rowlinecount='1'
+ headerlinecount='1' rowspacing='1' bgcolor='white' totalscolor='black' headerbgcolor='white'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='626d2' unid='E616CD7FC76E618785257B57004373F7' sequence='4'>
+<created><datetime dst='true'>20130424T081645,99-04</datetime></created>
+<modified><datetime dst='true'>20180930T002334,92-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170819,27-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002334,92-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002334,92-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='selection'><formula>SELECT Form = "frmWebFiles" &amp; (@Attachments = 1 | wf_default_filename != "")</formula></code>
+<column sort='ascending' hidedetailrows='false' itemname='$7' width='36.6250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><columnheader title='Filename'><font size='9pt' style='bold'/></columnheader><code
+ event='value'><formula>@If(wf_default_filename != "" ; wf_default_filename ; wf_files )</formula></code></column>
+<column hidedetailrows='false' itemname='wf_id' width='17.3750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader
+ title='Key'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='sel_list' width='11.8750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Selection List'><font size='9pt' style='bold'/></columnheader><code
+ event='value'><formula>tmpFN := @If(wf_default_filename != "" ; wf_default_filename ; wf_files );
+wf_id + " [" + tmpFN  + "]" + "|" + wf_id</formula></code></column></view>
+

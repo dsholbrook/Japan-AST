@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Admin\Debug Logs by User)' alias='vDebugLogsByUser' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ showinmenu='false' publicaccess='false' designerversion='8.5.3' unreadmarks='standard'
+ onopengoto='lastopened' onrefresh='displayindicator' headers='simple' opencollapsed='false'
+ showresponsehierarchy='true' showmargin='true' shrinkrows='false' extendlastcolumn='false'
+ showhierarchies='false' unreadcolor='red' rowlinecount='1' headerlinecount='1'
+ rowspacing='1.25' bgcolor='white' altrowcolor='#efefef' totalscolor='gray'
+ headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false' formatnoteid='1F2262DD6A97A01C85256EFC00733C20'>
+<noteinfo noteid='1482e' unid='83EF9B854E00D3D68525742000720E0D' sequence='12'>
+<created><datetime dst='true'>20080403T164547,01-04</datetime></created>
+<modified><datetime dst='true'>20180929T235555,77-05</datetime></modified>
+<revised><datetime>20160310T111710,79-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235555,77-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235555,77-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby><code
+ event='selection'><formula>SELECT DocType = "Log"</formula></code><code event='postopen'><formula
+>@Command([ViewCollapseAll])</formula></code><code event='querypaste'><lotusscript
+>Sub Querypaste(Source As Notesuiview, Continue As Variant)
+	Messagebox "Documents cannot be pasted into this view.", MB_OK + MB_ICONINFORMATION, "IBM Global Registration Portal"
+	Continue = False
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<sharedactionref id='5'>
+<action title='Edit Profile' icon='5' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([EditProfile]; "fProfile")</formula></code></action></sharedactionref></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='$9' width='1' resizable='false'
+ separatemultiplevalues='true' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ categorized='true' twisties='true'><font size='9pt' color='#424282' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader><datetimeformat legacy='true' show='datetime'
+ date='yearmonthday' time='hourminute' zone='never'/><code event='value'><formula
+>@Subset(@Subset(@Name([Abbreviate]; $UpdatedBy); 1); -1)</formula></code></column>
+<column sort='descending' resort='both' hidedetailrows='false' itemname='RunDate'
+ width='8' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Date'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='date' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column sort='descending' hidedetailrows='false' itemname='RunDate' width='6.2500'
+ resizable='true' separatemultiplevalues='true' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Time'><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='time' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column hidedetailrows='false' itemname='DocTitle' width='30' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Title'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><datetimeformat legacy='true'
+ show='time' date='yearmonthday' time='hourminute' zone='never'/></column></view>
+

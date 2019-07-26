@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(CoreWeb Lookups\IBM Templates By DocID)' alias='luIBMTemplatesByDocID'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' showinmenu='false' publicaccess='false' designerversion='8.5.3'
+ unreadmarks='none' onopengoto='top' onrefresh='refreshtop' headers='simple'
+ opencollapsed='true' showresponsehierarchy='true' showmargin='true' shrinkrows='true'
+ extendlastcolumn='false' showhierarchies='false' unreadcolor='black' rowlinecount='9'
+ headerlinecount='1' rowspacing='1' bgcolor='white' altrowcolor='#efefef'
+ totalscolor='gray' headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='false' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false' formatnoteid='258CDEE081B133AC85257AA2003D0337'>
+<noteinfo noteid='6291a' unid='9155016159CCB59085257B2B006B6C90' sequence='2'>
+<created><datetime dst='true'>20130311T153321,44-04</datetime></created>
+<modified><datetime dst='true'>20180930T002407,31-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170819,72-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002407,31-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002407,31-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='selection'><formula>SELECT Form = "frmWebIBMTemplateHTML"</formula></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='$62' width='64.6250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><columnheader title='docid'><font size='9pt' style='bold'/></columnheader><code
+ event='value'><formula>tmpID := @If( DOCID = "" ; @Text(@DocumentUniqueID) ; DOCID );
+tmpID</formula></code></column></view>
+

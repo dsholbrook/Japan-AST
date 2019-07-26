@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(CoreApp Lookups\User Profiles By EMail)' alias='luCoreAppUserProfilesByEMail'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' showinmenu='false' publicaccess='false'
+ designerversion='8.5.3' unreadmarks='none' onopengoto='top' onrefresh='displayindicator'
+ headers='simple' opencollapsed='true' showresponsehierarchy='false' showmargin='true'
+ shrinkrows='true' extendlastcolumn='false' showhierarchies='false' unreadcolor='black'
+ rowlinecount='9' headerlinecount='1' rowspacing='1' bgcolor='white' altrowcolor='#ebebeb'
+ totalscolor='gray' headerbgcolor='white' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false' initialbuildrestricted='false'
+ noemptycategories='true'>
+<noteinfo noteid='626de' unid='9F48D68A4C1D38B285257D4100629F1A' sequence='4'>
+<created><datetime dst='true'>20140827T135712,58-04</datetime></created>
+<modified><datetime dst='true'>20180930T002335,03-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170817,71-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002335,03-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002335,03-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby>
+<globals><code event='options'><lotusscript>
+
+</lotusscript></code></globals><code event='selection'><formula>SELECT Form = "coreAppUserProfile"</formula></code>
+<actionbar bgcolor='white' bordercolor='black'>
+<actionbuttonstyle bgcolor='white'/><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><border style='solid' width='0px 0px 1px'
+ color='#0083b8'/></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='up_email' width='17.5000'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Internet EMail'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='time' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column hidedetailrows='false' itemname='up_last' width='17.5000' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Last'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><datetimeformat legacy='true'
+ show='time' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column hidedetailrows='false' itemname='up_first' width='17.5000' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='First'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><datetimeformat legacy='true'
+ show='time' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column hidedetailrows='false' itemname='up_notes_address' width='17.5000'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Notes Address'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='time' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column hidedetailrows='false' itemname='up_wi_id' width='17.5000' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Web Identity ID'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><datetimeformat legacy='true'
+ show='time' date='yearmonthday' time='hourminute' zone='never'/></column></view>
+

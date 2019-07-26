@@ -1,0 +1,62 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Admin\Merge Fields by Name)' alias='vAdminMergeFieldsByName'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' showinmenu='false' publicaccess='false'
+ designerversion='8.5.3' unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator'
+ headers='simple' opencollapsed='false' showresponsehierarchy='false' showmargin='true'
+ shrinkrows='true' extendlastcolumn='true' showhierarchies='false' unreadcolor='black'
+ rowlinecount='9' headerlinecount='1' rowspacing='1' bgcolor='white' altrowcolor='#efefef'
+ totalscolor='gray' headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='14892' unid='5C85A98DB18682378525737F006BE0FB' sequence='23'>
+<created><datetime dst='true'>20071025T153819,47-04</datetime></created>
+<modified><datetime dst='true'>20180929T235556,27-05</datetime></modified>
+<revised><datetime>20160310T111709,46-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235556,27-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235556,27-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby><code
+ event='selection'><formula>SELECT Form = "fMergeField"</formula></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<sharedactionref id='67'>
+<action title='Add Merge Field' icon='30' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([Compose]; "fMergeField")</formula></code></action></sharedactionref>
+<sharedactionref id='57'>
+<action title='Expand All' icon='154' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([ViewExpandAll])</formula></code></action></sharedactionref>
+<sharedactionref id='58'>
+<action title='Collapse All' icon='155' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([ViewCollapseAll])</formula></code></action></sharedactionref></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='mf_Name' width='1'
+ resizable='false' separatemultiplevalues='true' sortnoaccent='false' sortnocase='true'
+ showaslinks='false' categorized='true' twisties='true'><font size='9pt' color='#424282'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader></column>
+<column sort='ascending' hidedetailrows='false' itemname='$1' width='4' resizable='false'
+ separatemultiplevalues='true' sortnoaccent='false' sortnocase='true' showaslinks='false'
+ hidden='true'><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Sort'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(mf_LocaleName = ""; 1; 2)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' listseparator='comma' itemname='$2'
+ width='20' resizable='true' separatemultiplevalues='false' sortnoaccent='false'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Locale'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(mf_LocaleName = ""; "All"; mf_LocaleName)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' listseparator='comma' itemname='mf_Desc'
+ width='30' resizable='true' separatemultiplevalues='false' sortnoaccent='false'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Description'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='mf_Formula' width='70' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Formula'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column></view>
+

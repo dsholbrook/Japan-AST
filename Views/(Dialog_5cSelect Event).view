@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Dialog\Select Event)' alias='vDialogSelectEvent' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ showinmenu='false' publicaccess='false' designerversion='8.5.3' unreadmarks='none'
+ onopengoto='top' onrefresh='refreshtop' headers='simple' opencollapsed='true'
+ showresponsehierarchy='false' showmargin='true' shrinkrows='true' extendlastcolumn='false'
+ showhierarchies='false' unreadcolor='black' rowlinecount='9' headerlinecount='1'
+ rowspacing='1' bgcolor='white' altrowcolor='#efefef' totalscolor='gray' headerbgcolor='#c8d7e3'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='148f6' unid='1F1DB27CBB2FBC798525737F006BE160' sequence='29'>
+<created><datetime dst='true'>20071025T153820,48-04</datetime></created>
+<modified><datetime dst='true'>20180929T235556,77-05</datetime></modified>
+<revised><datetime>20160310T111706,08-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235556,77-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235556,77-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby><code
+ event='selection'><formula>SELECT form = "fEventProfile" &amp; (status = "Active" | status = "Inactive")</formula></code><code
+ event='querypaste'><lotusscript>Sub Querypaste(Source As Notesuiview, Continue As Variant)
+	Messagebox "Documents cannot be pasted into this view.", MB_OK + MB_ICONINFORMATION, "IBM Global Registration Portal"
+	Continue = False
+End Sub
+</lotusscript></code>
+<actionbar linestyle='twoline' bgcolor='#c8d7e3' bordercolor='#bfbfff'>
+<actionbuttonstyle bgcolor='#c8d7e3'><imageref name='actionbutton.gif'/></actionbuttonstyle><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><border
+ style='solid' width='0px 0px 1px' color='#3c5e84'/></actionbar>
+<column sort='ascending' resort='both' hidedetailrows='false' itemname='eventname'
+ width='35' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><columnheader title='Event name'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column resort='both' hidedetailrows='false' itemname='loc_confcountry' width='15'
+ resizable='false' separatemultiplevalues='true' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Country'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column sort='ascending' resort='both' hidedetailrows='false' itemname='loc_confcity'
+ width='15' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='City'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column sort='ascending' resort='both' hidedetailrows='false' itemname='$55'
+ width='8.6250' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Start date'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>startmonth + "/" + startday + "/" + startyear</formula></code></column>
+<column sort='ascending' resort='both' hidedetailrows='false' itemname='$53'
+ width='8' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='End date'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>endmonth + "/" + endday + "/" + endyear</formula></code></column></view>
+

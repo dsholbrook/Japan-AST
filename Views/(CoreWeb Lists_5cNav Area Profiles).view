@@ -1,0 +1,39 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(CoreWeb Lists\Nav Area Profiles)' alias='listWebNavProfiles'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' showinmenu='false' publicaccess='false'
+ designerversion='8.5.3' unreadmarks='none' onopengoto='top' onrefresh='displayindicator'
+ headers='simple' opencollapsed='true' showresponsehierarchy='false' showmargin='true'
+ shrinkrows='true' extendlastcolumn='false' showhierarchies='false' unreadcolor='black'
+ rowlinecount='9' headerlinecount='1' rowspacing='1' bgcolor='white' altrowcolor='#f0fbff'
+ totalscolor='gray' headerbgcolor='white' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false' initialbuildrestricted='false'
+ noemptycategories='true'>
+<noteinfo noteid='626a2' unid='248B1ACD9397835185257B4E0046AEA0' sequence='4'>
+<created><datetime dst='true'>20130415T085202,24-04</datetime></created>
+<modified><datetime dst='true'>20180930T002334,49-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170819,19-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002334,49-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002334,49-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby>
+<globals><code event='options'><lotusscript>
+
+</lotusscript></code></globals><code event='selection'><formula>SELECT Form = "frmWebContentNav"</formula></code>
+<actionbar bgcolor='white' bordercolor='black'>
+<actionbuttonstyle bgcolor='white'/><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><border style='solid' width='0px 0px 1px'
+ color='#0083b8'/></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='nav_title' width='36.6250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><columnheader title='Title'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='nav_id' width='17.3750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><columnheader
+ title='Key'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='$55' width='11.8750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Selection List'><font size='9pt' style='bold'/></columnheader><code
+ event='value'><formula>nav_title  + "|" + nav_id</formula></code></column></view>
+

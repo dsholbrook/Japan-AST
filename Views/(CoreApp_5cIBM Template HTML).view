@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(CoreApp\IBM Template HTML)' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' showinmenu='false'
+ publicaccess='false' designerversion='8.5.3' unreadmarks='none' onopengoto='top'
+ onrefresh='refreshtop' headers='simple' opencollapsed='true' showresponsehierarchy='true'
+ showmargin='true' shrinkrows='true' extendlastcolumn='false' showhierarchies='false'
+ unreadcolor='black' rowlinecount='9' headerlinecount='1' rowspacing='1' bgcolor='white'
+ altrowcolor='#efefef' totalscolor='gray' headerbgcolor='#c8d7e3' boldunreadrows='false'
+ evaluateactions='false' allownewdocuments='false' allowcustomizations='false'
+ hidemarginborder='false' marginwidth='0px' marginbgcolor='white' uniquekeys='false'
+ formatnoteid='258CDEE081B133AC85257AA2003D0337'>
+<noteinfo noteid='6268e' unid='648E5E72A7B1395485257B15004646E7' sequence='4'>
+<created><datetime>20130217T074736,71-05</datetime></created>
+<modified><datetime dst='true'>20180930T002334,13-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170818,49-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002334,13-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002334,13-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='selection'><formula>SELECT Form = "frmIBMTemplateHTML"</formula></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/></actionbar>
+<column sort='descending' hidedetailrows='false' itemname='$56' width='18'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Created'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@Created</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$2' width='14.3750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Last Updated'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@Modified</formula></code></column>
+<column sort='descending' hidedetailrows='false' itemname='$59' width='11.6250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Last Updated By'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@Name([CN];@Subset($UpdatedBy; -1))</formula></code></column></view>
+

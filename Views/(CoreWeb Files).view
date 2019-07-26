@@ -1,0 +1,46 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(CoreWeb Files)' alias='vCoreWebFiles' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='mobile'
+ showinmenu='false' publicaccess='false' designerversion='8.5.3' unreadmarks='none'
+ onopengoto='lastopened' onrefresh='displayindicator' headers='simple' opencollapsed='true'
+ showresponsehierarchy='true' showmargin='true' shrinkrows='true' extendlastcolumn='true'
+ showhierarchies='false' unreadcolor='black' rowlinecount='9' headerlinecount='1'
+ rowspacing='1' bgcolor='white' altrowcolor='#efefef' totalscolor='gray' headerbgcolor='white'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='6292e' unid='838DC805A80A2AE685257B57003E22A6' sequence='2'>
+<created><datetime dst='true'>20130424T071841,02-04</datetime></created>
+<modified><datetime dst='true'>20180930T002407,42-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170818,97-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002407,42-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002407,42-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+</lotusscript></code></globals><code event='selection'><formula>SELECT Form = "frmWebFiles"</formula></code>
+<actionbar linestyle='double' bgcolor='white' bordercolor='black'><actionbarstyle
+ height='31px'/>
+<actionbuttonstyle bgcolor='white'/><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><border style='solid' width='0px 0px 1px'
+ color='#0083b8'/>
+<action title='Add Web Files' icon='30' showinmenu='false'><code event='click'><formula
+>@Command([Compose]; "frmWebFiles")</formula></code></action></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='wf_id' width='19'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><columnheader title='ID'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='wf_desc' width='27.6250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Desc'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='col_attachment_count' width='4.2500'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><columnheader title='#'><font size='9pt' style='bold'/></columnheader><code
+ event='value'><formula>@Attachments</formula></code></column>
+<column hidedetailrows='false' itemname='$10' width='16.8750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Filenames'><font size='9pt' style='bold'/></columnheader><code event='value'><formula
+>@AttachmentNames</formula></code></column></view>
+

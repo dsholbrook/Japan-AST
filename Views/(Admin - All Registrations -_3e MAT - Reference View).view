@@ -1,0 +1,202 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Admin - All Registrations -> MAT - Reference View)' alias='Admin\MATFields'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' showinmenu='false' publicaccess='false'
+ designerversion='8.5.3' comment='Reference View for Web Service, do not delete'
+ unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator' headers='simple'
+ opencollapsed='false' showresponsehierarchy='true' showmargin='true' shrinkrows='true'
+ extendlastcolumn='false' showhierarchies='false' unreadcolor='black' rowlinecount='9'
+ headerlinecount='2' rowspacing='1' bgcolor='white' altrowcolor='#efefef'
+ totalscolor='gray' headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='14642' unid='73136B22A687511F85257F14005F15E7' sequence='6'>
+<created><datetime>20151207T121835,27-05</datetime></created>
+<modified><datetime dst='true'>20180929T235553,31-05</datetime></modified>
+<revised><datetime dst='true'>20160322T103141,91-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235553,31-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235553,31-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='selection'><formula>SELECT @UpperCase(Form) = "ENROLLALL"  &amp; ad_formstatus != "Removed"  &amp; ad_formstatus != "Cancelled"  &amp; !@IsAvailable($Conflict)</formula></code><code
+ event='postopen'><formula>@Command([ViewCollapseAll])</formula></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='system'/><border
+ style='solid' width='0px 0px 1px' color='#3c5e84'/>
+<action title='Collapse All' icon='155' showinmenu='false'><code event='click'><formula
+>@Command([ViewCollapseAll])</formula></code></action>
+<action title='Expand All' icon='154' showinmenu='false'><code event='click'><formula
+>@Command([ViewExpandAll])</formula></code></action>
+<action title='Export' icon='102' showinmenu='false' hide='web'><code event='click'><formula
+>VwName:="C:\\"+@ReplaceSubstring(@Subset(@ViewTitle;1);"\\";"-")+".csv";
+ans:=@Prompt([OkCancelEdit]; "Export"; "Please enter the name of the file to create below:"; VwName);
+@Command([FileExport];"Comma Separated Value"; ans)</formula></code></action>
+<action title='Exclude From LDR Followup' icon='11'><code event='click'><formula
+>@Command([ToolsRunMacro]; "followupExclude")</formula></code><code event='label'><formula
+>"Exclude from LDR Follow Up"</formula></code></action>
+<action title='Include in LDR Followup' icon='10'><code event='click'><formula
+>@Command([ToolsRunMacro]; "followupInclude")</formula></code><code event='label'><formula
+>"Include in LDR Follow Up"</formula></code></action>
+<action title='Report Description' icon='56' showinmenu='false'><code event='click'><formula
+>@Prompt([Ok]; "Report Description"; "LDR Follow Up" + @NewLine + "Includes all registrations that are not in 'Cancelled' or 'Removed' status, categorized by whether they have been marked for follow up by an LDR.")</formula></code></action></actionbar>
+<column align='right' totals='total' hidedetailrows='true' itemname='$22'
+ width='5' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><numberformat
+ format='general' varying='true' punctuated='true' parens='false' percent='false'
+ bytes='false' decimalsym='.' thousandssep=',' currencysymtype='custom' currencysym='$'
+ usecustomsym='false'/><code event='value'><formula>1</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$55' width='1' resizable='false'
+ separatemultiplevalues='true' sortnoaccent='false' sortnocase='true' showaslinks='false'
+ categorized='true' twisties='true'><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><columnheader><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(ad_nofuemail="Yes" | ad_nofuphone="Yes"; "No LDR Follow Up"; "LDR Follow Up")</formula></code></column>
+<column sort='ascending' resort='ascending' hidedetailrows='false' itemname='$21'
+ width='16.5000' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Last Name'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@Trim(en_last)</formula></code></column>
+<column hidedetailrows='false' itemname='$23' width='16.5000' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='First Name'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@Trim(en_first)</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$4' width='20'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Registration Type'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>enrollType + " - " + en_attendeeType</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$14' width='8.8750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Reg ID'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@UpperCase(regid)</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$9' width='9.8750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Promo Code'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(en_promoCode = ""; "None"; en_promoCode)</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$56' width='13'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='LDR Follow Up?'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(ad_nofuemail="Yes" | ad_nofuphone="Yes"; "No"; "Yes")</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$57' width='12.3750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='LDR Follow Up Set Manually?'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(ad_LDRFollowupOverrideDate != ""; "Yes"; "")</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='pe_sent' width='12.3750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='WS has sent to canister 90?'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='pe_sentdt' width='17'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='When WS sent to canister 90'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='pe_comments' width='60'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='WS comments'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='ad_updatecrm'
+ width='13' resizable='true' separatemultiplevalues='false' sortnoaccent='false'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Flag to pickup from canister 89?'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='$31' width='10.6250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Status'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(Attended = "Yes"; "Attended"; ad_formStatus)</formula></code></column>
+<column hidedetailrows='false' itemname='ad_canceldate' width='8.7500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Cancellation Date'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='en_email' width='20'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='E-mail address'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='en_companyName' width='20' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Company'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='en_city' width='17' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='City'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='$7' width='11.3750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='State/Province'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@If(en_state != "" &amp; en_state != "Select one" &amp; en_state != "-1"; en_state; en_province != "" &amp; en_province != "Select one" &amp; en_province != "-1"; en_province; "")</formula></code></column>
+<column hidedetailrows='false' itemname='en_country' width='17' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Country'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='en_zip' width='12.6250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Postal/Zip Code'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='en_iot' width='16.1250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='IOT'><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='en_region' width='17.3750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='IMT'><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' listseparator='semicolon'
+ itemname='$18' width='14.1250' resizable='true' separatemultiplevalues='false'
+ sortnoaccent='false' sortnocase='true' showaslinks='false'><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Date Registered'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@Date(@Created)</formula></code></column>
+<column hidedetailrows='false' itemname='$13' width='7.3750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Contact by Email?'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@If(NC_CHECK_EMAIL != "Yes";  "No";NC_CHECK_EMAIL)</formula></code></column>
+<column hidedetailrows='false' itemname='$15' width='7.3750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Contact by Phone?'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@If(NC_CHECK_PHONE != "Yes"; "No"; NC_CHECK_PHONE)</formula></code></column>
+<column hidedetailrows='false' itemname='$16' width='7.3750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Contact by Postal?'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@If(NC_CHECK_POSTAL !="Yes";  "No"; NC_CHECK_POSTAL)</formula></code></column>
+<column hidedetailrows='false' itemname='$58' width='10' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+><font size='9pt' style='bold'/></columnheader><code event='value'><formula
+>@DocNumber</formula></code></column>
+<item name='TmpViewDesignCollation'><text>ja@UCA</text></item></view>
+

@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(CoreWeb Lookups\Web Files)' alias='webfiles' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' showinmenu='false'
+ publicaccess='false' designerversion='8.5.3' unreadmarks='none' onopengoto='lastopened'
+ onrefresh='displayindicator' headers='beveled' opencollapsed='false' showresponsehierarchy='true'
+ showmargin='true' shrinkrows='false' extendlastcolumn='false' showhierarchies='false'
+ unreadcolor='black' rowlinecount='1' headerlinecount='1' rowspacing='1' bgcolor='white'
+ totalscolor='black' headerbgcolor='white' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='626e2' unid='665AAAC332CFA10185257B57003DA4FD' sequence='4'>
+<created><datetime dst='true'>20130424T071319,33-04</datetime></created>
+<modified><datetime dst='true'>20180930T002335,05-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170820,27-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002335,05-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002335,05-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='selection'><formula>SELECT Form = "frmWebFiles"</formula></code>
+<actionbar bgcolor='#f0f0f0' bordercolor='black'>
+<actionbuttonstyle bgcolor='#f0f0f0'/><font size='9pt' color='system'/><border
+ style='solid' width='0px 0px 1px'/>
+<action title='Add Web File' icon='30'><code event='click'><formula>@Command([Compose]; "frmWebFiles")</formula></code></action></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='wf_id' width='21'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><columnheader title='ID'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='col_full_urls' width='40.2500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Full URLs'><font size='9pt' style='bold'/></columnheader><code event='value'><formula
+>"/" + @ReplaceSubstring(@Subset(@DbName; -1); "\\":" "; "/":"+")  + wf_urls</formula></code></column>
+<column hidedetailrows='false' itemname='col_filenames' width='17.8750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Filenames'><font size='9pt' style='bold'/></columnheader><code event='value'><formula
+>"" + wf_files</formula></code></column>
+<column hidedetailrows='false' itemname='col_attachment_count' width='6' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Count'><font size='9pt' style='bold'/></columnheader><code event='value'><formula
+>@Attachments</formula></code></column></view>
+

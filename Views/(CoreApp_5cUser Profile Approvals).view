@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(CoreApp\User Profile Approvals)' alias='vCoreAppUserProfileApprovals'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' showinmenu='false' publicaccess='false'
+ designerversion='8.5.3' unreadmarks='none' onopengoto='top' onrefresh='displayindicator'
+ headers='simple' opencollapsed='true' showresponsehierarchy='false' showmargin='true'
+ shrinkrows='true' extendlastcolumn='false' showhierarchies='false' unreadcolor='black'
+ rowlinecount='9' headerlinecount='1' rowspacing='1' bgcolor='white' altrowcolor='#ebebeb'
+ totalscolor='gray' headerbgcolor='white' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false' initialbuildrestricted='false'
+ noemptycategories='true'>
+<noteinfo noteid='62946' unid='063E1EA1A8054CE185257D42003B8E90' sequence='2'>
+<created><datetime dst='true'>20140828T065031,20-04</datetime></created>
+<modified><datetime dst='true'>20180930T002407,55-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170818,69-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002407,55-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002407,55-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby>
+<globals><code event='options'><lotusscript>
+
+</lotusscript></code></globals><code event='selection'><formula>SELECT Form = "coreAppUserProfileApproval"</formula></code>
+<actionbar bgcolor='white' bordercolor='black'>
+<actionbuttonstyle bgcolor='white'/><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><border style='solid' width='0px 0px 1px'
+ color='#0083b8'/>
+<action title='New Pre Approval'><code event='click'><formula>@Command([Compose]; "coreAppUserProfileApproval")</formula></code></action></actionbar>
+<column sort='ascending' resort='ascending' hidedetailrows='false' itemname='up_first'
+ width='17.5000' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Last'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='time' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column sort='ascending' resort='ascending' hidedetailrows='false' itemname='up_first'
+ width='17.5000' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='First'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='time' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column resort='ascending' hidedetailrows='false' itemname='up_email' width='17.5000'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Internet EMail'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='time' date='yearmonthday' time='hourminute' zone='never'/></column>
+<column resort='ascending' hidedetailrows='false' itemname='up_notes_address'
+ width='17.5000' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Notes Address'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='time' date='yearmonthday' time='hourminute' zone='never'/></column></view>
+

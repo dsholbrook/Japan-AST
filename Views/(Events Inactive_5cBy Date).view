@@ -1,0 +1,168 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Events Inactive\By Date)' alias='vEventsInactiveByDate' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ showinmenu='false' publicaccess='false' designerversion='8.5.3' unreadmarks='none'
+ onopengoto='lastopened' onrefresh='displayindicator' headers='simple' opencollapsed='true'
+ showresponsehierarchy='false' showmargin='true' shrinkrows='false' extendlastcolumn='true'
+ showhierarchies='false' unreadcolor='black' rowlinecount='1' headerlinecount='1'
+ rowspacing='1' bgcolor='white' altrowcolor='#efefef' totalscolor='gray' headerbgcolor='#c8d7e3'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='14a0e' unid='FCA0D5F97AEDDFEE8525748700652124' sequence='28'>
+<created><datetime dst='true'>20080715T142436,20-04</datetime></created>
+<modified><datetime dst='true'>20180929T235558,17-05</datetime></modified>
+<revised><datetime>20161126T223408,70-06</datetime></revised>
+<lastaccessed><datetime>20190214T123307,62-06</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235558,17-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='selection'><formula>SELECT (form = "agendacontent" | form = "fEventProfile" | form = "speakerscontent"| form = "sponsorscontent"| form = "fRegistrationProfile") &amp; status = "Inactive"</formula></code><code
+ event='querypaste'><lotusscript>Sub Querypaste(Source As Notesuiview, Continue As Variant)
+	Messagebox "Documents cannot be pasted into this view.", MB_OK + MB_ICONINFORMATION, "IBM Global Registration Portal"
+	Continue = False
+End Sub
+</lotusscript></code>
+<actionbar linestyle='twoline' bgcolor='#c8d7e3' bordercolor='#bfbfff'><actionbarstyle
+ height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<action title='Expand All' icon='154' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([ViewExpandAll])</formula></code></action>
+<action title='Collapse All' icon='155' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([ViewCollapseAll])</formula></code></action>
+<action title='Quick View\Preview Page' icon='41' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@If(!@IsAvailable(Form); @Do(@Prompt([Ok]; @GetProfileField("fProfile"; "dp_SystemName"); "Please click on the web page you want to open."); @Return("")); "");
+
+@If(Form = "fEventProfile"; @Do(@Prompt([Ok]; @GetProfileField("fProfile"; "dp_SystemName"); "To view web pages for this event, please click on the Registration profile, Agenda, Speakers or Sponsors page that you want to open."); @Return("")); "");
+
+tmpURLFieldName := @If(Form = "agendacontent"; "dp_PreviewAgendaURL"; Form = "speakerscontent"; "dp_PreviewSpeakersURL"; Form = "sponsorscontent"; "dp_PreviewSponsorsURL"; Form = "fRegistrationProfile"; "dp_PreviewRegURL"; "");
+
+@If(tmpURLFieldName = ""; @Do(@Prompt([Ok]; @GetProfileField("fProfile"; "dp_SystemName"); "Error: An unexpected document type was selected."); @Return("")); "");
+
+tmpURLPrefix := @GetProfileField("fProfile"; tmpURLFieldName);
+
+tmpURL :=  tmpURLPrefix + ep_id + "&amp;locale=" + locale + "&amp;mode=preview";
+
+@URLOpen(tmpURL)</formula></code><code event='hidewhen'><formula>tmpInRequiredRole := (@IsMember("[Admin]"; @UserRoles) | @IsMember("[CanisterAdmin]"; @UserRoles) | @IsMember("[Developer]"; @UserRoles) | @IsMember("[EventAdmin]"; @UserRoles) | @IsMember("[QAAdmin]"; @UserRoles));
+!(tmpInRequiredRole)</formula></code></action>
+<action title='Quick View\Live Page' icon='41' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@If(!@IsAvailable(Form); @Do(@Prompt([Ok]; @GetProfileField("fProfile"; "dp_SystemName"); "Please click on the web page you want to open."); @Return("")); "");
+
+@If(status != "Active" &amp; status != "Inactive"; @Do(@Prompt([Ok]; @GetProfileField("fProfile"; "dp_SystemName"); "The event that uses this web page has not yet been QA reviewed, so the live version of the web page is not yet available."); @Return("")); "");
+
+@If(Form = "fEventProfile"; @Do(@Prompt([Ok]; @GetProfileField("fProfile"; "dp_SystemName"); "To view web pages for this event, please click on the Registration profile, Agenda, Speakers or Sponsors page that you want to open."); @Return("")); "");
+
+tmpURLFieldName := @If(Form = "agendacontent"; "dp_PreviewAgendaURL"; Form = "speakerscontent"; "dp_PreviewSpeakersURL"; Form = "sponsorscontent"; "dp_PreviewSponsorsURL"; Form = "fRegistrationProfile"; "dp_PreviewRegURL"; "");
+
+@If(tmpURLFieldName = ""; @Do(@Prompt([Ok]; @GetProfileField("fProfile"; "dp_SystemName"); "Error: An unexpected document type was selected."); @Return("")); "");
+
+tmpRegType := @If(Form = "fRegistrationProfile"; @GetDocField(ep_UNID; "kw_login_type"); "");
+
+tmpURLPrefix := @If(tmpRegType = "WILogin"; @GetProfileField("fProfile"; tmpURLFieldName + "_WI"); @GetProfileField("fProfile"; tmpURLFieldName));
+
+tmpURL :=  tmpURLPrefix + ep_id + "&amp;locale=" + locale;
+
+@URLOpen(tmpURL)</formula></code><code event='hidewhen'><formula>tmpInRequiredRole := (@IsMember("[Admin]"; @UserRoles) | @IsMember("[CanisterAdmin]"; @UserRoles) | @IsMember("[Developer]"; @UserRoles) | @IsMember("[EventAdmin]"; @UserRoles) | @IsMember("[QAAdmin]"; @UserRoles));
+!(tmpInRequiredRole)</formula></code></action>
+<action title='Quick View\v16 Page' icon='41' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@If(!@IsAvailable(Form); @Do(@Prompt([Ok]; @GetProfileField("fProfile"; "dp_SystemName"); "Please click on the web page you want to open."); @Return("")); "");
+
+@If(Form = "fEventProfile"; @Do(@Prompt([Ok]; @GetProfileField("fProfile"; "dp_SystemName"); "To view web pages for this event, please click on the Registration profile, Agenda, Speakers or Sponsors page that you want to open."); @Return("")); "");
+
+tmpURLFieldName := @If(Form = "agendacontent"; "dp_PreviewAgendaURL"; Form = "speakerscontent"; "dp_PreviewSpeakersURL"; Form = "sponsorscontent"; "dp_PreviewSponsorsURL"; Form = "fRegistrationProfile"; "dp_PreviewRegURL"; "");
+
+@If(tmpURLFieldName = ""; @Do(@Prompt([Ok]; @GetProfileField("fProfile"; "dp_SystemName"); "Error: An unexpected document type was selected."); @Return("")); "");
+
+tmpRegType := @If(Form = "fRegistrationProfile"; @GetDocField(ep_UNID; "kw_login_type"); "");
+
+tmpURLPrefix := @If(tmpRegType = "WILogin"; @GetProfileField("fProfile"; tmpURLFieldName + "_WI"); @GetProfileField("fProfile"; tmpURLFieldName));
+
+REM {Fixup form names for v16};
+tmpv16URLPrefix := @ReplaceSubstring(tmpURLPrefix; "agenda":"enrollall":"wienrollall":"speakers":"sponsors"; "v16_agenda":"v16_enrollall":"v16_wienrollall":"v16_speakers":"v16_sponsors");
+
+tmpURL :=  tmpv16URLPrefix + ep_id + "&amp;locale=" + locale;
+
+@URLOpen(tmpURL)</formula></code><code event='hidewhen'><formula>tmpInRequiredRole := (@IsMember("[Admin]"; @UserRoles) | @IsMember("[Developer]"; @UserRoles));
+!(tmpInRequiredRole)</formula></code></action>
+<action title='Delete Event' icon='4' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([ToolsRunMacro]; "DeleteEvent")</formula></code><code
+ event='hidewhen'><formula>REM {Only show this button if you are in the correct role.};
+!(@IsMember("[Admin]";@UserRoles) | @IsMember("[Developer]";@UserRoles))</formula></code></action>
+<action title='Reactivate Event' icon='125' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([ToolsRunMacro]; "ReactivateEvent")</formula></code><code
+ event='hidewhen'><formula>REM {Only show this button if you are in the correct role.};
+!(@IsMember("[Admin]";@UserRoles) | @IsMember("[Developer]";@UserRoles))</formula></code></action></actionbar>
+<column totals='total' hidedetailrows='true' itemname='$22' width='4.6250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='#'><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@If(form = "fEventProfile"; 1; 0)</formula></code></column>
+<column sort='descending' hidedetailrows='false' itemname='$1' width='1' resizable='false'
+ separatemultiplevalues='true' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ categorized='true' twisties='true'><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><columnheader><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@TextToNumber(startyear)</formula></code></column>
+<column sort='descending' hidedetailrows='false' itemname='$62' width='1'
+ resizable='false' separatemultiplevalues='true' sortnoaccent='true' sortnocase='true'
+ showaslinks='false' categorized='true' twisties='true'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader><code event='value'><formula>@Date(@TextToNumber(startyear); @TextToNumber(startmonth); @TextToNumber(startday))</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$56' width='1' resizable='false'
+ separatemultiplevalues='true' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ categorized='true' twisties='true'><font size='9pt' color='#424282' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader><code event='value'><formula>@If(form = "agendacontent" | form = "speakerscontent"|form = "sponsorscontent"|form="fRegistrationProfile";country;loc_confcountry)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$57' width='1' resizable='false'
+ separatemultiplevalues='true' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ categorized='true' twisties='true'><font size='9pt' color='gray' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader><code event='value'><formula>@If(form != "fEventProfile" ; city; loc_confcity)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$64' width='1' resizable='false'
+ separatemultiplevalues='true' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ categorized='true' twisties='true'><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><columnheader><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(Form = "fEventProfile"; eventname; ep_EventTitle)</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='$60' width='1' resizable='false'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ hidden='true'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@If(form = "fRegistrationProfile";2;form = "agendacontent";3; form = "speakerscontent";4; form = "sponsorscontent";5;1)</formula></code></column>
+<column hidedetailrows='false' itemname='DocIcon' width='1.7500' resizable='false'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'
+ showasicons='true'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column sort='ascending' hidedetailrows='false' itemname='DocTitle' width='32'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Document'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='$55' width='9.6250' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Start date'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@Date(@TextToNumber(startyear); @TextToNumber(startmonth); @TextToNumber(startday))</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='ep_id' width='10.5000'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Reference ID'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='$66' width='20.5000'
+ resizable='false' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Author'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@Name([CN]; RCreated)</formula></code></column>
+<item name='TmpViewDesignCollation'><text>ja@UCA</text></item></view>
+

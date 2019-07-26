@@ -1,0 +1,159 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Admin\MAT All Attendees For WS By Status - Reference View)' alias='Admin\Export2MATBySent'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web' showinmenu='false' publicaccess='false'
+ designerversion='8.5.3' comment='Reference View for Web Service, do not delete'
+ unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator' headers='simple'
+ opencollapsed='false' showresponsehierarchy='true' showmargin='true' shrinkrows='true'
+ extendlastcolumn='false' showhierarchies='false' unreadcolor='black' rowlinecount='3'
+ headerlinecount='2' rowspacing='1' bgcolor='white' altrowcolor='#efefef'
+ totalscolor='gray' headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='1443e' unid='BA5029FF31C535C985257F14005F351C' sequence='7'>
+<created><datetime>20151207T121955,16-05</datetime></created>
+<modified><datetime dst='true'>20180929T235550,71-05</datetime></modified>
+<revised><datetime dst='true'>20160322T102446,62-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235550,71-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235550,71-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='selection'><formula>SELECT Form = "enrollall" &amp; ad_formstatus != "Removed" &amp; ad_formstatus != "Did Not Accept" &amp; !@IsAvailable($Conflict) &amp; en_email != ".com" &amp; en_last != ""</formula></code><code
+ event='postopen'><formula>@Command([ViewCollapseAll])</formula></code>
+<actionbar linestyle='twoline' bgcolor='#c8d7e3' bordercolor='#bfbfff'><actionbarstyle
+ height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='gray'/>
+<action title='Expand All' icon='154' showinmenu='false'><code event='click'><formula
+>@Command([ViewExpandAll])</formula></code></action>
+<action title='Reset Sent Status' icon='115'><code event='click'><formula
+>@Command([ToolsRunMacro];"ResetSentStatus")</formula></code></action>
+<action title='Report Description' icon='56' showinmenu='false'><code event='click'><formula
+>@Prompt([Ok]; "Report Description"; "Sent to Canister 89?" + @NewLine + "Includes all registrations that are not in 'Removed' status, categorized by whether they have been sent to canister 89.")</formula></code></action></actionbar>
+<column align='right' sort='ascending' totals='total' hidedetailrows='true'
+ itemname='$100' width='4.7500' resizable='true' separatemultiplevalues='true'
+ sortnoaccent='false' sortnocase='true' showaslinks='false'><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></columnheader><numberformat format='general' varying='true'
+ punctuated='true' parens='false' percent='false' bytes='false' decimalsym='.'
+ thousandssep=',' currencysymtype='custom' currencysym='$' usecustomsym='false'/><code
+ event='value'><formula>1</formula></code></column>
+<column sort='descending' hidedetailrows='false' itemname='$149' width='10'
+ resizable='true' separatemultiplevalues='true' sortnoaccent='false' sortnocase='true'
+ showaslinks='false' categorized='true' twisties='true'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Sent to Canister 90?'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@If(pe_sent="Yes"; "Sent"; pe_sent="" &amp; pe_comments = "";"Not Yet Sent"; "Check and FIX these")</formula></code></column>
+<column sort='ascending' hidedetailrows='false' itemname='ad_formstatus' width='10'
+ resizable='true' separatemultiplevalues='true' sortnoaccent='false' sortnocase='true'
+ showaslinks='false' categorized='true' twisties='true'><font size='9pt' color='navy'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Registration Status'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='$56' width='13'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='LDR Follow Up?'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(ad_nofuemail="Yes" | ad_nofuphone="Yes"; "No"; "Yes")</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$57' width='12.3750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='LDR Follow Up Set Manually?'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(ad_LDRFollowupOverrideDate != ""; "Yes"; "")</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='pe_sent' width='12.3750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='WS has sent to canister 90?'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='preatttype_dlg'
+ width='17' resizable='true' separatemultiplevalues='false' sortnoaccent='false'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='When WS sent to canister 90'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='pe_comments' width='60'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='WS comments'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='AltFrom' width='13'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Flag to pickup from canister 89?'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column sort='ascending' hidedetailrows='false' itemname='$102' width='10.6250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Status'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(
+Attended = "Yes"; "Attended"; ad_formstatus = "Cancelled" ; "Cancelled";
+"Confirmed"
+)</formula></code></column>
+<column sort='ascending' resort='ascending' hidedetailrows='false' itemname='$103'
+ width='13' resizable='true' separatemultiplevalues='true' sortnoaccent='false'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Attendee Type'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(
+enrollType = "BP"; "Business Partner";
+enrollType = "Client"; "Customer/Delegate";
+enrollType = "IBM" &amp; @Contains(en_empPosition;"Executive"); "IBM Executive";
+enrollType = "IBM" &amp; !@Contains(en_empPosition;"Executive"); "IBM Employee";
+enrollType = "Press" | enrollType = "Analyst"; "Press Analyst";
+enrollType = "Vendor"; "Vendor Staff";
+enrollType = "Prospect"; "Customer/Delegate";
+enrollType
+)</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$104' width='10'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Salutation'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(en_prefix = "Dr." ; "Mr."; en_prefix)</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$105' width='12'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='First Name'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@Trim(@Left(en_first;100))</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$106' width='11.7500'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Last Name'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@Trim(@Left(en_last;100))</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$151' width='22.8750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='E-mail Address'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>tmpValue := @Trim(@Left(en_email;100));
+tmpValue :=
+@If(
+@Right(tmpValue; 1) = "."; @LeftBack(tmpValue; ".");
+@Right(tmpValue; 1) = ","; @LeftBack(tmpValue; ",");
+@Contains(tmpValue; ","); @Left(tmpValue; ",") + @RightBack(tmpValue; ",");
+tmpValue
+);
+tmpValue</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$108' width='9'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Reg ID'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@UpperCase(Regid)</formula></code></column>
+<column resort='ascending' hidedetailrows='false' listseparator='semicolon'
+ itemname='$18' width='14.1250' resizable='true' separatemultiplevalues='false'
+ sortnoaccent='false' sortnocase='true' showaslinks='false'><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Date Registered'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@Date(@Created)</formula></code></column>
+<item name='TmpViewDesignCollation'><text>ja@UCA</text></item></view>
+

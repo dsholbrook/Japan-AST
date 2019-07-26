@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(BlueID\Event User Profiles)' alias='luBlueIDUserProfiles' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='mobile'
+ showinmenu='false' publicaccess='false' designerversion='8.5.3' unreadmarks='none'
+ onopengoto='lastopened' onrefresh='displayindicator' headers='simple' opencollapsed='true'
+ showresponsehierarchy='true' showmargin='true' shrinkrows='true' extendlastcolumn='true'
+ showhierarchies='false' unreadcolor='black' rowlinecount='9' headerlinecount='1'
+ rowspacing='1' bgcolor='white' altrowcolor='#efefef' totalscolor='gray' headerbgcolor='#c8d7e3'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='62a1e' unid='3BED8DDDA7E7BAF58625817A006C0273' sequence='2'>
+<created><datetime dst='true'>20170812T143945,15-05</datetime></created>
+<modified><datetime dst='true'>20180930T002410,14-05</datetime></modified>
+<revised><datetime dst='true'>20170813T161737,22-05</datetime></revised>
+<lastaccessed><datetime>20181231T112154,88-06</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002410,14-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+</lotusscript></code></globals><code event='selection'><formula>SELECT Form = "frmIDUserProfile"</formula></code>
+<actionbar linestyle='double' bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle
+ height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5f84'/></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='profile_key' width='34'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><columnheader title='Lookup Key'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='en_email' width='19' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='E-Mail'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='en_first' width='14.2500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='First name'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='en_last' width='14.2500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Last name'><font size='9pt' style='bold'/></columnheader></column>
+<item name='TmpViewDesignCollation'><text>ja@UCA</text></item></view>
+

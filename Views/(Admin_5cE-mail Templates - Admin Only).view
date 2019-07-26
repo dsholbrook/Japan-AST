@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Admin\E-mail Templates - Admin Only)' alias='vAdminEmailTemplates_AdminOnly'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' showinmenu='false' publicaccess='false'
+ designerversion='8.5.3' unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator'
+ headers='simple' opencollapsed='true' showresponsehierarchy='false' showmargin='true'
+ shrinkrows='true' extendlastcolumn='false' showhierarchies='false' unreadcolor='black'
+ rowlinecount='9' headerlinecount='1' rowspacing='1' bgcolor='white' altrowcolor='#efefef'
+ totalscolor='gray' headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='14b2a' unid='08B7F503D178FED78525737F006BE0FC' sequence='47'>
+<created><datetime dst='true'>20071025T153819,48-04</datetime></created>
+<modified><datetime dst='true'>20180929T235559,59-05</datetime></modified>
+<revised><datetime>20160310T111704,76-06</datetime></revised>
+<lastaccessed><datetime>20190105T190340,22-06</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235559,59-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+
+</lotusscript></code></globals><code event='selection'><formula>SELECT Form = "frmMergeTemplate" &amp; mt_IsAdmin = "Yes"</formula></code><code
+ event='postopen'><formula>@Command([ViewCollapseAll])</formula></code><code
+ event='querypaste'><lotusscript>Sub Querypaste(Source As Notesuiview, Continue As Variant)
+	continue = False
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='#bfbfff'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<sharedactionref id='65'>
+<action title='Add E-mail Template' icon='30' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([Compose]; "frmMergeTemplate")</formula></code></action></sharedactionref>
+<sharedactionref id='66'>
+<action title='Copy E-mail Template' icon='107' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([ToolsRunMacro];"CopyEmailTemplate")</formula></code></action></sharedactionref>
+<sharedactionref id='83'>
+<action title='Delete E-mail Template' icon='4' showinmenu='false' hide='web mobile'><code
+ event='click'><lotusscript>Sub Click(Source As Button)
+	
+	Call DeleteDocument(STR_DOCTYPE_EMAIL_TEMPLATE)
+	
+End Sub
+</lotusscript></code><code event='hidewhen'><formula>REM {Only show this button if you are in the correct role.};
+!(@IsMember("[Admin]";@UserRoles) | @IsMember("[Developer]";@UserRoles))</formula></code></action></sharedactionref></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='mt_AdminTask' width='10'
+ resizable='false' separatemultiplevalues='true' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' color='navy' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><columnheader title='Admin task'><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='mt_LocaleName' width='20' resizable='false'
+ separatemultiplevalues='false' sortnoaccent='true' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Language'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column sort='ascending' hidedetailrows='false' itemname='mt_Desc' width='31'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Description'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' listseparator='comma' itemname='mt_from' width='15.5000'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='From e-mail address'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='mt_Subject' width='50' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Subject'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<item name='TmpViewDesignCollation'><text>ja@UCA</text></item></view>
+

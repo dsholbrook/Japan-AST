@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Dialog\Select Sponsor Logo)' alias='vDialogSelectSponsorLogo'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' showinmenu='false' publicaccess='false'
+ designerversion='8.5.3' unreadmarks='none' onopengoto='lastopened' onrefresh='displayindicator'
+ headers='simple' opencollapsed='false' showresponsehierarchy='true' showmargin='true'
+ shrinkrows='true' extendlastcolumn='false' showhierarchies='false' unreadcolor='black'
+ rowlinecount='9' headerlinecount='1' rowspacing='1' bgcolor='white' altrowcolor='#efefef'
+ totalscolor='gray' headerbgcolor='#c8d7e3' boldunreadrows='false' evaluateactions='false'
+ allownewdocuments='false' allowcustomizations='true' hidemarginborder='false'
+ marginwidth='0px' marginbgcolor='white' uniquekeys='false'>
+<noteinfo noteid='14326' unid='878A01E16A4DB82A8525737F006BE104' sequence='19'>
+<created><datetime dst='true'>20071025T153819,56-04</datetime></created>
+<modified><datetime dst='true'>20180929T235549,29-05</datetime></modified>
+<revised><datetime>20160310T111710,68-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235549,29-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235549,29-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby><code
+ event='selection'><formula>SELECT Form = "Element" &amp; el_type = "Graphic"</formula></code><code
+ event='querypaste'><lotusscript>Sub Querypaste(Source As Notesuiview, Continue As Variant)
+	Messagebox "Documents cannot be pasted into this view.", MB_OK + MB_ICONINFORMATION, "IBM Global Registration Portal"
+	Continue = False
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#e0e0ff' bordercolor='#bfbfff'>
+<actionbuttonstyle bgcolor='#bfbfff'/><font size='9pt'/><border width='0px 0px 1px'/></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='el_description'
+ width='40' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Description'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' itemname='$4' width='30' resizable='true' separatemultiplevalues='false'
+ sortnoaccent='false' sortnocase='true' showaslinks='false'><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='File name'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@AttachmentNames</formula></code></column>
+<column hidedetailrows='false' itemname='$6' width='30' resizable='true' separatemultiplevalues='false'
+ sortnoaccent='false' sortnocase='true' showaslinks='false' hidden='true'><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='UNID'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader><code event='value'><formula
+>@Text(@DocumentUniqueID)</formula></code></column></view>
+

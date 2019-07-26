@@ -1,0 +1,40 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(CoreWeb Lookups\Content Nav)' alias='luContentNav' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='mobile'
+ showinmenu='false' publicaccess='false' designerversion='8.5.3' unreadmarks='none'
+ onopengoto='lastopened' onrefresh='displayindicator' headers='simple' opencollapsed='true'
+ showresponsehierarchy='true' showmargin='true' shrinkrows='true' extendlastcolumn='true'
+ showhierarchies='false' unreadcolor='black' rowlinecount='9' headerlinecount='1'
+ rowspacing='1' bgcolor='white' altrowcolor='#efefef' totalscolor='gray' headerbgcolor='#c8d7e3'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='62692' unid='5C6844DA86C496B085257B0A00657788' sequence='4'>
+<created><datetime>20130206T132817,36-05</datetime></created>
+<modified><datetime dst='true'>20180930T002334,15-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170819,57-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002334,15-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002334,15-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+</lotusscript></code></globals><code event='selection'><formula>SELECT Form = "frmWebContentNav"</formula></code>
+<actionbar linestyle='double' bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle
+ height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5f84'/></actionbar>
+<column sort='ascending' resort='ascending' hidedetailrows='false' itemname='nav_id'
+ width='12.2500' resizable='true' separatemultiplevalues='false' sortnoaccent='false'
+ sortnocase='true' showaslinks='false'><columnheader title='Nav ID'><font
+ size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='nav_title' width='24.3750' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Navigation'><font size='9pt' style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='nav_page_title' width='32' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Page title'><font size='9pt' style='bold'/></columnheader></column></view>
+

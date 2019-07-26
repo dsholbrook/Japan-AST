@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Admin\Video)' alias='vAdminVideo' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ showinmenu='false' publicaccess='false' designerversion='8.5.3' unreadmarks='none'
+ onopengoto='lastopened' onrefresh='displayindicator' headers='simple' opencollapsed='false'
+ showresponsehierarchy='true' showmargin='true' shrinkrows='false' extendlastcolumn='false'
+ showhierarchies='false' unreadcolor='black' rowlinecount='1' headerlinecount='1'
+ rowspacing='1' bgcolor='white' altrowcolor='#efefef' totalscolor='gray' headerbgcolor='#c8d7e3'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='14ad6' unid='A512EEF49A5D5CAE852575DA00734ACC' sequence='14'>
+<created><datetime dst='true'>20090619T165917,88-04</datetime></created>
+<modified><datetime dst='true'>20180929T235559,17-05</datetime></modified>
+<revised><datetime>20160310T111711,81-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235559,17-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235559,17-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby><code
+ event='selection'><formula>SELECT Form = "Element" &amp; el_type = "Video"</formula></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='#3c5e84'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<action title='Add Video' icon='154' showinmenu='false' hide='web mobile'><code
+ event='click'><lotusscript>Sub Click(Source As Button)
+	
+	Dim ws As New NotesUIWorkspace
+	Dim uidoc As NotesUIDocument
+	Dim doc As NotesDocument
+	
+	Set uidoc = ws.ComposeDocument ("", "", "element")
+	Set doc = uidoc.Document	
+	
+	doc.el_showtype = "No"	
+	doc.el_type = "Video"
+	
+	Call uidoc.Reload
+	Call uidoc.Refresh
+	
+End Sub
+</lotusscript></code></action></actionbar>
+<column sort='ascending' resort='ascending' hidedetailrows='false' itemname='el_description'
+ width='35.8750' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Description'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' itemname='$4' width='23.3750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='File name'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@AttachmentNames</formula></code></column>
+<column hidedetailrows='false' itemname='el_key' width='13.2500' resizable='true'
+ separatemultiplevalues='false' sortnoaccent='false' sortnocase='true' showaslinks='false'><columnheader
+ title='Key'><font size='9pt' style='bold'/></columnheader></column>
+<column resort='ascending' hidedetailrows='false' listseparator='comma' itemname='$3'
+ width='15.1250' resizable='true' separatemultiplevalues='false' sortnoaccent='false'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Last updated'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><numberformat
+ format='general' punctuated='false' parens='false' percent='false' bytes='false'/><code
+ event='value'><formula>@Modified</formula></code></column>
+<column resort='ascending' hidedetailrows='false' itemname='$9' width='30'
+ resizable='true' separatemultiplevalues='true' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Last updated by'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><datetimeformat
+ legacy='true' show='datetime' date='yearmonthday' time='hourminute' zone='never'/><code
+ event='value'><formula>@Subset(@Name([Abbreviate]; $UpdatedBy); -1)</formula></code></column></view>
+

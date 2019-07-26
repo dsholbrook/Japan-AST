@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(Dialog\Select Speaker Bio)' alias='vDialogSelectSpeakerBio' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ showinmenu='false' publicaccess='false' designerversion='8.5.3' unreadmarks='none'
+ onopengoto='top' onrefresh='displayindicator' headers='simple' opencollapsed='true'
+ showresponsehierarchy='false' showmargin='true' shrinkrows='true' extendlastcolumn='false'
+ showhierarchies='false' unreadcolor='black' rowlinecount='9' headerlinecount='1'
+ rowspacing='1' bgcolor='white' altrowcolor='#efefef' totalscolor='gray' headerbgcolor='#c8d7e3'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false'>
+<noteinfo noteid='149ea' unid='7791CEAD58F082A48525737F006B90BB' sequence='21'>
+<created><datetime dst='true'>20071025T153454,03-04</datetime></created>
+<modified><datetime dst='true'>20180929T235557,99-05</datetime></modified>
+<revised><datetime>20160310T111710,12-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235557,99-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235557,99-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby><code
+ event='selection'><formula>SELECT Form = "bio"</formula></code><code event='querypaste'><lotusscript
+>Sub Querypaste(Source As Notesuiview, Continue As Variant)
+	Messagebox "Documents cannot be pasted into this view.", MB_OK + MB_ICONINFORMATION, "IBM Global Registration Portal"
+	Continue = False
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='#bfbfff'>
+<actionbuttonstyle bgcolor='#c8d7e3'/><font size='9pt'/><border width='0px 0px 1px'/></actionbar>
+<column hidedetailrows='false' listseparator='comma' itemname='$2' width='1.6250'
+ resizable='false' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false' showasicons='true'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader><code
+ event='value'><formula>@If(@Attachments;5;"")</formula></code></column>
+<column sort='ascending' resort='descending' hidedetailrows='false' itemname='name'
+ width='20' resizable='true' separatemultiplevalues='false' sortnoaccent='true'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Name'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column hidedetailrows='false' listseparator='comma' itemname='jobtitle' width='20'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><columnheader title='Job Title'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column>
+<column sort='ascending' resort='descending' hidedetailrows='false' listseparator='comma'
+ itemname='organization' width='20' resizable='true' separatemultiplevalues='false'
+ sortnoaccent='false' sortnocase='true' showaslinks='false'><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><columnheader
+ title='Organization'><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></columnheader></column>
+<column resort='descending' hidedetailrows='false' listseparator='comma' itemname='LocaleName'
+ width='20' resizable='true' separatemultiplevalues='false' sortnoaccent='false'
+ sortnocase='true' showaslinks='false'><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><columnheader title='Language'><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></columnheader></column></view>
+

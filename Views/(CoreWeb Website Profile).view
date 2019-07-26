@@ -1,0 +1,38 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE view SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<view name='(CoreWeb Website Profile)' alias='vWebSiteProfile' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='mobile'
+ showinmenu='false' publicaccess='false' designerversion='8.5.3' unreadmarks='none'
+ onopengoto='top' onrefresh='displayindicator' headers='simple' opencollapsed='true'
+ showresponsehierarchy='false' showmargin='true' shrinkrows='true' extendlastcolumn='false'
+ showhierarchies='false' unreadcolor='black' rowlinecount='9' headerlinecount='1'
+ rowspacing='1' bgcolor='white' altrowcolor='#f0fbff' totalscolor='gray' headerbgcolor='white'
+ boldunreadrows='false' evaluateactions='false' allownewdocuments='false'
+ allowcustomizations='true' hidemarginborder='false' marginwidth='0px' marginbgcolor='white'
+ uniquekeys='false' initialbuildrestricted='false' noemptycategories='true'
+ launchframeset='coreWebAdmin' launchframe='Body'>
+<noteinfo noteid='626ea' unid='8DC433C9D7A2772985257B4D00586A41' sequence='4'>
+<created><datetime dst='true'>20130414T120543,69-04</datetime></created>
+<modified><datetime dst='true'>20180930T002335,09-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170821,25-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002335,09-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002335,09-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby>
+<globals><code event='options'><lotusscript>
+
+</lotusscript></code></globals><code event='selection'><formula>SELECT Form = "frmWebSiteProfile"</formula></code>
+<actionbar bgcolor='white' bordercolor='black'>
+<actionbuttonstyle bgcolor='white'/><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><border style='solid' width='0px 0px 1px'
+ color='#0083b8'/>
+<action title='Add website profile' icon='30' showinmenu='false'><code event='click'><formula
+>@Command([Compose]; "frmWebSiteProfile")</formula></code></action></actionbar>
+<column sort='ascending' hidedetailrows='false' itemname='wp_key' width='23.1250'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='true' sortnocase='true'
+ showaslinks='false'><columnheader title='Website Profile Key'><font size='9pt'
+ style='bold'/></columnheader></column>
+<column hidedetailrows='false' itemname='wp_htmlhead_Title' width='42.3750'
+ resizable='true' separatemultiplevalues='false' sortnoaccent='false' sortnocase='true'
+ showaslinks='false'><columnheader title='Title'><font size='9pt' style='bold'/></columnheader></column></view>
+
