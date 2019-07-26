@@ -1,0 +1,348 @@
+'++LotusScript Development Environment:2:5:(Options):0:66
+%REM
+	Library GenerateMIMECode
+	Created Apr 23, 2010 by David Holbrook/White Plains/Contr/IBM
+	Description: This script library is used in the "(frmMergeTemplate-Notes)" form.
+	  - Call the "GenerateCode()" routine in order to use this script library appropriately.
+%END REM
+Option Public
+Option Declare
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub AnalyzeMime(rtiOut As NotesRichTextItem, mimeRoot As NotesMIMEEntity)
+Declare Sub GenerateHeaders(mimeIn As NotesMIMEEntity, mimeOut As NotesMIMEEntity, Byval strMimeVar As String )
+Declare Sub GenerateCode()
+Declare Function EncodingConstant(Byval intEnc As Integer) As String
+Declare Sub GenerateCodeFor( mimeIn As NotesMIMEEntity, intLevel As Integer, mimeOut As NotesMIMEEntity )
+Declare Function RedisplayDoc(uidoc As NotesUIDocument, doc As NotesDocument) As NotesUIDocument
+Declare Sub GenerateCodeForMIME(mimeItemName As String, doc As NotesDocument)
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+Dim result As NotesMIMEEntity
+Const NLine = {
+}
+Dim GS As SourceOutput
+
+
+Class SourceOutput
+	Private rti As NotesRichTextItem
+	Private style As NotesRichTextStyle
+	Private doc As NotesDocument
+	Private atLineStart As Boolean
+	Private qRepFrom(0) As String
+	Private qRepTo(0) As String
+	Private declarations List As String
+	
+	Sub New(rtiIn As NotesRichTextItem)
+		Set rti = rtiIn
+		Dim session As New NotesSession
+		Set style = session.CreateRichTextStyle
+		Set doc = rti.parent
+		atLineStart = True
+		qRepFrom(0) = "|"
+		qRepTo(0) = "||"
+	End Sub
+	
+	Sub newLine( )
+		If Not atLineStart Then
+			rti.AddNewline 1, True
+			atLineStart = True
+		End If
+	End Sub
+	
+	Sub setColor(Byval color As Integer)
+		If style.NotesColor <> color Then
+			style.NotesColor = color
+			rti.AppendStyle style
+		End If
+	End Sub
+	
+	Sub AddSourceColor(Byval strSource As String, strComment As String, color As Integer)
+		newLine
+		setColor color
+		rti.AppendText strSource
+		If strComment <> "" Then
+			rti.AddTab 1
+			setColor COLOR_DARK_GREEN
+			rti.AppendText {' } & strComment
+		End If
+		atLineStart = False	
+	End Sub
+	
+	Sub AddSource(Byval strSource As String, strComment As String)
+		AddSourceColor strSource, strComment, COLOR_BLACK
+	End Sub
+	
+	Sub AddComment(Byval strComment As String)
+		newLine
+		setColor COLOR_DARK_GREEN
+		Dim lines As Variant, intInd As Integer
+		lines = Split(strComment, NLine)
+		rti.AppendText {' } & lines(0)
+		For intInd = 1 To Ubound(lines)
+			rti.AddNewline 1, False
+			rti.AppendText {' } & lines(intInd)
+		Next
+		atLineStart = False
+	End Sub
+	
+	Function quote(x As String) As String
+		Dim outcome
+		Dim target(0) As String
+		target(0) = x
+		outcome = Replace(target, qRepFrom, qRepTo)
+		quote = {|} & outcome(0) & {|}
+	End Function
+	
+	Function Declare(Byval strVarname As String, Byval strType As String) As Boolean
+		If Not Iselement(declarations(strVarname)) Then
+			Me.declare = True ' yes, we did just declare it.
+			declarations(strVarname) = strType
+			AddSourceColor "Dim " & strVarName & " As " & strType, "", COLOR_RED
+		End If
+	End Function
+End Class
+'++LotusScript Development Environment:2:2:AnalyzeMime:1:8
+Sub AnalyzeMime(rtiOut As NotesRichTextItem, mimeRoot As NotesMIMEEntity)
+	Dim session As New NotesSession
+	Dim doc As NotesDocument
+	Set GS = New SourceOutput(rtiOut)
+	Set doc = rtiOut.parent
+	
+	Const COPY_WHILE_GENERATING = False ' whether to update the Result field while source generation is going on.
+	doc.RemoveItem("Body")
+	If COPY_WHILE_GENERATING Then
+		Set result = doc.CreateMIMEEntity("Body")
+	Else
+		Set result = Nothing
+	End If
+	
+	GS.AddSource {Set result = docEmail.CreateMIMEEntity("Body")}, ""
+	Call GenerateCodeFor( mimeRoot, 0, result )
+	If COPY_WHILE_GENERATING Then Call doc.CloseMIMEEntities(True, "Body")
+	GS.AddSource {Call docEmail.CloseMIMEEntities(True, "Body")}, {finalize pending changes into the document.}
+End Sub
+
+'++LotusScript Development Environment:2:2:GenerateHeaders:1:8
+Sub GenerateHeaders(mimeIn As NotesMIMEEntity, mimeOut As NotesMIMEEntity, Byval strMimeVar As String )
+	' this routine generates the source code to assign the headers of a mime entity
+	' that will duplicate those of a supplied entity. Arguments:
+	'	mimeIn is the mime entity whose headers we want to describe.
+	'	mimeOut is a mime entity to copy the headers to directly -- may be Nothing
+	'	strMimeVar is the variable name of the NotesMimeEntity we want to assign headers to in the source generation.
+	Dim hdrOut As NotesMIMEHeader
+	Dim strHdrContent As String
+	GS.declare "hdr", "NotesMimeHeader"
+	Forall hdrIn In mimeIn.HeaderObjects
+		' don't bother with encoding and type headers because these are set while adding the content.   
+		If hdrIn.HeaderName <> "Content-Transfer-Encoding" And hdrIn.HeaderName <> "Content-Type" Then
+			GS.AddSource {Set hdr = } & strMimeVar & {.CreateHeader("} & hdrIn.HeaderName & {")}, ""
+			strHdrContent = hdrIn.GetHeaderValAndParams( )
+			GS.AddSource "Call hdr.SetHeaderValAndParams(" & GS.Quote(strHdrContent) & ")", ""
+			If Not (mimeOut Is Nothing) Then
+				Set hdrOut = mimeOut.CreateHeader(hdrIn.HeaderName)
+				Call hdrOut.SetHeaderValAndParams(strHdrContent)
+			End If
+		End If
+	End Forall
+End Sub
+
+'++LotusScript Development Environment:2:2:GenerateCode:5:8
+%REM
+	Sub GenerateCode
+	Description: Call this function to generate the code for creating an E-mail in MIME format.
+%END REM
+Sub GenerateCode()
+	On Error Goto oops
+	Dim session As New NotesSession
+	Dim wksp As New NotesUIWorkspace
+	Dim uidoc As NotesUIDocument
+	Dim mime As NotesMIMEEntity
+	Dim doc As NotesDocument
+	
+	session.ConvertMime = False
+	Set uidoc = wksp.CurrentDocument
+	Call uidoc.Refresh(True)    ' copy updated versions of rich text items to back end.
+	Set doc = uidoc.Document
+	Set mime = doc.GetMIMEEntity("mt_RichText")
+	
+	Dim rtiSource As New NotesRichTextItem(doc, "mt_MIMESource")
+	Call AnalyzeMime( rtiSource, mime )
+	If session.NotesBuildVersion >= 190 Then
+		rtiSource.Update ' ND6 only
+	Else
+		Call doc.ComputeWithForm(True, False)
+	End If
+	uidoc.GotoField "mt_Name"
+	'Set uidoc = RedisplayDoc(uidoc, doc)
+	Exit Sub
+oops:
+	Msgbox "Error " & Err & ": " & Error & " //Generate Code:" & Erl
+	Exit Sub
+End Sub
+
+'++LotusScript Development Environment:2:1:EncodingConstant:1:8
+Function EncodingConstant(Byval intEnc As Integer) As String
+	Select Case intEnc
+	Case ENC_BASE64
+		EncodingConstant = "ENC_BASE64"
+	Case ENC_EXTENSION 
+		EncodingConstant = "ENC_EXTENSION"
+	Case ENC_IDENTITY_7BIT
+		EncodingConstant = "ENC_IDENTITY_7BIT"
+	Case ENC_IDENTITY_8BIT
+		EncodingConstant = "ENC_IDENTITY_8BIT"
+	Case ENC_IDENTITY_BINARY
+		EncodingConstant = "ENC_IDENTITY_BINARY"
+	Case ENC_NONE
+		EncodingConstant = "ENC_NONE"
+	Case ENC_QUOTED_PRINTABLE
+		EncodingConstant = "ENC_QUOTED_PRINTABLE"
+	Case Else
+		EncodingConstant = intEnc & {   ' ? ? ?}
+	End Select
+End Function
+
+'++LotusScript Development Environment:2:2:GenerateCodeFor:1:8
+Sub GenerateCodeFor( mimeIn As NotesMIMEEntity, intLevel As Integer, mimeOut As NotesMIMEEntity )
+	' This routine does two things -- first, it generates source code to duplicate a mime entity it is given.
+	' Second, if it is also passed an output mime entity, it copies all the content and headers of the input
+	' entity to the output entity. Arguments:
+	'	mimeIn: the mime entity to describe with source code.
+	'	intLevel: the depth in the hierarchy of mime entities -- this is a recursive function.
+	'		Call initially with the value 0.
+	'	mimeOut: either Nothing, or a mime entity to populate with a copy of mimeIn's data.
+	Dim mimeChild As NotesMIMEEntity
+	Dim mimeSubOut As NotesMIMEEntity
+	Dim strMimeVar As String
+	
+	If intLevel Then strMimeVar = "tmp" & intLevel Else strMimeVar = "result"
+	Call GenerateHeaders(mimeIn, mimeOut, strMimeVar)
+	
+	If Left$(mimeIn.ContentType, 9) = "multipart" Then
+		GS.AddComment {create multipart MIME}
+		If mimeIn.Preamble <> "" Then
+			If Not (mimeOut Is Nothing) Then mimeOut.Preamble = mimeIn.Preamble ' @
+			GS.AddSource strMimeVar & ".Preamble = " & GS.Quote(mimeIn.Preamble), ""
+		End If
+		Set mimeChild = mimeIn.GetFirstChildEntity
+		If Not (mimeChild Is Nothing) Then
+			GS.Declare "tmp" & (intLevel + 1), "NotesMimeEntity"
+		End If
+		Do Until mimeChild Is Nothing
+			If Not (mimeOut Is Nothing) Then Set mimeSubOut = mimeOut.CreateChildEntity( ) 	' @
+			GS.AddSource "Set tmp" & (intLevel + 1) & " = " & strMimeVar & ".CreateChildEntity( )", ""
+			GenerateCodeFor mimeChild, intLevel + 1, mimeSubOut
+			Set mimeChild = mimeChild.GetNextSibling( )
+		Loop
+	Else
+		Dim stream As NotesStream  ' @
+		Dim strEncoding As String
+		Dim intOrigEnc As Integer
+		intOrigEnc = 0
+		strEncoding = EncodingConstant(mimeIn.Encoding)
+		GS.AddComment mimeIn.ContentType & { entity, encoding type } & strEncoding
+		If GS.Declare("stream", "NotesStream") Then
+			GS.Declare "session", "New NotesSession"
+			GS.AddSource "Set stream = session.CreateStream", ""
+		Else
+			GS.AddSource "stream.Truncate", ""
+		End If
+		
+		Dim session As New NotesSession ' @
+		Set stream = session.CreateStream ' @
+		
+		If Not (mimeOut Is Nothing) Then
+			Call mimeIn.GetContentAsBytes(stream, False)
+			Call mimeOut.SetContentFromBytes(stream, mimeIn.ContentType & "/" & mimeIn.ContentSubType, mimeIn.Encoding) ' @
+		End If
+		
+		If mimeIn.Encoding <> ENC_NONE Then
+			If mimeIn.Encoding <> ENC_BASE64 Then
+				intOrigEnc = mimeIn.Encoding
+				mimeIn.DecodeContent
+				mimeIn.EncodeContent(ENC_BASE64)
+				stream.Truncate
+				Call mimeIn.GetContentAsBytes(stream, False)
+			Elseif mimeOut Is Nothing Then 
+				Call mimeIn.GetContentAsBytes(stream, False)
+			End If
+			stream.Position = 0&
+			Dim buffer As Variant
+			Dim strData As String
+			Do
+				buffer = stream.Read(16200)
+				strData = {}
+				Forall x In buffer
+					strData = strData & Chr$(x)
+				End Forall
+				GS.AddSource {
+stream.WriteText } & GS.Quote(strData), {}
+			Loop Until stream.IsEOS
+		Else ' not encoded...
+			stream.Truncate
+			Call mimeIn.GetContentAsText(stream, False)
+			stream.Position = 0&
+			GS.AddSource {
+stream.WriteText(} & GS.quote(stream.ReadText( )) & {)}, ""
+		End If
+		
+		GS.AddSource strMimeVar & {.SetContentFromText stream, "} & mimeIn.ContentType & _
+		{/} & mimeIn.ContentSubType & {", } & EncodingConstant(mimeIn.Encoding), {}
+		If intOrigEnc <> 0 Then
+			GS.AddSource strMimeVar & {.EncodeContent } & strEncoding, ""
+		End If
+	End If
+End Sub
+
+
+'++LotusScript Development Environment:2:1:RedisplayDoc:1:8
+Function RedisplayDoc(uidoc As NotesUIDocument, doc As NotesDocument) As NotesUIDocument
+	On Error Goto errortrap
+	Dim strFieldname As String
+	Dim wksp As New NotesUIWorkspace
+	strFieldname = uidoc.CurrentField ' remember the current field if any
+	doc.SaveOptions = "0" ' make it possible to close the document without a "do you want to save" prompt.
+	Call uidoc.Close(True)
+	Set RedisplayDoc = wksp.EditDocument(True, doc, , , , True)
+	Delete uidoc
+	RedisplayDoc.Document.RemoveItem("SaveOptions")
+	If strFieldname <> "" Then RedisplayDoc.GotoField(strFieldname) ' return focus to field that was current before.
+	Exit Function
+errortrap:
+	Error Err, Error & " //RedisplayDoc:" & Erl
+End Function
+
+
+'++LotusScript Development Environment:2:2:GenerateCodeForMIME:5:8
+%REM
+	Sub GenerateCodeForMIME
+	Description: Call this function to 'dynamically' generate the code for creating an E-mail in MIME format.
+%END REM
+Sub GenerateCodeForMIME(mimeItemName As String, doc As NotesDocument)
+	On Error Goto oops
+	Dim session As New NotesSession
+	Dim mime As NotesMIMEEntity
+	
+	session.ConvertMime = False
+	Set mime = doc.GetMIMEEntity(mimeItemName)
+	
+	Dim rtiSource As New NotesRichTextItem(doc, "mt_MIMESource")
+	If Not(mime Is Nothing) Then
+		Call AnalyzeMime( rtiSource, mime )
+		If session.NotesBuildVersion >= 190 Then
+			rtiSource.Update ' ND6 only
+		Else
+			Call doc.ComputeWithForm(True, False)
+		End If
+	End If
+	
+	'uidoc.GotoField "mt_Name"
+	'Set uidoc = RedisplayDoc(uidoc, doc)
+	Exit Sub
+oops:
+	Msgbox "Error " & Err & ": " & Error & " //Generate Code:" & Erl
+	Exit Sub
+End Sub
+
+

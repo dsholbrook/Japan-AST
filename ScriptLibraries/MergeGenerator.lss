@@ -1,0 +1,1231 @@
+'++LotusScript Development Environment:2:5:(Options):0:66
+'-----------------------------------------------------------------------------------------------------------------
+' MergeGenerator
+'-----------------------------------------------------------------------------------------------------------------
+' 
+' This script library contains functions for Omnience's event management systems.
+'
+' Author: Omnience
+' 
+' Revision History: 
+'
+' Date             			By          	Description
+' --------       			--- 		 	-----------------
+' March 2009				Omnience		Original version.
+' April 2010				Omnience		Added HTML & MIME E-mail functionality
+'-----------------------------------------------------------------------------------------------------------------
+
+Option Public
+Option Declare
+
+Use "Debug"
+Use "GenerateMIMECode"
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+Const SYSTEM_ERROR = 1001
+Public docEmail As NotesDocument
+'================================================================
+'  Merge Generator
+'================================================================
+'  Handles the process of merging text with related merge fieldsd
+
+'  Primary Use: 
+'     Used to create e-mail documents based on template setup
+'================================================================
+Public Class MergeGenerator
+	'================ PRIVATE ==================
+	Private m_session As NotesSession
+	Private m_lstFieldList List As MergeField
+	Private m_strlstFieldList List As String
+	Private m_attachmentList List As MergeFieldAttachment
+	
+	Private m_strStartDelimiter As String
+	Private m_strEndDelimiter As String
+	Private m_intStartDelimiterLength As Integer
+	Private m_intEndDelimiterLength As Integer
+	
+	'Private delimStart As String
+	Private delimEnd As String
+	Private delimStartLen As Integer
+	Private delimEndLen As Integer
+	
+	'V2 - Adding Doc Type support (was usedFor but removed in most cases) - see docs for importance of this feature
+	Private m_strDocType As String
+	Public DocTypeDefault As String
+	
+	'E-mail creation related variables
+	Private m_intMailCreatedOnServer As Integer
+	
+	'V2 - Added a reply to address.  This should be the virual address that can be different from the official domain
+	'V2 - Leave this blank to ue the From address for all (From and Reply To Names)
+	Private m_varMailReplyTo As Variant
+	
+	'V2 - The From Address should be the official address the e-mail will come from
+	Private m_varMailFrom As Variant
+	
+	'V2 - The field or value to send to.  Template will override this value if set.
+	Private m_varMailSendTo As Variant
+	'V2 - The field or value to copy to.  Template will override this value if set.
+	Private m_varMailCopyTo As Variant
+	'V2 - Rename of internal var
+	Private m_varMailBlindCopyTo As Variant
+	
+	Private m_dbSource As NotesDatabase
+	Private m_dbMailOnServer As NotesDatabase
+	Private m_db_FieldRef As NotesDatabase
+	
+	'The locale setting to use when determining which field templates to use
+	Private m_strCurrLocale As String
+	
+	'The charset parameter used to encode into MIME E-mails
+	Private m_strCharset As String
+	
+	'================ PUBLIC ==================
+	'If true this creates in mail.box on server, use .save to mail
+	'If false creates in db, use .send to mail
+	Public Property Get isCreatedOnServer As Integer
+		isCreatedOnServer = m_intMailCreatedOnServer
+	End Property
+	
+	Public Property Set isCreatedOnServer As Integer
+		m_intMailCreatedOnServer = isCreatedOnServer
+	End Property
+	
+	'Document type this merge generation process is used for
+	'--- if not set - use the default
+	'---   (set the default using myMerger.DocTypeDefault = "YourDefault")
+	Public Property Get DocType As String
+		Dim tmpDocType As String
+		tmpDocType = m_strDocType
+		If( tmpDocType = "" ) Then 
+			tmpDocType = DocTypeDefault
+		End If
+		DocType = tmpDocType
+	End Property
+	
+	Public Property Set DocType As String
+		m_strDocType = DocType
+	End Property
+	
+	'Address this e-mail should be "from"
+	'--- If this is set in the template, it will be overridden / set from there	
+	Public Property Get FromAddress As String
+		'Lazily instantiate but cache from name from session if not provided
+		If m_varMailFrom = "" Then 
+			Dim mySession As New NotesSession
+			m_varMailFrom = mySession.username
+		End If
+		
+		FromAddress = m_varMailFrom	
+		
+	End Property
+	
+	Public Property Set FromAddress As String
+		m_varMailFrom = FromAddress
+	End Property
+	
+	'V2 - Address this e-mail should be "ReplyTo"
+	'  this is used in cases where the system being sent from is not in the same domain and therefor would be considered spam
+	
+	'If your mail always comes from the same domain, leave this blank
+	
+	'--- If this is set in the template, it will be overridden
+	'--- If not set in either case .. the From address will be used
+	Public Property Get ReplyTo As String
+		ReplyTo = m_varMailReplyTo	
+	End Property
+	
+	Public Property Set ReplyTo As String
+		m_varMailReplyTo = ReplyTo
+	End Property
+	
+	'--- If this is set in the template, it will be overridden
+	Public Property Get SendTo As String
+		SendTo = m_varMailSendTo	
+	End Property
+	
+	Public Property Set SendTo As String
+		m_varMailSendTo = SendTo
+	End Property
+	
+	'--- If this is set in the template, it will be overridden
+	Public Property Get CopyTo As String
+		CopyTo = m_varMailCopyTo	
+	End Property
+	
+	Public Property Set CopyTo As String
+		m_varMailCopyTo = CopyTo
+	End Property
+	
+		'--- If this is set in the template, it will be overridden
+	Public Property Get BlindCopyTo As String
+		BlindCopyTo = m_varMailBlindCopyTo	
+	End Property
+	
+	Public Property Set BlindCopyTo As String
+		m_varMailBlindCopyTo = BlindCopyTo
+	End Property
+	'Used to get mail database to create document in
+	Public Property Get ServerMailDatabase As NotesDatabase
+		
+		Const STR_MODULE_NAME = |Get ServerMailDatabase|
+		
+		If m_dbMailOnServer Is Nothing Then
+			
+			Call Debug(STR_MODULE_NAME & |: Instantiating ServerMailDatabase.|)
+			
+			Dim dbMail As NotesDatabase
+			Dim strCurrServer As String
+			
+			strCurrServer = m_dbSource.Server
+			
+			Call Debug(STR_MODULE_NAME & |: Server [| & strCurrServer & |].|)
+			
+			'Need to create mail on the server
+			Set dbMail = m_session.GetDatabase(strCurrServer, "mail.box")
+			
+			If Not (dbMail.IsOpen) Then
+				Set dbMail = m_session.GetDatabase(strCurrServer, "mail1.box")
+				If Not (dbMail.IsOpen) Then
+					Set dbMail = m_session.GetDatabase(strCurrServer, "mail2.box")
+					If Not (dbMail.IsOpen) Then
+						Call Debug(STR_MODULE_NAME & |: Unable to open any mail boxes.|)
+					Else
+						Call Debug(STR_MODULE_NAME & |: Opened mail2.box.|)						
+					End If					
+				Else
+					Call Debug(STR_MODULE_NAME & |: Opened mail1.box.|)
+				End If
+			Else
+				Call Debug(STR_MODULE_NAME & |: Opened mail.box.|)
+			End If
+			Set m_dbMailOnServer = dbMail
+		Else
+			Call Debug(STR_MODULE_NAME & |: ServerMailDatabase already instantiated.|)
+		End If
+		
+		Set ServerMailDatabase = m_dbMailOnServer
+		
+	End Property
+	
+	Public Property Set ServerMailDatabase As NotesDatabase
+		Set m_dbMailOnServer = ServerMailDatabase
+	End Property
+	
+	Public Property Set currLocale As String
+		m_strCurrLocale = currLocale
+	End Property
+	
+	Public Property Get currLocale As String
+		currLocale = m_strCurrLocale
+	End Property
+	
+	Public Property Set charsetParameter As String
+		m_strCharset = charsetParameter
+	End Property
+	
+	Public Property Get charsetParameter As String
+		charsetParameter = m_strCharset
+	End Property
+	
+	'V2 - Removed need to pass in db and added ability to auto initialize and load merge fields based on defaults
+	Public Sub New(strDocType As String, db_FieldRef As NotesDatabase)
+		Set m_session = New NotesSession
+		Set m_db_FieldRef = db_FieldRef
+		Dim dbSource As NotesDatabase 
+		Set dbSource = m_session.CurrentDatabase
+		
+		'Define the delimiters used to identify the start and end of a merge field
+		m_strStartDelimiter= "[{"
+		m_strEndDelimiter = "}]"
+		m_intStartDelimiterLength = 2
+		m_intEndDelimiterLength = 2
+		
+		'--- set to property if desired
+		
+		If( strDocType = "" ) Then 
+			Me.DocTypeDefault = "Registration"
+		Else
+			Me.DocTypeDefault = strDocType
+		End If
+		
+		'V2 - Default usage is now to create on the server
+		m_intMailCreatedOnServer = True
+		
+		If dbSource Is Nothing Then
+			Error SYSTEM_ERROR, |Unable to access mail database.|	
+		End If
+		
+		Set m_dbSource = dbSource
+		
+		Call initUsingDefaults( db_FieldRef )
+		
+	End Sub
+	
+	'Clear the field list to reload
+	Public Sub ClearFieldList
+		Erase m_lstFieldList
+		Erase m_strlstFieldList
+	End Sub
+	
+	'Add a field to the list
+	Public Sub AddToFieldList(strMergeFieldName As String, strFormula As String, strLocale As String, strType As String)
+		
+		Const STR_MODULE_NAME = |AddToFieldList|
+		
+		'Trap errors
+		On Error Goto lblError
+		
+		'If the field is already in the list, check to see if it is to be replaced by the locale specific version, and if so replace it.
+		If (Iselement(m_strlstFieldList(strMergeFieldName)) = True) Then
+			If (strLocale = Me.currLocale) Then
+				Call Debug(STR_MODULE_NAME & |: Field [| & strMergeFieldName & |] is already in the list.  Replacing with locale specific version.  [| & strFormula & |] for locale [| & strLocale & |]|)
+				m_strlstFieldList(strMergeFieldName) = strFormula
+				Set m_lstFieldList(strMergeFieldName) = New MergeField(strMergeFieldName, strFormula, strLocale, strType )
+			Else
+				Call Debug(STR_MODULE_NAME & |: Skipping field [| & strMergeFieldName & |] [| & strFormula & |] for locale [| & strLocale & |].  Field is not for the default or current locale.|)	
+			End If
+		'Otherwise, if the field is for the default locale, add it to the list			
+		Else
+			If (strLocale = "") Then
+				Call Debug(STR_MODULE_NAME & |: Adding field [| & strMergeFieldName & |] [| & strFormula & |] for locale [| & strLocale & |] (Default locale).|)					
+				m_strlstFieldList(strMergeFieldName) = strFormula
+				Set m_lstFieldList(strMergeFieldName) = New MergeField(strMergeFieldName, strFormula, strLocale, strType )
+			Else
+				If (strLocale = Me.currLocale) Then
+					Call Debug(STR_MODULE_NAME & |: Adding field [| & strMergeFieldName & |] [| & strFormula & |] for locale [| & strLocale & |] (Current locale).|)	
+					m_strlstFieldList(strMergeFieldName) = strFormula
+					Set m_lstFieldList(strMergeFieldName) = New MergeField(strMergeFieldName, strFormula, strLocale, strType )
+				Else
+					Call Debug(STR_MODULE_NAME & |: Skipping field [| & strMergeFieldName & |] [| & strFormula & |] for locale [| & strLocale & |].  Field is not for the default or current locale.|)	
+				End If
+			End If
+		End If
+		
+lblExit:
+		Exit Sub
+		
+lblError:
+		Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Resume lblExit
+		
+	End Sub
+	
+	'--- Add an attachment / dynamic text object
+	Public Sub AddToAttachmentList( theMergeFieldName As String, theKeyType As String, theKey As String, theViewName As String, theFieldNames )
+		Dim myMergeFieldAttachment As New MergeFieldAttachment( theKeyType, theKey, theViewName, theFieldNames )
+		Set m_attachmentList( theMergeFieldName ) = myMergeFieldAttachment
+	End Sub
+	
+		'---Load the list of fields and related formula from specified view
+	Public Sub LoadFieldListFromView( theView As NotesView )
+		Const STR_MODULE_NAME = |LoadFieldListFromView|
+		
+		'Trap errors
+		On Error Goto lblError
+		
+		'--- Clear existing values
+		Call ClearFieldList
+		
+		Dim myFieldDoc As NotesDocument
+		'--- Loop through documents, setting list values
+		'---  Key: Field Name
+		'---  Value: Formula to compute value
+		Dim dc As NotesDocumentCollection
+		Set dc = theView.GetAllDocumentsByKey( Me.DocType, True )
+		
+		Set myFieldDoc = dc.GetFirstDocument()
+		While Not myFieldDoc Is Nothing
+			If myFieldDoc.mf_Type(0) = "Attachment" Then
+				Call AddToAttachmentList(Cstr(myFieldDoc.mf_Name(0)), myFieldDoc.mf_AttachmentKeyType(0), Cstr(myFieldDoc.mf_AttachmentKey(0)), "luMailMergeAttachments", "wr_attachments" )
+			Else
+				Call AddToFieldList( Cstr( myFieldDoc.mf_Name(0) ), Cstr( myFieldDoc.mf_Formula(0) ), Cstr( myFieldDoc.mf_Locale(0) ), Cstr( myFieldDoc.mf_Type(0) ) )
+			End If
+			Set myFieldDoc = dc.GetNextDocument(myFieldDoc)			
+		Wend
+		
+lblExit:
+		
+'V2 - removed this - very bad performance hit		Call Debug(STR_MODULE_NAME & |: Start of merge field list.| & Chr$(13) & getFieldList())
+		Call Debug(STR_MODULE_NAME & |: End of merge field list.|)
+		
+		Call Debug(STR_MODULE_NAME & |: Finished.|)
+		
+		Exit Sub
+		
+lblError:
+		
+		Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Resume lblExit
+	End Sub
+	
+	'Load the list of fields and related formula from specified view
+	Public Sub LoadFieldListFromReferenceDb(dbCurr As NotesDatabase, dbReference As NotesDatabase)
+		
+		Const STR_MODULE_NAME = |LoadFieldListFromReferenceDb|
+		
+		Dim viewMergeFields As NotesView
+		Dim docMergeField As NotesDocument
+		Dim strFieldName As String
+		Dim strFormula As String
+		Dim strFieldType As String
+		Dim strLocale As String
+		
+		'Trap errors
+		On Error Goto lblError
+		
+		Call Debug(STR_MODULE_NAME & |: Started.  Current locale [| & m_strCurrLocale & |].|)
+		
+		'Clear existing values
+		Call ClearFieldList
+		
+		'Get merge fields from the reference database
+		Call Debug(STR_MODULE_NAME & |: Getting merge fields from reference database.|)
+		
+		Set viewMergeFields = dbReference.GetView(|vLookupMergeFields|)
+		
+		Set docMergeField = viewMergeFields.GetFirstDocument
+		
+		If (docMergeField Is Nothing) Then
+			Call Debug(STR_MODULE_NAME & |: Unable to find any merge fields.|)
+		End If
+		
+		While Not docMergeField Is Nothing
+			
+			strFieldType = Cstr(docMergeField.columnValues(2))
+			
+			Select Case strFieldType
+				
+			Case "Formula":
+				
+				strFieldName = Cstr( docMergeField.columnValues(0))
+				strFormula = Cstr( docMergeField.columnValues(1))
+				strLocale = Cstr(docMergeField.columnValues(3))
+				Call AddToFieldList(strFieldName, strFormula, strLocale, "")
+				
+			Case Else
+				
+				Error SYSTEM_ERROR, |An unknown merge field type [| & strFieldType & |] was supplied to the function.|	
+				
+		End Select
+			
+			Set docMergeField = viewMergeFields.GetNextDocument(docMergeField)
+			
+		Wend
+		
+		'Now get any overriding merge fields from the current database
+		Call Debug(STR_MODULE_NAME & |: Getting merge fields from current database.|)
+		
+		Set viewMergeFields = dbCurr.GetView(|vLookupMergeFields|)
+		
+		Set docMergeField = viewMergeFields.GetFirstDocument
+		
+		If (docMergeField Is Nothing) Then
+			Call Debug(STR_MODULE_NAME & |: Unable to find any merge fields.|)
+		End If
+		
+		While Not docMergeField Is Nothing
+			
+			strFieldType = Cstr(docMergeField.columnValues(2))
+			
+			Select Case strFieldType
+				
+			Case "Formula":
+				
+				strFieldName = Cstr( docMergeField.columnValues(0))
+				strFormula = Cstr( docMergeField.columnValues(1))
+				strLocale = Cstr(docMergeField.columnValues(3))
+				Call AddToFieldList(strFieldName, strFormula, strLocale, "")
+				
+			Case Else
+				
+				Error SYSTEM_ERROR, |An unknown merge field type [| & strFieldType & |] was supplied to the function.|	
+				
+		End Select
+			
+			Set docMergeField = viewMergeFields.GetNextDocument(docMergeField)
+			
+		Wend
+		
+lblExit:
+		
+		Call Debug(STR_MODULE_NAME & |: Start of merge field list.| & Chr$(13) & getFieldList())
+		Call Debug(STR_MODULE_NAME & |: End of merge field list.|)
+		
+		Call Debug(STR_MODULE_NAME & |: Finished.|)
+		
+		Exit Sub
+		
+lblError:
+		
+		Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Resume lblExit
+		
+	End Sub
+	
+	'Returns text passed with replaced values from the document passed using field list
+	Public Function GetMergedText(strOriginalText As String, doc As NotesDocument ) As String
+		
+		If( strOriginalText = "" ) Then 
+			GetMergedText = ""
+			Exit Function
+		End If
+		
+		Dim flgHasErrors As Integer
+		Dim strMergedText As String
+		
+		Const STR_MODULE_NAME = |GetMergedText|
+		
+		'Trap errors
+		On Error Goto lblError		
+		
+		Call Debug(STR_MODULE_NAME & |: Started.|)
+		
+		'if not initialized, return blank value
+		If Isempty(m_lstFieldList) Then 
+			Error SYSTEM_ERROR, |No merge fields are defined.|	
+		End If
+		
+		strMergedText = strOriginalText
+		
+		'Loop through all the fields and merge where needed
+		Forall varCurrField In m_lstFieldList
+			On Error Goto lblErrorNextField
+			
+			Dim strMergeField As String
+			
+			Dim myMergeField As MergeField
+			Set myMergeField = varCurrField
+			
+			Dim strResult As String
+			
+			strMergeField = m_strStartDelimiter & Listtag(varCurrField) & m_strEndDelimiter
+			
+			Dim tmpResult As Variant
+			
+			'If field value is needed then evaluate value and do replacement
+			If Instr(strMergedText, strMergeField) > 0 Then
+				
+				'Evaluate formula against document passed
+				strResult = myMergeField.Formula
+				
+				If( myMergeField.FieldType = "Formula" ) Then 
+					tmpResult = Evaluate( strResult, doc )
+				Elseif( myMergeField.FieldType = "Field" ) Then 
+					tmpResult = doc.GetItemValue(strResult)
+				Elseif (myMergeField.FieldType = "Attachment" ) Then
+					
+				Else
+					'--- this is a value - keep the value entered in the merge field setup document
+					tmpResult = strResult
+				End If
+				
+				'--- If not error / got a value back then loop though created string from list if needed
+				If Not Isempty( tmpResult ) Then 
+					strResult = ""
+					If( Isarray(tmpResult) ) Then 
+						Forall aValue In tmpResult
+							If strResult = "" Then 
+								strResult = aValue
+							Else
+								strResult = strResult & ", " & aValue
+							End If
+						End Forall
+					Else
+						strResult = tmpResult
+					End If
+				End If
+				
+lblNextField:
+				
+				On Error Goto lblError		
+				
+				'Replace merge field using value
+				strMergedText = Replace( strMergedText, m_strStartDelimiter & Listtag(varCurrField) & m_strEndDelimiter, strResult )
+			End If
+			
+		End Forall
+		
+lblExit:
+		
+		'If any errors were found, pass back a blank string to indicate this
+		If (flgHasErrors) Then
+			Call Debug(STR_MODULE_NAME & |: Replacement errors occurred.|)			
+			strMergedText = ""
+		End If
+		
+		GetMergedText = strMergedText
+		
+		Call Debug(STR_MODULE_NAME & |: Finished.|)
+		
+		Exit Function
+		
+lblError:
+		
+		flgHasErrors = True		
+		Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Resume lblExit
+		
+lblErrorNextField:
+		
+		flgHasErrors = True
+		Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Resume lblNextField
+		
+	End Function
+	
+	Public Function getEMailFromDocument(docToMerge As NotesDocument, theSendTo As Variant, theCopyTo As Variant, theBlindCopyTo As Variant, strTemplateFormat As String) As NotesDocument
+		Print "getEMailFromDocument has been replaced by docCreateFormattedEMail"
+	End Function
+	
+	'------------------------------------------------------------------------------------------------------
+     'Description
+     '----------------
+	'Returns an e-mail document ready to save or send based on template document setup details
+	'
+	'New for V2 - Uses "default" functionality based on template setup and mail merge settings
+	'
+     'Parameters
+     '----------------
+	' The doc to merge and template doc
+     '     
+     'Return Value
+     '-------------------
+     'The newly created document
+     '------------------------------------------------------------------------------------------------------   
+	Public Function docCreateFormattedEMail(docToMerge As NotesDocument, docTemplate As NotesDocument) As NotesDocument
+		Const STR_MODULE_NAME = |docCreateFormattedEMail|
+		
+		Dim strSubject As String
+		Dim strTemplateFormat As String
+		Dim strLocale As String
+		Dim myBodyText As String
+		Dim myBodyHTML As String
+		
+		'Trap errors
+		On Error Goto lblError
+		
+		Call Debug(STR_MODULE_NAME & |: Started.|)
+		
+		'Creates a new mail document document using values from docToMerge in theDB
+		'Returned document is not saved first.  Save to send on server or use .send and save or not as needed
+		
+		'Not properly initialized, exit
+		If m_dbSource Is Nothing Then
+			Error SYSTEM_ERROR, |Unable to find source database.|
+		End If
+		
+		'If the locale of the merge generator is not the supplied locale,
+		' reload the merge fields with the correct set for the locale of
+		' the enrollment or invitation document
+		
+		If (docToMerge.DocType(0) = |Invitation|) Then
+			strLocale = Cstr(docToMerge.in_Locale(0))
+		Else
+			strLocale = Cstr(docToMerge.Locale(0))
+		End If
+		
+		If (strLocale <> Me.currLocale) Then
+			'Set the locale of the merge generator
+			Me.currLocale = strLocale
+			'Reload the merge field list from reference database
+			Call initUsingDefaults( m_db_FieldRef )
+		End If
+		
+		'Set the charsetParameter also in case we need to encode any MIME E-mails later
+		Call initCharset()
+		
+		strTemplateFormat = docTemplate.mt_Format(0)
+		strSubject = docTemplate.mt_Subject(0)
+		strSubject = GetMergedText(strSubject, docToMerge)
+		
+		'No doc to merge passed, exit
+		If docToMerge Is Nothing Then
+			Error SYSTEM_ERROR, |Unable to find document to be merged.|
+		End If
+		
+		'Note: both DBs stored and server db lazily instantiated to keep doc alive after creation
+		'If created on server, use the server stored locally
+		If Me.isCreatedOnServer Then
+			Set docEmail = New NotesDocument(ServerMailDatabase)
+		Else
+			Set docEmail = New NotesDocument( m_dbSource )
+		End If
+		
+		'Set basic mail fields
+		docEmail.form = "Memo"
+		docEmail.MailFormat = "T"
+		docEmail.PostedDate = Now
+		
+		Dim strReplyTo As String
+		Dim strFrom As String
+		
+		'--- Get from the template, if not specified .. get from the merge value set
+		strFrom = docTemplate.mt_From(0)
+		If strFrom = "" Then strFrom = Me.FromAddress
+		
+		'--- Get from the template, if not specified .. get from the merge value set, if not set - use From
+		strReplyTo = docTemplate.mt_ReplyTo(0)
+		If strReplyTo = "" Then strReplyTo = Me.ReplyTo
+		If strReplyTo = "" Then strReplyTo = strFrom
+		
+		Dim strSendTo As String 
+		strSendTo = docTemplate.mt_SendTo(0)
+		If strSendTo = "" Then strSendTo = Me.SendTo
+		
+		Dim strCopyTo As String 
+		strCopyTo = docTemplate.mt_CopyTo(0)
+		If strCopyTo = "" Then strCopyTo = Me.CopyTo
+		
+		Dim strBlindCopyTo As String 
+		strBlindCopyTo = docTemplate.mt_BlindCopyTo(0)
+		If strBlindCopyTo = "" Then strBlindCopyTo = Me.BlindCopyTo
+		
+		strFrom = GetMergedText(strFrom, docToMerge)
+		strReplyTo = GetMergedText(strReplyTo, docToMerge)
+		strSendTo = GetMergedText(strSendTo, docToMerge)
+		strCopyTo = GetMergedText(strCopyTo, docToMerge)
+		strBlindCopyTo = GetMergedText(strBlindCopyTo, docToMerge)
+		
+		'Set official from field to combine the display address and the from address 
+		
+		' todo: Do we need other formatting options in this case?
+		'           Are there other fields we can add in the MIME header to help with spam situations?
+		
+		Dim strSentFrom As String
+		strSentFrom = strFrom
+		If strSentFrom <> strReplyTo Then 
+			strSentFrom = |"| & strReplyTo & |"<| & strFrom & |>|
+		End If
+		
+		docEmail.From = strSentFrom
+		'todo: Do we still have to use this method.  Is this correct for all types including MIME?
+		
+		'Set reply to fields
+		docEmail.ReplyTo = strReplyTo
+		docEmail.Principal = strReplyTo
+		docEmail.AltFrom = strReplyTo
+		docEmail.INetFrom = strReplyTo
+		
+		Dim varSendToList As Variant
+		Dim varCopyToList As Variant
+		Dim varBlindCopyToList As Variant
+		
+		varSendToList = Split( strSendTo, "," )
+		varCopyToList = Split( strCopyTo, "," )
+		varBlindCopyToList = Split( strBlindCopyTo, "," )
+		
+		'Set Recipients and SendTo fields both
+		Dim mySendTo As New NotesItem(docEmail,"SendTo",varSendToList,NAMES)
+		Dim myCopyTo As New NotesItem(docEmail,"CopyTo",varCopyToList,NAMES)
+		Dim myBlindTo As New NotesItem(docEmail,"BlindCopyTo",varBlindCopyToList,NAMES)
+		Dim myFullNames As Variant
+		Redim myFullNames(0)
+		Dim myFullNamesCtr As Long
+		
+		myFullNamesCtr = 0
+		Forall aName In mySendTo.values
+			If aName <> "" Then 
+				Redim Preserve myFullNames(myFullNamesCtr)
+				myFullNames(myFullNamesCtr) = aName
+				myFullNamesCtr = myFullNamesCtr + 1
+			End If
+		End Forall
+		Forall aName In myCopyTo.values
+			If aName <> "" Then 
+				Redim Preserve myFullNames(myFullNamesCtr)
+				myFullNames(myFullNamesCtr) = aName
+				myFullNamesCtr = myFullNamesCtr + 1
+			End If
+		End Forall
+		Forall aName In myBlindTo.values
+			If aName <> "" Then 
+				Redim Preserve myFullNames(myFullNamesCtr)
+				myFullNames(myFullNamesCtr) = aName
+				myFullNamesCtr = myFullNamesCtr + 1
+			End If
+		End Forall
+		
+		Dim myRecip As New NotesItem(docEmail,"Recipients",myFullNames,NAMES)     
+		
+		myRecip.IsSummary = True
+		mySendTo.IsSummary = True
+		
+		If (strSubject = ||) Then
+			Error SYSTEM_ERROR, |Unable to format e-mail subject.|	
+		Else
+			docEmail.Subject = strSubject
+		End If
+		
+		Dim s As New NotesSession
+		Dim body As NotesMIMEEntity
+		Dim mh As NotesMimeHeader
+		Dim mc As NotesMIMEEntity
+		Dim stream As NotesStream
+		Dim resetStream As NotesStream
+		Dim strTemplateBody As String
+		Dim strTemplateBodyHTML As String
+		Dim strTemplateMIMEBody As String
+		Dim mime As NotesMIMEEntity
+		Dim child As NotesMIMEEntity
+		
+		strTemplateBody = docTemplate.mt_Text(0)
+		strTemplateBodyHTML = docTemplate.mt_HTML(0)
+		
+		'Format the e-mail
+		Select Case strTemplateFormat
+			
+		Case |Text|:
+			
+			Call Debug(STR_MODULE_NAME & |: Formatting 'Text' e-mail...|)
+			
+			'Get body text as merged text first (attachments tags left in)
+			Call Debug(STR_MODULE_NAME & |: Formatting e-mail text.|)				
+			myBodyText = GetMergedText(strTemplateBody, docToMerge)
+			If (myBodyText = ||) Then
+				Error SYSTEM_ERROR, |Unable to format e-mail text.|	
+			End If
+			
+			'Create rich text item for e-mail document
+			Dim myBody As New NotesRichTextItem( docEmail, "Body" )
+			
+			'Loop through finding tags that are left after field replacement (should be attachments only)
+			Dim myDelimStartPos As Integer
+			
+			myDelimStartPos = Instr(myBodyText, m_strStartDelimiter)
+			'if not zero - there are missing fields
+			'TODO: What to do when fields missing? Update to take action.
+			
+			' Added - 8 May 2010, David Holbrook
+			'--- Loop through finding tags that are left after field replacement (should be attachments only)
+			Call processAttachments(myBodyText, myBody)
+			' End of addition - 8 May 2010, David Holbrook
+			
+		Case |RichText|:
+			
+			Dim mimeHTML As NotesMIMEEntity
+			Set stream = s.CreateStream
+			
+			'Create rich text item for e-mail document
+			Set myBody = New NotesRichTextItem( docEmail, "Body" )
+			
+			' Addition by David Holbrook, 23 Apr 2010
+			s.ConvertMIME = False
+			strTemplateBody = docTemplate.mt_Text(0)
+			strTemplateBodyHTML = docTemplate.mt_HTML(0)
+			Set mime = docTemplate.GetMIMEEntity("mt_RichText")
+			If Not(mime Is Nothing) Then
+				If mime.ContentType = "multipart" Then
+					Set child = mime.GetFirstChildEntity
+        			While Not(child Is Nothing)
+        				If child.ContentType = "text" And child.ContentSubtype = "html" Then
+        					strTemplateMIMEBody = child.Contentastext
+        					Set mimeHTML = child
+        				End If
+        				Set child = child.GetNextSibling
+        			Wend
+        		Else
+					If mime.ContentType = "text" And mime.ContentSubtype = "html" Then
+        				strTemplateMIMEBody = mime.Contentastext
+        				Set mimeHTML = mime
+        			End If
+				End If
+			End If
+			
+			myBodyHTML = GetMergedText(strTemplateMIMEBody, docToMerge)
+			
+			Call stream.WriteText(myBodyHTML)
+			If Not(mimeHTML Is Nothing) Then
+				Call mimeHTML.SetContentFromText(stream, "text/html;charset="+Me.charsetParameter, ENC_NONE)
+				If Me.charsetParameter <> "ISO-8859-1" Then
+					Call mime.EncodeContent(ENC_BASE64)
+				End If
+			Else
+				Call LogError(STR_MODULE_NAME & |: The Rich Text object was not saved as MIME.|)
+				Goto lblExit
+			End If
+			
+			Call GenerateCodeForMIME("mt_RichText", docTemplate)
+			
+			s.ConvertMIME = True
+			' End of addition/updates
+			
+			'Msgbox myBodyHTML
+			Call Debug(STR_MODULE_NAME & |: myBodyHTML | & myBodyHTML)
+			
+			' Addition by David Holbrook, 23 Apr 2010
+			Dim session As New NotesSession
+			Dim strSource As String
+			Dim rtiSource As Variant
+			Set rtiSource = docTemplate.GetFirstItem("mt_MIMESource")
+			docEmail.RemoveItem "Body"
+			strSource = {Sub Initialize
+On error goto oops
+} & rtiSource.getFormattedText(False, 32000) _
+& {
+End
+oops:
+msgbox "Error " & err & " line " & erl & ": " & error
+Exit Sub
+End Sub}
+			Dim retval As Variant
+			retval = Execute(strSource)
+			' End of addition by David Holbrook, 23 Apr 2010
+			
+			' Addition added by David Holbrook, 10 Aug 2010
+			' Reset the "mt_RichText" MIME field back to original template text before the mail merge
+			Set resetStream = s.CreateStream
+			Call resetStream.WriteText(strTemplateMIMEBody)
+			If Not(mimeHTML Is Nothing) Then
+				Call mimeHTML.SetContentFromText(stream, "text/html;charset="+Me.charsetParameter, ENC_NONE)
+				If Me.charsetParameter <> "ISO-8859-1" Then
+					Call mime.EncodeContent(ENC_BASE64)
+				End If
+			Else
+				Call LogError(STR_MODULE_NAME & |: The Rich Text object was not saved as MIME.|)
+				Goto lblExit
+			End If
+			Call GenerateCodeForMIME("mt_RichText", docTemplate)
+			' End of addition by David Holbrook, 10 Aug 2010
+			
+			Call docEmail.ComputeWithForm(False, False)
+			
+		Case |Dual|:
+			
+			Call Debug(STR_MODULE_NAME & |: Formatting 'HTML' e-mail...|)
+			
+			'Get body text as merged text first (attachments tags left in)			
+			Call Debug(STR_MODULE_NAME & |: Formatting e-mail text.|)				
+			myBodyText = GetMergedText(strTemplateBody, docToMerge)
+			If (myBodyText = ||) Then
+				Error SYSTEM_ERROR, |Unable to format e-mail text.|	
+			End If
+			
+			'Get body text as HTML merged text first (attachments tags left in)
+			Call Debug(STR_MODULE_NAME & |: Formatting e-mail HTML.|)				
+			myBodyHTML = GetMergedText(strTemplateBodyHTML, docToMerge)
+			If (myBodyHTML = ||) Then
+				Error SYSTEM_ERROR, |Unable to format e-mail HTML.|	
+			End If
+			
+			s.ConvertMIME = False				'Do not convert MIME to rich text
+			
+			'Create the MIME headers
+			Set body = docEmail.CreateMIMEEntity
+			Set mh = body.CreateHeader(|MIME-Version|)
+			Call mh.SetHeaderVal(|1.0|)
+			Set mh = body.CreateHeader(|Content-Type|)
+			Call mh.SetHeaderValAndParams(|multipart/alternative;boundary="=NextPart_="|)
+			
+			'Send the plain text part first
+			Set mc = body.createChildEntity()
+			Set stream = s.createStream()
+			Call stream.WriteText(myBodyText)
+			Call mc.setContentFromText(stream, |text/plain|, ENC_NONE)
+			
+			'Now send the HTML part. Order is important!
+			Set mc = body.createChildEntity()
+			Set stream = s.createStream()
+			Call stream.WriteText(myBodyHTML)
+			Call mc.setContentFromText(stream, |text/html;charset=|+Me.charsetParameter, ENC_NONE)
+			If Me.charsetParameter <> "ISO-8859-1" Then
+				Call mime.EncodeContent(ENC_BASE64)
+			End If
+			Call stream.close()
+			s.ConvertMIME = True
+			
+		Case |HTML|:
+			
+			Call Debug(STR_MODULE_NAME & |: Formatting 'HTML' e-mail...|)
+			
+			
+			'Get body text as HTML merged text first (attachments tags left in)
+			Call Debug(STR_MODULE_NAME & |: Formatting e-mail HTML.|)				
+			myBodyHTML = GetMergedText(strTemplateBodyHTML, docToMerge)
+			If (myBodyHTML = ||) Then
+				Error SYSTEM_ERROR, |Unable to format e-mail HTML.|	
+			End If
+			
+			s.ConvertMIME = False				'Do not convert MIME to rich text
+			
+			'Create the MIME headers
+			Set body = docEmail.CreateMIMEEntity
+			Set mh = body.CreateHeader(|MIME-Version|)
+			Call mh.SetHeaderVal(|1.0|)
+			Set mh = body.CreateHeader(|Content-Type|)
+			Call mh.SetHeaderValAndParams(|multipart/alternative;boundary="=NextPart_="|)
+			
+			'Now send the HTML part. Order is important!
+			Set mc = body.createChildEntity()
+			Set stream = s.createStream()
+			Call stream.WriteText(myBodyHTML)
+			Call mc.setContentFromText(stream, |text/html;charset=|+Me.charsetParameter, ENC_NONE)
+			If Me.charsetParameter <> "ISO-8859-1" Then
+				Call mime.EncodeContent(ENC_BASE64)
+			End If
+			Call stream.close()
+			s.ConvertMIME = True
+			
+		Case Else
+			
+			Error SYSTEM_ERROR, |Template format [| & strTemplateFormat & |] is not supported.|
+			
+		End Select
+		
+lblExit:
+		
+		Set docCreateFormattedEMail = docEmail
+		
+		Call Debug(STR_MODULE_NAME & |: Finished.|)
+		
+		Exit Function
+		
+lblError:
+		
+		Set docEmail = Nothing
+		Call Debug(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		'Don't log failure to open server mailbox as an error as we have a workaround for this case
+		If Err() <> 4063 Then
+			Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl)
+		Else
+			Call LogError(STR_MODULE_NAME & |: | & Err() & |: | & Error() & | in line | & Erl & |. Server mailbox not opened.|)
+		End If
+		Resume lblExit
+		
+	End Function
+	
+	
+	'-- V2 - Provide easier function to initialize
+	Public Function initForDocType( strDocType As String ) As Boolean
+		Me.DocType = strDocType
+		Call Me.initUsingDB(Nothing, "", strDocType)
+		initForDocType = True
+	End Function
+	
+	'-- V2 - Provide easier function to initialize
+	Public Function initUsingView(viewMergeFields As NotesView, strDocType As String ) As Boolean
+		Me.DocType = strDocType
+		Call Me.LoadFieldListFromView(viewMergeFields)
+		initUsingView = True
+	End Function
+	
+	'-- V2 - 
+	Public Function initUsingDB(dbSource As NotesDatabase, strViewNameForMergeFields As String, strDocType As String ) As Boolean
+		If Not dbSource Is Nothing Then 
+			Set m_dbSource = dbSource		
+		End If
+		
+		Dim view As NotesView
+		Dim strViewName As String
+		strViewName = strViewNameForMergeFields
+		If strViewName = "" Then 
+			strViewName = "luMergeFields"
+		End If
+		Set view = m_dbSource.getView(strViewName)
+		initUsingDB = Me.initUsingView(view,strDocType)
+		' Added 28 Oct 2010, David Holbrook
+		' Reset the source database to the current database, instead of the Reference database
+		Set m_dbSource = m_session.CurrentDatabase
+	End Function
+	
+		'-- V2 - 
+	Public Function initUsingDefaults(db_FieldRef As NotesDatabase) As Boolean
+		Call initUsingDB( db_FieldRef, "", "" )
+	End Function
+	
+	Public Function initCharset As Boolean
+		Select Case Me.currLocale
+			Case ""
+				Me.charsetParameter = "ISO-8859-1"
+			Case "ja_JP"
+				Me.charsetParameter = "ISO-2022-JP"
+			Case "hr_HR"
+				Me.charsetParameter = "ISO-8859-2"
+			Case Else
+				Me.charsetParameter = "ISO-8859-1"
+		End Select
+	End Function
+	
+	Public Sub processAttachments(myBodyText As String, myBody As NotesRichTextItem)
+		' Added - 8 May 2010, David Holbrook
+		'--- Loop through finding tags that are left after field replacement (should be attachments only)
+		Dim myDelimLocations List As Long
+		Dim myDelimCounter As Long
+		Dim myDelimStartPos As Integer
+		
+		myDelimStartPos = Instr( myBodyText, m_strStartDelimiter )
+		Dim myStartPos As Integer
+		Dim myEndPos As Integer
+		Dim myStartString As String
+		Dim myFieldName As String
+
+		If myDelimStartPos > 0 Then
+			'--- get all tag start positions and store for later use
+			While myDelimStartPos > 0
+				myDelimLocations( myDelimCounter ) = myDelimStartPos
+				myDelimCounter = myDelimCounter + 1
+				myDelimStartPos = Instr( myDelimStartPos + 1, myBodyText, m_strStartDelimiter )
+			Wend
+			
+			myStartPos = 1
+			
+			'--- Loop through start positions, replacing tags with attachments
+			Forall aDelimStart In myDelimLocations
+				myEndPos = Instr( myStartPos, myBodyText, Me.m_strEndDelimiter )
+				'--- Fix 3/19/2003 for starting with a field name				
+				If aDelimStart = 1 And myStartPos = 1 Then 
+					myStartString = "" 
+				Else
+					myStartString = Mid( myBodyText, myStartPos, aDelimStart - myStartPos - 1 )
+				End If
+				'--- Add text before field
+				Call myBody.AppendText( myStartString )
+				'-- Get Field Name
+				
+				If myEndPos = 0 Then Exit Sub 'bad format
+				myFieldName = Mid( myBodyText, aDelimStart + Me.m_intStartDelimiterLength , myEndPos - aDelimStart - Me.m_intStartDelimiterLength )
+				
+				If Iselement( m_attachmentList( myFieldName ) ) Then 
+					'--- This is a know attachment field, process it
+					Dim myMergeFieldAttachment As MergeFieldAttachment
+					'--- Get Attachment object from list
+					Set myMergeFieldAttachment = m_attachmentList( myFieldName )
+					Dim myAttachments As Variant
+					'--- Add attachments / text to e-mail body
+					Call myMergeFieldAttachment.AddAttachmentsToRTItem( myBody, docEmail )
+				End If
+				myStartPos = myEndPos + Me.m_intEndDelimiterLength
+			End Forall
+		Else
+			'--- All just replaced fields, append text
+			Call myBody.appendText( myBodyText )
+		End If
+
+		If myStartPos > 0 Then
+			'--- Append text after final attachment / field
+			myStartString = Mid( myBodyText, myStartPos )
+			Call myBody.AppendText( myStartString )
+		End If
+		' End of addition - 8 May 2010, David Holbrook
+	End Sub
+	
+	Public Function getFieldList() As String
+		
+		Dim strReturnValue As String
+		
+		Forall varItem In m_strlstFieldList
+			strReturnValue = strReturnValue & m_strStartDelimiter & Listtag(varItem) & m_strEndDelimiter & | | & varItem & Chr$(13)
+		End Forall
+		
+		getFieldList = strReturnValue
+		
+	End Function
+	
+End Class
+
+
+
+'================================================================
+'  Merge Field
+'================================================================
+'  Contains the details needed when doing a field merge.  
+'     The values are loaded by the merge process at the beginning and used for 
+'      merging selected document(s).
+'================================================================
+Public Class MergeField
+	
+	'--- convert to properties if needed
+	Public FieldType As String
+	Public FieldName As String
+	Public Formula As String
+	Public FieldLocale As String
+	
+	'Set all fields when created using constructor
+	Public Sub New( strFieldName As String, strFormula As String, strLocale As String, strFieldType As String )
+		FieldName = strFieldName
+		Formula = strFormula
+		FieldLocale = strLocale
+		FieldType = strFieldType
+	End Sub
+	
+End Class
+%REM
+Class: MergeFieldAttachment
+Author: Joseph Francis
+Created: 8/19/2002
+
+ Purpose:	Used internally by MergeGenerator
+			Holds variables needed for dynamic attachments / text
+'=========================================================================
+%END REM
+Public Class MergeFieldAttachment
+	'--- public fields, not properties to save code.  Can make properties if needed without breaking code
+	Public attachmentKeyType As String
+	Public attachmentKey As String
+	Public attachmentView As String
+	Public attachmentFields As Variant
+	
+	'--- Set all fields when created using constructor
+	Public Sub New( theKeyType As String, theKey As String, theView As String, theFields )
+		attachmentKeyType = theKeyType
+		attachmentKey = theKey
+		attachmentView = theView
+		attachmentFields = theFields
+	End Sub
+	
+	'--- Finds the related attachments and embeds them into the passed Rich Text Item
+	Public Function AddAttachmentsToRTItem( theRTItem As NotesRichTextItem, theTargetDoc As NotesDocument ) As Integer
+		'--- Find attachments related to this item and appends them to rich text item passed
+		If theRTItem Is Nothing Then Exit Function
+		If theTargetDoc Is Nothing Then Exit Function
+		
+		Dim myKey As String
+		Dim myEvalKey As Variant
+		Dim session As New NotesSession
+		Select Case attachmentKeyType
+		Case "Value" : myKey = attachmentKey
+		Case "Field" : myKey = theTargetDoc.getItemValue( attachmentKey )(0)
+         '-- JF - Updated 8-20 to allow for flexy lookups			
+		Case "Formula"
+			myEvalKey = Evaluate( attachmentKey, theTargetDoc )
+			myKey = myEvalKey(0)
+		End Select
+		
+		Dim myAttachmentsDoc As NotesDocument
+		Dim myAttachmentsView As NotesView
+		Dim myParentDB As NotesDatabase
+		Set myParentDB = theTargetDoc.parentDatabase
+		If myParentDB.Title = "Outgoing Mail" Then
+			Set myParentDB = session.CurrentDatabase
+		Elseif Right(myParentDB.Title, 7) = "Mailbox" Then
+			Set myParentDB = session.CurrentDatabase
+		Elseif Right(myParentDB.Title, 4) = "Mail" Then
+			Set myParentDB = session.CurrentDatabase
+		End If
+		Set myAttachmentsView = myParentDB.getView( attachmentView )
+		If myAttachmentsView Is Nothing Then Exit Function
+		Set myAttachmentsDoc = myAttachmentsView.getDocumentByKey( myKey )
+		If myAttachmentsDoc Is Nothing Then Exit Function
+		
+		'--- Get attachments
+		If attachmentFields = "" Then 
+			'--- Exit, must supply a field
+			Exit Function
+		Else
+			'--- Use attachments from rich text item name passed
+			Dim myAttachmentsField As NotesRichTextItem
+			Set myAttachmentsField = myAttachmentsDoc.getFirstItem( attachmentFields )
+			If myAttachmentsField Is Nothing Then Exit Function
+			Call theRTItem.appendRTItem( myAttachmentsField )
+		End If
+		AddAttachmentsToRTItem = True
+	End Function
+	
+End Class

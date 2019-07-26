@@ -1,0 +1,107 @@
+'++LotusScript Development Environment:2:5:(Options):0:72
+%REM
+	Library ConflictResolution
+	Created Aug 8, 2011 by Allison Janicki/Armonk/Contr/IBM
+	Description: Comments for Library
+%END REM
+Option Public
+Option Declare
+
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Class ChangedField
+Declare Function HasDocChanged(cdoc As NotesDocument) As Variant
+
+'++LotusScript Development Environment:2:5:(Declarations):0:10
+Dim DocSaveButtonFlag As Variant
+Dim DocCancelButtonFlag As Variant
+Dim DocCloseButtonFlag As Variant
+Dim DocSavedFlag As Variant
+Dim DocSavedTime As Variant
+Dim origDocument As NotesDocument   ' Memory Resident copy of document
+Dim changedFields As Variant
+Dim FoundRichText As Variant
+
+%Include "LSCONST.LSS"
+
+Dim doc1 As NotesDocument
+Dim doc2 As NotesDocument
+
+Dim workingField As ChangedField
+
+
+Class ChangedField
+	Public fldName As String
+	Public origValue As Variant
+	Public currValue As Variant
+	
+	Sub New(fn As String, o As Variant, c As Variant)
+		fldname = fn
+		If Not o Is Nothing Then origValue = o.VALUES
+		If Not c Is Nothing Then currValue = c.VALUES
+	End Sub
+End Class
+'++LotusScript Development Environment:2:1:HasDocChanged:1:8
+Function HasDocChanged(cdoc As NotesDocument) As Variant
+	On Error GoTo founderror
+	Dim session As New NotesSession
+	Dim bdoc As NotesDocument
+	Dim cni As NotesItem
+	Dim ub%, niName$, idx%, outMsg$
+	Dim isChanged As Variant
+	
+	HasDocChanged = False
+	
+	Set bdoc = origDocument 
+	
+	ReDim changedFields(0) As ChangedField
+	
+	ForAll bni In bdoc.ITEMS
+		If Not bni.TYPE = RICHTEXT Then
+			niName = bni.NAME
+			isChanged = False
+			If Left(niName,1) = "$" Then
+				isChanged = False               
+			ElseIf cdoc.HASITEM(niName) Then
+				Set cni = cdoc.GETFIRSTITEM(niName)
+				If UBound(bni.VALUES) <> UBound(cni.VALUES) Then
+					isChanged = True
+				Else
+					For idx = 0 To UBound(bni.VALUES)
+						If bni.VALUES(idx) <> cni.VALUES(idx) Then ischanged = True
+					Next
+				End If
+			Else
+				ischanged = True
+			End If
+			If isChanged Then
+				If changedFields(0) Is Nothing Then ub = 0 Else ub = UBound(changedFields) + 1
+				ReDim Preserve changedFields(ub)
+				Set changedFields(ub) = New ChangedField(niName, bni, cni)
+			End If
+		Else
+			FoundRichText = True
+		End If
+	End ForAll
+	If Not changedFields(0) Is Nothing Then 
+		outmsg = "Changed Fields:"
+		ForAll cfld In changedFields
+			outmsg = outmsg & " [" & cfld.fldName & "]"
+		End ForAll
+		Print outMsg
+		HasDocChanged = True
+	End If
+	Exit Function
+	
+Founderror:
+	
+	Select Case Err
+	Case 13
+		Resume Next
+	Case Else
+		Resume Next
+	End Select       
+	
+End Function
+
+

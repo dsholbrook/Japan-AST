@@ -1,0 +1,204 @@
+<?xml version='1.0' encoding='utf-8'?>
+<scriptlibrary name='GRP_ON24' xmlns='http://www.lotus.com/dxl' version='10.0'
+ maintenanceversion='1.0' replicaid='862577A00065A565' hide='v3 v4strict'
+ designerversion='8.5.3'>
+<noteinfo noteid='5ba' unid='59A433A61687265F8525751200622BB3' sequence='26'>
+<created><datetime>20081201T125217,15-05</datetime></created>
+<modified><datetime dst='true'>20180929T235531,72-05</datetime></modified>
+<revised><datetime>20160310T111937,31-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235531,72-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235531,72-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='library'><javaproject class='ON24API.class' codepath='c:\Program Files (x86)\IBM\Notes\Data'><java
+ name='ON24API.java'>import lotus.domino.*;
+import java.net.*;
+import java.io.*;
+import java.util.*; 
+import java.security.*;
+import javax.net.ssl.*;
+
+public class ON24API {
+
+// ID and password for WI query access	
+	private String strLog;
+	private String inputID;
+	
+	public String error = "Error: ";
+	public String log   = "Log: ";
+	
+	// Log setter method
+	public void appendToLog(String s){
+		log += s;
+	}
+	
+	// Getters	
+	public String getError()        		{ return error; }
+	public String getLog()        		{ return log;	 }	
+	
+	public int sendRegDataToON24(String strUrl, String strXmlPostData){ // This is the POST method
+
+
+System.out.println("Post Url:  " + strUrl);
+System.out.println("Post Data: " + strXmlPostData);
+
+		int intOutcome = 0;
+		
+		try {			
+			System.setProperty("java.protocol.handler.pkgs","com.sun.net.ssl.internal.www.protocol"); 
+			java.net.URL u = new java.net.URL(strUrl);						
+			java.net.URLConnection uc = u.openConnection();						
+	   		// ++++++++++ This is here because host name does not match cert BEGIN  ++++++++++ 
+	   		System.out.println("Before host mismatch to cert");
+    			javax.net.ssl.HostnameVerifier hv = new javax.net.ssl.HostnameVerifier() {
+				public boolean verify(String urlHostname, javax.net.ssl.SSLSession certHostname) {
+					System.out.println(urlHostname);
+					return true;
+				}
+			}; 
+			HttpsURLConnection.setDefaultHostnameVerifier(hv);
+		 	//  ++++++++++ This is here because host name does not match cert END  ++++++++++ 	 
+			HttpsURLConnection connection = (HttpsURLConnection) uc;
+			connection.setDoOutput(true);
+			connection.setDoInput(true);
+			connection.setRequestMethod("POST");
+			connection.setRequestProperty("Content-type","application/x-www-form-urlencoded");
+			connection.setRequestProperty("User-Agent","");
+			OutputStream out = connection.getOutputStream();
+			Writer wout = new OutputStreamWriter(out);
+			wout.write(strXmlPostData);
+			wout.flush();
+
+			int statusCode = connection.getResponseCode();
+          	System.out.println("HTTP Status Code : " + statusCode);
+          	
+			wout.close();
+			
+			InputStream in = connection.getInputStream();
+			StringBuffer xmlResponseBuffer = new StringBuffer(); // 6k buffer 6144
+			int c;	
+		
+			// Reading response
+			while ((c = in.read()) != -1)
+				xmlResponseBuffer.append((char) c);		
+			in.close();
+		
+			strLog = "";
+		
+			String xmlResponse = xmlResponseBuffer.toString();
+          	strLog = xmlResponse;
+          	System.out.println("ON24: xmlResponse" + xmlResponseBuffer.toString());		
+          	error += xmlResponseBuffer.toString();
+			// search for error status &lt;loginerror&gt;
+			int idxBegin = -1, idxEnd = -1;
+			int tokenLen = 0;
+			idxBegin = xmlResponse.indexOf("&lt;error&gt;");
+		
+			if (idxBegin &gt; -1){		
+				tokenLen = "&lt;error&gt;".length();
+				idxEnd = xmlResponse.indexOf("&lt;error&gt;", idxBegin + tokenLen);
+				//String errCode = xmlResponse.substring(idxBegin + tokenLen, idxEnd);
+				//String errMessage = xmlResponse.substring(idxBegin + tokenLen, idxEnd);		
+			}else{
+				// We processed the call without problem so set return to 1 = Success
+				intOutcome = 1;
+			}
+		
+		
+			
+		} catch(Exception e) {			
+			String faultstring = "";
+			if (e instanceof NotesException) {
+				NotesException ne = (NotesException)e;				
+				faultstring = ne.getClass().getName() + " " + ne.id +": " + ne.text;
+				System.err.println(faultstring);
+			} else {				
+				faultstring = e.toString();			
+			}
+			this.error          = faultstring;
+				
+			System.out.println("&lt;sendRegDataToON24&gt;");
+			e.printStackTrace();
+			System.out.println("&lt;/sendRegDataToON24&gt;");
+		}
+		
+		return intOutcome;
+	}
+		
+	public int sendRegDataToON24(String strUrl){ // This is the GET method, soon to be deprecated
+		
+		String server = "" ;
+		String xmlReqest = "";
+		String inputId = "";
+		int intOutcome = 0;
+
+		Session s = null;
+
+		try {
+			int idxBegin = -1, idxEnd = -1;
+			int tokenLen = 0;
+		
+			
+			java.net.URL u = new java.net.URL(strUrl);						
+			java.net.URLConnection connection = u.openConnection();			
+			connection.setDoOutput(true);
+			connection.setDoInput(true);			
+			connection.setRequestProperty("Content-type", "text/xml");
+			connection.setRequestProperty("User-Agent","");		
+			
+		OutputStream out = connection.getOutputStream();		
+		InputStream in = connection.getInputStream();
+		StringBuffer xmlResponseBuffer = new StringBuffer(); // 6k buffer 6144
+		int c;	
+		
+//		Reading response
+		while ((c = in.read()) != -1)
+			xmlResponseBuffer.append((char) c);		
+		in.close();
+		
+		strLog = "";
+		
+		String xmlResponse = xmlResponseBuffer.toString();
+          strLog = xmlResponse;
+          System.out.println("xmlResponse" + xmlResponseBuffer.toString());		
+
+		// search for error status &lt;span class="error"&gt;
+		idxBegin = xmlResponse.indexOf("&lt;span class=\"error\"&gt;");
+		
+		if (idxBegin &gt; -1){
+		
+		tokenLen = "&lt;span class=\"error\"&gt;".length();
+		idxEnd = xmlResponse.indexOf("&lt;/span&gt;", idxBegin + tokenLen);
+		String errCode = xmlResponse.substring(idxBegin + tokenLen, idxEnd);
+			String errMessage = xmlResponse.substring(idxBegin + tokenLen, idxEnd);		
+		}else{
+			// We processed the call without problem so set return to 1 = Success
+			intOutcome = 1;
+		}		
+
+		} catch(Exception e) {			
+			String faultstring = "";
+			if (e instanceof NotesException) {
+				NotesException ne = (NotesException)e;				
+				faultstring = ne.getClass().getName() + " " + ne.id +": " + ne.text;
+				System.err.println(faultstring);
+			} else {				
+				faultstring = e.toString();			
+			}
+			this.error          = faultstring;
+				
+			System.out.println("&lt;sendRegDataToON24&gt;");
+			e.printStackTrace();
+			System.out.println("New Server: " + server);
+			System.out.println("&lt;/sendRegDataToON24&gt;");
+		}
+		return intOutcome;
+	}
+
+}
+
+</java></javaproject></code>
+<item name='$JavaCompilerSource'><text>1.3</text></item>
+<item name='$JavaCompilerTarget'><text>1.2</text></item>
+<item name='$POID'><datetime>20160309T155802,77-06</datetime></item></scriptlibrary>
+
