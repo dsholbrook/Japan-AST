@@ -1,0 +1,162 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Dialog\Badge Tool)' alias='badgedialog' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='7'
+ bgcolor='#e1e1e1' inherit='true' conflictaction='mergeconflicts'>
+<noteinfo noteid='14e12' unid='33E27B2C12E7F4CD86257F710078ADE1' sequence='12'>
+<created><datetime>20160309T155808,33-06</datetime></created>
+<modified><datetime dst='true'>20180929T235603,45-05</datetime></modified>
+<revised><datetime>20160310T111654,87-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235603,45-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235603,45-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+
+</lotusscript></code><code event='declarations'><lotusscript>Dim status As String
+Dim entype As String</lotusscript></code></globals><code event='windowtitle'><formula
+>"Badge Details - " + en_first + " " + en_last</formula></code>
+<actionbar bgcolor='#d4d0c8' bordercolor='black'>
+<actionbuttonstyle bgcolor='#d4d0c8'/><font size='9pt'/><border width='0px 0px 1px'/></actionbar>
+<body><richtext>
+<pardef id='1' hide='read edit notes web'/>
+<par def='1'><run><font size='8pt' color='red'/><field type='text' allowmultivalues='true'
+ kind='computed' name='modified' listinputseparators='comma semicolon' listdisplayseparator='semicolon'><code
+ event='defaultvalue'><formula>Modified:@Text(@Modified)</formula></code></field></run><run
+><font size='8pt'/></run><run><font size='8pt' color='red'/><field type='text'
+ allowmultivalues='true' kind='computed' name='modifiedby' listinputseparators='comma semicolon'
+ listdisplayseparator='semicolon'><code event='defaultvalue'><formula>modifiedby:@V3UserName</formula></code></field></run><run
+><font size='8pt'/></run><run><font size='8pt' color='red'/><field type='text'
+ kind='editable' name='invitationKey'><code event='defaultvalue'><formula
+>invitationKey</formula></code></field></run><run><font size='8pt'/></run></par><compositedata
+ type='183' prevtype='129' nexttype='65410' afterparcount='1'>
+txygBV8WERELAAAAPgAAAAAAAAAAAAAAAAAAAA==
+</compositedata>
+<pardef id='2' leftmargin='1in'><code event='hidewhen' enabled='false'><formula
+>enrolltype != "Customer"</formula></code></pardef>
+<par def='2'/><compositedata type='186' prevtype='129' nexttype='65410' afterparcount='1'>
+uiq+BbQA/RVpAQUBCgwBAAUA////AAkAADAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<pardef id='3' leftmargin='1in'><code event='hidewhen' enabled='false'><formula
+>enrolltype != "Customer"</formula></code></pardef>
+<par def='3'><run><font size='12pt' color='navy' style='bold' name='Helv'
+ pitch='variable' truetype='false' familyid='20'/><field type='text' kind='computed'
+ name='fullname'><code event='defaultvalue'><formula>en_first + " "  +  en_last</formula></code></field></run></par><compositedata
+ type='186' prevtype='129' nexttype='131' afterparcount='1'>
+uirNBf0BFBZpAQUBCgoBAAUA////AAkAADAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='3'><run><font color='navy' style='bold' name='Helv' pitch='variable'
+ truetype='false' familyid='20'/><field type='text' kind='computed' name='companyname'><code
+ event='defaultvalue'><formula>en_companyname</formula></code></field></run></par><compositedata
+ type='184' prevtype='129' nexttype='65410' afterparcount='1'>
+uCrtBSwFlwUqAQUAAAgBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<pardef id='4'/>
+<par def='4'><run><font size='8pt' name='Helv' pitch='variable' truetype='false'
+ familyid='20'/>Badge first name</run></par><compositedata type='184' prevtype='129'
+ nexttype='131' afterparcount='1'>
+uCoLBo4N9AIAAQUAAAgBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt' name='Helv' pitch='variable' truetype='false'
+ familyid='20'/>Job title</run></par><compositedata type='186' prevtype='129'
+ nexttype='131' afterparcount='1'>
+uiq4C6cKtQ8eAQUBCggBAAUA////AAkAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt' color='navy' style='bold' name='Helv' pitch='variable'
+ truetype='false' familyid='20'/><field type='text' kind='computed' name='en_first'
+ taborder='3'><code event='defaultvalue'><formula>en_first</formula></code></field></run></par><compositedata
+ type='186' prevtype='129' nexttype='131' afterparcount='1'>
+uiq4Cw4MtQ8eAQUBCggBAAUA////AAkAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt' color='navy' style='bold' name='Helv' pitch='variable'
+ truetype='false' familyid='20'/><field type='text' kind='computed' name='en_last'
+ taborder='4'><code event='defaultvalue'><formula>en_last</formula></code></field></run></par><compositedata
+ type='184' prevtype='129' nexttype='131' afterparcount='1'>
+uConBi0JcRENAQUBCggBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt' style='bold' name='Helv' pitch='variable'
+ truetype='false' familyid='20' color='navy'/>Attendee Information</run></par><compositedata
+ type='184' prevtype='129' nexttype='131' afterparcount='1'>
+uConBvADcRErAQUBCggBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt' style='bold' name='Helv' pitch='variable'
+ truetype='false' familyid='20' color='navy'/>Attendee Badge Information</run></par><compositedata
+ type='186' prevtype='129' nexttype='65410' afterparcount='1'>
+uirDC/gEtQ8eAQUBCggBAAEA////AAEAAAAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<pardef id='5' leftmargin='1in'/>
+<par def='5'><run><font size='8pt' color='navy' style='bold' name='Helv' pitch='variable'
+ truetype='false' familyid='20'/><field borderstyle='none' type='text' kind='editable'
+ name='en_badgenamefirst' taborder='2'><keywords helperbutton='false' columns='2'
+ ui='radiobutton'/><code event='defaultvalue'><formula>@If(en_badgenamefirst = "";en_first;en_badgenamefirst)</formula></code></field></run></par><compositedata
+ type='186' prevtype='129' nexttype='131' afterparcount='1'>
+uiq4C4MGtg8tAQUBCggBAAUA////AA0AABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='5'><run><font size='8pt' color='navy' style='bold' name='Helv' pitch='variable'
+ truetype='false' familyid='20'/><field defaultfocus='true' borderstyle='none'
+ type='text' allowmultivalues='true' kind='computed' name='en_badgenamelast'
+ taborder='1' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='5' ui='checkbox'/><code event='defaultvalue'><formula
+>@If(en_badgenamelast= "";en_last;en_badgenamelast)</formula></code></field></run></par><compositedata
+ type='184' prevtype='129' nexttype='131' afterparcount='1'>
+uCoLBgsMIAQKAQUAAAgBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt' name='Helv' pitch='variable' truetype='false'
+ familyid='20'/>Last name</run></par><compositedata type='184' prevtype='129'
+ nexttype='131' afterparcount='1'>
+uCoLBrAK6AP7AAUAAAgBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt' name='Helv' pitch='variable' truetype='false'
+ familyid='20'/>First name</run></par><compositedata type='184' prevtype='129'
+ nexttype='131' afterparcount='1'>
+uCr8BaEGHwUIAQUAAAgBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt' name='Helv' pitch='variable' truetype='false'
+ familyid='20'/>Badge last name</run></par><compositedata type='186' prevtype='129'
+ nexttype='131' afterparcount='1'>
+uiq4C1kNtQ8eAQUBCggBAAUA////AAkAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt' color='navy' style='bold' name='Helv' pitch='variable'
+ truetype='false' familyid='20'/><field borderstyle='none' type='text' kind='computed'
+ name='en_title' taborder='5'><keywords helperbutton='false' columns='2' ui='radiobutton'/><code
+ event='defaultvalue'><formula>en_gender</formula></code></field></run></par><compositedata
+ type='186' prevtype='129' nexttype='131' afterparcount='1'>
+uiq4C7MOtQ8eAQUBCggBAAUA////AAkAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt' color='navy' style='bold' name='Helv' pitch='variable'
+ truetype='false' familyid='20'/><field borderstyle='none' type='text' kind='computed'
+ name='en_companyname' taborder='6'><keywords helperbutton='false' recalconchange='true'
+ columns='2' ui='radiobutton'/><code event='defaultvalue'><formula>en_companyname</formula></code></field></run></par><compositedata
+ type='184' prevtype='129' nexttype='131' afterparcount='1'>
+uCoLBvYOpgUbAQUAAAgBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt' name='Helv' pitch='variable' truetype='false'
+ familyid='20'/>Company name</run></par><compositedata type='184' prevtype='129'
+ nexttype='131' afterparcount='1'>
+uCoCFQAA/Qa1AAYABAcBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='7pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='blue'/>Click 'OK' to Save Changes</run><compositedata
+ type='185' prevtype='222' nexttype='129' afterparcount='7'>
+uRIAAAAAAAAAAAAAAAAAAAAA
+</compositedata></par>
+<pardef id='6'/>
+<par def='6'><run><font color='#f8eca3'/></run></par>
+<par def='6'><run><font size='8pt' color='#1c7a1a'/></run></par>
+<par def='6'><run><font size='8pt' style='bold' name='Helv' pitch='variable'
+ truetype='false' familyid='20' color='#e89c4f'/></run></par>
+<par def='6'><run><font color='#d4b0f0'/></run></par>
+<par def='2'><run><font style='bold underline' color='red'/></run></par></richtext></body>
+<item name='ad_formstatus_memosent' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='pay_date' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='en_fiamount' summary='false' sign='true'><number>0</number></item>
+<item name='en_ficollected' summary='false' sign='true'><number>0</number></item>
+<item name='OriginalModTime'><datetime dst='true'>20060421T095918,46-04</datetime></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>badgedialog</text></item></form>
+

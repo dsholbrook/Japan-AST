@@ -1,0 +1,122 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(CoreWeb UI\Help Page)' alias='frmCoreWebHelp' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' publicaccess='false'
+ designerversion='8.5.3' renderpassthrough='true'>
+<noteinfo noteid='628c6' unid='CD90EEA3755DEF8985257B57004FE832' sequence='2'>
+<created><datetime dst='true'>20130424T103247,86-04</datetime></created>
+<modified><datetime dst='true'>20180930T002406,76-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170835,41-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002406,76-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002406,76-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='windowtitle'><formula>tmpName := @DbLookup("";"";"luAppProfile"; "App" ; "dp_SystemName");
+@If( @IsError( tmpName ) ; "Set up database profile" ; tmpName )</formula></code>
+<body><richtext>
+<pardef id='1' leftmargin='1in' hide='notes web mobile'/>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<pardef id='2'><parstyle name='Between Paragraphs' incyclekey='true' alldocuments='true'
+ username='Joseph Francis-'><font size='3pt' color='red' name='face26'/></parstyle></pardef>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table minrowheight='0.7500in' cellbordercolor='gray' leftmargin='0.7500in'
+ widthtype='fixedleft' columnspacing='0.1000in' refwidth='7.1833in'><tablecolumn
+ width='4.7125in'/><tablecolumn width='2.0708in'/>
+<tablerow>
+<tablecell valign='center' borderwidth='3px 0px'>
+<cellbackground repeat='hrepeat'/>
+<pardef id='4' leftmargin='0' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='13pt' style='bold'/>Website Administration</run></par>
+<par def='4'><run><font size='13pt' style='bold' color='#0083b8'/></run><run
+><font style='bold' color='#0083b8'/><computedtext><code event='value'><formula
+>tmpName := @DbLookup("";"";"luAppProfile"; "App" ; "dp_SystemName");
+@If( @IsError( tmpName ) ; "Set up database profile" ; tmpName )</formula></code></computedtext></run><run
+><font size='13pt' style='bold' color='#0083b8'/></run></par>
+<par def='4'><run><font size='13pt' style='bold' color='gray'/>Getting Started</run></par></tablecell>
+<tablecell borderwidth='3px 0px'>
+<cellbackground repeat='center'/>
+<pardef id='5' align='right' hide='print' keepwithnext='true' keeptogether='true'/>
+<par def='5'><picture width='199px' height='68px'><imageref name='coreSiteLogo.jpg'/></picture></par></tablecell></tablerow></table>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='#0083b8' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='7.1000in'><tablecolumn
+ width='7in'/>
+<tablerow>
+<tablecell borderwidth='2px 0px 0px' bgcolor='white'>
+<pardef id='7' leftmargin='0.0104in' rightmargin='7in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='7'><run><font size='12pt' style='bold' color='#0083b8'/>Overview</run></par>
+<par def='7'><run><font size='11pt'/>This area provides the ability to create a website with no new design elements or template generator usage needed.  New design elements can be easily added to websites created in this area as detailed below.</run></par>
+<par def='7'><run><font size='11pt'/></run></par>
+<par def='7'><run><font size='11pt' style='bold'/>IBM Websites consists of the following elements:</run></par>
+<pardef id='8' leftmargin='0.2604in' rightmargin='7in' list='bullet' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='11pt' style='bold'/>Website profiles</run><run
+><font size='11pt'/> - This creates the IBM Website Framework for a site.  Language and audience (i.e. w3) details are specified at this level.  One Website (profile) can contain one or more Navigation Areas.</run></par>
+<par def='8'><run><font size='11pt' style='bold'/>Navigation areas</run><run
+><font size='11pt'/> -  A navigation area is a set of web pages with a common set of tabs. The navigation area document defines the tabs and details for a group of pages.  Page title, header image and sidebar details are specified here.  Relevant details can be overridden on content pages as desired. </run></par>
+<par def='8'><run><font size='11pt' style='bold'/>Content pages</run><run
+><font size='11pt'/> - A content document is a single page on the site and is contained inside a navigational area.  In addition to standard content pages, XPages can be easily included in the navigation area for advanced functionality, forms and views, etc.</run></par>
+<par def='8'><run><font size='11pt' style='bold'/>Web files</run><run><font
+ size='11pt'/> - A document that contains one or more files.  These are integrated into the header graphic selections for navigational areas and content pages.  Other web files can be included here for developer use, such as .js and .css files.</run></par>
+<par def='7'><run><font size='11pt' style='bold'/></run></par>
+<par def='7'><run><font size='12pt' style='bold' color='#0083b8'/>Quick Start</run></par>
+<par def='7'><run><font size='11pt' style='bold'/></run></par>
+<par def='7'><run><font size='11pt' style='bold'/>Creating a content site:</run></par>
+<par def='8'>Create a Website profile, enter IBM details and select the target audience.  Defaults to English Worldwide.</par>
+<par def='8'>Create a Navigation Area and select which Website it belongs to.  Use the Nav Creator to create the JSON object used for site navigation  Any JSON object with proper details can be used that provides the details needed to build the tabs (and subtabs) for this navigation area.</par>
+<par def='8'>Create content pages and select the Navigation Area they belong in.</par>
+<par def='8'>Note: Preview any content page by opening the page using Actions - Preview in Web Browser - Default Browser.</par>
+<par def='7'/>
+<par def='7'><run><font size='12pt' style='bold'/>Intregrating the site with new design elements</run></par>
+<par def='7'><run><font size='11pt' style='bold'/></run></par>
+<par def='7'><run><font size='11pt' style='bold'/>Adding an XPage</run><run
+><font size='11pt'/> to a </run><run><font size='11pt' style='bold'/>Navigational Area</run><run
+><font size='11pt'/>.</run></par>
+<par def='8'><run><font size='11pt'/>Create a new XPage and add a </run><run
+><font size='11pt' style='bold'/>coreSitePageFrame</run><run><font size='11pt'/> control.</run></par>
+<par def='8'><run><font size='11pt'/>In the control custom properties, add navID of the related "Navigational area"</run></par>
+<par def='8'><run><font size='11pt'/>Add a </run><run><font size='11pt' style='bold'/>coreSiteIBMContentLayout </run><run
+><font size='11pt'/>control in the only facet of the </run><run><font size='11pt'
+ style='bold'/>coreSitePageFrame</run><run><font size='11pt'/> control.</run></par>
+<par def='8'><run><font size='11pt'/>Add a  </run><run><font size='11pt' style='bold'/>coreSiteSidebar </run><run
+><font size='11pt'/>control into the right facet </run></par>
+<par def='8'><run><font size='11pt'/>Add a standard </run><run><font size='11pt'
+ style='bold'/>Panel</run><run><font size='11pt'/> control into the left facet and include your content there.</run></par>
+<par def='7'><run><font size='11pt'/></run></par>
+<par def='7'><run><font size='11pt' style='bold'/>XPage Forms</run><run><font
+ size='11pt'/>:</run></par>
+<par def='8'><run><font size='11pt'/>Create a new XPage as described above.</run></par>
+<par def='8'><run><font size='11pt'/>In XPages Data - add </run><run><font
+ size='11pt' style='bold'/>document1</run><run><font size='11pt'/> linked to the desired form.</run></par>
+<par def='8'><run><font size='11pt'/>Add a </run><run><font size='11pt' style='bold'/>coreSiteForm </run><run
+><font size='11pt'/>control to the left facet or panel added for content.</run></par>
+<par def='8'><run><font size='11pt'/>Add a standard </run><run><font size='11pt'
+ style='bold'/>Panel</run><run><font size='11pt'/> control into the only facet.</run></par>
+<par def='8'><run><font size='11pt'/>Go into design mode, add header html (i.e. &lt;h2&gt; or &lt;p class="ibm-intro"&gt;)</run></par>
+<par def='8'><run><font size='11pt'/>Add </run><run><font size='11pt' style='bold'/>coreSiteField</run><run
+><font size='11pt'/> controls under the added header and set the custom properties as needed.</run></par>
+<par def='8'><run><font size='11pt'/>Add a </run><run><font size='11pt' style='bold'/>coreSiteFormSubmitButtons</run><run
+><font size='11pt'/> control </run><run><font size='11pt'/>under the fields.</run></par>
+<par def='8'><run><font size='11pt'/>Preview the form, it should be able to be submitted.  It will submit the related form and run the web query agent and/or use $$return for results.</run></par>
+<par def='8'><run><font size='11pt'/>Add custom validations, translations and updates related to fields on the form and add any additional client side functionality needed via standard dojo / javascript.</run></par>
+<par def='8'><run><font size='11pt'/>Note: </run><run><font size='11pt'/>Forms can also be submitted via ajax if no attachments are needed.</run></par>
+<par def='7'><run><font size='11pt'/></run></par>
+<par def='7'><run><font size='11pt'/></run></par>
+<par def='7'><run><font size='11pt' style='bold'/>XPage - Quick views: </run></par>
+<par def='8'><run><font size='11pt'/>Create a view based on other similar views.  Note the label has JSON for additional properties.</run></par>
+<par def='8'><run><font size='11pt'/>Create a new XPage as described above.</run></par>
+<par def='8'><run><font size='11pt'/>Add a new coreSiteWebViewAsTable control and set the viewName property.</run><run
+><font size='11pt'/> </run></par>
+<par def='8'><run><font size='11pt'/>Use the overrides property to provide additional details or in replacement of JSON in the view label.</run></par></tablecell></tablerow></table>
+<pardef id='9' leftmargin='0.8000in'/>
+<par def='9'/>
+<pardef id='10'/>
+<par def='10'><run><font size='12pt'/></run></par></richtext></body>
+<item name='$FrameInfo'><textlist><text>CoreWeb - Admin|coreWebAdmin</text><text
+>Body</text></textlist></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>frmCoreWebHelp</text></item></form>
+

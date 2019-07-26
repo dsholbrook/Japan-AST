@@ -1,0 +1,563 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(CoreWeb\Site Profile)' alias='frmWebSiteProfile' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='8.5.3'
+ renderpassthrough='true'>
+<noteinfo noteid='6271e' unid='63231C438F747E3385257B4D0056DBEA' sequence='5'>
+<created><datetime dst='true'>20130414T114843,94-04</datetime></created>
+<modified><datetime dst='true'>20180930T002335,38-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170836,10-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002335,38-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002335,38-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='windowtitle'><formula>"Database Profile"</formula></code>
+<actionbar bgcolor='white' bordercolor='black'><actionbarstyle height='32px'/>
+<actionbuttonstyle bgcolor='white'/><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><border style='solid' width='0px 0px 1px'
+ color='#0083b8'/>
+<action title='Close' icon='27' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([FileCloseWindow])</formula></code></action>
+<action title='Edit' icon='5' showinmenu='false' hide='edit previewedit web mobile'><code
+ event='click'><formula>@Command([EditDocument])</formula></code></action>
+<action title='Save &amp; Close' icon='21' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@If(@Command([FileSave]);@Command([CloseWindow]); "")</formula></code></action></actionbar>
+<body><richtext>
+<pardef id='1' leftmargin='1in' hide='notes web mobile'/>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<pardef id='2' leftmargin='1in' rightmargin='100%'><parstyle name='Between Paragraphs'
+ incyclekey='true'><font size='3pt' color='red' name='face26'/></parstyle></pardef>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table minrowheight='0.7500in' cellbordercolor='gray' leftmargin='0.7500in'
+ widthtype='fixedleft' columnspacing='0.1000in' refwidth='7.1833in'><tablecolumn
+ width='4.7125in'/><tablecolumn width='2.0708in'/>
+<tablerow>
+<tablecell valign='center' borderwidth='3px 0px'>
+<cellbackground repeat='hrepeat'/>
+<pardef id='4' leftmargin='0' tabs='L5.5000in' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='13pt' style='bold'/>Website - Site profile</run></par>
+<pardef id='5' leftmargin='0' keepwithnext='true' keeptogether='true'/>
+<par def='5'><run><font size='13pt' style='bold' color='#0083b8'/></run><run
+><font style='bold' color='#0083b8'/><computedtext><code event='value'><formula
+>wp_SystemName</formula></code></computedtext></run><run><font size='13pt'
+ style='bold' color='#0083b8'/></run></par>
+<pardef id='6' leftmargin='0' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>@IsNewDoc</formula></code></pardef>
+<par def='6'><run><font size='13pt' style='bold' color='gray'/></run><run
+><font color='gray'/><computedtext><code event='value'><formula>"Last updated " + @Text( @Modified )</formula></code></computedtext></run><run
+><font size='13pt' style='bold' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='3px 0px'>
+<cellbackground repeat='center'/>
+<pardef id='7' align='right' hide='print' keepwithnext='true' keeptogether='true'/>
+<par def='7'><picture width='199px' height='68px'><imageref name='coreSiteLogo.jpg'/></picture></par></tablecell></tablerow></table>
+<pardef id='8' leftmargin='1in' rightmargin='100%' hide='notes web'><parstyle
+ name='Between Paragraphs Hidden'><font size='3pt' color='red' name='face26'/></parstyle></pardef>
+<par def='8'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>v</run></par>
+<table cellbordercolor='gray' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='7.1000in'><tablecolumn
+ width='7in'/>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='10' leftmargin='0.0104in' rightmargin='7in' hide='web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='14pt' style='bold' name='Calibri' pitch='variable'
+ truetype='true' familyid='20'/>Website template setup</run></par></tablecell></tablerow></table>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='#0083b8' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0299in' columnspacing='0.0500in' refwidth='7.1250in'><tablecolumn
+ width='1.5875in'/><tablecolumn width='3.3375in'/><tablecolumn width='1.9000in'/>
+<tablerow>
+<tablecell borderwidth='2px 0px 1px'>
+<pardef id='12' keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Website ID *</run></par></tablecell>
+<tablecell borderwidth='2px 0px 1px'>
+<pardef id='13' keepwithnext='true' keeptogether='true'/>
+<par def='13'><field type='text' kind='editable' name='wp_key'><code event='defaultvalue'><formula
+>"Site"</formula></code></field><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='2px 0px 1px'>
+<pardef id='14' keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Key value used to look up this document.  </run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Title *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='13'><field type='text' kind='editable' name='wp_htmlhead_Title'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='14'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Name displayed in selection lists.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Setup method *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='13'><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='wp_setup_method'><keywords recalconchange='true'
+ columns='2' ui='dialoglist'><textlist><text>Use default setup|Default</text><text
+>Use specific setup|Define</text></textlist></keywords><code event='defaultvalue'><formula
+>"Default"</formula></code></field><run><font name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='14'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/>Standard</run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/> requires no template generator use.</run></par>
+<par def='14'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/>Specific</run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/> allows template generated code to be included as custom controls.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='15' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method != "Default"</formula></code></pardef>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Site audience</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='16' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method != "Default"</formula></code></pardef>
+<par def='16'><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='wp_site_audience'><keywords recalconchange='true'
+ columns='2' ui='dialoglist'><textlist><text>V18 Worldwide - English|ww_v18</text><text
+>V18 United States - English|en_US_v18</text><text>V18 Canada - English|en_CA_v18</text><text
+>V18 Canada - French|fr_CA_v18</text><text>V18 Germany - German|de_DE_v18</text></textlist></keywords><code
+ event='defaultvalue'><formula>"ww"</formula></code></field><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='17' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method != "Default"</formula></code></pardef>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Controls which template generated framework is used.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='18' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method != "Default" | @Right(wp_site_audience ; 3 ) != "v18"</formula></code></pardef>
+<par def='18'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Code version</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='19' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method != "Default" | @Right(wp_site_audience ; 3 ) != "v18"</formula></code></pardef>
+<par def='19'><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='wp_code_version'><keywords recalconchange='true'
+ columns='2' ui='dialoglist'><textlist><text>Production|prod</text><text>Development|dev</text><text
+>Pre-Development|pre</text><text>Michael Development|michael</text><text>Local Development|local</text></textlist></keywords><code
+ event='defaultvalue'><formula>"prod"</formula></code></field><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='20' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method != "Default" | @Right(wp_site_audience ; 3 ) != "v18"</formula></code></pardef>
+<par def='20'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Controls which set of code is loaded. </run><run
+><font name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>Developer ONLY</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='21' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method != "Default" | wp_site_audience != "w3"</formula></code></pardef>
+<par def='21'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>W3 Site Name *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='22' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method != "Default" | wp_site_audience != "w3"</formula></code></pardef>
+<par def='22'><field type='text' kind='editable' name='wp_site_name'><code
+ event='defaultvalue'><formula>""</formula></code></field><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='7' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='23' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method != "Default" | wp_site_audience != "w3"</formula></code></pardef>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Title displayed on W3 header</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='13'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='14'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='24' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method = "Default"</formula></code></pardef>
+<par def='24'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Custom Control - HEAD *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='25' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method = "Default"</formula></code></pardef>
+<par def='25'><field type='text' kind='editable' name='wp_htmlhead_control'><code
+ event='defaultvalue'><formula>"ibmSite_HTMLHEAD_default"</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='26' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method = "Default"</formula></code></pardef>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Name of the custom control to use as a server side include.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='27' hide='notes web mobile' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>wp_setup_method = "Default"</formula></code></pardef>
+<par def='27'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Masthead method *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='28' hide='notes web mobile' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>wp_setup_method = "Default"</formula></code></pardef>
+<par def='28'><run><font color='red'/></run><run><font color='red'/><field
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='wp_masthead_method'><keywords recalconchange='true' columns='2' ui='dialoglist'><textlist
+><text>Use control|Control</text><text>Use HTML|HTML</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Control"</formula></code></field></run><run
+><font style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='29' hide='notes web mobile' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>wp_setup_method = "Default"</formula></code></pardef>
+<par def='29'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='24'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Masthead</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='30' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method = "Default" | wp_masthead_method != "Control"</formula></code></pardef>
+<par def='30'><field type='text' kind='editable' name='wp_masthead_control'><code
+ event='defaultvalue'><formula>"ibmSite_MASTHEAD_default"</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Name of the custom control to use as a server side include.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell columnspan='3' borderwidth='1px 0px'>
+<pardef id='33' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method = "Default"| wp_masthead_method = "Control"</formula></code></pardef>
+<par def='33'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Enter the HTML for the MASTHEAD area below:</run></par>
+<par def='33'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='wp_html_header'/></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='5' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='27'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Footer method *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='28'><run><font color='red'/></run><run><font color='red'/><field
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='wp_footer_method'><keywords recalconchange='true' columns='1' ui='dialoglist'><textlist
+><text>Use control|Control</text><text>Use HTML|HTML</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Control"</formula></code></field></run><run
+><font style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='29'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='24'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Footer</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='34' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method = "Default" | wp_footer_method != "Control"</formula></code></pardef>
+<par def='34'><field type='text' kind='editable' name='wp_footer_control'><code
+ event='defaultvalue'><formula>"ibmSite_FOOTER_default"</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Name of the custom control to use as a server side include.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell columnspan='3' borderwidth='1px 0px 0px'>
+<pardef id='37' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>wp_setup_method = "Default" | wp_footer_method = "Control"</formula></code></pardef>
+<par def='37'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Enter the HTML for the FOOTER area below:</run></par>
+<par def='37'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='wp_html_footer'/></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='5' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='8'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='gray' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='7.1000in'><tablecolumn
+ width='7in'/>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='39' leftmargin='0.0104in' rightmargin='7in' hide='web mobile'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>wp_setup_method != "Default"</formula></code></pardef>
+<par def='39'><run><font size='14pt' style='bold' name='Calibri' pitch='variable'
+ truetype='true' familyid='20'/>Website template fields</run></par></tablecell></tablerow></table>
+<pardef id='40' leftmargin='0.8000in' rightmargin='100%'/>
+<par def='40'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='#0083b8' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0299in' columnspacing='0.0500in' refwidth='7.1250in'><tablecolumn
+ width='1.5875in'/><tablecolumn width='3.3375in'/><tablecolumn width='1.9000in'/>
+<tablerow>
+<tablecell borderwidth='2px 0px 1px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Owner *</run></par></tablecell>
+<tablecell borderwidth='2px 0px 1px'>
+<par def='16'><field type='text' kind='editable' name='wp_htmlhead_Owner'><code
+ event='defaultvalue'><formula>@Name([Abbreviate] ; @UserName )</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='2px 0px 1px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>IBM Template Generator Field</run></par>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/> - Notes name of contact</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>DC Type *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='wp_htmlhead_DCType'><code
+ event='defaultvalue'><formula>"CT500"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>IBM Template Generator Field</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>DC Subject *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='wp_htmlhead_DCSubject'><code event='defaultvalue'><formula
+>"ZZ999"</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>IBM Template Generator Field</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Keywords *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='wp_htmlhead_Keywords'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>IBM Template Generator Field</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Description *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><field type='text' kind='editable' name='wp_htmlhead_Desc'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>IBM Template Generator Field</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Effective date *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><field type='text' kind='editable' name='wp_htmlhead_EffectiveDate'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>IBM Template Generator Field</run></par>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/> - </run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/>YYYY-MM-DD</run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/> format</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Expiry date *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><field type='text' kind='editable' name='wp_htmlhead_ExpiryDate'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>IBM Template Generator Field</run></par>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/> - </run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/>YYYY-MM-DD</run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/> format</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Primary category</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><field type='text' kind='editable' name='wp_htmlhead_PrimaryCategory'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Optional category details</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Language</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><field type='text' kind='editable' name='wp_htmlhead_Language'><code
+ event='defaultvalue'><formula>"en-US"</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Language (i.e. en-US)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Country</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><field type='text' kind='editable' name='wp_htmlhead_Country'><code
+ event='defaultvalue'><formula>"US"</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Country (i.e. US)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Industry</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><field type='text' kind='editable' name='wp_htmlhead_Industry'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Optional industry</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Site ID</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><field type='text' kind='editable' name='wp_htmlhead_SiteID'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Optional Site ID</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<pardef id='42' leftmargin='0.8000in' rightmargin='100%'><code event='hidewhen'><formula
+>@IsNewDoc</formula></code></pardef>
+<par def='42'><run><font color='red'/></run><button width='2in' widthtype='maximum'
+ maxlines='1' wraptext='false' edge='rounded' bgcolor='#0083b8'><code event='click'><formula
+>@Command([Compose]; "frmWebContentNav" )</formula></code><font color='white'
+ style='bold'/>Add navigational area</button><run><font color='red'/></run><button
+ width='2in' widthtype='maximum' maxlines='1' wraptext='false' edge='rounded'
+ bgcolor='#0083b8'><code event='click'><formula>@If( @IsDocBeingEdited ; "" ; @Command([EditDocument]));
+@Command([ViewRefreshFields])</formula></code><font color='white' style='bold'/>Refresh</button><run
+><font size='3pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<table cellbordercolor='gray' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='7.1000in'><tablecolumn
+ width='7in'/>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='44' leftmargin='0.0104in' rightmargin='7in' hide='web mobile'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>@IsNewDoc</formula></code></pardef>
+<par def='44'><run><font size='14pt' style='bold' name='Calibri' pitch='variable'
+ truetype='true' familyid='20'/>Navigation Areas (Sets of Tabs)</run></par></tablecell></tablerow></table>
+<par def='42'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><embeddedview name='vContentNav' width='7.1201in'
+ height='2in'><code event='showsinglecategory'><formula>wp_key</formula></code><border
+ style='dot' width='1px' dropshadow='true'/></embeddedview><run><font color='red'/></run></par>
+<pardef id='45' leftmargin='0.8000in' rightmargin='100%'><code event='hidewhen'><formula
+>!@IsNewDoc</formula></code></pardef>
+<par def='45'><run><font color='red'/></run><button width='2in' widthtype='maximum'
+ maxlines='2' wraptext='false' edge='rounded' bgcolor='#0083b8'><code event='click'><formula
+>@Command([FileSave]);
+@Command([ViewRefreshFields])</formula></code><font color='white' style='bold'/>Save document to add navigational areas</button><run
+><font color='red'/></run></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>fProfile</text></item></form>
+

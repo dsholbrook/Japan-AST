@@ -1,0 +1,1396 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Notes Enrollment Form\Enroll All)' alias='enrollall' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='true' designerversion='8.5.3'
+ default='true' conflictaction='mergeconflicts'>
+<noteinfo noteid='15026' unid='1B13DC2EAF736EF086257F710078AFA5' sequence='91'>
+<created><datetime>20160309T155812,85-06</datetime></created>
+<modified><datetime dst='true'>20180929T235606,15-05</datetime></modified>
+<revised><datetime dst='true'>20180424T115758,95-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235606,15-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235606,15-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+
+</lotusscript></code><code event='declarations'><lotusscript>Dim m_docCurr As NotesDocument
+Dim m_uidocCurr As NotesUIDocument
+%REM
+Sub CheckField(strFieldName As String, strFieldLabel As String, strMsg As String, strErrorFieldName As String, intCountErrors As Integer)
+	
+	Const STR_MODULE_NAME = |enrollall: CheckField|	
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	If (Cstr(m_docCurr.GetItemValue(strFieldName)(0)) = "") Then
+		If strErrorFieldName = "" Then
+			strErrorFieldName = strFieldName
+		End If
+		intCountErrors = intCountErrors + 1
+		strMsg = strMsg &amp; " " &amp; strFieldLabel &amp; Chr$(13)
+	End If
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call Debug(STR_MODULE_NAME &amp; |: Field name being checked [| &amp; strFieldName &amp; |] Field label [| &amp; strFieldLabel &amp; |]|)
+	Call LogError(STR_MODULE_NAME &amp; |: Field name being checked [| &amp; strFieldName &amp; |] Field label [| &amp; strFieldLabel &amp; |]|)
+	Resume lblExit
+	
+End Sub
+%END REM
+</lotusscript></code><code event='OpenInvitationRecord'><lotusscript>Sub OpenInvitationRecord()
+     '------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Open the invitation document associated with this registration.
+	'
+     'Parameters
+     '-----------------------
+     'None
+     '     
+     'Return Values
+     '-----------------------
+     'None
+     '------------------------------------------------------------------------------------------------------   
+	
+	Const STR_MODULE_NAME = |Invitation: OpenInvitationRecord|
+	
+	Dim ws As New NotesUIWorkspace		
+	Dim strUNID As String
+	Dim docInvitation As NotesDocument
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	strUNID = m_docCurr.in_UNID(0)
+	
+	If (strUNID = ||) Then
+		Call ShowInfoMsg(|The invitation that is associated with this registration could not be found.|)
+	Else
+		Set docInvitation = g_dbCurr.GetDocumentByUNID(strUNID)
+		Call ws.EditDocument(True, docInvitation)	
+	End If
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub</lotusscript></code></globals><code event='windowtitle'><formula>"Registration: " + @GetDocField(ep_UNID; "eventname")</formula></code><code
+ event='queryopen'><lotusscript>Sub Queryopen(Source As Notesuidocument, Mode As Integer, Isnewdoc As Variant, Continue As Variant)
+	
+	Const STR_MODULE_NAME = |enrollall: Queryopen|
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	Dim docCurr As NotesDocument
+	Dim docLocaleProfile As NotesDocument
+	Dim itemFieldValues As NotesItem
+	Dim strLocale As String
+	
+	Set docCurr = Source.Document
+	
+	strLocale = docCurr.Locale(0)
+	
+	Set docLocaleProfile = docGetLocaleProfile(strLocale)
+	
+	Set itemFieldValues = docLocaleProfile.GetFirstItem("lc_AttendeeTypeValues")
+	Call docCurr.ReplaceItemValue("lc_AttendeeTypeValues",itemFieldValues.Values)
+	
+	Set itemFieldValues = docLocaleProfile.GetFirstItem( "lc_Select")
+	Call docCurr.ReplaceItemValue("lc_Select",itemFieldValues.Values)
+	
+	Set itemFieldValues = docLocaleProfile.GetFirstItem( "lc_PrefixValues")
+	Call docCurr.ReplaceItemValue("lc_PrefixValues",itemFieldValues.Values)
+	
+	Set itemFieldValues = docLocaleProfile.GetFirstItem( "lc_CountryValues")
+	Call docCurr.ReplaceItemValue("lc_CountryValues",itemFieldValues.Values)
+	
+	Set itemFieldValues = docLocaleProfile.GetFirstItem( "lc_StateValues")
+	Call docCurr.ReplaceItemValue("lc_StateValues",itemFieldValues.Values)
+	
+	'Bring the type of Opt in/out country to show the correct privacy questions
+	docCurr.lc_OptInOutType = docLocaleProfile.lc_OptInOutType(0)
+	docCurr.label_OIEMAIL   = docLocaleProfile.lc_OIEMAIL(0)
+	docCurr.label_OITELE    = docLocaleProfile.lc_OITELE(0)
+	docCurr.label_OIPOSTAL  = docLocaleProfile.lc_OIPOSTAL(0)
+	
+	docCurr.label_OOEMAIL   = docLocaleProfile.lc_OOEMAIL(0)
+	docCurr.label_OOTELE    = docLocaleProfile.lc_OOTELE(0)
+	docCurr.label_OOPOSTAL  = docLocaleProfile.lc_OOPOSTAL(0)
+	
+	docCurr.dspl_PrivacyBackoutA = docLocaleProfile.lc_PrivacyBackoutA(0)
+	docCurr.dspl_PrivacyDataB = docLocaleProfile.lc_PrivacyDataB(0)
+	docCurr.dspl_PrivacyNoticeC = docLocaleProfile.lc_PrivacyNoticeC(0)
+	docCurr.label_PrivacyOptinD = docLocaleProfile.lc_PrivacyOptinD(0)
+	docCurr.dspl_PrivacyRestrictUseE = docLocaleProfile.lc_PrivacyRestrictUseE(0)
+	docCurr.label_PrivacyRestrictUseF = docLocaleProfile.lc_PrivacyRestrictUseF(0)
+	docCurr.dspl_PrivacySendG = docLocaleProfile.lc_PrivacySendG(0)
+	
+	' added by rws 2010.06.18, en_originCreated or en_originUpdated: "web", "notes", "unisfair", "on24", "grp_import"  
+	If( docCurr.Isnewnote ) Then
+		docCurr.en_originCreated = "notes"
+	Else
+		docCurr.en_originUpdated = "notes"
+	End If
+	
+lblExit: 
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub
+</lotusscript></code><code event='postopen'><lotusscript>Sub Postopen(Source As Notesuidocument)
+	
+	Set m_uidocCurr = Source
+	Set m_docCurr = m_uidocCurr.Document	
+	
+End Sub
+</lotusscript></code><code event='querysave'><lotusscript>Sub Querysave(Source As Notesuidocument, Continue As Variant)
+	
+	Const STR_MODULE_NAME = |enrollall: Querysave|
+	
+	Dim strMsg As String
+	Dim intCountErrors As Integer
+	Dim strErrorFieldName As String
+	Dim intCountQuestions As Integer
+	Dim intCurrQuestion As Integer
+	Dim strEventID As String
+	Dim docEventProfile As NotesDocument
+	Dim strLocale As String
+	Dim docMIQuestionSetLookup As NotesDocument
+	Dim strScript As String	
+	Dim strQuestionSetID As String
+	Dim item As NotesItem
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	intCountErrors = 0
+	strMsg = "The following fields are required to save this document:" &amp; Chr$(13) &amp; Chr$(13)
+	
+	'Validate the required fields in the order they appear on the form
+	
+	'Attendee Information
+	Call CheckField(m_docCurr, |en_attendeetype|, |Attendee type|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |en_first|, |First name|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |en_last|, |Last name|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |en_title|, |Job title|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |en_email|, |E-mail address|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |en_phone|, |Business phone|, strMsg, strErrorFieldName, intCountErrors)
+	
+	'Company Information
+	Call CheckField(m_docCurr, |en_companyname|, |Company name|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |en_mailstreet1|, |Address 1|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |en_city|, |City|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |en_zip|, |Zip/Postal code|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |en_country|, |Country or region|, strMsg, strErrorFieldName, intCountErrors)
+	
+lblReportErrors:
+	
+	If intCountErrors &gt; 0 Then
+		Call ShowErrorMsg(strMsg)
+		Source.GotoField(strErrorFieldName)
+		Continue = False	
+		Goto lblExit
+	End If
+	
+	'Process the registration
+	
+	'Assign a registration ID
+	If (Cstr(m_docCurr.regid(0)) = "") Then
+		m_docCurr.regid = Lcase$(Mid$(m_docCurr.UniversalID, 7, 6))
+	End If
+	
+	'Get the event ID and locale	
+	strEventID = m_docCurr.ep_id(0)
+	strLocale = m_docCurr.Locale(0)
+	
+	'If the enrollment is a duplicate then display the duplicate error page.
+	If (flgIsDuplicateEnrollment(m_docCurr)) Then
+		Call Debug(STR_MODULE_NAME &amp; |: Duplicate registration prevented for [| &amp; Cstr(m_docCurr.en_email(0)) &amp; |].|)	
+		Call ShowErrorMsg(|A registration record already exists for | &amp; Cstr(m_docCurr.en_email(0)) &amp; |.|)
+		Continue = False			
+		Goto lblExit
+	End If	
+	
+	'Set the locale
+	m_docCurr.LocaleName = strGetLocaleName(strLocale)
+	
+	'Set flag for reporting module to pick up this registration
+	m_docCurr.ad_isDirty = "true"
+	
+	Set docEventProfile = docGetEventProfileByEventID(strEventID)
+	
+	'Translate any locale specific information into English
+	Call TranslateLocaleSpecificInfo(strLocale, m_docCurr)
+	
+	'Check whether an MI question set has been chosen
+	strQuestionSetID = Cstr(docEventProfile.MIQuestionSet(0))
+	
+	'Store the English (Worldwide) text of the MI questions (so that we can display it in the views)
+	Set docMIQuestionSetLookup = docGetMIQuestionSetLookup(strQuestionSetID, |en_ZZ|)
+	
+	If (Not docMIQuestionSetLookup Is Nothing) Then
+		For intCurrQuestion = 1 To 10
+			Call GetMIQuestionLocalization(intCurrQuestion, docEventProfile, docMIQuestionSetLookup, m_docCurr, strScript)
+		Next
+	End If
+	
+	'Set the session keys
+	Set doc_regProfile = getRegistrationProfile(docEventProfile, strLocale)
+	
+	m_docCurr.rp_numdays = doc_regProfile.rp_numdays(0)
+	m_docCurr.rp_sessions_sectiontitle = doc_regProfile.rp_sessions_sectiontitle(0)
+	For d = 1 To Cint(doc_regProfile.rp_numdays(0))
+		strKey = doc_regProfile.ep_id(0) &amp; doc_regProfile.Locale(0) + "/" + Cstr(d)
+		Set item = m_docCurr.ReplaceItemValue("sessionKey" &amp; Cstr(d), strKey)
+	Next
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	'Workaround to prevent errors -28363 and 4412 which may results from a Notes bug when using GotoField or FieldGetText 
+	'See Notes:///85256CC90081C6F2/B48A95F9B4A7A68185256C8D0072E04C/3667EBDC0B605D0685257241004E19B3 in the Lotus KnowledgeBase
+	If Err() = -28363 Then
+		Resume Next
+	End If
+	If Err() = 4412 Then
+		Resume Next
+	End If
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<action title='Close' icon='27' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([FileCloseWindow])</formula></code></action>
+<action title='Save &amp; Close' icon='21' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@SetField("ad_isDirty"; "true");
+@If(@Command([FileSave]);@Command([CloseWindow]); "")</formula></code></action>
+<action title='Edit' icon='5' showinmenu='false' hide='edit previewedit web mobile'><code
+ event='click'><formula>@Command([EditDocument])</formula></code></action>
+<action title='Change Status\Confirmed' icon='115' showinmenu='false' hide='preview read web'><code
+ event='click'><formula>@SetField("ad_formstatus";"Confirmed");
+@SetField("ad_isDirty"; "true");
+@Command([FileSave])</formula></code></action>
+<action title='Change Status\Attended' showinmenu='false' hide='preview read web'><code
+ event='click'><formula>@SetField("ad_formstatus";"Attended");
+@SetField("ad_isDirty"; "true");
+@Command([FileSave])</formula></code></action>
+<action title='Change Status\Cancelled' showinmenu='false' hide='preview read web'><code
+ event='click'><formula>@SetField("ad_formstatus";"Cancelled");
+@SetField("ad_isDirty"; "true");
+@Command([FileSave])</formula></code></action></actionbar>
+<body><richtext>
+<pardef id='1' hide='notes web mobile'/><subformref name='(Notes - Standard Header) | subNotesStandardHeader'/>
+<par def='1'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table cellbordercolor='red' widthtype='fixedleft' refwidth='8in'><tablecolumn
+ width='3in'/><tablecolumn width='5in'/>
+<tablerow>
+<tablecell>
+<pardef id='3' align='full' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='3'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='ep_id'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='4' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The event ID.</run></par>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>For enrollments created via the web, this will have been set from the &amp;seminar= ULR parameter.</run></par>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>For enrollments created via Notes, it is set by the (AddRegistration) agent.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='5' leftmargin='0.1250in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='5'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='en_originCreated'><code event='defaultvalue'><formula>en_originCreated</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='6' leftmargin='0.1250in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='6'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>possible values:  "web", "notes", "unisfair", "on24", "grp_import"</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='7' leftmargin='0.1250in' firstlineleftmargin='0.1354in' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='en_originUpdated'><code event='defaultvalue'><formula>en_originUpdated</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='6'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>possible values:  "web", "notes", "unisfair", "on24", "grp_import"</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='5'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='dbReplicaID'><code event='defaultvalue'><formula>@Text(@ReplicaID)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='8' leftmargin='0.1250in' hide='notes web mobile' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>@Text(@ReplicaID);  &lt;computed when composed&gt;</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='5'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='docUniqueID'><code event='defaultvalue'><formula>@Text(@DocumentUniqueID)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>@Text(@DocumentUniqueID);  &lt;computed when composed&gt;</run></par></tablecell></tablerow></table>
+<par def='1'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table widthtype='fixedleft' refwidth='7in'><tablecolumn width='1.6875in'/><tablecolumn
+ width='5.3125in'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='9' align='full' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='9'><run><font size='9pt'/></run><run><font size='9pt'/><sharedfieldref
+ name='DbName'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='10' align='full' hide='notes web' keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>database name</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='11' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='11'><run><font size='9pt'/></run><run><font size='9pt' color='red'
+ name='Helv' pitch='variable' truetype='false' familyid='20'/><field type='text'
+ kind='editable' name='IUI' htmlclass='iform'><code event='htmlattributes'><formula
+>"size=30"</formula></code></field></run><compositedata type='98' prevtype='65402'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='2'
+ afterbegincount='5'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' color='red'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='12' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Unique Identifier from WI populated on WebQueryOpen of WI from</run></par></tablecell></tablerow></table>
+<par def='1'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table cellbordercolor='red' widthtype='fixedleft' refwidth='8in'><tablecolumn
+ width='3in'/><tablecolumn width='5in'/>
+<tablerow>
+<tablecell>
+<pardef id='13' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_ReferenceDbReplicaID'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_ReferenceDbReplicaID</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> - The replica ID of the reference database. (Includes the colon.  Use in @DBLookups.)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='rp_UNID'><code
+ event='defaultvalue'><formula>tmpValue := @DbLookup("" : "NoCache"; ""; "vLookupRegistrationProfilesByIDLocale"; @Trim(ep_id + Locale);2);
+tmpValue</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>UNID of the registration profile for the event.</run></par>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>(Required so that subforms will display)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='ls_UNID'><code event='defaultvalue'><formula>ls_UNID</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>UNID of the locale settings document profile for the locale.</run></par>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>(Required so that subforms will display)</run></par></tablecell></tablerow></table>
+<pardef id='14' leftmargin='1in' hide='notes web mobile'/>
+<par def='14'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<par def='1'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par>
+<table cellbordercolor='red' widthtype='fixedleft' refwidth='8in'><tablecolumn
+ width='3in'/><tablecolumn width='5in'/>
+<tablerow>
+<tablecell columnspan='2'>
+<pardef id='16' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='16'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Computed fields</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='Form'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The form name.  Always 'enrollall'.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='EnrollID'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='17' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ tabs='L3.1875in L3.6875in L4.1875in L4.6875in L5.1875in L5.6875in L6.1875in L6.6875in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='17'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The UNID of this document.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='Regid'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>A unique ID for this enrollment formed by converting characters 7 thru 12 of the UNID to lowercase.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='en_CanisterID'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='17'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The ID of the canister that this enrollment was created in.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='ad_formstatus'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The status of this enrollment.</run></par>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Default is 'Confirmed'.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='ad_phone_followup_requested'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>This flag is set at the view level thru a button after the event based on a survey result. If set to 'Yes' it will be used in export logic to tag the record with the Hot Tele Bucket TACTIC_ID for Web to Siebel.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='ad_isDirty'><code
+ event='defaultvalue'><formula>ad_isDirty</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Set to true if thie enrollment is new or modified.</run></par>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Set to false by the reporting database if data is current there.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='en_archive'><code
+ event='defaultvalue'><formula>@If(en_archive = "";"No";en_archive)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Whether this enrollment has been marked for archive.</run></par>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Default is 'No'.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='SaveOptions'><code
+ event='defaultvalue'><formula>"1"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Used by the (SubmitEnrollment) agent to prevent the saving of a duplicate enrollment.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='authors' kind='computed' name='anonauthor'><code
+ event='defaultvalue'><formula>"Anonymous"</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Set to "Anonymous".</run></par></tablecell></tablerow></table>
+<par def='1'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='red' widthtype='fixedleft' refwidth='8in'><tablecolumn
+ width='3in'/><tablecolumn width='5in'/>
+<tablerow>
+<tablecell columnspan='2'>
+<par def='16'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Fields copied from the event profile</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='ep_UNID'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='17'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The UNID of the event profile.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='kw_login_type'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='18' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='18'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The login type for the event.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='tactic'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The tactic code.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='mastereventname'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The master event name.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='masterid'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The event ID of the master event.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='confname'><code
+ event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+REM {@GetDocField(ep_UNID; "eventname")};
+@If(ep_UNID != ""; @GetDocField(ep_UNID; "eventname"); confname)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The event name.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='eventid'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The event ID of this event. (Same as ep_id - left in for compatibility with reporting code)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='confstartdate'><code
+ event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+@If(ep_UNID != ""; @GetDocField(ep_UNID; "startmonth") + "/" + @GetDocField(ep_UNID; "startday") + "/" + @GetDocField(ep_UNID; "startyear"); confstartdate)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='19' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen' enabled='false'><formula
+>vdebug != "D"</formula></code></pardef>
+<par def='19'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Event start date. (mm/dd/yyyy)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='confenddate'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='19'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Event end date. (mm/dd/yyyy)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='confgeoregion'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Event geo.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='confcity'><code
+ event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+@If(ep_UNID != ""; @GetDocField(ep_UNID; "loc_confcity"); confcity)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='19'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>City.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='confstate'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>State.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='confcountry'><code event='defaultvalue'><formula>REM {Value is set by the (AddRegistration) agent};
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='19'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Country.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='brand' listinputseparators='semicolon newline' listdisplayseparator='semicolon'><code
+ event='defaultvalue'><formula>@GetDocField(ep_UNID; "es_brand")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>TODO: Check this.  Currently this pulls the es_brand field (which is actually the sector field from the ES brief.  It is NOT the field currently called brand in the event profile.  Suggest renaiming brand in the event profile as ep_TopicKeywords to avoid confusing.</run></par>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The 'sector' field from the original event brief in Event Solution.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='region' listinputseparators='semicolon newline' listdisplayseparator='semicolon'><code
+ event='defaultvalue'><formula>@GetDocField(ep_UNID; "es_region")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The 'l_region' field from the original event brief in Event Solution.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='dWArea' listinputseparators='semicolon newline' listdisplayseparator='semicolon'><code
+ event='defaultvalue'><formula>@GetDocField(ep_UNID; "dWArea")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The dwLive Datamart area selected for this event.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='category' listinputseparators='semicolon newline' listdisplayseparator='semicolon'><code
+ event='defaultvalue'><formula>@GetDocField(ep_UNID; "category")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The category selected for this event.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='Frame_Program'><code
+ event='defaultvalue'><formula>@GetDocField(ep_UNID; "Frame_Program")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The 'Frame_Program' field from the original event brief in Event Solution.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='Frame_SubTheme'><code
+ event='defaultvalue'><formula>@GetDocField(ep_UNID; "Frame_SubTheme")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The 'Frame_SubTheme' field from the original event brief in Event Solution.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='Frame_Program_Other'><code
+ event='defaultvalue'><formula>@GetDocField(ep_UNID; "Frame_Program_Other")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The 'Frame_Program_Other' field from the original event brief in Event Solution.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='Frame_Tier'><code
+ event='defaultvalue'><formula>@GetDocField(ep_UNID; "Frame_Tier")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The 'Frame_Tier' field from the original event brief in Event Solution.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='sponsor_bu_pri'><code
+ event='defaultvalue'><formula>@GetDocField(ep_UNID; "sponsor_bu_pri")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The 'sponsor_bu_pri' field from the original event brief in Event Solution.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='20' leftmargin='0.1000in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='20'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='computedfordisplay' name='lc_OptInOutType'><code
+ event='defaultvalue'><formula>lc_OptInOutType</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='21' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='21'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='22' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='22'>   <run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='computed' name='Q_cm_mmc'><code event='defaultvalue'><formula
+>tmp := @ThisValue;
+tmp_VCPI := @If(
+	@IsError(@RightBack(en_referrer_url; "&amp;S_VCPI=")); "";
+	@RightBack(en_referrer_url; "&amp;S_VCPI=")
+);
+@If(tmp = ""; @UpperCase(tmp_VCPI); tmp)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par></tablecell>
+<tablecell>
+<pardef id='23' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='23'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow></table>
+<par def='1'/>
+<pardef id='24' tabs='L6.8125in'/>
+<par def='24'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table cellbordercolor='gray' widthtype='fixedleft' refwidth='8in'><border
+ dropshadow='true'/><tablecolumn width='8in'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5e84' altbgcolor='#c8d7e3'>
+<pardef id='25' leftmargin='0.1000in' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='25'><run><font size='14pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/></run><run><font size='14pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='white'/><computedtext
+><code event='value'><formula>confname + " - " + confcity + " (" + confstartdate + ")"</formula></code></computedtext></run><run
+><font size='14pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='white'/> </run><run><font name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/>mm/dd/yyyy</run></par>
+<par def='25'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/>Registration - </run><run><font
+ size='12pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='white'/><computedtext><code event='value'><formula>LocaleName</formula></code></computedtext></run><run
+><font size='12pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/></run></par></tablecell></tablerow></table>
+<pardef id='26'/>
+<par def='26'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par>
+<table widthtype='fixedleft' refwidth='8in'><tablecolumn width='4.9264in'/><tablecolumn
+ width='3.0736in'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='27' keepwithnext='true' keeptogether='true'/>
+<par def='27'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run><run><font size='12pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/><computedtext
+><code event='value'><formula>ad_formstatus</formula></code></computedtext></run><run
+><font color='red'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='28' align='right' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen' enabled='false'><formula>!(@IsMember("[Admin]"; @UserRoles) | @IsMember("[CanisterAdmin]"; @UserRoles) | @IsMember("[Developer]"; @UserRoles) | @IsMember("[EventAdmin]"; @UserRoles) | @IsMember("[QAAdmin]"; @UserRoles))</formula></code></pardef>
+<par def='28'><imagemap lastdefaultid='13' lastrectangleid='56'><picture width='28px'
+ height='27px' alttext='Attachment' align='around'><gif>
+R0lGODlhHAAbAOYAAP////j48PDw+GBQwGBYuGhYyOjo+PDw8ODg+Pj46MjA+NjY+GBYsGhgqNDQ
+8NDQ+GhYwMDA8ODg8Ojo8Pjw+GhgsJiQ6Ojw+GBQuGBYwGhYuJiQ4Kig8MDA+MjI+NDQ6NjY8Njg
+8ODY+PDo+PD46PD48FBIqFBQkFhIwFhQuGhY0GhguJiQ2KCY6Kig6Kio2LCw6MjA6MjA8NDI+NjY
+6Njg6Ojg+Ojw8PDw6PD4+DgoqEAwqEA4iEA4mEg4oEg4qEg4uEhAsFBAwFBIiFBIoFBIuFhIoFhI
+uFhQoFhQsGBQqGBQsGBYmGBYqGhYsGhgyHBgsHBgyHBg0HBg4HBg6HBooHBoqHBosHBouHBoyHho
+4Hhw4IB40ICAwIh44IiAwIiA0JCI2KCQ4KCQ8Kig+KiwyLCw2Lio+Liw4Liw6Liw+Li40Li46MC4
+0MC46MC48MDA4MjA4MjI6MjI8NDI8Njg4Njg+ODg6ODo2ODo6ODo8ODo+Ojo6PDw4PD40PD44CwA
+AAAAHAAbAEAI/wABCBxIsKDBgwULAGAikEQCASc8FBTQAIGBEggLBBhgsI+AAABAAiCg4MMEhAlK
+lDCgR0INGiBC2FkQIsQCBAgkCEAIAEQNND1eCBDBYkgcGyIW0LgDYCdPABo5mpkiQgKSNngKYlDg
+4CRBHCAHWDHxVOCFChEcOBUYIMHAESQQsGgA5QwCAAcoDDzAky+ABgD0EjzB5YVAAVXWxPCbcSMA
+GFvqABCiRgBjABBmLDDQmGOZARy8AFFAYadICFwvHAygAQDHsgAwyPiQx2ACtxLeKODgosWGDRaC
+W2gxZoOLB5thKy/r1s9HgTjwBpjuNIFIhHoRdEER5osRMTYItsQdeD3kH4EErmQx0aABFgg7UBwh
+MOBJihF4Q4o/TABAhiUMVJCECjpogQEDARbRQBMAGEBCZwB8QMYBAhARww18nfYAAqodFNVjVCAg
+QBBs5MDZQAR40BWEaahgwAM/uHFADgSR5MCJBn14Axg8+MABAPjphxlXXg1kGkcpCFTaWkJC1cED
+OALglkBS7BEFk+KJpIRmRRrExwoMaKABAWQSkEEGTiBYwQoeJPeUBA88MEcEdHbQARxyyBABHSBw
+uNyfAgUEADs=
+</gif></picture>
+<area type='default' htmlid='DefaultHotspot12_1_1_1_1' alttext='Attachment'><code
+ event='options'><lotusscript>Use "Attachments"
+
+</lotusscript></code><code event='click'><lotusscript>Sub Click(Source As Button)
+	
+	Call attachments("cteba")
+	
+End Sub
+</lotusscript></code></area></imagemap><run><font size='8pt' name=' Arial'
+ pitch='fixed' truetype='false' familyid='0'/>  CTEBA Attachments</run></par></tablecell></tablerow></table>
+<pardef id='29'><code event='hidewhen'><formula>!(in_UNID != "")</formula></code></pardef>
+<par def='29'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<par def='29'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><actionhotspot hotspotstyle='none'><run><font size='9pt'
+ style='underline' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='#3c5e84'/>Open invitation record</run><code event='click'><lotusscript
+>Sub Click(Source As Button)
+	
+	Call OpenInvitationRecord()
+	
+End Sub
+</lotusscript></code></actionhotspot><run html='true'><font style='underline'
+ color='red'/></run></par>
+<par def='26'><run html='true'><font style='underline' color='red'/></run></par>
+<pardef id='30' leftmargin='1in'/><subformref><code event='value'><formula
+>@If(Locale = "ja_JP"; "personjp"; "person")</formula></code></subformref><subformref
+><code event='value'><formula>@If(Locale = "ja_JP"; "companyinfojp"; "companyinfo")</formula></code></subformref><subformref
+><code event='value'><formula>@If(@GetDocField(ep_UNID; "MIQuestionSet") != ""; "miquestions"; "")</formula></code></subformref><subformref
+><code event='value'><formula>@If(@GetDocField(rp_UNID; "rp_IncludeEmergencyContactInfo") = "Yes"; "emergencycontact"; "")</formula></code></subformref><subformref
+><code event='value'><formula>@If(@GetDocField(rp_UNID; "rp_IncludeBadgeSection")="Yes";"badgesinfo";"")</formula></code></subformref><subformref
+><code event='value'><formula>REM {Check if any optional question is not empty, if so show the optional questions subform};
+oq1 := @GetDocField(rp_UNID; "oq_in_optionq1");												
+oq2 := @GetDocField(rp_UNID; "oq_in_optionq2");
+oq3 := @GetDocField(rp_UNID;"oq_in_optionq3");
+oq4 := @GetDocField(rp_UNID;"oq_in_optionq4");
+oq5 := @GetDocField(rp_UNID;"oq_in_optionq5");
+oq6 := @GetDocField(rp_UNID;"oq_in_optionq6");
+oq7 := @GetDocField(rp_UNID;"oq_in_optionq7");
+oq8 := @GetDocField(rp_UNID;"oq_in_optionq8");
+oq9 := @GetDocField(rp_UNID;"oq_in_optionq9");
+oq10 := @GetDocField(rp_UNID;"oq_in_optionq10");
+oq11 := @GetDocField(rp_UNID;"oq_in_optionq11");
+oq12 := @GetDocField(rp_UNID;"oq_in_optionq12");
+oq13 := @GetDocField(rp_UNID;"oq_in_optionq13");
+oq14 := @GetDocField(rp_UNID;"oq_in_optionq14");
+oq15 := @GetDocField(rp_UNID;"oq_in_optionq15");
+@If((oq1 != "" | oq2 != "" | oq3 != ""| oq4 != ""| oq5 != ""| oq6 != ""| oq7 != ""| oq8 != ""| oq9 != ""| oq10 != ""| oq11 != ""| oq12 != ""| oq13 != ""| oq14 != ""| oq15 != ""); "optionalquestions";"")</formula></code></subformref><subformref
+><code event='value'><formula>showSessions := @GetDocField(rp_UNID; "rp_IncludeSessionsInfo");
+@If(showSessions = "Yes"; "session"; "")</formula></code></subformref><subformref
+><code event='value'><formula>@If(en_payment_method != ""; "amenityinfo"; "")</formula></code></subformref><subformref
+><code event='value'><formula>@If(XPagesUsed = "True"; "inforelease_XPages"; "inforelease")</formula></code></subformref>
+<par def='30'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='silver' user4spacing='true' widthtype='fixedleft'
+ refwidth='8.3118in'><tablecolumn width='3in'/><tablecolumn width='5.3118in'/>
+<tablerow>
+<tablecell columnspan='2' bgcolor='#c8d7e3'>
+<pardef id='31' leftmargin='0.1000in' rightmargin='99%' hide='print web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='31'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>E-mail history</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px' bgcolor='white'>
+<pardef id='32' leftmargin='0.1000in' rightmargin='98%' hide='print web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='32'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Confirmation e-mail send date</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='white'>
+<pardef id='33' leftmargin='0.1000in' rightmargin='99%' hide='print web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='33'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='datetime' kind='computed'
+ name='en_DateConfirmationEmailSent'><datetimeformat show='datetime' date='yearmonthday'
+ fourdigityearfor21stcentury='true' time='hourminutesecond' zone='never' dateformat='weekdaymonthdayyear'
+ dayformat='twodigitday' monthformat='twodigitmonth' yearformat='fourdigityear'
+ weekdayformat='shortname' dateseparator1=' ' dateseparator2='/' dateseparator3='/'
+ timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>en_DateConfirmationEmailSent</formula></code></field></run><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px' bgcolor='white'>
+<pardef id='34' leftmargin='0.1000in' hide='print web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='34'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Reminder e-mail send date</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='white'>
+<pardef id='35' leftmargin='0.1000in' hide='print web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='35'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='datetime' kind='computed'
+ name='en_DateReminderEmailSent'><datetimeformat show='datetime' date='yearmonthday'
+ fourdigityearfor21stcentury='true' time='hourminutesecond' zone='never' dateformat='weekdaymonthdayyear'
+ dayformat='twodigitday' monthformat='twodigitmonth' yearformat='fourdigityear'
+ weekdayformat='shortname' dateseparator1=' ' dateseparator2='/' dateseparator3='/'
+ timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>en_DateReminderEmailSent</formula></code></field></run><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px' bgcolor='white'>
+<pardef id='36' leftmargin='0.1000in' hide='print web mobile' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='36'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Post event (All) e-mail date</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='white'>
+<par def='35'><run><font size='9pt' color='gray' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='datetime' kind='computed' name='en_DatePostEventEmailAllRegSent'><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminutesecond'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>en_DatePostEventEmailAllRegSent</formula></code></field></run><run><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px' bgcolor='white'>
+<par def='36'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Post event (Attended) e-mail date</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='white'>
+<par def='35'><run><font size='9pt' color='gray' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='datetime' kind='computedfordisplay'
+ name='DatePostEventEmailAttendedSent'><datetimeformat show='datetime' date='yearmonthday'
+ fourdigityearfor21stcentury='true' time='hourminutesecond' zone='never' dateformat='weekdaymonthdayyear'
+ dayformat='twodigitday' monthformat='twodigitmonth' yearformat='fourdigityear'
+ weekdayformat='shortname' dateseparator1=' ' dateseparator2='/' dateseparator3='/'
+ timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>en_DatePostEventEmailAttendedSent</formula></code></field></run><run><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px' bgcolor='white'>
+<par def='36'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Post event (No Show) e-mail date</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='white'>
+<par def='35'><run><font size='9pt' color='gray' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='datetime' kind='computed' name='en_DatePostEventEmailNoShowSent'><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminutesecond'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>en_DatePostEventEmailNoShowSent</formula></code></field></run><run><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px' bgcolor='white'>
+<pardef id='37' leftmargin='0.1000in' hide='print notes web mobile' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='37'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='white'>
+<pardef id='38' leftmargin='0.1000in' hide='print notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='38'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='30'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par><subformref
+ name='Event Audit | Event Audit'/>
+<par def='30'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></richtext></body>
+<item name='docmodified' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$$en_last' summary='false' sign='true'><text>'++LotusScript Development Environment:2:5:(Options):0:66
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub Exiting(Source As Field)
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+
+'++LotusScript Development Environment:2:2:BindEvents:1:129
+Private Sub BindEvents(Byval Objectname_ As String)
+     Static Source As FIELD
+     Set Source = Bind(Objectname_)
+     On Event Exiting From Source Call Exiting
+End Sub
+
+'++LotusScript Development Environment:2:2:Exiting:1:12
+Sub Exiting(Source As Field)
+   
+End Sub<break/><break/></text></item>
+<item name='$$en_companyname' summary='false' sign='true'><text>'++LotusScript Development Environment:2:5:(Options):0:66
+
+'++LotusScript Development Environment:2:5:(Forward):0:1
+Declare Sub Exiting(Source As Field)
+
+'++LotusScript Development Environment:2:5:(Declarations):0:2
+
+'++LotusScript Development Environment:2:2:BindEvents:1:129
+Private Sub BindEvents(Byval Objectname_ As String)
+     Static Source As FIELD
+     Set Source = Bind(Objectname_)
+     On Event Exiting From Source Call Exiting
+End Sub
+
+'++LotusScript Development Environment:2:2:Exiting:1:12
+Sub Exiting(Source As Field)
+     
+End Sub<break/><break/></text></item>
+<item name='$en_last_O' sign='true'>
+<rawitemdata type='14'>
+AQAAAkxTT0IDABQIZW4AAAQACAAlAAQAAAAQAhABAAAAAAAArAC4AAAAAAAoAAAAHAA8AP//vABY
+AAAAAAAAAAIAAAAEAFgBAAAAAFgBWAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAABAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAEAAAC4ALgAAAAAALgAuAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAEABABMb3R1cyBQcm9kdWN0AAAAVjAuMAAAAAAAAAAAAAAAAAAA
+AAAEAAAAJQAAAAAAAAAQAgAAEAEAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAAAA
+AAUAAABXMzJJNAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAwAUAQAAAACgAAoAJABFAE4AXwBMAEEAUwBUAF8ATwAAAAAAcAADAE4ARQBXAAAAhAAGAEQA
+RQBMAEUAVABFAAAAAAD//woASQBOAEkAVABJAEEATABJAFoARQAAAAAA//8JAFQARQBSAE0ASQBO
+AEEAVABFAAAA//8GAE8AQgBKAEUAQwBUAAAAAACMAAAAAAAAANgABgBTAE8AVQBSAEMARQAAAAAA
+6AAKAEIASQBOAEQARQBWAEUATgBUAFMAAAAAAP//CwBPAEIASgBFAEMAVABOAEEATQBFAF8AAAD8
+AAUARgBJAEUATABEAAAA//8GACUATABTAEkARABFAAAAAAD//wcARQBYAEkAVABJAE4ARwAAAAUA
+FAIAAAAA5umQ6AgAAABYAQAApAAAAAAAAAACAAAAnABIAQAAAAAAAAAAAAAAAAAAAACcAJwAAAAA
+AAAAAAAAAAAAAAAAAAAAAABIAUgBAAAAAAAAAAABAAAAAgAAAAMAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAwABAEgBAADA
+AAYIAAAAABoAAADsAP//AAAAABAAAAAAAAAA3AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADFhMp7S5pEL9dAN0BEYa3AAAA
+AAAAAAAAAAAAAAAAAGQAAAAAAAAAAAAAAAAAAAACAKwAAAAAAgAAAABcBAEA//8AAAMAIAAAAAAA
+kAAJAgAAuAAIAAAAAAAAAAABAAAAAAAAAQAAAPAB8AEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAA8AHwAQAAAAAAAAAAAQAAAAAAAAAhAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAMAAQAAAAAAkAAJ
+AgAAuAATAAAAAAEAANcAAAAAAAAABAApAAAAAAAdAAAaCwBbSAFJnADKuACmGgwAR0gBy9cAAABY
+ARoNAB0aEgAdAgAAABEAGAAAAAAA//8BAAMAAwAAAAYApAAIAAABDwAKAAAA
+</rawitemdata></item>
+<item name='$en_companyname_O' sign='true'>
+<rawitemdata type='14'>
+AQAAAkxTT0IDABQIZW4AAAQACAAlAAQAAAAQAhwBAAAAAAAArAC4AAAAAAA0AKwAAABIAP//yABk
+AAAAAAAAAAIAAAAEAFgBAAAAAFgBWAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAABAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAEAAAC4ALgAAAAAALgAuAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAEABABMb3R1cyBQcm9kdWN0AAAAVjAuMAAAAAAAAAAAAAAAAAAA
+AAAEAAAAJQAAAAAAAAAQAgAAHAEAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAAAA
+AAUAAABXMzJJNAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAwAgAQAAAAAoABEAJABFAE4AXwBDAE8ATQBQAEEATgBZAE4AQQBNAEUAXwBPAAAAfAADAE4A
+RQBXAAAAkAAGAEQARQBMAEUAVABFAAAAAAD//woASQBOAEkAVABJAEEATABJAFoARQAAAAAA//8J
+AFQARQBSAE0ASQBOAEEAVABFAAAA//8GAE8AQgBKAEUAQwBUAAAAAACYAAAAAAAAAOQABgBTAE8A
+VQBSAEMARQAAAAAA9AAKAEIASQBOAEQARQBWAEUATgBUAFMAAAAAAP//CwBPAEIASgBFAEMAVABO
+AEEATQBFAF8AAAAIAQUARgBJAEUATABEAAAA//8GACUATABTAEkARABFAAAAAAD//wcARQBYAEkA
+VABJAE4ARwAAAAUAFAIAAAAAsmZrLggAAABYAQAAsAAAAAAAAAACAAAAnABIAQAAAAAAAAAAAAAA
+AAAAAACcAJwAAAAAAAAAAAAAAAAAAAAAAAAAAABIAUgBAAAAAAAAAAABAAAAAgAAAAMAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAwABAEgBAADMAAYIAAAAABoAAAD4AP//AAAAABAAAAAAAAAA6AAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADFhMp7S5p
+EL9dAN0BEYa3AAAAAAAAAAAAAAAAAAAAAGQAAAAAAAAAAAAAAAAAAAACAKwAAAAAAgAAAABcBAEA
+//8AAAMAIAAAAAAAnAAJAgAAuAAIAAAAAAAAAAwBAAAAAAAAAQAAAPAB8AEAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA8AHwAQAAAAAAAAAAAQAAAAAAAAAhAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAMAAQAAAAAAnAAJAgAAuAATAAAADAEAANcAAAAAAAAABAApAAAAAAAdAAAaCwBbSAFJnADKuACm
+GgwAR0gBy9cAAABYARoNAB0aEgAdAgAAABEAGAAAAAAA//8BAAMAAwAAAAYAsAAIAAwBDwAKAAAA
+</rawitemdata></item>
+<item name='MtgReqNumber' summary='false' sign='true'><number>0</number></item>
+<item name='confPrice' summary='false' sign='true'><number>0</number></item>
+<item name='edcarddisc' summary='false' sign='true'><number>0</number></item>
+<item name='en_ficollected' summary='false' sign='true'><number>0</number></item>
+<item name='en_fiotherfees' summary='false' sign='true'><number>0</number></item>
+<item name='ad_PayDate' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='ad_cctransdate' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='ad_billsent' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='ad_amount_1' summary='false' sign='true'><number>0</number></item>
+<item name='ad_amount_2' summary='false' sign='true'><number>0</number></item>
+<item name='ad_amount_3' summary='false' sign='true'><number>0</number></item>
+<item name='ad_cctransamount' summary='false' sign='true'><number>0</number></item>
+<item name='en_fiamount' summary='false' sign='true'><number>0</number></item>
+<item name='en_fidiscount' summary='false' sign='true'><number>0</number></item>
+<item name='fiexportdate' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='ftpexportdate' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='MSMexportdate' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='OriginalModTime' sign='true'><datetime>20061214T132723,48-05</datetime></item>
+<item name='ad_canceldate' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$SubForm_RepIDs' sign='true'><textlist><text>0000000000000000</text><text
+>0000000000000000</text><text>0000000000000000</text><text>0000000000000000</text><text
+>0000000000000000</text><text>0000000000000000</text><text>0000000000000000</text><text
+>0000000000000000</text><text>0000000000000000</text><text>0000000000000000</text></textlist></item>
+<item name='$Header'>
+<rawitemdata type='1'>
+jv8wAABEZWZhdWx0IFNhbnMgU2VyaWYAAAAAAAAAAAAAAAAAAAEAAAgFACZEfCZQ
+</rawitemdata></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>enrollall</text></item>
+<item name='doccreated' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item></form>
+

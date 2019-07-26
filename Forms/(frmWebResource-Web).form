@@ -1,0 +1,323 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(frmWebResource-Web)' alias='frmWebResource' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='notes mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='7'
+ comment='Web Resource Document - Notes version' inherit='true' editonopen='true'>
+<noteinfo noteid='14d06' unid='16CD3BF157BF195E86257F710078AF94' sequence='7'>
+<created><datetime>20160309T155812,68-06</datetime></created>
+<modified><datetime dst='true'>20180929T235602,07-05</datetime></modified>
+<revised><datetime>20160310T111659,13-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235602,07-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235602,07-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+
+</lotusscript></code><code event='declarations'><lotusscript>Dim m_docCurr As NotesDocument
+Dim m_uidocCurr As NotesUIDocument</lotusscript></code></globals><code event='windowtitle'><formula
+>"Web Resource"</formula></code><code event='postopen'><lotusscript>Sub Postopen(Source As Notesuidocument)
+	
+	Set m_uidocCurr = Source
+	Set m_docCurr = m_uidocCurr.Document
+	
+End Sub
+</lotusscript></code><code event='querysave'><lotusscript>Sub Querysave(Source As Notesuidocument, Continue As Variant)
+	
+	Const STR_MODULE_NAME = |frmMergeField: Querysave|
+	
+	Dim strMsg As String
+	Dim intCountErrors As Integer
+	Dim strErrorFieldName As String
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	intCountErrors = 0
+	
+	strMsg = |The following fields are required to save this document:| &amp; Chr$(13) &amp; Chr$(13)
+	
+	'Validate the required fields in the order they appear on the form
+	Call CheckField(m_docCurr, |wr_Library|, |Resource library|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |wr_DocType|, |Resource type|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |wr_Name|, |Resource name|, strMsg, strErrorFieldName, intCountErrors)
+	
+	If intCountErrors &gt; 0 Then
+		Call ShowErrorMsg(strMsg)
+		Source.GotoField(strErrorFieldName)
+		Continue = False	
+	End If
+	
+	
+	
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='white' bordercolor='black'>
+<actionbuttonstyle bgcolor='white'/><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/><border style='solid' width='0px 0px 1px'
+ color='gray'/>
+<sharedactionref id='1'>
+<action title='Close' icon='27' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='3'>
+<action title='Save &amp; Close' icon='21' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@If(@Command([FileSave]);@Command([CloseWindow]); "")</formula></code></action></sharedactionref>
+<sharedactionref id='2'>
+<action title='Edit' icon='5' showinmenu='false' hide='edit previewedit web mobile'><code
+ event='click'><formula>@Command([EditDocument])</formula></code><code event='hidewhen'><formula
+>!(@IsMember("[Admin]"; @UserRoles) | @IsMember("[Designer]"; @UserRoles))</formula></code></action></sharedactionref></actionbar>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='0.7500in' hide='notes web'/>
+<section onread='collapse' onpreview='collapse' onedit='collapse' onprint='collapse'><sectiontitle
+ pardef='1' color='teal'><font size='9pt' color='red' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><text>Revision History</text></sectiontitle>
+<pardef id='2' align='none' leftmargin='1in' hide='notes web'/>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>-----------------------------------------------------------------------------------------------------------------<break
+/> Merge Field Form<break/>-----------------------------------------------------------------------------------------------------------------<break
+/></run></par>
+<par def='2'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/> Description:</run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> This form is used to define a merge field that can be inserted into an e-mail.</run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> One document of this type exists for each locale specific version of a merge field.</run></par>
+<pardef id='3' leftmargin='1in' hide='notes web'/>
+<par def='3'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/><break/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> Author:</run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> Core Lan	<break/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/><break/> Revision History:</run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/><break/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/> Date                        	By             	Description</run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/> ---------                       	---                   	------------------</run></par>
+<par def='3'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> March 6 2009		Tim Vallely	Initial version.<break
+/>-----------------------------------------------------------------------------------------------------------------</run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></section>
+<pardef id='4' hide='notes web mobile'/>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table widthtype='fitmargins' cellbordercolor='red' leftmargin='0.9896in'
+ refwidth='8.7708in'><tablecolumn width='2.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell>
+<pardef id='6' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Field</run></par></tablecell>
+<tablecell>
+<pardef id='7' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Description</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='8' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='DocType'><code event='defaultvalue'><formula>"Web Resource"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>DocType </run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The document type. (Hardcoded to 'Merge Field')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='Form'><code event='defaultvalue'><formula>"frmWebResource"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Form </run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The form alias. (Hardcoded to 'fMergeField')</run></par></tablecell></tablerow></table>
+<pardef id='9'/>
+<par def='9'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' refwidth='8.7396in'><border
+ style='solid' width='1px' color='silver'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='1px 1px 0px' bgcolor='silver'>
+<pardef id='11' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='11'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Web Resource</run></par></tablecell></tablerow></table>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0.9896in'
+ refwidth='8.7708in'><tablecolumn width='1.9000in'/><tablecolumn width='4.5000in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='13' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='13'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Resource library </run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>*</run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='14' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><computedtext><code event='value'><formula>wr_Library</formula></code></computedtext><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='15' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='15'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>What library does this document belong in.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='13'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Resource type </run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/>*</run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='14'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><computedtext><code event='value'><formula>wr_DocType</formula></code></computedtext><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='15'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>What is the type of resource files(s) does this document contain.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='16' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='16'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Resource name</run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/> </run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>*</run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='17' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><computedtext><code event='value'><formula>wr_Name</formula></code></computedtext><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='18' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>A name for the web resource field.  </run></par>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>This must be unique for this type and library.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='19' keepwithnext='true' keeptogether='true'/>
+<par def='19'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='20' keepwithnext='true' keeptogether='true'/>
+<par def='20'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='21' keepwithnext='true' keeptogether='true'/>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='16'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Description</run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><computedtext><code event='value'><formula>wr_Desc</formula></code></computedtext><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>A brief description</run></par></tablecell></tablerow></table>
+<pardef id='22' leftmargin='1in'/>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' refwidth='8.7604in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell>
+<pardef id='24' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='24'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Attachments Only</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='24'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='richtext' kind='editable' name='wr_attachments'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' refwidth='8.7604in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell>
+<par def='24'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Other richtext content (no attachments)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='24'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='wr_body'><code
+ event='inputtranslation'><formula>tmpVal := @Trim(@ThisValue);
+tmpVal</formula></code><code event='inputvalidation'><formula>@Success</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' refwidth='8.7604in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell>
+<par def='24'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Other text content</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='24'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='wr_content'><code
+ event='inputtranslation'><formula>tmpVal := @Trim(@ThisValue);
+tmpVal</formula></code><code event='inputvalidation'><formula>@Success</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<pardef id='27' leftmargin='1in' hide='notes web mobile'/>
+<par def='27'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></richtext></body>
+<item name='order_number' summary='false' sign='true'><number>0</number></item>
+<item name='Description' summary='false' sign='true'><number>0</number></item>
+<item name='template_expiration' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='doccreated' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$SubForm_RepIDs' sign='true'><text>0000000000000000</text></item>
+<item name='DateCreated' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='DateModified' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='OriginalModTime' sign='true'><datetime dst='true'>20100411T203304,90-04</datetime></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>frmWebResource</text></item></form>
+

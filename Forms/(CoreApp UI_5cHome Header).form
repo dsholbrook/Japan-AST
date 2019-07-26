@@ -1,0 +1,51 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(CoreApp UI\Home Header)' alias='coreAppHomeHeader' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' publicaccess='false'
+ designerversion='8.5.3' bgcolor='black' renderpassthrough='true'>
+<noteinfo noteid='62776' unid='4BE0419202B0B07286258170001F0265' sequence='3'>
+<created><datetime dst='true'>20170802T003842,29-05</datetime></created>
+<modified><datetime dst='true'>20180930T002356,80-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170832,65-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002356,80-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002356,80-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='windowtitle'><formula>tmpName := @DbLookup("";"";"luAppProfile"; "App" ; "dp_SystemName");
+@If( @IsError( tmpName ) ; "Set up database profile" ; tmpName )</formula></code>
+<body><richtext>
+<pardef id='1' hide='notes web mobile'/>
+<par def='1'/>
+<table widthtype='fitwindow' minrowheight='0.4701in' leftmargin='0.7500in'
+ refwidth='7.3646in'><tablecolumn width='4.9979in' sizetofit='true'/><tablecolumn
+ width='1.5167in'/><tablecolumn width='0.8500in'/>
+<tablerow>
+<tablecell valign='center' borderwidth='0px'>
+<cellbackground repeat='hrepeat'><imageref name='coreSiteHeaderBack.jpg'/></cellbackground>
+<pardef id='3' leftmargin='0.2000in' keepwithnext='true' keeptogether='true'/>
+<par def='3'><run><font size='13pt' style='bold' color='white'/></run><run
+><font size='13pt' style='bold' color='white'/><computedtext><code event='value'><formula
+>tmpName := @DbLookup("";"";"luAppProfile"; "App" ; "dp_SystemName");
+@If( @IsError( tmpName ) ; "Set up database profile" ; tmpName )</formula></code></computedtext></run><run
+><font size='13pt' style='bold' color='white'/></run></par></tablecell>
+<tablecell valign='center' borderwidth='0px'>
+<cellbackground repeat='hrepeat'><imageref name='coreSiteHeaderBack.jpg'/></cellbackground>
+<pardef id='4' keepwithnext='true' keeptogether='true'/>
+<par def='4'><namedelementlink showborder='false' type='page' name='pgMainCenter'
+ targetframe='SiteBody'><run><font color='blue'/></run></namedelementlink><namedelementlink
+ showborder='false' type='page' name='pgMainCenter' targetframe='SiteBody'><run
+><font color='blue'/></run></namedelementlink><run><font size='7pt'/></run><button
+ width='1.5000in' widthtype='fixed' wraptext='true' edge='rounded' bgcolor='gray'><code
+ event='click'><formula>@SetTargetFrame("SiteBody");
+@Command([OpenFrameset];"coreAppHomeLanding")</formula></code><font size='9pt'
+ color='white' style='bold'/>Site Dashboard</button><run><font size='7pt'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<cellbackground repeat='center'><imageref name='coreSiteIBMLogo.jpg'/></cellbackground>
+<pardef id='5' keepwithnext='true' keeptogether='true'/>
+<par def='5'/>
+<par def='5'/>
+<par def='5'/></tablecell></tablerow></table>
+<pardef id='6' leftmargin='0.7500in'/>
+<par def='6'/></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>coreSiteHeadBanner</text></item></form>
+

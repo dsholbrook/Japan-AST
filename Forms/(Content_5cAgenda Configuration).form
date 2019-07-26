@@ -1,0 +1,1155 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Content\Agenda Configuration)' alias='agendacontent' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='8.5'
+ editonopen='true' renderpassthrough='true' conflictaction='mergeconflicts'>
+<noteinfo noteid='14e72' unid='6FAECE9FBC41D7C786257F710078ACEB' sequence='124'>
+<created><datetime>20160309T155805,87-06</datetime></created>
+<modified><datetime dst='true'>20180929T235603,93-05</datetime></modified>
+<revised><datetime>20160310T111652,66-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235603,93-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235603,93-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+</lotusscript></code><code event='declarations'><lotusscript>Dim m_docCurr As NotesDocument
+Dim m_uidocCurr As NotesUIDocument</lotusscript></code></globals><code event='windowtitle'><formula
+>"Agenda: " + eventname</formula></code><code event='options'><lotusscript
+>Option Declare
+
+</lotusscript></code><code event='queryopen'><lotusscript>Sub Queryopen(Source As Notesuidocument, Mode As Integer, Isnewdoc As Variant, Continue As Variant)
+	
+	Const STR_MODULE_NAME = |Agenda form:Queryopen|
+	
+	Dim doc As NotesDocument
+	Dim flgAllowedToEdit As Integer
+	Dim nameOwner As NotesName
+	Dim strOwnerName As String
+	Dim docEventProfile As NotesDocument
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Started.|)
+	
+	Set doc = Source.Document
+	
+	flgAllowedToEdit = flgCanEdit(doc, g_strUserName)
+	
+	'Check that the user is allowed to edit the document and display a message and exit if they are not allowed.
+	If (Not flgAllowedToEdit) Then
+		Set docEventProfile = docGetEventProfileByEventID(Cstr(doc.ep_id(0)))
+		If (Not docEventProfile Is Nothing) Then
+			Set nameOwner = New NotesName(Cstr(docEventProfile.offeringQuestionsName(0)))
+			strOwnerName = nameOwner.Abbreviated	
+			Call ShowErrorMsg(|Access to this document has been restricted.  Please contact | &amp; strOwnerName &amp; |, the event owner, to request access.|)
+			Call Debug(STR_MODULE_NAME &amp; |: [| &amp; g_strUserName &amp; |] attempted to edit the agenda with UNID [| &amp; doc.UniversalID &amp; |] but was not listed as an allowable editor.|)
+			Continue = False
+		Else
+			Call ShowErrorMsg(|The system could not find the event profile associated with this event.  Please contact the system administrator.|)
+			Call Debug(STR_MODULE_NAME &amp; |: Unable to find event profile.|)
+			Continue = False
+		End If
+	End If     
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Finished.|)
+	
+End Sub
+</lotusscript></code><code event='querymodechange'><lotusscript>Sub Querymodechange(Source As Notesuidocument, Continue As Variant)
+	
+	Const STR_MODULE_NAME = |Agenda form:Querymodechange|
+	
+	Dim doc As NotesDocument
+	Dim flgAllowedToEdit As Integer
+	Dim nameOwner As NotesName
+	Dim strOwnerName As String
+	Dim docEventProfile As NotesDocument
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Started.|)
+	
+	Set doc = Source.Document
+	
+	flgAllowedToEdit = flgCanEdit(doc, g_strUserName)
+	
+	'Check that the user is allowed to edit the document and display a message and exit if they are not allowed.
+	If Not Source.EditMode And (Not flgAllowedToEdit) Then
+		Set docEventProfile = docGetEventProfileByEventID(Cstr(doc.ep_id(0)))
+		If (Not docEventProfile Is Nothing) Then
+			Set nameOwner = New NotesName(Cstr(docEventProfile.offeringQuestionsName(0)))
+			strOwnerName = nameOwner.Abbreviated	
+			Call ShowErrorMsg(|Access to this document has been restricted.  Please contact | &amp; strOwnerName &amp; |, the event owner, to request access.|)
+			Call Debug(STR_MODULE_NAME &amp; |: [| &amp; g_strUserName &amp; |] attempted to edit the agenda with UNID [| &amp; doc.UniversalID &amp; |] but was not listed as an allowable editor.|)
+			Continue = False
+		Else
+			Call ShowErrorMsg(|The system could not find the event profile associated with this event.  Please contact the system administrator.|)
+			Call Debug(STR_MODULE_NAME &amp; |: Unable to find event profile.|)
+			Continue = False
+		End If
+	End If     
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Finished.|)
+	
+End Sub
+</lotusscript></code><code event='postopen'><lotusscript>Sub Postopen(Source As Notesuidocument)
+	
+	Set m_uidocCurr = Source
+	Set m_docCurr = m_uidocCurr.Document	
+	
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<sharedactionref id='70'>
+<action title='Close' icon='27' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='71'>
+<action title='Save &amp; Close' icon='21' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@If(@Command([FileSave]);@Command([CloseWindow]); "")</formula></code></action></sharedactionref>
+<sharedactionref id='72'>
+<action title='Edit' icon='5' showinmenu='false' hide='edit previewedit web mobile'><code
+ event='click'><formula>@Command([EditDocument])</formula></code></action></sharedactionref>
+<sharedactionref id='91'>
+<action title='Insert\Carriage Return' icon='29' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; "&lt;br /&gt;" )</formula></code></action></sharedactionref>
+<sharedactionref id='92'>
+<action title='Insert\Bold Font' icon='58' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; "&lt;b&gt;PLACE THE TEXT TO MAKE BOLD IN BETWEEN THESE TAGS&lt;/b&gt;" )</formula></code></action></sharedactionref>
+<sharedactionref id='93'>
+<action title='Insert\Link to IBM web page' icon='44' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; "&lt;a href=\"ENTER THE URL TO LINK HERE\"&gt;ENTER THE NAME OF THE LINK HERE&lt;/a&gt;" )</formula></code></action></sharedactionref>
+<sharedactionref id='90'>
+<action title='Insert\Link to page outside IBM' icon='41' showinmenu='false'
+ hide='preview read web mobile'><code event='click'><formula>link := "&lt;a class=\"ibm-external-link ibm-leaving-prompt\" href=\"http://www.ibm.com/links/?prompt=1&amp;url=http://ENTER URL TO LINK HERE\"&gt;ENTER THE NAME OF THE LINK HERE&lt;/a&gt;";
+@Command([EditInsertText];@NewLine + link)</formula></code></action></sharedactionref>
+<sharedactionref id='95'>
+<action title='Insert\Add a row to a table' icon='43' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; "&lt;tr class=\"tb-row\"&gt;" + @NewLine + "&lt;td width=\"135\" align=\"left\" class=\"tb-row\"&gt;ADD TIME HERE&lt;/td&gt;" + @NewLine + "&lt;td&gt;ADD DESCRIPTION HERE&lt;/td&gt;" + @NewLine + "&lt;/tr&gt;" + @NewLine)</formula></code><code
+ event='hidewhen'><formula>includeagenda = "No" | age_format != "Table format"</formula></code></action></sharedactionref>
+<sharedactionref id='89'>
+<action title='Insert\Map link' icon='107' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>link := "&lt;a class=\"ibm-external-link\" href=\"#\" onClick=\"OpenNonIBMPage('ENTER URL TO LINK HERE');return false;\"&gt;Map to this location&lt;/a&gt;";
+@Command([EditInsertText];@NewLine + link)</formula></code></action></sharedactionref>
+<sharedactionref id='94'>
+<action title='Insert\Contact E-mail' icon='59' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; "&lt;a href=\"mailto:ENTER E-MAIL ADDRESS HERE\"&gt;ENTER SAME E-MAIL ADDRESS HERE&lt;/a&gt;" )</formula></code></action></sharedactionref>
+<sharedactionref id='96'>
+<action title='Insert\Unordered List' icon='146' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; @NewLine +"&lt;p&gt;&lt;ul class=\"ibm-bullet-list ibm-no-links\"&gt;" + @NewLine + "&lt;li&gt;ADD HERE UNORDERED LIST ELEMENT ONE&lt;/li&gt;" + @NewLine + "&lt;li&gt;ADD HERE UNORDERED LIST ELEMENT TWO&lt;/li&gt;" + @NewLine + "&lt;li&gt;ADD HERE UNORDERED LIST ELEMENT THREE&lt;/li&gt;" + @NewLine + "&lt;li&gt;ADD HERE UNORDERED LIST ELEMENT FOUR&lt;/li&gt;" + @NewLine + "&lt;/ul&gt;&lt;/p&gt;" )</formula></code></action></sharedactionref>
+<sharedactionref id='97'>
+<action title='Insert\Ordered List' icon='146' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; @NewLine + "&lt;p&gt;&lt;ol&gt;" + @NewLine + "&lt;li&gt;ADD HERE ORDERED LIST ELEMENT ONE&lt;/li&gt;" + @NewLine + "&lt;li&gt;ADD HERE ORDERED LIST ELEMENT TWO&lt;/li&gt;" + @NewLine + "&lt;li&gt;ADD HERE ORDERED LIST ELEMENT THREE&lt;/li&gt;" + @NewLine + "&lt;li&gt;ADD HERE ORDERED LIST ELEMENT FOUR&lt;/li&gt;" + @NewLine + "&lt;/ol&gt;&lt;/p&gt;" )</formula></code></action></sharedactionref>
+<sharedactionref id='98'>
+<action title='Insert\Add Line to List' icon='146' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; @NewLine + "&lt;li&gt;ADD HERE NEW ENTRY TO LIST&lt;/li&gt;" )</formula></code></action></sharedactionref>
+<action title='Insert\Free Text Area' icon='146' hide='preview read'><code
+ event='click'><formula>@Command([EditInsertText];
+"&lt;table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"data-table-1\" width=\"443\" summary=\"Agenda\"&gt;&lt;caption&gt;&lt;em&gt;" + age_sectiontiltle + "&lt;/em&gt;&lt;/caption&gt;&lt;tr&gt;&lt;td&gt;"
+
++@NewLine+@NewLine+@NewLine+
+"ADD DESCRIPTION HERE"
++@NewLine+@NewLine+@NewLine+
+
+
+"&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;"+@NewLine
+ )</formula></code></action>
+<action title='Insert\3 Column Agenda' icon='146' hide='preview read'><code
+ event='click'><formula>@Command([EditInsertText];
+
+"&lt;!-- START OF 3 COLUMN AGENDA --&gt;" + @NewLine +
+"&lt;div class=\"ibm-container\"&gt;" + @NewLine +
+"&lt;div class=\"ibm-container-body\"&gt;" + @NewLine +
+"&lt;table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" class=\"ibm-data-table\" summary=\"" + age_sectiontiltle + "\"&gt;" + @NewLine +
+"&lt;caption&gt;&lt;em&gt;" + age_sectiontiltle + "&lt;/em&gt;&lt;/caption&gt;" + @NewLine +
+"&lt;thead&gt;" + @NewLine +
+"&lt;tr&gt;" + @NewLine +
+"&lt;th scope=\"col\"&gt;REPLACE THIS TEXT WITH COLUMN #1 TITLE&lt;/th&gt;" + @NewLine +
+"&lt;th scope=\"col\"&gt;REPLACE THIS TEXT WITH COLUMN #2 TITLE&lt;/th&gt;" + @NewLine +
+"&lt;th scope=\"col\"&gt;REPLACE THIS TEXT WITH COLUMN #3 TITLE&lt;/th&gt;" + @NewLine +
+"&lt;/tr&gt;" + @NewLine +
+"&lt;/thead&gt;" + @NewLine +
+"&lt;tbody&gt;" + @NewLine +
+"&lt;tr&gt;" + @NewLine +
+"&lt;th class=\"ibm-table-row\" scope=\"row\"&gt;ADD COLUMN#1 HERE&lt;/th&gt;" + @NewLine +
+"&lt;td&gt;ADD COLUMN#2 HERE&lt;/td&gt;" + @NewLine +
+"&lt;td&gt;ADD COLUMN#3 HERE&lt;/td&gt;" + @NewLine +
+"&lt;/tr&gt;" + @NewLine +
+"&lt;tr&gt;" + @NewLine +
+"&lt;th class=\"ibm-table-row\" scope=\"row\"&gt;ADD COLUMN#1HERE&lt;/th&gt;" + @NewLine +
+"&lt;td&gt;ADD COLUMN#2 HERE&lt;/td&gt;" + @NewLine +
+"&lt;td&gt;ADD COLUMN#3 HERE&lt;/td&gt;" + @NewLine +
+"&lt;/tr&gt;" + @NewLine +
+"&lt;tr&gt;" + @NewLine +
+"&lt;th class=\"ibm-table-row\" scope=\"row\"&gt;ADD COLUMN#1HERE&lt;/th&gt;" + @NewLine +
+"&lt;td&gt;ADD COLUMN#2 HERE&lt;/td&gt;" + @NewLine +
+"&lt;td&gt;ADD COLUMN#3 HERE&lt;/td&gt;" + @NewLine +
+"&lt;/tr&gt;" + @NewLine +
+"&lt;/tbody&gt;" + @NewLine +
+"&lt;/table&gt;" + @NewLine +
+"&lt;/div&gt;" + @NewLine +
+"&lt;/div&gt;" + @NewLine +
+"&lt;!-- END OF 3 COLUMN AGENDA --&gt;" + @NewLine
+
+ )</formula></code></action>
+<sharedactionref id='116'>
+<action title='Insert\Link to pdf' icon='29' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>tmpSystemName := @GetProfileField("fProfile"; "dp_SystemName");
+myVal := @PickList([Custom];  ""; "vDialogSelectPDF"; tmpSystemName; "Select a PDF attachment to link to."; 3);
+@If( myVal = "" ; @Return("") ; "" );
+myField := "&lt;a class=\"ibm-pdf-link\" href=\"vLookupPDFs/"+@LeftBack(@GetDocField(myVal ;"AttachmentNames");".pdf") +"/$file/"+@GetDocField(myVal ;"AttachmentNames") +"\"&gt;ADD PDF DESCRIPTION HERE&lt;/a&gt;";
+@Command([EditInsertText]; myField )</formula></code></action></sharedactionref>
+<sharedactionref id='117'>
+<action title='Insert\Link to mp3 podcast' icon='29' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>tmpSystemName := @GetProfileField("fProfile"; "dp_SystemName");
+myVal := @PickList([Custom];  ""; "vDialogSelectMP3"; tmpSystemName; "Select an mp3 file attachment to link to."; 3);
+@If( myVal = "" ; @Return("") ; "" );
+myField := "&lt;a class=\"ibm-audio-link\" href=\"vLookupMP3s/"+@LeftBack(@GetDocField(myVal ;"AttachmentNames");".mp3") +"/$file/"+@GetDocField(myVal ;"AttachmentNames") +"\"&gt;ADD PODCAST DESCRIPTION HERE&lt;/a&gt;";
+@Command([EditInsertText]; myField )</formula></code></action></sharedactionref>
+<action title='Insert\Link to GRP hosted video'><code event='click'><formula
+>tmpSystemName := @GetProfileField("fProfile"; "dp_SystemName");
+myVal := @PickList([Custom];  ""; "vDialogSelectVideo"; tmpSystemName; "Select a video file to embed."; 3);
+@If( myVal = "" ; @Return("") ; "" );
+
+myField := "&lt;DIV id=\"FlashContainer\" align=\"center\"&gt;	
+&lt;object classid=\"clsid:D27CDB6E-AE6D-11cf-96B8-444553540000\"  
+width=\"400\" 
+height=\"300\" 
+id=\"GRP\"&gt;
+&lt;param name=\"movie\" 		value=\"vLookupVideo/"+@LeftBack(@GetDocField(myVal ;"AttachmentNames");".swf") +"/$file/"+@GetDocField(myVal ;"AttachmentNames") +"\"  /&gt;
+&lt;param name=\"wmode\" 					value=\"transparent\" /&gt;
+&lt;param name=\"allowscriptaccess\" 	value=\"always\" /&gt;
+&lt;param name=\"controller\" 				value=\"true\" /&gt; 
+&lt;param name=\"play\" 						value=\"false\" /&gt;
+&lt;param name=\"allowfullscreen\" 		value=\"true\" /&gt; 
+
+&lt;embed 
+	src=\"vLookupVideo/"+@LeftBack(@GetDocField(myVal ;"AttachmentNames");".mp4") +"/$file/"+@GetDocField(myVal ;"AttachmentNames") +"\"  
+	wmode=\"transparent\"  
+	swliveconnect=\"true\"
+	id=\"GRP\" 
+	name=\"GRP\"
+	width=\"400\" 
+	height=\"300\" 
+	allowscriptaccess=\"always\" 
+	controller=\"true\" 
+	play=\"false\"
+	allowfullscreen=\"true\" 
+	type=\"application/x-shockwave-flash\"  &gt;
+&lt;/embed&gt;
+&lt;/object&gt;
+
+&lt;br /&gt;&lt;br /&gt;
+
+&lt;A href=\"javascript:GRP.Play();\" &gt;
+&lt;IMG  alt='Play' src=\"elementsimage/play/$file/play.gif\" /&gt;&lt;/A&gt; 
+
+&amp;nbsp; &amp;nbsp;
+&lt;A href=\"javascript:GRP.StopPlay();\"&gt;
+&lt;IMG  alt='Pause' src=\"elementsimage/pause/$file/pause.gif\" /&gt;&lt;/A&gt;
+
+&lt;SCRIPT LANGUAGE=\"JavaScript\"&gt;
+     var GRP = getFlashMovieObject('GRP');
+&lt;/SCRIPT&gt;
+     &lt;p&gt;
+     &lt;img src=\"http://www.ibm.com/i/v16/icons/sout.gif\" height=\"16\" width=\"16\" border=\"0\" alt=\"\" /&gt;
+Can't see the movie? 
+     &lt;a href=\"http://www.adobe.com/go/getflashplayer\" alt=\"Get Adobe Flash player\"&gt;
+     Get the Adobe&amp;reg; Flash&amp;reg; Player&lt;/a&gt;&lt;/p&gt;
+
+&lt;noscript&gt;Flash 7 and JavaScript are needed&lt;/noscript&gt;
+&lt;DIV&gt;";
+
+
+@Command([EditInsertText]; myField )</formula></code></action>
+<action title='Insert\Link to external video'><code event='click'><formula
+>tmpSystemName := @GetProfileField("fProfile"; "dp_SystemName");
+myVal := @Prompt([OkCancelEdit]; "Enter the URL of the video"; "i.e. : http://www.youtube.com/v/XXXXXXX&amp;hl=en&amp;fs=1&amp;rel=0"; "") ;
+
+@If( myVal = "" ; @Return("") ; "" );
+
+myField := "&lt;object width=\"425\" height=\"344\"&gt;
+&lt;param name=\"movie\" 						value=\""+myVal+"\" /&gt;
+&lt;param name=\"allowFullScreen\" 		value=\"true\" /&gt;
+&lt;param name=\"allowscriptaccess\" 	value=\"always\" /&gt;
+&lt;param name=\"controller\" 				value=\"true\" /&gt; 
+&lt;param name=\"autoplay\" 					value=\"false\" /&gt;
+&lt;embed 
+src=\""+myVal+"\" type=\"application/x-shockwave-flash\" 
+allowscriptaccess=\"always\" 
+allowfullscreen=\"true\" 
+width=\"425\" 
+height=\"344\"&gt;
+&lt;/embed&gt;
+&lt;/object&gt;";
+
+@Command([EditInsertText]; myField )</formula></code></action>
+<action title='Insert\Insert Sponsor Logo' icon='29'><code event='click'><formula
+>tmpSystemName := @GetProfileField("fProfile"; "dp_SystemName");
+myVal := @PickList([Custom];  ""; "vDialogSelectSponsorLogo"; tmpSystemName; "Select a sponsor logo for your link."; 3);
+@If( myVal = "" ; @Return("") ; "" );
+myField := "&lt;IMG  alt='' src=\"elementsimage/"+@GetDocField(myVal ;"el_key") +"/$file/"+@GetDocField(myVal ;"AttachmentNames") +"\" /&gt;";
+@Command([EditInsertText]; myField )</formula></code></action></actionbar>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='0.7500in' hide='notes web'/>
+<section onread='collapse' onpreview='collapse' onedit='collapse' onprint='collapse'><sectiontitle
+ pardef='1' color='teal'><font size='8pt' color='red' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><text>Revision History</text></sectiontitle>
+<pardef id='2' align='none' leftmargin='1in' hide='notes web'/>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>-----------------------------------------------------------------------------------------------------------------<break
+/> Agenda Content Form<break/>-----------------------------------------------------------------------------------------------------------------<break
+/></run></par>
+<par def='2'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/> Description:</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> This form is used to enter the information that is used to build an agenda web page.</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> One document of this type exists for each locale specific version of an agenda for each event.</run></par>
+<pardef id='3' leftmargin='1in' hide='notes web'/>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/><break/></run><run><font size='8pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> Author:</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> Core Lan	<break/></run><run><font size='8pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/><break/> Revision History:</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/><break/></run><run><font size='8pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/> Date                        	By             	Description</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/> ---------                       	---                   	------------------</run></par>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> November 2007		Core Lan		Initial version.<break
+/>-----------------------------------------------------------------------------------------------------------------</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></section>
+<pardef id='4' hide='notes web mobile'/>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table cellbordercolor='red' widthtype='fixedleft' refwidth='8in'><tablecolumn
+ width='2in'/><tablecolumn width='6in'/>
+<tablerow>
+<tablecell>
+<pardef id='6' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Field</run></par></tablecell>
+<tablecell>
+<pardef id='7' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Description</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='8' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='DocType'><code event='defaultvalue'><formula>"Agenda Content"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>DocType </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The document type. (Hardcoded to 'Agenda Content')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='Form'><code event='defaultvalue'><formula>"agendacontent"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Form </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The form alias. (Hardcoded to 'agendacontent')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='number' kind='computedwhencomposed'
+ name='DocIcon'><numberformat format='general' digits='2' punctuated='false'
+ parens='false' percent='false' bytes='false'/><code event='defaultvalue'><formula
+>17</formula></code></field></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>DocIcon </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The icon to display in views for this type of document.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_ReferenceDbReplicaID'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_ReferenceDbReplicaID</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> - The replica ID of the reference database. (Includes the colon.  Use in @DBLookups.)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='ep_id'><code event='defaultvalue'><formula>ep_id</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>ep_id</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - The event ID.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='ep_EventTitle'><code event='defaultvalue'><formula>ep_EventTitle</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>ep_EventTitle</run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - The event title. (From the associated Event Profile)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='geo'/></run><compositedata type='98' prevtype='65418' nexttype='222'
+ afterparcount='9' containertype='65418' aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>geo</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Copied from the geo field in the Event Profile when this document is created.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='country'/></run><compositedata type='98' prevtype='65418' nexttype='222'
+ afterparcount='9' containertype='65418' aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>country </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- </run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>Copied from the loc_country field in the Event Profile when this document is created.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='docid'><code event='defaultvalue'><formula>@Text(@DocumentUniqueID)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>docid</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - The UNID of this document.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='c_audit' listinputseparators='comma semicolon' listdisplayseparator='semicolon'><code
+ event='inputtranslation'><formula>Output := @Text(@Name([CN];@V3UserName))+" - "+@Text(@Now);
+@If(@IsDocBeingSaved;@If(c_audit = "";@SetField("c_audit"; Output);@SetField("c_audit"; c_audit:Output));@If(c_audit = "";Output;c_audit))</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>c_audit</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Used to track changes to this document.  Displayed on the History tab.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='isAgendaPreviewed'><code event='defaultvalue'><formula>"No"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>isAgendaPreviewed</run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - A flag used to indicate whether the agenda has been previewed.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='Locale'><code event='defaultvalue'><formula>Locale</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Locale </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- </run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>The locale. (Formatted as ll_CC where ll = language and CC = country).  For example, en_US.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='LocaleName'><code event='defaultvalue'><formula>LocaleName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>LocaleName </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- </run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>The locale name.  For example, English (United States).</run></par></tablecell></tablerow></table>
+<pardef id='9'/>
+<par def='9'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table cellbordercolor='gray' widthtype='fixedleft' refwidth='8in'><border
+ dropshadow='true'/><tablecolumn width='8in'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5e84' altbgcolor='#c8d7e3'>
+<pardef id='11' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='11'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/></run><run><font size='12pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='white'/><computedtext><code event='value'><formula>eventname</formula></code></computedtext></run><run
+><font size='12pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/></run></par>
+<par def='11'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/>Agenda - </run><run><font size='12pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='white'/><computedtext><code event='value'><formula>LocaleName</formula></code></computedtext></run><run
+><font size='12pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/></run></par></tablecell></tablerow></table>
+<pardef id='12' leftmargin='1in'/>
+<par def='12'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table cellbordercolor='#3c5e84' rowdisplay='tabs' sizetabsequally='true'
+ widthtype='fixedleft' refwidth='8in'><tablerowstyle><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='black'/></tablerowstyle><tablecolumn
+ width='8in'/>
+<tablerow tablabel='Agenda configuration'>
+<tablecell>
+<pardef id='14' keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9792in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5f84' altbgcolor='#c8d7e3'>
+<pardef id='16' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='16'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/>Agenda configuration</run></par></tablecell></tablerow></table>
+<par def='14'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9792in'><tablecolumn width='50%'/><tablecolumn width='50%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<pardef id='18' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='18'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Event details</run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<pardef id='19' align='right' keepwithnext='true' keeptogether='true'/>
+<par def='19'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow></table>
+<pardef id='20' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='20'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9792in'><tablecolumn width='1.8000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px 1px 1px'>
+<pardef id='22' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='22'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Language</run></par></tablecell>
+<tablecell borderwidth='0px 1px 1px'>
+<pardef id='23' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field defaultfocus='true'
+ type='text' kind='computedfordisplay' name='d_LocaleName'><code event='defaultvalue'><formula
+>LocaleName</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='11' containertype='65418' aftercontainercount='1'
+ afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='22'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Geo (location of event)</run></par></tablecell>
+<tablecell>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='d_geo'><code event='defaultvalue'><formula>geo</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='22'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Event start date</run></par></tablecell>
+<tablecell>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='d_date'><code event='defaultvalue'><formula>startmonth + "/" + startday + "/" + startyear</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/>  (mm/dd/yyyy)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='22'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Country</run></par></tablecell>
+<tablecell>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='d_country'><code event='defaultvalue'><formula>country</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='22'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>City</run></par></tablecell>
+<tablecell>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='d_city'><code event='defaultvalue'><formula>city</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<par def='14'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9792in'><tablecolumn width='50%'/><tablecolumn width='50%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<par def='18'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Agenda details</run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<par def='19'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run><actionhotspot hotspotstyle='none'><run
+><font size='8pt' style='underline' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/>Preview </run><run><font size='8pt' style='underline'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#3c5e84'/>page</run><code
+ event='click'><lotusscript>Sub Click(Source As Button)
+	
+	'Check that we're on a server before allowing preview
+	If (g_flgIsProduction Or g_flgIsPreview) Then
+		
+		'Save the document
+		Call m_docCurr.Save(True, False)
+		
+		Call OpenPage(m_docCurr, INT_AGENDA_PAGE, INT_PREVIEW, Cstr(m_docCurr.Locale(0)))
+		
+		'Save the ui document so we don't get prompted to save changes
+		Call m_uidocCurr.Save()
+	Else
+		Call ShowInfoMsg(|You cannot view this page when using a local database.  To view the page please use the database on a server. |)	
+	End If
+	
+End Sub
+</lotusscript></code></actionhotspot><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='#3c5e84'/>  </run><actionhotspot hotspotstyle='none'><run
+><font size='8pt' style='underline' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/>Live page</run><code event='click'><lotusscript
+>Sub Click(Source As Button)
+	
+	'Check that we're on a server before allowing preview
+	If (g_flgIsProduction Or g_flgIsPreview) Then
+		'Save the document
+		Call m_docCurr.Save(True, False)
+		
+		Call OpenPage(m_docCurr, INT_AGENDA_PAGE, INT_LIVE, Cstr(m_docCurr.Locale(0)))
+		
+		'Save the ui document so we don't get prompted to save changes
+		Call m_uidocCurr.Save()		
+	Else
+		Call ShowInfoMsg(|You cannot view this page when using a local database.  To view the page please use the database on a server. |)	
+	End If
+	
+End Sub
+</lotusscript></code></actionhotspot><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='#3c5e84'/>  </run></par></tablecell></tablerow></table>
+<par def='20'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9792in'><tablecolumn width='1.8000in'/><tablecolumn width='56.9583%'/><tablecolumn
+ width='43.0417%'/>
+<tablerow>
+<tablecell borderwidth='0px 1px 1px'>
+<par def='22'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Show graphic at top of page?</run></par></tablecell>
+<tablecell borderwidth='0px 1px 1px'>
+<pardef id='26' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field defaultfocus='true' borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='showgraphic'><keywords helperbutton='false' recalconchange='true' columns='2'
+ ui='radiobutton'><textlist><text>Yes</text><text>No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Yes"</formula></code></field></run><run><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell>
+<tablecell borderwidth='0px 1px 1px'>
+<pardef id='27' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Do you want to show the registration page graphic at the top of the agenda page?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='22'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Include abstract section?</run></par></tablecell>
+<tablecell>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field defaultfocus='true' borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='includeabs'><keywords helperbutton='false' recalconchange='true' columns='2'
+ ui='radiobutton'><textlist><text>Yes</text><text>No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"No"</formula></code></field></run><run><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell>
+<tablecell>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Do you want to show an abstract section?</run></par>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>By default, the text is the abstract from the original event brief but you can update it as necessary.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='28' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeabs = "No"</formula></code></pardef>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Abstract text</run></par></tablecell>
+<tablecell columnspan='2'>
+<pardef id='30' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeabs = "No"</formula></code></pardef>
+<par def='30'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='abs_info'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='11' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='31' keepwithnext='true' keeptogether='true'/>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='32' keepwithnext='true' keeptogether='true'/>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='33' keepwithnext='true' keeptogether='true'/>
+<par def='33'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='22'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Include location section?</run></par></tablecell>
+<tablecell>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field defaultfocus='true' borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='includeloc'><keywords helperbutton='false' recalconchange='true' columns='2'
+ ui='radiobutton'><textlist><text>Yes</text><text>No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Yes"</formula></code></field></run><run><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell>
+<tablecell>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Do you want to show the venue information from the event profile?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='34' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeloc = "No"</formula></code></pardef>
+<par def='34'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Section title</run></par></tablecell>
+<tablecell columnspan='2'>
+<pardef id='36' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeloc = "No"</formula></code></pardef>
+<par def='36'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field defaultfocus='true' type='text' kind='editable'
+ name='loc_sectiontiltle'><code event='defaultvalue'><formula>city + ", " + country</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='12' containertype='65418'
+ aftercontainercount='1' afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='34'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Location information</run></par></tablecell>
+<tablecell columnspan='2'>
+<par def='36'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field defaultfocus='true' type='text' kind='editable'
+ name='loc_info'/></run><compositedata type='98' prevtype='65418' nexttype='222'
+ afterparcount='10' containertype='65418' aftercontainercount='1' afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='33'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='22'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Include agenda body?</run></par></tablecell>
+<tablecell>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field defaultfocus='true' borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='includeagenda'><keywords helperbutton='false' recalconchange='true'
+ columns='2' ui='radiobutton'><textlist><text>Yes</text><text>No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Yes"</formula></code></field></run><run><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell>
+<tablecell>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Do you want to show a main agenda section?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='38' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeagenda = "No"</formula></code></pardef>
+<par def='38'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Agenda format</run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/>?</run></par></tablecell>
+<tablecell>
+<pardef id='39' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeagenda = "No"</formula></code></pardef>
+<par def='39'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='age_format'><keywords
+ helperbutton='false' recalconchange='true' columns='2' ui='radiobutton'><textlist
+><text>Table format</text><text>Free format</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Table format"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='navy'/></run></par></tablecell>
+<tablecell>
+<pardef id='40' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeagenda = "No"</formula></code></pardef>
+<par def='40'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Choose how you want to build the main agenda section.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='41' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeagenda = "No" | age_format != "Table format"</formula></code></pardef>
+<par def='41'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Section title</run></par></tablecell>
+<tablecell columnspan='2'>
+<pardef id='43' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeagenda = "No" | age_format != "Table format"</formula></code></pardef>
+<par def='43'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field defaultfocus='true' type='text' kind='editable'
+ name='age_sectiontiltle'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='12' containertype='65418' aftercontainercount='1'
+ afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='44' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeagenda = "No" | age_format != "Free format"</formula></code></pardef>
+<par def='44'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Free format agenda</run></par></tablecell>
+<tablecell columnspan='2'>
+<pardef id='46' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeagenda = "No" | age_format != "Free format"</formula></code></pardef>
+<par def='46'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field defaultfocus='true' type='text' kind='editable'
+ name='age_info'/></run><compositedata type='98' prevtype='65418' nexttype='222'
+ afterparcount='12' containertype='65418' aftercontainercount='1' afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='41'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Title column one</run></par></tablecell>
+<tablecell columnspan='2'>
+<par def='43'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='age_colone'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='41'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Title column two</run></par></tablecell>
+<tablecell columnspan='2'>
+<par def='43'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='age_coltwo'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='41'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Rows for agenda</run></par></tablecell>
+<tablecell columnspan='2'>
+<par def='43'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='age_rows'><code
+ event='defaultvalue'><formula>"&lt;tr&gt;" + @NewLine +
+"&lt;th class=\"ibm-table-row\" scope=\"row\" width=\"135\"&gt;ADD TIME HERE&lt;/th&gt;" + @NewLine +
+"&lt;td&gt;ADD DESCRIPTION HERE&lt;/td&gt;" + @NewLine +
+"&lt;/tr&gt;" + @NewLine +
+"&lt;tr&gt;" + @NewLine +
+"&lt;th class=\"ibm-table-row\" scope=\"row\"&gt;ADD TIME HERE&lt;/th&gt;" + @NewLine +
+"&lt;td&gt;ADD DESCRIPTION HERE&lt;/td&gt;" + @NewLine +
+"&lt;/tr&gt;" + @NewLine +
+"&lt;tr&gt;" + @NewLine +
+"&lt;th class=\"ibm-table-row\" scope=\"row\"&gt;ADD TIME HERE&lt;/h&gt;" + @NewLine +
+"&lt;td&gt;ADD DESCRIPTION HERE&lt;/td&gt;" + @NewLine +
+"&lt;/tr&gt;" + @NewLine</formula></code></field></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='33'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='22'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Include sponsorship?</run></par></tablecell>
+<tablecell>
+<par def='26'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ defaultfocus='true' borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='includeagendasponsorship'><keywords
+ helperbutton='false' recalconchange='true' columns='2' ui='radiobutton'><textlist
+><text>Yes</text><text>No</text></textlist></keywords><code event='defaultvalue'><formula
+>"No"</formula></code></field></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run></par></tablecell>
+<tablecell>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Do you want to show a sponsorship section in the agenda?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='50' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeagendasponsorship = "No"</formula></code></pardef>
+<par def='50'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Section title</run></par></tablecell>
+<tablecell columnspan='2'>
+<pardef id='52' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeagendasponsorship = "No"</formula></code></pardef>
+<par def='52'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='age_sponsorship_title'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='50'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Sponsorship information</run></par></tablecell>
+<tablecell columnspan='2'>
+<par def='52'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='age_sponsorship'><code event='defaultvalue'><formula
+>"&lt;td width='130'&gt;ADD SPONSOR LINK HERE&lt;/td&gt;"+ @NewLine
++ "&lt;td width='25'&gt;&amp;nbsp;&lt;/td&gt;"+ @NewLine
++"&lt;td width='130'&gt;ADD SPONSOR LINK HERE&lt;/td&gt;"+ @NewLine</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/> </run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='54' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='54'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell>
+<tablecell>
+<pardef id='55' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='55'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell>
+<tablecell>
+<pardef id='56' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<par def='33'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow></table>
+<par def='20'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow tablabel='History'>
+<tablecell>
+<par def='14'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9792in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5f84' altbgcolor='#c8d7e3'>
+<par def='16'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/>History</run></par></tablecell></tablerow></table>
+<par def='14'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9792in'><tablecolumn width='1.6000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell>
+<pardef id='59' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='59'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Document created</run></par></tablecell>
+<tablecell>
+<pardef id='60' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='60'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='datetime' kind='computedwhencomposed'
+ name='doccreated'><datetimeformat show='datetime' date='yearmonthday' time='hourminutesecond'
+ zone='always' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>@Created</formula></code></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='59'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Created by</run></par></tablecell>
+<tablecell>
+<par def='60'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='RCreated'><code event='defaultvalue'><formula>@V3UserName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='59'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Record history</run></par></tablecell>
+<tablecell>
+<par def='60'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='c_audit_display' listinputseparators='semicolon newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>c_audit</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<par def='14'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='9'/>
+<table cellbordercolor='red' widthtype='fixedleft' refwidth='8in'><tablecolumn
+ width='2in'/><tablecolumn width='6in'/>
+<tablerow>
+<tablecell>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='DocTitle'><code event='defaultvalue'><formula>"Agenda: " + LocaleName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>DocTitle </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The title of the document.  (Used in views)</run></par></tablecell></tablerow></table>
+<par def='3'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></richtext></body>
+<item name='OriginalModTime'><datetime dst='true'>20060721T170523,21-04</datetime></item>
+<item name='DocIcon' summary='false'><number>0</number></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>agendacontent</text></item></form>
+

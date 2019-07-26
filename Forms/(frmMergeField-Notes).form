@@ -1,0 +1,565 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(frmMergeField-Notes)' alias='frmMergeField' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='8.5.3'
+ comment='Mail Merge Field - Notes version' inherit='true' editonopen='true'>
+<noteinfo noteid='14f2e' unid='393EB1BCC36505D186257F710078AF72' sequence='10'>
+<created><datetime>20160309T155812,34-06</datetime></created>
+<modified><datetime dst='true'>20180929T235604,87-05</datetime></modified>
+<revised><datetime>20160310T111658,77-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235604,87-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235604,87-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+
+</lotusscript></code><code event='declarations'><lotusscript>Dim m_docCurr As NotesDocument
+Dim m_uidocCurr As NotesUIDocument</lotusscript></code></globals><code event='windowtitle'><formula
+>"Merge Field"</formula></code><code event='postopen'><lotusscript>Sub Postopen(Source As Notesuidocument)
+	
+	Set m_uidocCurr = Source
+	Set m_docCurr = m_uidocCurr.Document
+	
+End Sub
+</lotusscript></code><code event='querysave'><lotusscript>Sub Querysave(Source As Notesuidocument, Continue As Variant)
+	
+	Const STR_MODULE_NAME = |frmMergeField: Querysave|
+	
+	Dim strMsg As String
+	Dim intCountErrors As Integer
+	Dim strErrorFieldName As String
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	intCountErrors = 0
+	
+	strMsg = |The following fields are required to save this document:| &amp; Chr$(13) &amp; Chr$(13)
+	
+	'Validate the required fields in the order they appear on the form
+	Call CheckField(m_docCurr, |mm_DocType|, |Merge doc type|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |mf_Name|, |Merge field name|, strMsg, strErrorFieldName, intCountErrors)
+	Call CheckField(m_docCurr, |mf_Type|, |Type|, strMsg, strErrorFieldName, intCountErrors)
+	If Source.FieldGetText(|mf_Type|) &lt;&gt; "Attachment" Then
+		Call CheckField(m_docCurr, |mf_Formula|, |Formula|, strMsg, strErrorFieldName, intCountErrors)
+	End If
+	If Source.FieldGetText(|mf_Type|) = "Attachment" Then
+		Call CheckField(m_docCurr, |mf_AttachmentKey|, |Lookup Key For Attachment|, strMsg, strErrorFieldName, intCountErrors)
+	End If
+	
+	If intCountErrors &gt; 0 Then
+		Call ShowErrorMsg(strMsg)
+		Source.GotoField(strErrorFieldName)
+		Continue = False	
+	End If
+	
+	Dim strFormula As Variant
+	strFormula = m_docCurr.mf_Formula(0)
+	
+	If( Instr(strFormula, " ") Or Instr(strFormula, "+") Or Instr(strFormula, "@") ) Then 
+		If( m_docCurr.mf_Type(0) = "Field" ) Then 
+			Msgbox "Looks like a formula, setting Field to Formula"
+			m_docCurr.mf_Type = "Formula" 
+		End If
+	Else
+		If( m_docCurr.mf_Type(0) = "Formula" ) Then 
+			Msgbox "It appears you may be using the Formula setting with a simple field.  Please verify (will save anyway)."
+		End If
+		
+	End If
+	
+	
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='white' bordercolor='black'>
+<actionbuttonstyle bgcolor='white'/><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/><border style='solid' width='0px 0px 1px'
+ color='gray'/>
+<action title='Close' icon='27' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([FileCloseWindow])</formula></code></action>
+<action title='Save &amp; Close' icon='21' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@If(@Command([FileSave]);@Command([CloseWindow]); "")</formula></code></action>
+<action title='Edit' icon='5' showinmenu='false' hide='edit previewedit web mobile'><code
+ event='click'><formula>@Command([EditDocument])</formula></code><code event='hidewhen'><formula
+>!(@IsMember("[Admin]"; @UserRoles) | @IsMember("[Designer]"; @UserRoles))</formula></code></action></actionbar>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='0.7500in' hide='notes web'/>
+<section onread='collapse' onpreview='collapse' onedit='collapse' onprint='collapse'><sectiontitle
+ pardef='1' color='teal'><font size='9pt' color='red' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><text>Revision History</text></sectiontitle>
+<pardef id='2' align='none' leftmargin='1in' hide='notes web'/>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>-----------------------------------------------------------------------------------------------------------------<break
+/> Merge Field Form<break/>-----------------------------------------------------------------------------------------------------------------<break
+/></run></par>
+<par def='2'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/> Description:</run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> This form is used to define a merge field that can be inserted into an e-mail.</run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> One document of this type exists for each locale specific version of a merge field.</run></par>
+<pardef id='3' leftmargin='1in' hide='notes web'/>
+<par def='3'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/><break/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> Author:</run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> Core Lan	<break/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/><break/> Revision History:</run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/><break/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/> Date                        	By             	Description</run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/> ---------                       	---                   	------------------</run></par>
+<par def='3'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> March 6 2009		Tim Vallely	Initial version.<break
+/>-----------------------------------------------------------------------------------------------------------------</run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></section>
+<pardef id='4' hide='notes web mobile'/>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table widthtype='fitmargins' cellbordercolor='red' leftmargin='0.9896in'
+ refwidth='11.8125in'><tablecolumn width='2.5000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell>
+<pardef id='6' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Field</run></par></tablecell>
+<tablecell>
+<pardef id='7' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Description</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='8' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='DocType'><code event='defaultvalue'><formula>"Merge Field"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>DocType </run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The document type. (Hardcoded to 'Merge Field')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='9' leftmargin='0.1000in' hide='notes web mobile' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='9'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='Form'><code event='defaultvalue'><formula>"frmMergeField"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='10' leftmargin='0.1000in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='10'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Form </run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The form alias. (Hardcoded to 'fMergeField')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='11' leftmargin='0.1000in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_ReferenceDbReplicaID'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='10'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_ReferenceDbReplicaID</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> - The replica ID of the reference database. (Includes the colon.  Use in @DBLookups.)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_IsMultiLingual'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='10'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_IsMultiLingual</run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Whether the canister is confiigured to support multiple locales.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='mf_UNID'><code event='defaultvalue'><formula>@Text(@DocumentUniqueID)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='10'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>mf_UNID</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - The UNID of this document.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='c_audit' listinputseparators='comma semicolon' listdisplayseparator='semicolon'><code
+ event='inputtranslation'><formula>Output := @Text(@Name([CN];@V3UserName))+" - "+@Text(@Now);
+@If(@IsDocBeingSaved;@If(c_audit = "";@SetField("c_audit"; Output);@SetField("c_audit"; c_audit:Output));@If(c_audit = "";Output;c_audit))</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>c_audit</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Used to track changes to this document.  Displayed on the Audit tab.</run></par></tablecell></tablerow></table>
+<pardef id='12' leftmargin='1in'/>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' refwidth='11.8125in'><tablecolumn width='1.9000in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='black'>
+<pardef id='14' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='14'><picture width='109px' height='51px' alttext='IBM'><gif>
+R0lGODlhbQAzAOIAAAAAAP///xAYILi4uLCwsFhYWHBwcEBAQCwAAAAAbQAzAEAI/wAFCBxIsKDB
+gwgTKlzIsKFDggAiSpxIsaLFixgzatzIsaPHjyBDihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmzhz
+6tzJs6fPnxkLACggdCjQo0iTKl16k0CAp1CjRiUAwKnUq1IHGKA4AGvUrRUNeJ0Ks+tYslbPjqUK
+wOxZsBLFqg0woCbWjG6fUkwLFW7Et3HPsr15F2PeuRbV1uWLdbDNwhcPC06ctarXulcd272akTFX
+zhSv1m1b+W9pmYzH1pU8N2rE1FBHk34qG8DkiUWNlmTdeHZrqXB5B3DctbbttRRz52bKvLnz59Cj
+S59Ovbr169hdCq+8fazf7sZfz4oNn/16d6hUz6uOeF4zbNHl41eEbNHzRMnz17M/S16+fPoVvYcV
+eVjJ9ZSBB8Ln34ISAfjZbwFQRtZxoCnI4IIOTmSfRKn5RWFsESEYAFyZXagTUcuNpB5dvkEIYotS
+DWagX7dFJFQBB9xoIko66kiSgDHC2JpWGurXYH5eaTYUUTs26eSTUEZZXkAAOw==
+</gif></picture><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='15' align='center' keepwithnext='true' keeptogether='true'/>
+<par def='15'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='#005aff'/></run></par>
+<pardef id='16' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='16'><run><font size='14pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Merge Field</run></par>
+<par def='16'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Created by </run><run><font size='8pt' color='gray'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computedwhencomposed' name='CreatedBy'><code event='defaultvalue'><formula
+>@Name([CN]; @UserName)</formula></code></field></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/> on </run><run><font size='8pt'
+ color='gray' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='datetime' kind='computedwhencomposed' name='DateCreated'><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='shortname'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='-'
+ dateseparator3='-' timeseparator=':' timeformat24='true' preference='custom'/><code
+ event='defaultvalue'><formula>@Now</formula></code></field></run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/>.</run></par>
+<par def='16'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Last modified by </run><run><font size='8pt'
+ color='gray' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='computed' name='ModifiedBy'><code event='defaultvalue'><formula
+>@Name([CN]; @UserName)</formula></code></field></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/> on </run><run><font size='8pt'
+ color='gray' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='datetime' kind='computed' name='DateModified'><datetimeformat show='datetime'
+ date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='shortname'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='-'
+ dateseparator3='-' timeseparator=':' timeformat24='true' preference='custom'/><code
+ event='defaultvalue'><formula>@Now</formula></code></field></run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/>.</run></par>
+<par def='15'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='#005aff'/></run></par></tablecell></tablerow></table>
+<pardef id='17'/>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' refwidth='11.7813in'><border
+ style='solid' width='1px' color='silver'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='1px 1px 0px' bgcolor='silver'>
+<pardef id='19' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='19'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Merge field details</run></par></tablecell></tablerow></table>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0.9896in'
+ refwidth='11.8125in'><tablecolumn width='1.9000in'/><tablecolumn width='4.5000in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='21' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Language</run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='22' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='mf_Locale'><keywords recalconchange='true'
+ columns='1' ui='dialoglist'><formula>@Sort(@GetProfileField("fProfile"; "dp_LocaleLookup"))</formula></keywords><code
+ event='defaultvalue'><formula>@GetProfileField("fProfile"; "dp_DefaultLocale")</formula></code></field></run><run
+><font name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par>
+<pardef id='23' leftmargin='0.1000in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='23'><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='mf_LocaleName' listinputseparators='newline' listdisplayseparator='newline'><code
+ event='defaultvalue'><formula>tmpValues := @DbLookup("" : "Cache"; dp_ReferenceDbReplicaID; "vLookupEnabledLocaleProfiles"; mf_Locale; 3);
+@If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<pardef id='24' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>REM {Show if canister is not multi-lingual};
+!(dp_IsMultiLingual != "Yes")</formula></code></pardef>
+<par def='24'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='computedfordisplay' name='mf_LocaleName_Display'><code
+ event='defaultvalue'><formula>mf_LocaleName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='25' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='25'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Choose the language for the merge field.</run></par>
+<pardef id='26' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>REM {Show if canister is not multi-lingual};
+!(dp_IsMultiLingual != "Yes")</formula></code></pardef>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The language for the merge field.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Document Type(s) </run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>*</run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='27' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><sharedfieldref name='mm_DocType'/><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='28' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>What is the type of document(s) will this be used by.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='29' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='29'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Merge field name</run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/> </run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>*</run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='30' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='30'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='mf_Name'><keywords columns='3' ui='dialoglist'
+ allownew='true'><formula>tmpValues := @DbColumn("" : "NoCache"; ""; "luMergeFieldsNameList"; 1);
+@If(@IsError(tmpValues) | tmpValues = ""; ""; @Sort(@Unique(tmpValues)))</formula></keywords></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='31' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>A name for the merge field.  </run></par>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>This is the name you will use when inserting the field into an e-mail.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='32' keepwithnext='true' keeptogether='true'/>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='33' keepwithnext='true' keeptogether='true'/>
+<par def='33'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='34' keepwithnext='true' keeptogether='true'/>
+<par def='34'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='29'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Description</run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='30'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='mf_Desc'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>A brief description of the merge field.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Availability</run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' allowmultivalues='true' kind='editable'
+ name='mf_Availability' listinputseparators='comma newline' listdisplayseparator='newline'><code
+ event='defaultvalue'><formula>""</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Optional in case needed.  Use any special indicator here that can be specific to where the merge field is used.  </run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Merge field type </run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>*</run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='mf_Type'><keywords
+ helperbutton='false' recalconchange='true' columns='3' ui='radiobutton'><textlist
+><text>Field</text><text>Formula</text><text>Value</text><text>Attachment</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Field"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>What type of field is this.  Use Field is this is a direct mapping to a field.  If a formula is needed, then select Formula here and enter an @Formula below.</run></par>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/>Note: </run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/>Here is where we can include more options for attachments, images, etc.</run></par></tablecell></tablerow></table>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' refwidth='11.8021in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell>
+<pardef id='36' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>mf_Type = "Attachment"</formula></code></pardef>
+<par def='36'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Field Name / Formula / Value</run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/> </run><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>*</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='36'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='mf_Formula'><code
+ event='inputtranslation'><formula>tmpVal := @Trim(@ThisValue);
+tmpVal</formula></code><code event='inputvalidation'><formula>@Success</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' refwidth='11.8021in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell>
+<pardef id='38' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>mf_Type != "Attachment"</formula></code></pardef>
+<par def='38'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Lookup Key For Attachment </run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>*</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='38'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='mf_AttachmentKeyType'><keywords
+ helperbutton='false' columns='2' ui='radiobutton'><textlist><text>Value</text><text
+>Field</text><text>Formula</text></textlist></keywords><code event='defaultvalue'><formula
+>"Value"</formula></code></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='38'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='mf_AttachmentKey'><code
+ event='inputtranslation'><formula>@Trim( mf_AttachmentKey )</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/> </run></par>
+<par def='38'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Enter here the Lookup key value given in the Attachment(s)/Buttons/Rich Text Format document</run></par></tablecell></tablerow></table>
+<pardef id='39' leftmargin='1in' hide='notes web mobile'/>
+<par def='39'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></richtext></body>
+<item name='order_number' summary='false'><number>0</number></item>
+<item name='Description' summary='false'><number>0</number></item>
+<item name='template_expiration' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='doccreated' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$SubForm_RepIDs' sign='true'><text>0000000000000000</text></item>
+<item name='OriginalModTime'><datetime dst='true'>20100408T110010,34-04</datetime></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>frmMergeField</text></item></form>
+

@@ -1,0 +1,556 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Admin\Badge Template)' alias='fBadgeTemplate' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='7'
+ editonopen='true'>
+<noteinfo noteid='14db6' unid='F76A6678F978687386257F710078AC82' sequence='44'>
+<created><datetime>20160309T155804,82-06</datetime></created>
+<modified><datetime dst='true'>20180929T235602,95-05</datetime></modified>
+<revised><datetime>20160310T111651,55-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235602,95-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235602,95-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+</lotusscript></code><code event='declarations'><lotusscript>Dim m_docCurr As NotesDocument
+Dim m_uidocCurr As NotesUIDocument
+
+</lotusscript></code><code event='AppendMergeField'><lotusscript>Sub AppendMergeField()
+	
+	Const STR_MODULE_NAME = |Event profile: Badge AppendMergeField|
+	
+	 'Trap errors
+	On Error Goto lblError
+	
+	Dim ws As New NotesUIWorkspace
+	Dim strFormula As String
+	Dim varResult As Variant
+	Dim varReply As Variant
+	Dim strFieldName As String
+	Dim strTag As String
+	
+	strFormula =              |tmpRefDbMergeFields1 := @DbLookup("":"Cache"; dp_ReferenceDBReplicaID; "vLookupMergeFieldsByLocale"; ""; 2; [FailSilent] );|
+	strFormula = strFormula &amp; |tmpRefDbMergeFields2 := @DbLookup("":"Cache"; dp_ReferenceDBReplicaID; "vLookupMergeFieldsByLocale"; bt_Locale; 2;  [FailSilent]);|
+	strFormula = strFormula &amp; |tmpThisDbMergeFields1 := @DbLookup("":"Cache"; ""; "vLookupMergeFieldsByLocale"; ""; 2; [FailSilent]);|
+	strFormula = strFormula &amp; |tmpThisDbMergeFields2 := @DbLookup("":"Cache"; ""; "vLookupMergeFieldsByLocale"; bt_Locale; 2;  [FailSilent]);|
+	strFormula = strFormula &amp; |tmpMergeFields := @Sort(@Unique(@Trim(tmpRefDbMergeFields1 : tmpRefDbMergeFields2 : tmpThisDbMergeFields1 : tmpThisDbMergeFields2)));|
+	strFormula = strFormula &amp; |tmpMergeFields|
+	
+	varResult = Evaluate(strFormula, m_docCurr)
+	
+	varReply = ws.Prompt(PROMPT_OKCANCELLIST, "Select a Field", "Select a field to insert", varResult(0), varResult)
+	
+	If (Not Isempty(varReply)) Then
+		'Get just the tag part of the reply (everything to the left of the " (" if a " (" is present)
+		strTag = Strleft(Cstr(varReply), | (|)
+		If strTag = || Then
+			strFieldName = Cstr(varReply)
+		Else
+			strFieldName = strTag
+		End If
+		'Add the delimiters
+		strFieldName = |[{| &amp; strFieldName &amp; |}]|
+		Call m_uidocCurr.FieldAppendText(|bt_RTF|, strFieldName) 'InsertText(|bt_RTF|, strFieldName)  '
+	End If
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub</lotusscript></code></globals><code event='windowtitle'><formula>"Badge template - " + bt_Name</formula></code><code
+ event='querysave'><lotusscript>Sub Querysave(Source As Notesuidocument, Continue As Variant)
+	
+	Const STR_MODULE_NAME = |Badge template: Querysave|
+	
+	Dim strMsg As String
+	Dim intCountErrors As Integer
+	Dim strErrorFieldName As String
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	'If g_dbCurr.Server="" Then
+     '	Call ShowInfoMsg(|Local edit of this document is disabled in order to avoid replication conflicts.  Please perform your updates on the server replica.|)'
+	'	Continue = False
+	'	Goto lblExit
+	'End If
+	
+	intCountErrors = 0
+	strMsg = "The following fields are required to save this document:" &amp; Chr$(13) &amp; Chr$(13)
+	
+	'Validate the required fields in the order they appear on the form
+	
+	If (Source.FieldGetText("bt_Name") = "") Then
+		If strErrorFieldName = "" Then
+			strErrorFieldName = "bt_Name"
+		End If
+		intCountErrors = intCountErrors + 1
+		strMsg = strMsg &amp; " Name" &amp; Chr$(13)
+	End If
+	
+	If (Source.FieldGetText("bt_Desc") = "") Then
+		If strErrorFieldName = "" Then
+			strErrorFieldName = "bt_Desc"
+		End If
+		intCountErrors = intCountErrors + 1
+		strMsg = strMsg &amp; " Description" &amp; Chr$(13)
+	End If
+	
+	If (Source.FieldGetText("bt_Text") = "") Then
+		If strErrorFieldName = "" Then
+			strErrorFieldName = "bt_Text"
+		End If
+		intCountErrors = intCountErrors + 1
+		strMsg = strMsg &amp; " Template text" &amp; Chr$(13)
+	End If
+	
+	If intCountErrors &gt; 0 Then
+		Call ShowErrorMsg(strMsg)
+		Source.GotoField(strErrorFieldName)
+		Continue = False	
+		Goto lblExit
+	End If
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub
+</lotusscript></code><code event='postopen'><lotusscript>Sub Postopen(Source As Notesuidocument)
+	Set m_uidocCurr = Source
+	Set m_docCurr = m_uidocCurr.Document	
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<sharedactionref id='70'>
+<action title='Close' icon='27' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='71'>
+<action title='Save &amp; Close' icon='21' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@If(@Command([FileSave]);@Command([CloseWindow]); "")</formula></code></action></sharedactionref>
+<sharedactionref id='72'>
+<action title='Edit' icon='5' showinmenu='false' hide='edit previewedit web mobile'><code
+ event='click'><formula>@Command([EditDocument])</formula></code></action></sharedactionref></actionbar>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='0.7500in' hide='notes web'/>
+<section onread='collapse' onpreview='collapse' onedit='collapse' onprint='collapse'><sectiontitle
+ pardef='1' color='teal'><font size='8pt' color='red' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><text>Revision History</text></sectiontitle>
+<pardef id='2' align='none' leftmargin='1in' hide='notes web'/>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>-----------------------------------------------------------------------------------------------------------------<break
+/> Agenda Content Form<break/>-----------------------------------------------------------------------------------------------------------------<break
+/></run></par>
+<par def='2'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/> Description:</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> This form is used to enter the information that is used to build an agenda web page.</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> One document of this type exists for each locale specific version of an agenda for each event.</run></par>
+<pardef id='3' leftmargin='1in' hide='notes web'/>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/><break/></run><run><font size='8pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> Author:</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> Core Lan	<break/></run><run><font size='8pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/><break/> Revision History:</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/><break/></run><run><font size='8pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/> Date                        	By             	Description</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/> ---------                       	---                   	------------------</run></par>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> November 2007		Core Lan		Initial version.<break
+/>-----------------------------------------------------------------------------------------------------------------</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></section>
+<pardef id='4' hide='notes web mobile'/>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table cellbordercolor='red' widthtype='fixedleft' refwidth='8in'><tablecolumn
+ width='2in'/><tablecolumn width='6in'/>
+<tablerow>
+<tablecell>
+<pardef id='6' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Field</run></par></tablecell>
+<tablecell>
+<pardef id='7' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Description</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='8' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='DocType'><code event='defaultvalue'><formula>"Badge Template"</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>DocType </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The document type. (Hardcoded to '</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>E-mail Template</run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='Form'><code event='defaultvalue'><formula>"fBadgeTemplate"</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Form </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The form alias. (Hardcoded to '</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>fEmailTemplate</run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_ReferenceDbReplicaID'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_ReferenceDbReplicaID</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> - The replica ID of the reference database. (Includes the colon.  Use in @DBLookups.)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_IsMultiLingual'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_IsMultiLingual</run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Whether the canister is confiigured to support multiple locales.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='et_UNID'><code event='defaultvalue'><formula>@Text(@DocumentUniqueID)</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>et_UNID</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - The UNID of this document.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font color='red'/></run><run><font size='8pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computedwhencomposed' name='et_CreatedFromEvent'><code event='defaultvalue'><formula
+>""</formula></code></field></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>et_CreatedFromEvent</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> - Set to 'Yes' if created from an Event Profile.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='c_audit' listinputseparators='comma semicolon' listdisplayseparator='semicolon'><code
+ event='inputtranslation'><formula>Output := @Text(@Name([CN];@V3UserName))+" - "+@Text(@Now);
+@If(@IsDocBeingSaved;@If(c_audit = "";@SetField("c_audit"; Output);@SetField("c_audit"; c_audit:Output));@If(c_audit = "";Output;c_audit))</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>c_audit</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Used to track changes to this document.  Displayed on the Audit tab.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='d_IsAdminUser'><code event='defaultvalue'><formula>@If(@IsMember("[Admin]"; @UserRoles) | @IsMember("[CanisterAdmin]"; @UserRoles) | @IsMember("[Developer]"; @UserRoles); "Yes"; "No")</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_Is</run><run><font size='8pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>AdminUser </run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>- Whether the current user is in the [Admin], [CanisterAdmin] or [Developer] roles.</run></par>
+<par def='7'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Used to show the fields that allow you to configure an e-mail template as a default or administration template.</run></par></tablecell></tablerow></table>
+<pardef id='9' tabs='L6.8125in'/>
+<par def='9'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fixedleft' refwidth='8in'><border dropshadow='true'/><tablecolumn
+ width='8in'/>
+<tablerow>
+<tablecell colorstyle='hgradient' borderwidth='0px' bgcolor='#3c5e84' altbgcolor='#c8d7e3'>
+<pardef id='11' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='11'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/></run><run><font size='12pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='white'/><computedtext><code event='value'><formula>@GetProfileField("fProfile";"dp_SystemName")</formula></code></computedtext></run><run
+><font size='12pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/></run></par>
+<par def='11'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/>Badge template</run></par></tablecell></tablerow></table>
+<pardef id='12' leftmargin='1in'/>
+<par def='12'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table widthtype='fixedleft' refwidth='8in'><tablecolumn width='8in'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='14' hide='read print preview' keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font size='9pt' style='bold' name='Courier New' pitch='fixed'
+ truetype='true' familyid='30' color='red'/>*</run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> Required fields</run></par></tablecell></tablerow></table>
+<pardef id='15' leftmargin='1in' hide='read print preview'/>
+<par def='15'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table cellbordercolor='#3c5e84' rowdisplay='tabs' sizetabsequally='true'
+ widthtype='fixedleft' refwidth='8.0104in'><tablerowstyle><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='black'/></tablerowstyle><tablecolumn
+ width='8.0104in'/>
+<tablerow tablabel='Configuration      '>
+<tablecell>
+<pardef id='17' keepwithnext='true' keeptogether='true'/>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5f84' altbgcolor='#c8d7e3'>
+<pardef id='19' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='19'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/>Badge template configuration</run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='20.0521%'/><tablecolumn width='42.6076%'/><tablecolumn
+ width='37.3403%'/>
+<tablerow>
+<tablecell>
+<pardef id='21' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Language</run></par></tablecell>
+<tablecell>
+<pardef id='22' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='bt_Locale'><keywords recalconchange='true'
+ columns='1' ui='dialoglist'><formula>@GetProfileField("fProfile"; "dp_LocaleLookup")</formula></keywords><code
+ event='inputenabled'><formula>et_CreatedFromEvent != "Yes"</formula></code><code
+ event='defaultvalue'><formula>@GetProfileField("fProfile"; "dp_DefaultLocale")</formula></code></field></run><run
+><font name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par>
+<pardef id='23' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='23'><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='bt_LocaleName' listinputseparators='newline' listdisplayseparator='newline'><code
+ event='defaultvalue'><formula>tmpValues := @DbLookup("" : "Cache"; dp_ReferenceDbReplicaID; "vLookupEnabledLocaleProfiles"; bt_Locale; 3);
+@If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues)</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<pardef id='24' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is not multi-lingual};
+!(dp_IsMultiLingual != "Yes")</formula></code></pardef>
+<par def='24'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='computedfordisplay' name='bt_LocaleName_Display'><code
+ event='defaultvalue'><formula>bt_LocaleName</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='25' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='25'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Choose the language for the e-mail.</run></par>
+<pardef id='26' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is not multi-lingual};
+!(dp_IsMultiLingual != "Yes")</formula></code></pardef>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The language for the e-mail.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Name</run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/> *</run></par></tablecell>
+<tablecell>
+<pardef id='27' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='bt_Name'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='28' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>A name for the template.  This is the name you will use when choosing this e-mail.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='29' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='29'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Description</run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/> *</run></par></tablecell>
+<tablecell>
+<pardef id='30' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='30'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='bt_Desc'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='31' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>A brief description of the template.</run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='20.0521%'/><tablecolumn width='42.6076%'/><tablecolumn
+ width='37.3403%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<par def='29'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Badge text</run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/> *</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='#efefef'>
+<par def='30'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<pardef id='33' align='right' leftmargin='0.1000in' hide='read print preview'
+ keepwithnext='true' keeptogether='true'/>
+<par def='33'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/>  </run><actionhotspot hotspotstyle='none'><run
+><font size='8pt' style='underline' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/>Append merge field</run><code event='click'><lotusscript
+>Sub Click(Source As Button)
+	
+	Call AppendMergeField()
+	
+End Sub
+</lotusscript></code></actionhotspot><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='#3c5e84'/> </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#3c5e84'/> </run></par></tablecell></tablerow>
+<tablerow>
+<tablecell columnspan='3'>
+<pardef id='36' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='36'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='richtext' kind='editable' name='bt_RTF'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell></tablerow></table>
+<pardef id='37' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='37'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow tablabel='History'>
+<tablecell>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5f84' altbgcolor='#c8d7e3'>
+<par def='19'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/>History</run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='1.6000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell>
+<pardef id='40' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='40'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Document created</run></par></tablecell>
+<tablecell>
+<pardef id='41' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='41'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='datetime' kind='computedwhencomposed'
+ name='doccreated'><datetimeformat show='datetime' date='yearmonthday' time='hourminutesecond'
+ zone='always' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>@Created</formula></code></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='40'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Created by</run></par></tablecell>
+<tablecell>
+<par def='41'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='RCreated'><code event='defaultvalue'><formula>@V3UserName</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='40'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Update history</run></par></tablecell>
+<tablecell>
+<par def='41'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='c_audit_display' listinputseparators='semicolon newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>c_audit</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow></table>
+<pardef id='42' leftmargin='1in' hide='notes web mobile'/>
+<par def='42'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></richtext></body>
+<item name='order_number' summary='false' sign='true'><number>0</number></item>
+<item name='Untitled' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='OriginalModTime' sign='true'><datetime dst='true'>20060504T094212,84-04</datetime></item>
+<item name='template_expiration' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>fBadgeTemplate</text></item></form>
+

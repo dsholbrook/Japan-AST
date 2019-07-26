@@ -1,0 +1,245 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Dialog\Select E-mail Template)' alias='dlgSelectEmailTemplate'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' nocompose='true' noquery='true'
+ publicaccess='false' designerversion='8.5.3' bgcolor='#ece9d8'>
+<noteinfo noteid='14cde' unid='242815422C78C14086257F710078ADF5' sequence='80'>
+<created><datetime>20160309T155808,53-06</datetime></created>
+<modified><datetime dst='true'>20180929T235601,87-05</datetime></modified>
+<revised><datetime>20160310T111655,11-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235601,87-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235601,87-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+
+</lotusscript></code></globals>
+<actionbar bgcolor='#ece9d8' bordercolor='black'>
+<actionbuttonstyle bgcolor='#ece9d8'/><font size='9pt' color='system'/><border
+ style='solid' width='0px 0px 1px'/></actionbar>
+<body><richtext>
+<pardef id='1' hide='notes web mobile' tabs='L2.8750in'/>
+<par def='1'><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='EmailType'><code event='defaultvalue'><formula>@ThisValue</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='1'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='Locale'><code event='defaultvalue'><formula>@ThisValue</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='1'><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='ep_id'><code event='defaultvalue'><formula>@ThisValue</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='1'><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='eventname'><code event='defaultvalue'><formula>@ThisValue</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='1'><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='number' kind='computedwhencomposed'
+ name='CustomEmailsAvailable'><numberformat format='general' digits='2' punctuated='false'
+ parens='false' percent='false' bytes='false'/><code event='defaultvalue'><formula
+>tmpKey := EmailType + Locale + ep_id;
+tmpValue := @DbLookup("":"NoCache"; "":""; "vDialogSelectEmailTemplateForEvent"; tmpKey; 2; [FailSilent]);
+@If(tmpValue = ""; 0; 1)</formula></code></field></run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='1'><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='number' kind='computedwhencomposed'
+ name='RoadshowEmailsAvailable'><numberformat format='general' digits='2'
+ punctuated='false' parens='false' percent='false' bytes='false'/><code event='defaultvalue'><formula
+>tmpKey := EmailType + Locale + ep_id;
+tmpValue := @DbLookup("":"NoCache"; "":""; "vDialogSelectEmailTemplateForRoadshow"; tmpKey; 2; [FailSilent]);
+@If(tmpValue = ""; 0; 1)</formula></code></field></run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<table extrahtmlattrs='width="443" height="18"' widthtype='fixedleft' refwidth='6.1868in'><tablecolumn
+ width='0.1875in'/><tablecolumn width='5.8125in'/><tablecolumn width='0.1868in'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#ece9d8' extrahtmlattrs='width="13"'>
+<pardef id='3' align='center' keepwithnext='true' keeptogether='true'/>
+<par def='3'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#ece9d8' extrahtmlattrs='width="180"'>
+<pardef id='4' tabs='L2.8750in' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<pardef id='5' tabs='L9in L9.5000in L10in L10.5000in L11in L11.5000in L12in L12.5000in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='5'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Select </run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='EmailName'><code event='defaultvalue'><formula>tmpEmailName := @LowerCase(EmailType);
+tmp := @If(tmpEmailName = "invitation" | tmpEmailName = "event cancellation"; "an"; "a") + " " + tmpEmailName;
+@If(
+tmp = "a posteventallreg"; "a Post Event (All Registrations)";
+tmp = "a posteventattended"; "a Post Event (Attended)";
+tmp = "a posteventnoshow"; "a Post Event (No Show)";
+tmp)</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='7' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/> e-mail.</run></par>
+<par def='5'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<par def='5'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='SelectEmail'><keywords
+ helperbutton='false' recalconchange='true' columns='1' ui='radiobutton'><formula
+>tmpEmailName := @LowerCase(EmailType);
+tmpEmailName :=
+@If(
+tmpEmailName="posteventallreg"; "post event (All Registrations)";
+tmpEmailName="posteventattended"; "post event (Attended)";
+tmpEmailName="posteventnoshow"; "post event (No Show)";
+tmpEmailName);
+("Use the default " + tmpEmailName + " e-mail|Default") :
+("Choose from " + tmpEmailName + " e-mails that have been customized for this event|ThisEvent") :
+("Choose from " + tmpEmailName + " e-mails that can be used for roadshows|AnyEvent") :
+("Choose from all available " + tmpEmailName + " e-mails|All")</formula></keywords><code
+ event='defaultvalue'><formula>"Default"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='5'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<par def='5'><run><font color='red'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computedfordisplay' name='Title'><code event='defaultvalue'><formula
+>tmpEmailName := @LowerCase(EmailType);
+tmpEmailName :=
+@If(
+tmpEmailName="posteventallreg"; "post event (All Registrations)";
+tmpEmailName="posteventattended"; "post event (Attended)";
+tmpEmailName="posteventnoshow"; "post event (No Show)";
+tmpEmailName);
+@If(SelectEmail = "Default";
+"Default " + tmpEmailName + " e-mail";
+SelectEmail = "ThisEvent";
+"Customized " + tmpEmailName + " e-mails for " + eventname;
+SelectEmail = "AnyEvent";
+"Roadshow " + tmpEmailName + " e-mails for " + eventname;
+SelectEmail = "All";
+"All " + tmpEmailName + " e-mails";
+"")</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='5'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<pardef id='6' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>!(SelectEmail = "Default")</formula></code></pardef>
+<par def='6'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><embeddedview name='vDialogSelectEmailTemplateDefault'
+ showactionbar='true' displayusing='html' widthtype='fitwindow' height='2in'
+ scrollbars='true'><code event='showsinglecategory'><formula>EmailType + Locale</formula></code><border
+ style='solid' width='1px' color='gray'/></embeddedview><run><font color='red'/></run></par>
+<pardef id='7' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>!(SelectEmail = "ThisEvent" &amp; CustomEmailsAvailable)</formula></code></pardef>
+<par def='7'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><embeddedview name='vDialogSelectEmailTemplateForEvent'
+ showactionbar='true' displayusing='html' widthtype='fitwindow' height='2in'
+ scrollbars='true'><code event='showsinglecategory'><formula>EmailType + Locale + ep_id</formula></code><border
+ style='solid' width='1px' color='gray'/></embeddedview><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='8' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>!(SelectEmail = "ThisEvent" &amp; !CustomEmailsAvailable)</formula></code></pardef>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='NoCustomEmailsMsg'><code event='defaultvalue'><formula>tmpEmailName := @LowerCase(EmailType);
+tmpEmailName := @If(tmpEmailName="postevent"; "post event"; tmpEmailName);
+"No customized " + tmpEmailName + " e-mails have been setup for this event." + @NewLine + @NewLine +
+"If you want to use a customized " + tmpEmailName + " e-mail for your event, first create the e-mail using the Setup events/Setup e-mails option from the Welcome page, then return here to select it."</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='9' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>!(SelectEmail = "AnyEvent" &amp; RoadshowEmailsAvailable)</formula></code></pardef>
+<par def='9'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><embeddedview name='vDialogSelectEmailTemplateForRoadshow'
+ showactionbar='true' displayusing='html' widthtype='fitwindow' height='2in'
+ scrollbars='true'><code event='showsinglecategory'><formula>EmailType + Locale + ep_id</formula></code><border
+ style='solid' width='1px' color='gray'/></embeddedview><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='10' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>!(SelectEmail = "AnyEvent" &amp; !RoadshowEmailsAvailable)</formula></code></pardef>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='computedfordisplay' name='NoRoadshowEmailsMsg'><code
+ event='defaultvalue'><formula>tmpEmailName := @LowerCase(EmailType);
+tmpEmailName := @If(tmpEmailName="postevent"; "post event"; tmpEmailName);
+"No roadshow " + tmpEmailName + " e-mails have been setup for this event." + @NewLine + @NewLine +
+"If you want to use a roadshow " + tmpEmailName + " e-mail for your event, first create the e-mail using the Setup events/Setup e-mails option from the Welcome page, then return here to select it."</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='11' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>!(SelectEmail = "All")</formula></code></pardef>
+<par def='11'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><embeddedview name='vDialogSelectEmailTemplateAll' showactionbar='true'
+ displayusing='html' widthtype='fitwindow' height='2in' scrollbars='true'><code
+ event='showsinglecategory'><formula>EmailType + Locale</formula></code><border
+ style='solid' width='1px' color='gray'/></embeddedview><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='12' keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#ece9d8'>
+<pardef id='13' keepwithnext='true' keeptogether='true'/>
+<par def='13'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='blue'/></run></par></tablecell></tablerow></table>
+<pardef id='14' leftmargin='1in' hide='notes web mobile'/>
+<par def='14'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='Name'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='14'><run><font color='red'/></run><run><font size='9pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='editable' name='Desc'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par>
+<par def='14'><run><font color='red'/></run><run><font size='9pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='editable' name='UNID'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></richtext></body>
+<item name='OriginalModTime'><datetime dst='true'>20060718T124918,55-04</datetime></item>
+<item name='CustomEmailsAvailable' summary='false'><number>0</number></item>
+<item name='RoadshowEmailsAvailable' summary='false'><number>0</number></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>dlgSelectEmailTemplate</text></item></form>
+

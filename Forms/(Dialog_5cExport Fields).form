@@ -1,0 +1,1693 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Dialog\Export Fields)' alias='dlgExportSelectedFields' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='8.5.3'
+ bgcolor='#ece9d8' renderpassthrough='true'>
+<noteinfo noteid='14f7a' unid='0CEAA403CFA7FC7086257F710078ADE9' sequence='142'>
+<created><datetime>20160309T155808,41-06</datetime></created>
+<modified><datetime dst='true'>20180929T235605,25-05</datetime></modified>
+<revised><datetime dst='true'>20180726T202620,00-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235605,25-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235605,25-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby>
+<body><richtext>
+<pardef id='1' leftmargin='1in' hide='notes web'/>
+<par def='1'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fixedleft' refwidth='8.1826in'><tablecolumn width='8.1826in'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='2' hide='notes web' keepwithnext='true' keeptogether='true'/>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table cellbordercolor='red' leftmargin='0' widthtype='fixedleft' refwidth='7in'><tablecolumn
+ width='1.5000in'/><tablecolumn width='5.5000in'/>
+<tablerow>
+<tablecell>
+<pardef id='4' leftmargin='0.1000in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='ep_UNID'><code event='defaultvalue'><formula>@ThisValue</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='5' leftmargin='0.1000in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='5'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>ep_UNID - </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>UNID of the event profile for the event being exported.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='6' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='rp_UNID'><code event='defaultvalue'><formula>@ThisValue</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='7' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>rp_UNID - </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>UNID of the registration profile for the default locale for the event being exported.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='ls_UNID'><code event='defaultvalue'><formula>@ThisValue</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>ls_UNID - </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>UNID of the locale settings document profile for the default locale for the event being exported.</run></par></tablecell></tablerow></table>
+<pardef id='8' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>1. Choose how you want to export the information.</run></par>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<par def='8'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='ExportFormat'><keywords
+ helperbutton='false' columns='1' ui='radiobutton'><textlist><text>Microsoft Excel (.xls)|1</text><text
+>Comma Separated Values (.csv) (Can be opened in Lotus Symphony)|2</text><text
+>Lotus Symphony (.ods)|3</text></textlist></keywords><code event='defaultvalue'><formula
+>"1"</formula></code></field></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>2. Select the fields that you want to export, then click 'OK'.</run></par>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table rowdisplay='tabs' sizetabsequally='true' leftmargin='0' widthtype='fixedleft'
+ refwidth='8.1813in'><tablerowstyle><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='black'/></tablerowstyle><tablecolumn
+ width='8.1813in'/>
+<tablerow tablabel='Attendee           '>
+<tablecell>
+<pardef id='10' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0.0104in'
+ refwidth='8.1604in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell bgcolor='#c8d7e3'>
+<pardef id='12' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Attendee information</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_regid_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_regid +"|regid"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_referer_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_referer +"|en_referer"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='13' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ai_in_attendeetype_trans_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>ai_la_attendeetype_trans +"|en_attendeetype_trans"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='14' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(@GetDocField(ls_UNID; "ls_IncludePrefix") = "Yes")</formula></code></pardef>
+<par def='14'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ai_in_prefix_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_prefix +"|en_prefix"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_en_persontitle_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_en_persontitle +"|en_persontitle"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ai_in_first_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_first +"|en_first"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='15' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(@GetDocField(ls_UNID; "ls_IncludeMiddleInitial") = "Yes")</formula></code></pardef>
+<par def='15'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ai_in_middle_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_middle +"|en_middle"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ai_in_last_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_last +"|en_last"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_en_pronunciation_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_en_pronunciation +"|en_pronunciation"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ai_in_title_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_title +"|en_title"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ai_in_email_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_email +"|en_email"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ai_in_phone_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_phone +"|en_phone"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='16' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(@GetDocField(ls_UNID; "ls_IncludeFax") = "Yes")</formula></code></pardef>
+<par def='16'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ai_in_fax_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_fax +"|en_fax"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_followup_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_followup +"|ad_phone_followup_requested"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_status_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_status +"|ad_formstatus"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='17' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(ep_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='17'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_localename_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_localename +"|LocaleName"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='18' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen' enabled='false'><formula>!(ep_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='18'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_dateRegistered_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_dateRegistered +"|@Text(@Created;\"D0S0\")"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='19' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(@GetDocField(ls_UNID; "ls_IncludeRole") = "Yes" &amp; @GetDocField(rp_UNID; "rp_IncludeRole") = "Yes")</formula></code></pardef>
+<par def='19'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_role_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_role +"|en_role"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='20' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ai_in_goe_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_goe +"|en_goe"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_goetype_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_goetype +"|en_goetype"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_source_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_source +"|en_origincreated"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_interest_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_interest +"|en_interest"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_comments_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_comments +"|en_comments"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_exclemail_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_exclemail +"|Q_EXCL_EMAIL"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_excltele_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_excltele +"|Q_EXCL_TELE"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_sendagency_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_sendagency +"|Q_SEND_AGENCY"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_segment_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_segment +"|Q_SEGMENT"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_q_code_add_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_q_code_add + "|Q_CODE_ADD"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_cm_mmca1_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_cm_mmca1 +"|Q_CM_MMCA1"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_cm_mmca2_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_cm_mmca2 +"|Q_CM_MMCA2"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_cm_mmca3_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_cm_mmca3 +"|Q_CM_MMCA3"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ai_in_cm_mmc_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ai_la_cm_mmc +"|Q_CM_MMC"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow tablabel='Company'>
+<tablecell>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' htmlclass='v14-gray-table-border'
+ extrahtmlattrs='width="443"' leftmargin='0.0104in' refwidth='8.1604in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell bgcolor='#c8d7e3'>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Company information</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ci_in_companyname_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>ci_la_companyname +"|en_companyname"</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ci_in_mailstreet1_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>ci_la_mailstreet1 +"|en_mailstreet1"</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ci_in_mailstreet2_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>ci_la_mailstreet2 +"|en_mailstreet2"</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ci_in_city_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ci_la_city +"|en_city"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='21' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(@GetDocField(ls_UNID; "ls_IncludeStateProvince") = "Yes")</formula></code></pardef>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ci_in_state_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ci_la_state +"|en_state"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ci_in_zip_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ci_la_zip +"|en_zip"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ci_in_country_trans_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>ci_la_country_trans +"|en_country_trans"</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow tablabel='Additional'>
+<tablecell>
+<pardef id='22' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(mi_include = "Yes")</formula></code></pardef>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0.0104in'
+ refwidth='8.1604in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell bgcolor='#c8d7e3'>
+<pardef id='23' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(mi_include = "Yes")</formula></code></pardef>
+<par def='23'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Additional information</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='24' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(mi_include = "Yes" &amp; ep_MI_Include_Q1 = "Yes")</formula></code></pardef>
+<par def='24'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='mi_in_q1_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>mi_la_q1 +"|" + mi_fieldname_q1</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='25' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(mi_include = "Yes" &amp; ep_MI_Include_Q2 = "Yes")</formula></code></pardef>
+<par def='25'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='mi_in_q2_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>mi_la_q2 +"|" + mi_fieldname_q2</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='26' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(mi_include = "Yes" &amp; ep_MI_Include_Q3 = "Yes")</formula></code></pardef>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='mi_in_q3_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>mi_la_q3 +"|" + mi_fieldname_q3</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='27' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(mi_include = "Yes" &amp; ep_MI_Include_Q4 = "Yes")</formula></code></pardef>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='mi_in_q4_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>mi_la_q4 +"|" + mi_fieldname_q4</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='28' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(mi_include = "Yes" &amp; ep_MI_Include_Q5 = "Yes")</formula></code></pardef>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='mi_in_q5_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>mi_la_q5 +"|" + mi_fieldname_q5</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='29' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(mi_include = "Yes" &amp; ep_MI_Include_Q6 = "Yes")</formula></code></pardef>
+<par def='29'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='mi_in_q6_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>mi_la_q6 +"|" + mi_fieldname_q6</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='30' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(mi_include = "Yes" &amp; ep_MI_Include_Q7 = "Yes")</formula></code></pardef>
+<par def='30'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='mi_in_q7_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>mi_la_q7 +"|" + mi_fieldname_q7</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='31' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(mi_include = "Yes" &amp; ep_MI_Include_Q8 = "Yes")</formula></code></pardef>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='mi_in_q8_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>mi_la_q8 +"|" + mi_fieldname_q8</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='32' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(mi_include = "Yes" &amp; ep_MI_Include_Q9 = "Yes")</formula></code></pardef>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='mi_in_q9_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>mi_la_q9 +"|" + mi_fieldname_q9</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='33' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(mi_include = "Yes" &amp; ep_MI_Include_Q10 = "Yes")</formula></code></pardef>
+<par def='33'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='mi_in_q10_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>mi_la_q10 +"|" + mi_fieldname_q10</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='34' leftmargin='0.1000in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='34'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow></table>
+<pardef id='35' leftmargin='0.1000in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='35'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow tablabel='Emergency'>
+<tablecell>
+<pardef id='36' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(@GetDocField(rp_UNID; "rp_IncludeEmergencyContactInfo") = "Yes")</formula></code></pardef>
+<par def='36'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0.0104in'
+ refwidth='8.1604in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell bgcolor='#c8d7e3'>
+<pardef id='37' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(@GetDocField(rp_UNID; "rp_IncludeEmergencyContactInfo") = "Yes")</formula></code></pardef>
+<par def='37'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Emergency contact information</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='38' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(@GetDocField(rp_UNID; "rp_IncludeEmergencyContactInfo") = "Yes" &amp; @GetDocField(rp_UNID; "ec_in_emergcontact") != "")</formula></code></pardef>
+<par def='38'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ec_in_emergcontact_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>ec_la_emergcontact +"|en_emergcontact"</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='39' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(@GetDocField(rp_UNID; "rp_IncludeEmergencyContactInfo") = "Yes" &amp; @GetDocField(rp_UNID; "ec_in_emergdayphone") != "")</formula></code></pardef>
+<par def='39'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ec_in_emergdayphone_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>ec_la_emergdayphone +"|en_emergdayphone"</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='40' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(@GetDocField(rp_UNID; "rp_IncludeEmergencyContactInfo") = "Yes" &amp; @GetDocField(rp_UNID; "ec_in_emergnightphone") != "")</formula></code></pardef>
+<par def='40'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ec_in_emergnightphone_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>ec_la_emergnightphone +"|en_emergnightphone"</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='41' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(@GetDocField(rp_UNID; "rp_IncludeEmergencyContactInfo") = "Yes" &amp; @GetDocField(rp_UNID; "ec_in_emergrelation") != "")</formula></code></pardef>
+<par def='41'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ec_in_emergrelation_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>ec_la_emergrelation +"|en_emergrelation"</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='34'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<par def='37'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow></table>
+<par def='35'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow tablabel='Badge'>
+<tablecell>
+<pardef id='42' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(@GetDocField(rp_UNID; "rp_IncludeBadgeSection") = "Yes")</formula></code></pardef>
+<par def='42'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0.0104in'
+ refwidth='8.1604in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell bgcolor='#c8d7e3'>
+<pardef id='43' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(@GetDocField(rp_UNID; "rp_IncludeBadgeSection") = "Yes")</formula></code></pardef>
+<par def='43'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Badge information</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='44' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(@GetDocField(rp_UNID; "rp_IncludeBadgeSection") = "Yes" &amp; @GetDocField(rp_UNID; "bi_in_badgenamefirst") != "")</formula></code></pardef>
+<par def='44'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='bi_in_badgenamefirst_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>bi_la_badgenamefirst +"|en_badgenamefirst"</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='45' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(@GetDocField(rp_UNID; "rp_IncludeBadgeSection") = "Yes" &amp; @GetDocField(rp_UNID; "bi_in_badgenamemiddle") != "")</formula></code></pardef>
+<par def='45'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='bi_in_badgenamemiddle_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>bi_la_badgenamemiddle +"|en_badgenamemiddle"</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='46' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(@GetDocField(rp_UNID; "rp_IncludeBadgeSection") = "Yes" &amp; @GetDocField(rp_UNID; "bi_in_badgenamelast") != "")</formula></code></pardef>
+<par def='46'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='bi_in_badgenamelast_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>bi_la_badgenamelast +"|en_badgenamelast"</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='47' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(@GetDocField(rp_UNID; "rp_IncludeBadgeSection") = "Yes" &amp; @GetDocField(rp_UNID; "bi_in_badgecompnayname") != "")</formula></code></pardef>
+<par def='47'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='bi_in_badgecompanyname_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>bi_la_badgecompanyname +"|en_badgecompanyname"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px'>
+<par def='34'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<par def='43'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow></table>
+<par def='35'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow tablabel='Optional'>
+<tablecell>
+<pardef id='48' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes")</formula></code></pardef>
+<par def='48'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0.0104in'
+ refwidth='8.1604in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell bgcolor='#c8d7e3'>
+<pardef id='49' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes")</formula></code></pardef>
+<par def='49'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Optional questions</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='50' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq1 = "Yes")</formula></code></pardef>
+<par def='50'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq1_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq1 +"|" + oq_fieldname_q1</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='51' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq2 = "Yes")</formula></code></pardef>
+<par def='51'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq2_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq2 +"|" + oq_fieldname_q2</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='52' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq3 = "Yes")</formula></code></pardef>
+<par def='52'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq3_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq3 +"|" + oq_fieldname_q3</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='53' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq4 = "Yes")</formula></code></pardef>
+<par def='53'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq4_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq4 +"|" + oq_fieldname_q4</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='54' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq5 = "Yes")</formula></code></pardef>
+<par def='54'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq5_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq5 +"|" + oq_fieldname_q5</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='55' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq6 = "Yes")</formula></code></pardef>
+<par def='55'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq6_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq6 +"|" + oq_fieldname_q6</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='56' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq7 = "Yes")</formula></code></pardef>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq7_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq7 +"|" + oq_fieldname_q7</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='57' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq8 = "Yes")</formula></code></pardef>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq8_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq8 +"|" + oq_fieldname_q8</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='58' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq9 = "Yes")</formula></code></pardef>
+<par def='58'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq9_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq9 +"|" + oq_fieldname_q9</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='59' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq10 = "Yes")</formula></code></pardef>
+<par def='59'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq10_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq10 +"|" + oq_fieldname_q10</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='60' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq11 = "Yes")</formula></code></pardef>
+<par def='60'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq11_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq11 +"|" + oq_fieldname_q11</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='61' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq12 = "Yes")</formula></code></pardef>
+<par def='61'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq12_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq12 +"|" + oq_fieldname_q12</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='62' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq13 = "Yes")</formula></code></pardef>
+<par def='62'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq13_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq13 +"|" + oq_fieldname_q13</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='63' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq14 = "Yes")</formula></code></pardef>
+<par def='63'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq14_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq14 +"|" + oq_fieldname_q14</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='64' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq15 = "Yes")</formula></code></pardef>
+<par def='64'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq15_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq15 +"|" + oq_fieldname_q15</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='65' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq16 = "Yes")</formula></code></pardef>
+<par def='65'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq16_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq16 +"|" + oq_fieldname_q16</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='66' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq17 = "Yes")</formula></code></pardef>
+<par def='66'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq17_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq17 +"|" + oq_fieldname_q17</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='67' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq18 = "Yes")</formula></code></pardef>
+<par def='67'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq18_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq18 +"|" + oq_fieldname_q18</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='68' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(oq_include = "Yes" &amp; oq_in_optionq19 = "Yes")</formula></code></pardef>
+<par def='68'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oq_in_optionq19_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oq_la_optionq19 +"|" + oq_fieldname_q19</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='34'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<par def='49'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow></table>
+<par def='35'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow tablabel='Privacy'>
+<tablecell>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0.0104in'
+ refwidth='8.1604in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell bgcolor='#c8d7e3'>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Opt-in/Opt-out information</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oi_in_privacyyes_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oi_la_privacyyes +"|privacyyes"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oi_in_privacyno_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oi_la_privacyno +"|privacyno"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oi_in_en_oiemail_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oi_la_en_OIEMAIL +"|en_OIEMAIL"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oi_in_en_ooemail_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oi_la_en_OOEMAIL +"|en_OOEMAIL"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oi_in_en_oipostal_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oi_la_en_OIPOSTAL +"|en_OIPOSTAL"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oi_in_en_oopostal_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oi_la_en_OOPOSTAL +"|en_OOPOSTAL"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oi_in_en_oitele_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oi_la_en_OITELE +"|en_OITELE"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oi_in_en_ootele_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oi_la_en_OOTELE +"|en_OOTELE"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oi_in_NC_HIDDEN_EMAIL_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oi_la_NC_HIDDEN_EMAIL + "|NC_HIDDEN_EMAIL"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oi_in_NC_HIDDEN_POSTAL_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oi_la_NC_HIDDEN_POSTAL + "|NC_HIDDEN_POSTAL"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='oi_in_NC_HIDDEN_PHONE_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>oi_la_NC_HIDDEN_PHONE + "|NC_HIDDEN_PHONE"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run></par></tablecell></tablerow></table>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow tablabel='Event'>
+<tablecell>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' leftmargin='0.0104in'
+ refwidth='8.1604in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell bgcolor='#c8d7e3'>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Event information</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ei_in_ConfName_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ei_la_ConfName +"|ConfName"</formula></keywords></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ei_in_confstartdate_exp' listinputseparators='comma'
+ listdisplayseparator='comma'><keywords helperbutton='false' columns='1' ui='checkbox'><formula
+>ei_la_confstartdate +"|confstartdate"</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' allowmultivalues='true'
+ kind='editable' name='ei_in_confcity_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ei_la_confcity +"|confcity"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 1px 0px'>
+<par def='13'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='ei_in_WTacticCode_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>ei_la_WTacticCode +"|WTacticCode"</formula></keywords><code
+ event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow></table>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow>
+<tablerow tablabel='Sessions'>
+<tablecell>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='silver' htmlclass='v14-gray-table-border'
+ extrahtmlattrs='width="443"' leftmargin='0.0104in' refwidth='8.1604in'><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell bgcolor='#c8d7e3'>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Session information</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='si_in_sessions1_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>str_Formula := "rp_UNID:= @DbLookup(\"\" : \"NoCache\"; \"\"; \"vLookupRegistrationProfilesByIDLocale\"; @Trim(ep_id + Locale); 2; [FailSilent]);
+dayAsTranslated := @GetDocField(rp_UNID; \"rp_DayText\");
+
+isAvailable := @If(!@IsAvailable(sessionKey1); @Return(\"\"); \"Yes\");
+
+t := @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey1; \"rp_numTracksDay\"; [FailSilent]);
+s := @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey1; \"rp_numSessionsDay\"; [FailSilent]);
+rp_UNID:= @DbLookup(\"\" : \"NoCache\"; \"\"; \"vLookupRegistrationProfilesByIDLocale\"; @Trim(ep_id + Locale); 2; [FailSilent]);
+Tk := @If(@GetDocField(rp_UNID; \"rp_TrackText\") = \"\"; \"Track\"; @GetDocField(rp_UNID; \"rp_TrackText\"));
+Sess := @If(@GetDocField(rp_UNID; \"rp_SessionText\") = \"\"; \"Session\"; @GetDocField(rp_UNID; \"rp_SessionText\"));
+
+tCtr := 1;
+
+@DoWhile(
+
+sCtr := 1;
+
+@DoWhile(
+
+enField := \"en_d1t\" + @Text(tCtr) + \"s\" + @Text(sCtr) + \"tcS\";
+isSpan := @If(@GetField(\"en_d1s1span\") = \"Yes\"; \"Yes\"; \"No\");
+sCtrAdj := @If(isSpan = \"Yes\" &amp; sCtr &gt; 1 &amp; tCtr &gt; 1; sCtr-1; sCtr);
+rpFieldLabel := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"label\";
+rpFieldTime := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"ts\";
+isSel := @If(@GetField(enField) != \"\"; \"Yes\"; \"No\");
+sessLabel := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey1; rpFieldLabel; [FailSilent]); \"\");
+sessTime := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey1; rpFieldTime; [FailSilent]); \"\");
+sessPickedDay1 := @If(sessLabel != \"\"; sessPickedDay1 + @If(sessPickedDay1 = \"\"; \"\"; \", \") + Tk + \": \" + @Text(tCtr) + \" \" + Sess + \": \" + @Text(sCtr) + \" (\" + sessTime + \") - \" + sessLabel; sessPickedDay1);
+
+sCtr := sCtr + 1;
+sCtr &lt;= @TextToNumber(s)
+
+);
+
+tCtr := tCtr + 1;
+tCtr &lt;= @TextToNumber(t)
+
+);
+
+sessPickedDay1";
+
+si_la_sessions1+"|" + str_Formula</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='si_in_sessions2_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>str_Formula := "rp_UNID:= @DbLookup(\"\" : \"NoCache\"; \"\"; \"vLookupRegistrationProfilesByIDLocale\"; @Trim(ep_id + Locale); 2; [FailSilent]);
+dayAsTranslated := @GetDocField(rp_UNID; \"rp_DayText\");
+
+isAvailable := @If(!@IsAvailable(sessionKey2); \"No\"; \"Yes\");
+t := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey2; \"rp_numTracksDay\"; [FailSilent]); \"0\");
+s := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey2; \"rp_numSessionsDay\"; [FailSilent]); \"0\");
+Tk := @If(@GetDocField(rp_UNID; \"rp_TrackText\") = \"\"; \"Track\"; @GetDocField(rp_UNID; \"rp_TrackText\"));
+Sess := @If(@GetDocField(rp_UNID; \"rp_SessionText\") = \"\"; \"Session\"; @GetDocField(rp_UNID; \"rp_SessionText\"));
+
+tCtr := 1;
+
+@DoWhile(
+
+sCtr := 1;
+
+@DoWhile(
+
+enField := \"en_d2t\" + @Text(tCtr) + \"s\" + @Text(sCtr) + \"tcS\";
+isSpan := @If(@GetField(\"en_d2s1span\") = \"Yes\"; \"Yes\"; \"No\");
+sCtrAdj := @If(isSpan = \"Yes\" &amp; sCtr &gt; 1 &amp; tCtr &gt; 1; sCtr-1; sCtr);
+rpFieldLabel := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"label\";
+rpFieldTime := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"ts\";
+isSel := @If(@GetField(enField) != \"\"; \"Yes\"; \"No\");
+sessLabel := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey2; rpFieldLabel; [FailSilent]); \"\");
+sessTime := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey2; rpFieldTime; [FailSilent]); \"\");
+sessPickedDay2 := @If(sessLabel != \"\"; sessPickedDay2 + @If(sessPickedDay2 = \"\"; \"\"; \", \") + Tk + \": \" + @Text(tCtr) + \" \" + Sess + \": \" + @Text(sCtr) + \" (\" + sessTime + \") - \" + sessLabel; sessPickedDay2);
+
+sCtr := sCtr + 1;
+sCtr &lt;= @TextToNumber(s)
+
+);
+
+tCtr := tCtr + 1;
+tCtr &lt;= @TextToNumber(t)
+
+);
+
+sessPickedDay2";
+
+si_la_sessions2+"|" + str_Formula</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='si_in_sessions3_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>str_Formula := "rp_UNID:= @DbLookup(\"\" : \"NoCache\"; \"\"; \"vLookupRegistrationProfilesByIDLocale\"; @Trim(ep_id + Locale); 2; [FailSilent]);
+dayAsTranslated := @GetDocField(rp_UNID; \"rp_DayText\");
+
+isAvailable := @If(!@IsAvailable(sessionKey3); \"No\"; \"Yes\");
+t := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey3; \"rp_numTracksDay\"; [FailSilent]); \"0\");
+s := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey3; \"rp_numSessionsDay\"; [FailSilent]); \"0\");
+Tk := @If(@GetDocField(rp_UNID; \"rp_TrackText\") = \"\"; \"Track\"; @GetDocField(rp_UNID; \"rp_TrackText\"));
+Sess := @If(@GetDocField(rp_UNID; \"rp_SessionText\") = \"\"; \"Session\"; @GetDocField(rp_UNID; \"rp_SessionText\"));
+
+tCtr := 1;
+
+@DoWhile(
+
+sCtr := 1;
+
+@DoWhile(
+
+enField := \"en_d3t\" + @Text(tCtr) + \"s\" + @Text(sCtr) + \"tcS\";
+isSpan := @If(@GetField(\"en_d3s1span\") = \"Yes\"; \"Yes\"; \"No\");
+sCtrAdj := @If(isSpan = \"Yes\" &amp; sCtr &gt; 1 &amp; tCtr &gt; 1; sCtr-1; sCtr);
+rpFieldLabel := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"label\";
+rpFieldTime := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"ts\";
+isSel := @If(@GetField(enField) != \"\"; \"Yes\"; \"No\");
+sessLabel := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey3; rpFieldLabel; [FailSilent]); \"\");
+sessTime := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey3; rpFieldTime; [FailSilent]); \"\");
+sessPickedDay3 := @If(sessLabel != \"\"; sessPickedDay3 + @If(sessPickedDay3 = \"\"; \"\"; \", \") + Tk + \": \" + @Text(tCtr) + \" \" + Sess + \": \" + @Text(sCtr) + \" (\" + sessTime + \") - \" + sessLabel; sessPickedDay3);
+
+sCtr := sCtr + 1;
+sCtr &lt;= @TextToNumber(s)
+
+);
+
+tCtr := tCtr + 1;
+tCtr &lt;= @TextToNumber(t)
+
+);
+
+sessPickedDay3";
+
+si_la_sessions3+"|" + str_Formula</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='si_in_sessions4_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>str_Formula := "rp_UNID:= @DbLookup(\"\" : \"NoCache\"; \"\"; \"vLookupRegistrationProfilesByIDLocale\"; @Trim(ep_id + Locale); 2; [FailSilent]);
+dayAsTranslated := @GetDocField(rp_UNID; \"rp_DayText\");
+
+isAvailable := @If(!@IsAvailable(sessionKey4); \"No\"; \"Yes\");
+t := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey4; \"rp_numTracksDay\"; [FailSilent]); \"0\");
+s := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey4; \"rp_numSessionsDay\"; [FailSilent]); \"0\");
+Tk := @If(@GetDocField(rp_UNID; \"rp_TrackText\") = \"\"; \"Track\"; @GetDocField(rp_UNID; \"rp_TrackText\"));
+Sess := @If(@GetDocField(rp_UNID; \"rp_SessionText\") = \"\"; \"Session\"; @GetDocField(rp_UNID; \"rp_SessionText\"));
+
+tCtr := 1;
+
+@DoWhile(
+
+sCtr := 1;
+
+@DoWhile(
+
+enField := \"en_d4t\" + @Text(tCtr) + \"s\" + @Text(sCtr) + \"tcS\";
+isSpan := @If(@GetField(\"en_d4s1span\") = \"Yes\"; \"Yes\"; \"No\");
+sCtrAdj := @If(isSpan = \"Yes\" &amp; sCtr &gt; 1 &amp; tCtr &gt; 1; sCtr-1; sCtr);
+rpFieldLabel := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"label\";
+rpFieldTime := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"ts\";
+isSel := @If(@GetField(enField) != \"\"; \"Yes\"; \"No\");
+sessLabel := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey4; rpFieldLabel; [FailSilent]); \"\");
+sessTime := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey4; rpFieldTime; [FailSilent]); \"\");
+sessPickedDay4 := @If(sessLabel != \"\"; sessPickedDay4 + @If(sessPickedDay4 = \"\"; \"\"; \", \") + Tk + \": \" + @Text(tCtr) + \" \" + Sess + \": \" + @Text(sCtr) + \" (\" + sessTime + \") - \" + sessLabel; sessPickedDay4);
+
+sCtr := sCtr + 1;
+sCtr &lt;= @TextToNumber(s)
+
+);
+
+tCtr := tCtr + 1;
+tCtr &lt;= @TextToNumber(t)
+
+);
+
+sessPickedDay4";
+
+si_la_sessions4+"|" + str_Formula</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='si_in_sessions5_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>str_Formula := "rp_UNID:= @DbLookup(\"\" : \"NoCache\"; \"\"; \"vLookupRegistrationProfilesByIDLocale\"; @Trim(ep_id + Locale); 2; [FailSilent]);
+dayAsTranslated := @GetDocField(rp_UNID; \"rp_DayText\");
+
+isAvailable := @If(!@IsAvailable(sessionKey1); \"No\"; \"Yes\");
+t := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey1; \"rp_numTracksDay\"; [FailSilent]); \"0\");
+s := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey1; \"rp_numSessionsDay\"; [FailSilent]); \"0\");
+Tk := @If(@GetDocField(rp_UNID; \"rp_TrackText\") = \"\"; \"Track\"; @GetDocField(rp_UNID; \"rp_TrackText\"));
+Sess := @If(@GetDocField(rp_UNID; \"rp_SessionText\") = \"\"; \"Session\"; @GetDocField(rp_UNID; \"rp_SessionText\"));
+
+tCtr := 1;
+
+@DoWhile(
+
+sCtr := 1;
+
+@DoWhile(
+
+enField := \"en_d1t\" + @Text(tCtr) + \"s\" + @Text(sCtr) + \"tcS\";
+isSpan := @If(@GetField(\"en_d1s1span\") = \"Yes\"; \"Yes\"; \"No\");
+sCtrAdj := @If(isSpan = \"Yes\" &amp; sCtr &gt; 1 &amp; tCtr &gt; 1; sCtr-1; sCtr);
+rpFieldLabel := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"label_HTML\";
+rpFieldTime := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"ts\";
+isSel := @If(@GetField(enField) != \"\"; \"Yes\"; \"No\");
+sessLabel := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey1; rpFieldLabel; [FailSilent]); \"\");
+sessTime := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey1; rpFieldTime; [FailSilent]); \"\");
+sessPickedDay1 := @If(sessLabel != \"\"; sessPickedDay1 + @If(sessPickedDay1 = \"\"; \"\"; \", \") + Tk + \": \" + @Text(tCtr) + \" \" + Sess + \": \" + @Text(sCtr) + \" (\" + sessTime + \") - \" + sessLabel; sessPickedDay1);
+
+sCtr := sCtr + 1;
+sCtr &lt;= @TextToNumber(s)
+
+);
+
+tCtr := tCtr + 1;
+tCtr &lt;= @TextToNumber(t)
+
+);
+
+sessPickedDay1";
+
+si_la_sessions5+"|" + str_Formula</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='si_in_sessions6_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>str_Formula := "rp_UNID:= @DbLookup(\"\" : \"NoCache\"; \"\"; \"vLookupRegistrationProfilesByIDLocale\"; @Trim(ep_id + Locale); 2; [FailSilent]);
+dayAsTranslated := @GetDocField(rp_UNID; \"rp_DayText\");
+
+isAvailable := @If(!@IsAvailable(sessionKey2); \"No\"; \"Yes\");
+t := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey2; \"rp_numTracksDay\"; [FailSilent]); \"0\");
+s := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey2; \"rp_numSessionsDay\"; [FailSilent]); \"0\");
+Tk := @If(@GetDocField(rp_UNID; \"rp_TrackText\") = \"\"; \"Track\"; @GetDocField(rp_UNID; \"rp_TrackText\"));
+Sess := @If(@GetDocField(rp_UNID; \"rp_SessionText\") = \"\"; \"Session\"; @GetDocField(rp_UNID; \"rp_SessionText\"));
+
+tCtr := 1;
+
+@DoWhile(
+
+sCtr := 1;
+
+@DoWhile(
+
+enField := \"en_d2t\" + @Text(tCtr) + \"s\" + @Text(sCtr) + \"tcS\";
+isSpan := @If(@GetField(\"en_d2s1span\") = \"Yes\"; \"Yes\"; \"No\");
+sCtrAdj := @If(isSpan = \"Yes\" &amp; sCtr &gt; 1 &amp; tCtr &gt; 1; sCtr-1; sCtr);
+rpFieldLabel := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"label_HTML\";
+rpFieldTime := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"ts\";
+isSel := @If(@GetField(enField) != \"\"; \"Yes\"; \"No\");
+sessLabel := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey2; rpFieldLabel; [FailSilent]); \"\");
+sessTime := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey2; rpFieldTime; [FailSilent]); \"\");
+sessPickedDay2 := @If(sessLabel != \"\"; sessPickedDay2 + @If(sessPickedDay2 = \"\"; \"\"; \", \") + Tk + \": \" + @Text(tCtr) + \" \" + Sess + \": \" + @Text(sCtr) + \" (\" + sessTime + \") - \" + sessLabel; sessPickedDay2);
+
+sCtr := sCtr + 1;
+sCtr &lt;= @TextToNumber(s)
+
+);
+
+tCtr := tCtr + 1;
+tCtr &lt;= @TextToNumber(t)
+
+);
+
+sessPickedDay2";
+
+si_la_sessions6+"|" + str_Formula</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='si_in_sessions7_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>str_Formula := "rp_UNID:= @DbLookup(\"\" : \"NoCache\"; \"\"; \"vLookupRegistrationProfilesByIDLocale\"; @Trim(ep_id + Locale); 2; [FailSilent]);
+dayAsTranslated := @GetDocField(rp_UNID; \"rp_DayText\");
+
+isAvailable := @If(!@IsAvailable(sessionKey3); \"No\"; \"Yes\");
+t := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey3; \"rp_numTracksDay\"; [FailSilent]); \"0\");
+s := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey3; \"rp_numSessionsDay\"; [FailSilent]); \"0\");
+Tk := @If(@GetDocField(rp_UNID; \"rp_TrackText\") = \"\"; \"Track\"; @GetDocField(rp_UNID; \"rp_TrackText\"));
+Sess := @If(@GetDocField(rp_UNID; \"rp_SessionText\") = \"\"; \"Session\"; @GetDocField(rp_UNID; \"rp_SessionText\"));
+
+tCtr := 1;
+
+@DoWhile(
+
+sCtr := 1;
+
+@DoWhile(
+
+enField := \"en_d3t\" + @Text(tCtr) + \"s\" + @Text(sCtr) + \"tcS\";
+isSpan := @If(@GetField(\"en_d3s1span\") = \"Yes\"; \"Yes\"; \"No\");
+sCtrAdj := @If(isSpan = \"Yes\" &amp; sCtr &gt; 1 &amp; tCtr &gt; 1; sCtr-1; sCtr);
+rpFieldLabel := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"label_HTML\";
+rpFieldTime := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"ts\";
+isSel := @If(@GetField(enField) != \"\"; \"Yes\"; \"No\");
+sessLabel := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey3; rpFieldLabel; [FailSilent]); \"\");
+sessTime := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey3; rpFieldTime; [FailSilent]); \"\");
+sessPickedDay3 := @If(sessLabel != \"\"; sessPickedDay3 + @If(sessPickedDay3 = \"\"; \"\"; \", \") + Tk + \": \" + @Text(tCtr) + \" \" + Sess + \": \" + @Text(sCtr) + \" (\" + sessTime + \") - \" + sessLabel; sessPickedDay3);
+
+sCtr := sCtr + 1;
+sCtr &lt;= @TextToNumber(s)
+
+);
+
+tCtr := tCtr + 1;
+tCtr &lt;= @TextToNumber(t)
+
+);
+
+sessPickedDay3";
+
+si_la_sessions7+"|" + str_Formula</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='si_in_sessions8_exp' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ helperbutton='false' columns='1' ui='checkbox'><formula>str_Formula := "rp_UNID:= @DbLookup(\"\" : \"NoCache\"; \"\"; \"vLookupRegistrationProfilesByIDLocale\"; @Trim(ep_id + Locale); 2; [FailSilent]);
+dayAsTranslated := @GetDocField(rp_UNID; \"rp_DayText\");
+
+isAvailable := @If(!@IsAvailable(sessionKey4); \"No\"; \"Yes\");
+t := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey4; \"rp_numTracksDay\"; [FailSilent]); \"0\");
+s := @If(isAvailable=\"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey4; \"rp_numSessionsDay\"; [FailSilent]); \"0\");
+Tk := @If(@GetDocField(rp_UNID; \"rp_TrackText\") = \"\"; \"Track\"; @GetDocField(rp_UNID; \"rp_TrackText\"));
+Sess := @If(@GetDocField(rp_UNID; \"rp_SessionText\") = \"\"; \"Session\"; @GetDocField(rp_UNID; \"rp_SessionText\"));
+
+tCtr := 1;
+
+@DoWhile(
+
+sCtr := 1;
+
+@DoWhile(
+
+enField := \"en_d4t\" + @Text(tCtr) + \"s\" + @Text(sCtr) + \"tcS\";
+isSpan := @If(@GetField(\"en_d4s1span\") = \"Yes\"; \"Yes\"; \"No\");
+sCtrAdj := @If(isSpan = \"Yes\" &amp; sCtr &gt; 1 &amp; tCtr &gt; 1; sCtr-1; sCtr);
+rpFieldLabel := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"label_HTML\";
+rpFieldTime := \"rp_t\" + @Text(tCtr) + \"s\" + @Text(sCtrAdj) + \"ts\";
+isSel := @If(@GetField(enField) != \"\"; \"Yes\"; \"No\");
+sessLabel := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey4; rpFieldLabel; [FailSilent]); \"\");
+sessTime := @If(isSel = \"Yes\"; @DbLookup(\"\":\"NoCache\"; \"\"; \"vLookupRegistrationSessionProfilesByIDLocaleDay\"; sessionKey4; rpFieldTime; [FailSilent]); \"\");
+sessPickedDay4 := @If(sessLabel != \"\"; sessPickedDay4 + @If(sessPickedDay4 = \"\"; \"\"; \", \") + Tk + \": \" + @Text(tCtr) + \" \" + Sess + \": \" + @Text(sCtr) + \" (\" + sessTime + \") - \" + sessLabel; sessPickedDay4);
+
+sCtr := sCtr + 1;
+sCtr &lt;= @TextToNumber(s)
+
+);
+
+tCtr := tCtr + 1;
+tCtr &lt;= @TextToNumber(t)
+
+);
+
+sessPickedDay4";
+
+si_la_sessions8+"|" + str_Formula</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow></table></tablecell></tablerow></table>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow></table>
+<pardef id='69'/>
+<par def='69'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></richtext></body>
+<item name='OriginalModTime'><datetime dst='true'>20060407T185026,96-04</datetime></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>dlgExportSelectedFields</text></item></form>
+

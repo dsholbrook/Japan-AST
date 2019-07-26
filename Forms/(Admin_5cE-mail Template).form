@@ -1,0 +1,2309 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Admin\E-mail Template)' alias='fEmailTemplate' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='8.5.3'
+ editonopen='true'>
+<noteinfo noteid='14efa' unid='2676C11E48A9543686257F710078ACBB' sequence='332'>
+<created><datetime>20160309T155805,39-06</datetime></created>
+<modified><datetime dst='true'>20180929T235604,61-05</datetime></modified>
+<revised><datetime>20160310T111652,24-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235604,61-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235604,61-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+</lotusscript></code><code event='declarations'><lotusscript>Dim m_docCurr As NotesDocument
+Dim m_uidocCurr As NotesUIDocument
+Dim m_strUsage As String
+
+
+</lotusscript></code><code event='InsertMergeField'><lotusscript>Sub InsertMergeField()
+	
+	Const STR_MODULE_NAME = |E-mail template: InsertMergeField|
+	
+	Dim ws As New NotesUIWorkspace
+	Dim strFormula As String
+	Dim varResult As Variant
+	Dim varReply As Variant
+	Dim strFieldName As String
+	Dim strTag As String
+	Dim strlstResult List As String
+	Dim intCurrItem As Integer
+	Dim strCurrFieldName As String
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'Ceck that we're in a field that allows merge fields to be inserted
+	strCurrFieldName = m_uidocCurr.CurrentField
+	
+	If (strCurrFieldName = |et_Subject| Or strCurrFieldName = |et_Text|) Then
+		
+		varResult = varGetMergeFields(False)
+		
+		varReply = ws.Prompt(PROMPT_OKCANCELLIST, "Select a Field", "Select a field to insert", varResult(0), varResult)
+		
+		If (Not Isempty(varReply)) Then
+		'Get just the tag part of the reply (everything to the left of the " (" if a " (" is present)
+			strTag = Strleft(Cstr(varReply), | (|)
+			If strTag = || Then
+				strFieldName = Cstr(varReply)
+			Else
+				strFieldName = strTag
+			End If
+		'Add the delimiters
+			strFieldName = |[{| &amp; strFieldName &amp; |}]|
+			Call m_uidocCurr.InsertText(strFieldName)
+		End If
+		
+	Else
+		
+		Call ShowInfoMsg(|Merge fields can only be inserted into the 'Subject' or 'Template text' fields.| &amp; Chr$(13) &amp; Chr$(13) &amp; |Please place your cursor in either of these fields where you want to insert the merge field, then click this button again.|)
+	End If
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub
+</lotusscript></code><code event='varGetMergeFields'><lotusscript>Function varGetMergeFields(flgTagsOnly As Boolean) As Variant
+	
+	Const STR_MODULE_NAME = |E-mail template: varGetMergeFields|
+	
+	Dim strFormula As String
+	Dim varResult As Variant
+	Dim strFieldName As String
+	Dim strlstResult List As String
+	Dim strTag As String
+	Dim strlstTagNames List As String
+	Dim intCurrItem As Integer
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	strFormula = strFormula &amp; |tmpRefDbMergeFields1 := @DbLookup("":"Cache"; dp_ReferenceDBReplicaID; "vLookupMergeFieldsByLocale"; ""; 2;  [FailSilent]);|
+	strFormula = strFormula &amp; |tmpRefDbMergeFields2 := @DbLookup("":"Cache"; dp_ReferenceDBReplicaID; "vLookupMergeFieldsByLocale"; et_Locale; 2;  [FailSilent]);|
+	strFormula = strFormula &amp; |tmpThisDbMergeFields1 := @DbLookup("":"Cache"; ""; "vLookupMergeFieldsByLocale"; ""; 2; [FailSilent]);|
+	strFormula = strFormula &amp; |tmpThisDbMergeFields2 := @DbLookup("":"Cache"; ""; "vLookupMergeFieldsByLocale"; et_Locale; 2;  [FailSilent]);|
+	strFormula = strFormula &amp; |tmpMergeFields := @Sort(@Unique(@Trim(tmpRefDbMergeFields1 : tmpRefDbMergeFields2 : tmpThisDbMergeFields1 : tmpThisDbMergeFields2)));|
+	strFormula = strFormula &amp; |tmpMergeFields|
+	
+	varResult = Evaluate(strFormula, m_docCurr)
+	
+	'Don't show any of the [{ADMIN-xxx}] merge fields unless this is an admin e-mail
+	If (m_docCurr.et_IsAdmin(0) &lt;&gt; "Yes") Then
+		
+		intCurrItem = 0
+		
+		Forall varItem In varResult
+			
+			'Only add non-admin merge fields
+			If (Instr(Cstr(varItem), |ADMIN|) &lt;&gt; 1) Then
+				strlstResult(varItem) = Cstr(varItem)
+				intCurrItem = intCurrItem + 1
+			End If
+			
+		End Forall
+		
+		'Now update the results
+		Redim varResult(intCurrItem - 1)
+		
+		intCurrItem = 0
+		
+		Forall varNewItem In strlstResult
+			varResult(intCurrItem) = Listtag(varNewItem)
+			intCurrItem = intCurrItem + 1
+		End Forall
+		
+	End If
+	
+	If (flgTagsOnly) Then
+		
+		intCurrItem = 0
+		
+		Forall varItem In varResult
+			'Get just the tag part of the merge field name (everything to the left of the " (" if a " (" is present)
+			strTag = Strleft(Cstr(varItem), | (|)
+			If strTag = || Then
+				strFieldName = Cstr(varItem)
+			Else
+				strFieldName = strTag
+			End If
+			strlstTagNames(varItem) = strFieldName
+			intCurrItem = intCurrItem + 1
+		End Forall
+		
+		'Now update the results
+		Redim varResult(intCurrItem - 1)
+		
+		intCurrItem = 0
+		
+		Forall varTagName In strlstTagNames
+			varResult(intCurrItem) = varTagName
+			intCurrItem = intCurrItem + 1
+		End Forall
+		
+	End If
+	
+lblExit:
+	
+	varGetMergeFields = varResult
+	
+	Exit Function
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Function
+</lotusscript></code><code event='flgValidateMergeFields'><lotusscript>Function flgValidateMergeFields(strText As String, strErrorMsg As String, strErrorMsgHelper As String) As Boolean
+	
+	Const STR_MODULE_NAME = |E-mail template: flgValidateMergeFields|
+	
+	Const INT_LOOKING_FOR_TAG = 1
+	Const INT_IN_START_TAG = 2
+	Const INT_IN_TAG = 3
+	Const INT_IN_END_TAG = 4
+	Const INT_INVALID_START_TAG_CHAR1= 5
+	Const INT_INVALID_START_TAG_CHAR2= 6	
+	Const INT_INVALID_END_TAG_CHAR1 = 7
+	Const INT_INVALID_END_TAG_CHAR2 = 8
+	Const INT_UNEXPECTED_START_TAG_CHAR1= 9
+	Const INT_UNEXPECTED_START_TAG_CHAR2= 10	
+	Const INT_UNEXPECTED_END_TAG_CHAR1 = 11
+	Const INT_UNEXPECTED_END_TAG_CHAR2 = 12
+	Const INT_MISSING_MERGE_FIELD_NAME = 13
+	Const INT_INVALID_TAG_NAME = 14
+	
+	'Define the number of characters before the error to display
+	Const INT_MAX_CHARS_BEFORE_ERROR = 20
+	Const INT_MAX_CHARS_AFTER_ERROR = 20
+	
+	Dim flgValid As Boolean
+	Dim lngTextLength As Long
+	Dim intState As Integer
+	Dim lngCurrPos As Long
+	Dim strCurrChar As String
+	Dim strCurrTag As String
+	Dim strMsg As String
+	Dim flgErrorFound As Boolean
+	Dim lngLengthAfterError As Long
+	Dim strBeforeError As String
+	Dim strAfterError As String
+	Dim strErrorLocationHelper As String
+	Dim varMergeFieldNames As Variant
+	Dim lngPosStartInvalidTag As String
+	Dim lngPosStartError As String
+	Dim strError As String
+	Dim flgIsValid As Boolean
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Started.|)
+	
+	'Set the default return value
+	flgValid = False
+	
+	'Get the list of available merge field names
+	varMergeFieldNames = varGetMergeFields(True)
+	
+	intState = INT_LOOKING_FOR_TAG
+	
+	If (strText &lt;&gt; ||) Then
+		'Use a state machine to validate the text and build a list of tags
+		lngCurrPos = 0
+		lngTextLength = Len(strText)
+		
+		While (lngCurrPos &lt; lngTextLength And (Not flgErrorFound))
+			
+			lngCurrPos = lngCurrPos + 1		
+			
+			strCurrChar = Mid$(strText, lngCurrPos, 1)
+			
+			Select Case intState
+				
+			Case INT_LOOKING_FOR_TAG:
+				
+				Select Case strCurrChar
+				Case |[|:
+					'We are looking for the first character of the start of a tag, and we found it, so change state and get the next character					
+					intState = INT_IN_START_TAG
+				Case |{|:
+					'We are looking for the first character of the start of a tag, but we found the second character, so assume that the first character is missing in error							
+					intState = INT_INVALID_START_TAG_CHAR1	
+					flgErrorFound = True					
+				Case |}|:
+					'We are looking for the start of a tag, but found what could be the start of an end tag
+					intState = INT_UNEXPECTED_END_TAG_CHAR1					
+					flgErrorFound = True					
+				Case |]|:
+					'We are looking for the start of a tag, but found what could be the end of an end tag
+					intState = INT_UNEXPECTED_END_TAG_CHAR2					
+					flgErrorFound = True					
+				Case Else
+					'We're not at the start of a tag, so assume we're in regular text and still looking for the start of a tag and get the next character
+				End Select
+				
+			Case INT_IN_START_TAG:
+				
+				Select Case strCurrChar
+				Case |{|:
+					'We're looking for the second character of the start of a tag, and we found it, so change state, start building the tag name and get the next character							
+					intState = INT_IN_TAG
+					strCurrTag = ||
+				Case Else
+					'We're looking for the second character of the start tag, but we found something else
+					intState = INT_INVALID_START_TAG_CHAR2
+					flgErrorFound = True					
+				End Select
+				
+			Case INT_IN_TAG:
+				
+				Select Case strCurrChar
+				Case |[|:
+					'We're in a tag name, but we found what could be the start of a start tag
+					If (Len(strCurrTag) = 0) Then
+						intState = INT_MISSING_MERGE_FIELD_NAME
+					Else
+						intState = INT_UNEXPECTED_START_TAG_CHAR1
+					End If
+					flgErrorFound = True
+				Case |{|:
+					'We're in a tag name, but we found what could be the end of a start tag
+					If (Len(strCurrTag) = 0) Then
+						intState = INT_MISSING_MERGE_FIELD_NAME
+					Else
+						intState = INT_UNEXPECTED_START_TAG_CHAR2				
+					End If
+					flgErrorFound = True
+				Case |}|:
+					'We're in a tag name and we found the first character of the end of a tag, so start looking for the second character of the end tag
+					If (Len(strCurrTag) = 0) Then
+						intState = INT_MISSING_MERGE_FIELD_NAME
+						flgErrorFound = True						
+					Else
+						intState = INT_IN_END_TAG
+					End If
+				Case |]|:
+					'We're in a tag name, but we found the second character of the end tag, so assume the first character is missing
+					If (Len(strCurrTag) = 0) Then
+						intState = INT_MISSING_MERGE_FIELD_NAME
+					Else
+						intState = INT_INVALID_END_TAG_CHAR1				
+					End If
+					flgErrorFound = True
+				Case Else
+					'We're in a tag name and didn't find any delimiter characters, so add the current character to the tag name
+					strCurrTag = strCurrTag &amp; strCurrChar
+				End Select
+				
+			Case INT_IN_END_TAG:
+				
+				Select Case strCurrChar
+				Case |]|:
+					'We're looking for the second character of an end tag and we found it, so start looking for the start of the next tag
+					intState = INT_LOOKING_FOR_TAG
+					Call Debug(STR_MODULE_NAME &amp; |: Found merge field [{| &amp; strCurrTag &amp; |}]|)
+					
+					'Validate the merge field name against those that are available
+					flgIsValid = False
+					Forall varName In varMergeFieldNames
+						If (Cstr(varName) = strCurrTag) Then
+							flgIsValid = True
+							Exit Forall
+						End If
+					End Forall
+					If (Not flgIsValid) Then
+						intState = INT_INVALID_TAG_NAME
+						flgErrorFound = True
+						'Calculate where the inalid tag starts for the error message
+						'e.g.	If the invalid tag is [{XXX}]
+						'		The invalid tag is detected when the current position is on the final ], so thet start of the tag can be calculated as:
+						'		Current position - 3 (for the other three delimiter character) - length of tag name.
+						lngPosStartInvalidTag = lngCurrPos - 3 - Len(strCurrTag)
+						Call Debug(STR_MODULE_NAME &amp; |: Merge field name [{| &amp; strCurrTag &amp; |}] is invalid.|)
+					End If
+				Case Else
+					'We're looking for the second character of an end tag but we found something else					
+					intState = INT_INVALID_END_TAG_CHAR2
+					flgErrorFound = True
+				End Select
+				
+			Case Else
+				
+				Error ERR_SYSTEM_ERROR, |An unknown state [| &amp; intState &amp; |] was found.|	
+				
+			End Select
+			
+		Wend
+		
+	End If
+	
+	Select Case intState
+		
+	Case INT_LOOKING_FOR_TAG:
+		
+			'The text is formatted OK
+		
+	Case INT_IN_START_TAG, INT_INVALID_START_TAG_CHAR1, INT_INVALID_START_TAG_CHAR2:
+		
+		strMsg = |An invalid merge field delimiter was found at position | &amp; Cstr(lngCurrPos) &amp; |.  A merge field should start with '[{'.|
+		
+	Case INT_IN_TAG, INT_IN_END_TAG, INT_INVALID_END_TAG_CHAR1, INT_INVALID_END_TAG_CHAR2:
+		
+		strMsg = |An invalid merge field was found at position | &amp; Cstr(lngCurrPos) &amp; |.  A merge field should end with '}]'.|
+		
+	Case INT_UNEXPECTED_START_TAG_CHAR1, INT_UNEXPECTED_START_TAG_CHAR2:
+		
+		strMsg = |An invalid merge field delimiter was found at position | &amp; Cstr(lngCurrPos) &amp; |.  The '| &amp; strCurrChar &amp; |' character was found when the end of a merge field '}]' was expected.|
+		
+	Case INT_UNEXPECTED_END_TAG_CHAR1, INT_UNEXPECTED_END_TAG_CHAR2:
+		
+		strMsg = |An invalid merge field delimiter was found at position | &amp; Cstr(lngCurrPos) &amp; |.  The '| &amp; strCurrChar &amp; |' character was found when text or the start of a merge field '[{' was expected.|
+		
+	Case INT_MISSING_MERGE_FIELD_NAME:
+		
+		strMsg = |An invalid merge field delimiter was found at position | &amp; Cstr(lngCurrPos) &amp; |.  The '| &amp; strCurrChar &amp; |' character was found when a merge field name was expected.|
+		
+	Case INT_INVALID_TAG_NAME:
+		
+		strMsg = |An unknown merge field name [{| &amp; strCurrTag &amp; |}] was found at position | &amp; Cstr(lngPosStartInvalidTag) &amp; |.|
+		
+	Case Else
+		
+		Error ERR_SYSTEM_ERROR, |An unknown state [| &amp; intState &amp; |] was found.|	
+		
+	End Select
+	
+	If intState &lt;&gt; INT_LOOKING_FOR_TAG Then
+		
+		Call Debug(STR_MODULE_NAME &amp; |: | &amp; strMsg)
+		
+		'The start of the error is earlier in the text string for an invalid tag name (to allow for the delimiters and the name of the tag),
+		'Also, the error text is not just the character where the error was detectd, but the entire tag name
+		If (intState = INT_INVALID_TAG_NAME) Then
+			lngPosStartError = lngPosStartInvalidTag
+			strError = |[{| &amp; strCurrTag &amp; |}]|
+		Else
+			lngPosStartError = lngCurrPos
+			strError = strCurrChar
+		End If
+		
+		If (INT_MAX_CHARS_BEFORE_ERROR &lt; lngPosStartError) Then
+			strBeforeError = Mid$(strText, lngPosStartError - INT_MAX_CHARS_BEFORE_ERROR, INT_MAX_CHARS_BEFORE_ERROR)
+		Else
+			strBeforeError = Mid$(strText, 1, lngPosStartError - 1)
+		End If
+		
+		'The end of the error is always at the current position
+		lngLengthAfterError = lngTextLength - lngCurrPos
+		
+		If (lngLengthAfterError &gt; INT_MAX_CHARS_AFTER_ERROR) Then
+			lngLengthAfterError = INT_MAX_CHARS_AFTER_ERROR
+		End If
+		
+		If (lngLengthAfterError = 0) Then
+			strAfterError = ||
+		Else
+			strAfterError = Mid$(strText, 1 + lngCurrPos, lngLengthAfterError)
+		End If
+		
+		strErrorLocationHelper = strBeforeError &amp; | &gt;&gt;&gt; | &amp; strError &amp; | &lt;&lt;&lt; | &amp; strAfterError
+		
+		Call Debug(STR_MODULE_NAME &amp; |: | &amp; strErrorLocationHelper)
+		
+	Else
+		
+		'The format of the text is valid and all of the merge fields in it are in the list of valid merge field names
+		strMsg = ||
+		strErrorMsgHelper = ||		
+		flgValid = True
+		
+	End If
+	
+lblExit:
+	
+	'Update the returned values
+	strErrorMsg = strMsg
+	strErrorMsgHelper = strErrorLocationHelper
+	flgValidateMergeFields = flgValid
+	
+	If (flgValid) Then
+		Call Debug(STR_MODULE_NAME &amp; |: Finished.  Valid.|)
+	Else
+		Call Debug(STR_MODULE_NAME &amp; |: Finished.  Invalid.|)
+	End If
+	
+	Exit Function
+	
+lblError:
+	
+	strMsg = Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl
+	strErrorMsgHelper = ||
+	flgValid = False
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Function
+</lotusscript></code><code event='SelectEvent'><lotusscript>Sub SelectEvent()
+	
+	Const STR_MODULE_NAME = |E-mail template: SelectEvent|
+	
+	 'Trap errors
+	On Error Goto lblError
+	
+	Dim s As New NotesSession
+	Dim ws As New NotesUIWorkspace
+	Dim collEventProfiles As NotesDocumentCollection
+	Dim docEventProfile As NotesDocument
+	Dim strCurrEventID As String
+	Dim strCurrEventTitle As String
+	Dim strUNID As String
+	Dim strMsg As String
+	
+	strUNID = m_docCurr.UniversalID
+	strCurrEventID = m_docCurr.ep_id(0)
+	strCurrEventTitle = m_docCurr.ep_EventTitle(0)
+	
+	'Check whether there is an existing event already selected, and if there is whether we can change it
+	If (flgIsEmailTemplateUsedByEvent(strCurrEventID, strUNID)) Then
+		strMsg = |The '| &amp; strCurrEventTitle &amp; | (| &amp; strCurrEventID &amp; |)| &amp; |' event is still using this template.| &amp; Chr$(13)
+		strMsg = strMsg &amp; Chr$(13) &amp; |Before you can select a different event for this template, the '| &amp; strCurrEventTitle &amp; | (| &amp; strCurrEventID &amp; |)| &amp; |' event must be updated to not use this template.|
+		Call ShowInfoMsg(strMsg)
+		Goto lblExit		
+	End If
+	
+	Set collEventProfiles = ws.PickListCollection(PICKLIST_CUSTOM, False, g_dbCurr.Server, g_dbCurr.FilePath, "vDialogSelectAllEvent", "Choose event", "Please choose the event that will use this e-mail.")
+	
+	If collEventProfiles.Count &gt; 0 Then		
+		
+		Set docEventProfile = collEventProfiles.GetFirstDocument
+		
+		m_docCurr.ep_id = docEventProfile.ep_id(0)
+		m_docCurr.ep_EventTitle = docEventProfile.eventname(0)
+		
+		Call m_uidocCurr.Refresh
+		
+	End If	
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub
+</lotusscript></code><code event='AddEvents'><lotusscript>Sub AddEvents()
+	
+	Const STR_MODULE_NAME = |E-mail template: AddEvents|
+	
+	 'Trap errors
+	On Error Goto lblError
+	
+	Dim s As New NotesSession
+	Dim ws As New NotesUIWorkspace
+	Dim collEventProfiles As NotesDocumentCollection
+	Dim docEventProfile As NotesDocument
+	Dim strarrEventIDs() As String
+	Dim strarrEventTitles() As String
+	Dim intCurrEvent As Integer
+	Dim strNewEventID As String
+	Dim flgAlreadyInList As Boolean
+	Dim intCurrIndex As Integer
+	Dim itemEventIDs As NotesItem
+	Dim itemEventTitles As NotesItem
+	
+	Set collEventProfiles = ws.PickListCollection(PICKLIST_CUSTOM, True, g_dbCurr.Server, g_dbCurr.FilePath, "vDialogSelectAllEvent", |Select events to add|, |Please choose the events that will use this e-mail.|)
+	
+	If collEventProfiles.Count &gt; 0 Then		
+		
+		Call Debug(STR_MODULE_NAME &amp; |: The user selected [| &amp; Cstr(collEventProfiles.Count) &amp; |] event(s) to add.|)
+		
+		Redim strarrEventIDs(collEventProfiles.Count - 1)
+		Redim strarrEventTitles(collEventProfiles.Count - 1)
+		
+		Set docEventProfile = collEventProfiles.GetFirstDocument
+		
+		intCurrEvent = 0
+		
+		While Not docEventProfile Is Nothing
+			
+			strarrEventIDs(intCurrEvent) = docEventProfile.ep_id(0)
+			strarrEventTitles(intCurrEvent) = docEventProfile.eventname(0)
+			
+			intCurrEvent = intCurrEvent + 1
+			Set docEventProfile = collEventProfiles.GetNextDocument(docEventProfile)
+			
+		Wend
+		
+		'Get handle to the items that store the event IDs and fields
+		Set itemEventIDs = m_docCurr.GetFirstItem(|ep_ids|)
+		Set itemEventTitles = m_docCurr.GetFirstItem(|ep_EventTitles|)
+		
+		'Now check whether the event is already in the list of events so that we only add events that are not in the list
+		intCurrEvent = 0
+		Forall varNewEventID In strarrEventIDs()
+			strNewEventID = Cstr(varNewEventID)	
+			flgAlreadyInlist = False
+			Forall varEventID In m_docCurr.ep_ids
+				If (Cstr(varEventID) = strNewEventID) Then
+					flgAlreadyInList = True
+					Exit Forall
+				End If
+			End Forall
+			'If the event is not already in the list, add it
+			If (Not flgAlreadyInList) Then
+				Call itemEventIDs.AppendToTextList(strarrEventIDs(intCurrEvent))
+				Call itemEventTitles.AppendToTextList(strarrEventTitles(intCurrEvent))				
+				Call Debug(STR_MODULE_NAME &amp; |: Event ID [| &amp; strarrEventIDs(intCurrEvent) &amp; |] [| &amp; strarrEventTitles(intCurrEvent) &amp; |] has been added to the list.|)				
+			Else
+				Call Debug(STR_MODULE_NAME &amp; |: Event ID [| &amp; strarrEventIDs(intCurrEvent) &amp; |] [| &amp; strarrEventTitles(intCurrEvent) &amp; |] is already in the list.|)
+			End If
+			intCurrEvent = intCurrEvent + 1
+		End Forall
+		
+		Call m_uidocCurr.Refresh
+		
+	End If	
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub
+</lotusscript></code><code event='RemoveEvents'><lotusscript>Sub RemoveEvents()
+	
+	Const STR_MODULE_NAME = |E-mail template: RemoveEvents|
+	
+	Dim ws As New NotesUIWorkspace	
+	Dim varReply As Variant
+	Dim varEventTitles As Variant
+	Dim intCountEventsToRemove As Integer
+	Dim strarrEventIDs() As String
+	Dim strarrEventTitles() As String
+	Dim strMsg As String	
+	Dim intCurrEvent As Integer
+	Dim strEventInfo As String
+	Dim strUNID As String
+	Dim strCurrEventID As String
+	Dim strCurrEventTitle As String
+	Dim intCountEventsUsingTemplate As Integer
+	Dim flgRemove As Boolean
+	Dim varEventIDs As Variant
+	Dim intCountEvents As Integer
+	Dim intCurrNewEvent As Integer
+	Dim strarrNewEventIDs() As String
+	Dim strarrNewEventTitles() As String
+	
+	 'Trap errors
+	On Error Goto lblError
+	
+	'Get a sorted list of event title to display in the selection list
+	varEventTitles = Evaluate(|@Sort(ep_EventTitles + " (" + ep_ids + ")")|, m_docCurr)
+	
+	'Ask the user to choose which events to remove
+	varReply = ws.Prompt(PROMPT_OKCANCELLISTMULT, |Select events to remove|, |Select one or more events to remove.|, ||, varEventTitles)
+	
+	'If they made a selection, process it
+	If Not Isempty(varReply) Then
+		
+		'Store the number of events to remove		
+		intCountEventsToRemove = Ubound(varReply) + 1
+		
+		Call Debug(STR_MODULE_NAME &amp; |: User requested to remove [| &amp; Cstr(intCountEventsToRemove) &amp; |] event(s) from the template.|)
+		
+		Redim strarrEventIDs(Ubound(varReply))
+		Redim strarrEventTitles(Ubound(varReply))		
+		
+		intCurrEvent = 0
+		'Build a list of IDs and titles to remove
+		Forall varEventInfo In varReply
+			strEventInfo = Cstr(varEventInfo)
+			Call Debug(STR_MODULE_NAME &amp; |: [| &amp; strEventInfo &amp; |]|)			
+			strarrEventIDs(intCurrEvent) = strGetEventID(strEventInfo)
+			strarrEventTitles(intCurrEvent) = strEventInfo	
+			intCurrEvent = intCurrEvent + 1
+		End Forall
+		
+		'Now check whether event can be safely removed.
+		
+		'Is this template still being used by the event about to be removed?
+		'If it is, show a message and don't allow the user to remove it.  They will have to remove it from the event before they can remove it from here.
+		
+		strUNID = m_docCurr.UniversalID
+		
+		'Initialize the array used to store the titles of any events that use the template
+		intCountEventsUsingTemplate = 0
+		Redim strarrEventsUsingTemplate(intCountEventsUsingTemplate)
+		
+		For intCurrEvent = 0 To Ubound(strarrEventIDs)
+			strCurrEventID = strarrEventIDs(intCurrEvent)
+			strCurrEventTitle = strarrEventTitles(intCurrEvent)
+			If (flgIsEmailTemplateUsedByEvent(strCurrEventID, strUNID)) Then
+				Call Debug(STR_MODULE_NAME &amp; |: Event [| &amp; strCurrEventTitle &amp; |] uses this template.|)		
+				Redim Preserve strarrEventsUsingTemplate(intCountEventsUsingTemplate)
+				strarrEventsUsingTemplate(intCountEventsUsingTemplate) = strCurrEventTitle
+				intCountEventsUsingTemplate = intCountEventsUsingTemplate + 1
+			Else
+				Call Debug(STR_MODULE_NAME &amp; |: Event [| &amp; strCurrEventTitle &amp; |] does NOT use this template.|)		
+			End If
+		Next
+		
+		'If the template is still being used by any of the events to be removed, show a message
+		'explaining that the template must first be removed from the events that use it.
+		
+		If (intCountEventsUsingTemplate &gt; 0) Then
+			
+			Call Debug(STR_MODULE_NAME &amp; |: At least one event cannot be removed because it still uses the template.|)	
+			
+			If (intCountEventsUsingTemplate = 1) Then
+				strMsg = |The '| &amp; strarrEventsUsingTemplate(0) &amp; |' event cannot be removed from the e-mail template because the event is still using this template.| &amp; Chr$(13)
+				strMsg = strMsg &amp; Chr$(13) &amp; |Before the event can be removed from the template, the event must be updated to not use this template.|				
+			Else
+				strMsg = |The following events cannot be removed from the e-mail template because they are still using this template:| &amp; Chr$(13) &amp; Chr$(13) 
+				Forall varEventTitle In strarrEventsUsingTemplate
+					strMsg = strMsg &amp; Cstr(varEventTitle) &amp; Chr$(13)
+				End Forall
+				strMsg = strMsg &amp; Chr$(13) &amp; |Before these events can be removed from the template, each event must be updated to not use this template.|
+			End If
+			
+			Call ShowInfoMsg(strMsg)
+			
+		Else
+			
+			Call Debug(STR_MODULE_NAME &amp; |: Removing selected events...|)	
+			
+			'It's OK to remove the events
+			varEventIDs = m_docCurr.ep_ids
+			varEventTitles = m_docCurr.ep_EventTitles
+			intCountEvents = Ubound(varEventIDs) + 1
+			
+			intCurrNewEvent = 0
+			Redim strarrNewEventIDs(intCurrNewEvent)
+			Redim strarrNewEventTitles(intCurrNewEvent)
+			
+			Call Debug(STR_MODULE_NAME &amp; |: Start of updated list of events.|)	
+			
+			For intCurrEvent = 0 To Ubound(varEventIDs)
+				'Check whether this event is to be removed
+				strCurrEventID = Cstr(varEventIDs(intCurrEvent))
+				strCurrEventTitle = Cstr(varEventTitles(intCurrEvent))
+				flgRemove = False
+				Forall varEventIDToRemove In strarrEventIDs()
+					If (Cstr(varEventIDToRemove) = strCurrEventID) Then
+						flgRemove = True
+						Exit Forall
+					End If					
+				End Forall
+				If Not flgRemove Then
+					Call Debug(STR_MODULE_NAME &amp; |: [| &amp; strCurrEventTitle &amp; | (| &amp; strCurrEventID &amp; |)| &amp; |]|)	
+					Redim Preserve strarrNewEventIDs(intCurrNewEvent)
+					Redim Preserve strarrNewEventTitles(intCurrNewEvent)
+					strarrNewEventIDs(intCurrNewEvent) = strCurrEventID
+					strarrNewEventTitles(intCurrNewEvent) = strCurrEventTitle
+					intCurrNewEvent = intCurrNewEvent + 1
+				End If
+			Next
+			
+			Call Debug(STR_MODULE_NAME &amp; |: End of updated list of events.|)	
+			
+			Call m_docCurr.ReplaceItemValue(|ep_ids|, strarrNewEventIDs())
+			Call m_docCurr.ReplaceItemValue(|ep_EventTitles|, strarrNewEventTitles())
+			
+			Call m_uidocCurr.Refresh
+			
+		End If
+		
+	End If
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub
+</lotusscript></code><code event='strGetEventID'><lotusscript>Function strGetEventID(strEventInfo As String) As String
+	
+	Const STR_MODULE_NAME = |E-mail template: strGetEventID|
+	
+	Dim strEventID As String
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'The event ID is stored between the ( and ) characters at the end of the string
+	strEventID = Strrightback(strEventInfo, |(|)
+	strEventID = Strleft(strEventID, |)|)
+	
+lblExit:
+	
+	strGetEventID = strEventID
+	
+	Exit Function
+	
+lblError:
+	
+	strEventID = ||
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Function
+</lotusscript></code><code event='flgIsEmailTemplateUsedByEvent'><lotusscript
+>Function flgIsEmailTemplateUsedByEvent(strEventID As String, strUNID As String) As Boolean
+	
+	Const STR_MODULE_NAME = |E-mail template: flgIsEmailTemplateUsedByEvent|
+	
+	Const STR_LOOKUP_VIEW_ALIAS = |vLookupEmailTemplateUsage|
+	
+	Dim view As NotesView
+	Dim strKey As String
+	Dim docEmailTemplate As NotesDocument
+	Dim flgIsUsed As Boolean
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	If (strEventID = ||) Then
+		
+		flgIsUsed = False
+		
+	Else
+		
+		Set view = g_dbCurr.GetView(STR_LOOKUP_VIEW_ALIAS)
+		
+		strKey = strEventID &amp; strUNID
+		
+		Call Debug(STR_MODULE_NAME &amp; |: Searching for document with key [| &amp; strKey &amp; |] in view [| &amp; view.Aliases(0) &amp; |].|)
+		
+		Set docEmailTemplate = view.GetDocumentByKey(strKey , True)
+		
+		If (Not docEmailTemplate Is Nothing) Then
+			Call Debug(STR_MODULE_NAME &amp; |: Document found.|)
+			flgIsUsed = True
+		Else
+			Call Debug(STR_MODULE_NAME &amp; |: Document NOT found.|)
+			flgIsUsed = False
+		End If
+		
+	End If
+	
+lblExit:
+	
+	flgIsEmailTemplateUsedByEvent = flgIsUsed
+	
+	Exit Function
+	
+lblError:
+	
+	flgIsUsed = True
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Function
+</lotusscript></code><code event='strGetEventTitle'><lotusscript>Function strGetEventTitle(strEventInfo As String) As String
+	
+	Const STR_MODULE_NAME = |E-mail template: strGetEventTitle|
+	
+	Dim strEventID As String
+	Dim strEventTitle As String
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'The event title is stored before the event ID
+	strEventID = strGetEventID(strEventInfo)
+	strEventTitle = Strleft(strEventInfo, | (| &amp; strEventID &amp; |)|)
+	
+lblExit:
+	
+	strGetEventTitle = strEventTitle
+	
+	Exit Function
+	
+lblError:
+	
+	strEventTitle = ||
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+	
+End Function</lotusscript></code></globals><code event='windowtitle'><formula
+>@If(et_Subject = "";"E-mail template";"E-mail: " + et_Subject)</formula></code><code
+ event='options'><lotusscript>Option Declare
+
+</lotusscript></code><code event='queryopen'><lotusscript>Sub Queryopen(Source As Notesuidocument, Mode As Integer, Isnewdoc As Variant, Continue As Variant)
+	
+	Const STR_MODULE_NAME = |E-mail template: Queryopen|
+	
+	Dim doc As NotesDocument
+	Dim flgAllowedToEdit As Integer
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Started.|)
+	
+	Set doc = Source.Document
+	
+	flgAllowedToEdit = flgCanEdit(doc, g_strUserName)
+	
+	'Check that the user is allowed to edit the document and display a message and exit they are not allowed.
+	If (Not flgAllowedToEdit) Then
+		Call ShowErrorMsg(|Access to this document has been restricted.  Please contact the system administrator to request access.|)
+		Call Debug(STR_MODULE_NAME &amp; |: [| &amp; g_strUserName &amp; |] attempted to edit an E-mail Template but was not listed as an allowable editor.|)
+		Continue = False
+	End If     
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Finished.|)
+	
+End Sub
+</lotusscript></code><code event='querymodechange'><lotusscript>Sub Querymodechange(Source As Notesuidocument, Continue As Variant)
+	'------------------------------------------------------------------------------------------------------
+     'Description
+     '------------------
+     'Check the following before allowing the document to be put into edit mode:
+	'
+	'1. That the current user is allowed to edit the document based on the document's security settings.
+	'------------------------------------------------------------------------------------------------------
+	
+	Const STR_MODULE_NAME = |E-mail template: Querymodechange|
+	
+	Dim doc As NotesDocument
+	Dim flgAllowedToEdit As Integer
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Started.|)
+	
+	Set doc = Source.Document
+	
+	flgAllowedToEdit = flgCanEdit(doc, g_strUserName)
+	
+	If Not Source.EditMode And (Not flgAllowedToEdit) Then
+		Call ShowErrorMsg(|Access to this document has been restricted.  Please contact the system administrator to request access.|)
+		Call Debug(STR_MODULE_NAME &amp; |: [| &amp; g_strUserName &amp; |] attempted to edit an E-mail Template but was not listed as an allowable editor.|)
+		Continue = False
+	End If     
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Finished.|)
+	
+End Sub
+</lotusscript></code><code event='postopen'><lotusscript>Sub Postopen(Source As Notesuidocument)
+	
+	Set m_uidocCurr = Source
+	Set m_docCurr = m_uidocCurr.Document	
+	
+	m_strUsage = m_docCurr.et_Usage(0)
+	
+End Sub
+</lotusscript></code><code event='querysave'><lotusscript>Sub Querysave(Source As Notesuidocument, Continue As Variant)
+	
+	Const STR_MODULE_NAME = |E-mail template: Querysave|
+	
+	Dim strMsg As String
+	Dim intCountErrors As Integer
+	Dim strErrorFieldName As String
+	Dim flgOK As Boolean
+	Dim strErrorMsg As String
+	Dim strErrorMsgHelper As String
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Started.|)
+	
+	intCountErrors = 0
+	strMsg = "The following fields are required to save this document:" &amp; Chr$(13) &amp; Chr$(13)
+	
+	'Validate the required fields in the order they appear on the form
+	If (m_docCurr.et_Type(0) = "") Then
+		If strErrorFieldName = "" Then
+			strErrorFieldName = "et_Type"
+		End If
+		intCountErrors = intCountErrors + 1
+		strMsg = strMsg &amp; " Type of template" &amp; Chr$(13)
+	End If
+	
+	'If this is a template for a single event, then check that the event has been selected
+	If (m_docCurr.et_Usage(0) = "Single") Then
+		If (m_docCurr.ep_EventTitle(0) = "") Then
+			If strErrorFieldName = "" Then
+				strErrorFieldName = "ep_EventTitle"
+			End If
+			intCountErrors = intCountErrors + 1
+			strMsg = strMsg &amp; " Event" &amp; Chr$(13)
+		End If
+	End If
+	
+	'If this is a template for a roadshow, then check that the events have been selected
+'	If (m_docCurr.et_Usage(0) = "Any" And m_docCurr.et_IsDefault(0) &lt;&gt; "Yes") Then
+'		If (m_docCurr.ep_EventTitles(0) = "") Then
+'			If strErrorFieldName = "" Then
+'				strErrorFieldName = "ep_EventTitles"
+'			End If
+'			intCountErrors = intCountErrors + 1
+'			strMsg = strMsg &amp; " Events" &amp; Chr$(13)
+'		End If
+'	End If
+	
+	If (m_docCurr.et_Name(0) = "") Then
+		If strErrorFieldName = "" Then
+			strErrorFieldName = "et_Name"
+		End If
+		intCountErrors = intCountErrors + 1
+		strMsg = strMsg &amp; " Name" &amp; Chr$(13)
+	End If
+	
+	If (m_docCurr.et_Desc(0) = "") Then
+		If strErrorFieldName = "" Then
+			strErrorFieldName = "et_Desc"
+		End If
+		intCountErrors = intCountErrors + 1
+		strMsg = strMsg &amp; " Description" &amp; Chr$(13)
+	End If
+	
+	If (m_docCurr.et_Subject(0) = "") Then
+		If strErrorFieldName = "" Then
+			strErrorFieldName = "et_Subject"
+		End If
+		intCountErrors = intCountErrors + 1
+		strMsg = strMsg &amp; " Subject" &amp; Chr$(13)
+	End If
+	
+	If (m_docCurr.et_Text(0) = "") Then
+		If strErrorFieldName = "" Then
+			strErrorFieldName = "et_Text"
+		End If
+		intCountErrors = intCountErrors + 1
+		strMsg = strMsg &amp; " E-mail text" &amp; Chr$(13)
+	End If
+	
+	If intCountErrors &gt; 0 Then
+		Call ShowErrorMsg(strMsg)
+		'Special cases for ep_EventTitle and ep_EventTitles because they are not editable fields
+		If (strErrorFieldName &lt;&gt; |ep_EventTitle| And strErrorFieldName &lt;&gt; |ep_EventTitles|) Then
+			Source.GotoField(strErrorFieldName)
+		End If
+		Continue = False	
+		Goto lblExit
+	End If
+	
+	If (m_docCurr.et_IsDefault(0) = "Yes") Then
+		If flgDefaultEmailExists(m_docCurr) Then
+			Call ShowInfoMsg(|A default | &amp; m_docCurr.et_Type(0) &amp; | e-mail template aleady exists for | &amp; m_docCurr.et_LocaleName(0) &amp; |.|)
+			Continue = False
+			Goto lblExit
+		End If
+	End If
+	
+	'Check that the Subject and Template Text fields are correctly formatted and that all of the merge fields they contain are valid
+	flgOK = flgValidateMergeFields(m_docCurr.et_Subject(0), strErrorMsg, strErrorMsgHelper)
+	
+	If (Not flgOK) Then
+		strMsg = strErrorMsg &amp; Chr$(13) &amp; Chr$(13) &amp; |The location of the error is indicated by the &gt;&gt;&gt; &lt;&lt;&lt; in the following message.| &amp; Chr$(13) &amp; Chr$(13) 
+		strMsg = strMsg &amp; |____________________________________________________________|  &amp; Chr$(13) &amp; Chr$(13) 
+		strMsg = strMsg &amp; strErrorMsgHelper &amp; Chr$(13) 
+		strMsg = strMsg &amp; |____________________________________________________________|  &amp; Chr$(13) 
+		Call ShowErrorMsg(strMsg)
+		Source.GotoField(|et_Subject|)
+		Continue = False	
+		Goto lblExit
+	End If
+	
+	flgOK = flgValidateMergeFields(m_docCurr.et_Text(0), strErrorMsg, strErrorMsgHelper)
+	
+	If (Not flgOK) Then
+		strMsg = strErrorMsg &amp; Chr$(13) &amp; Chr$(13) &amp; |The location of the error is indicated by the &gt;&gt;&gt; &lt;&lt;&lt; in the following message.| &amp; Chr$(13) &amp; Chr$(13) 
+		strMsg = strMsg &amp; |____________________________________________________________|  &amp; Chr$(13) &amp; Chr$(13) 
+		strMsg = strMsg &amp; strErrorMsgHelper &amp; Chr$(13) 
+		strMsg = strMsg &amp; |____________________________________________________________|  &amp; Chr$(13) 
+		Call ShowErrorMsg(strMsg)		
+		Source.GotoField(|et_Text|)
+		Continue = False	
+		Goto lblExit
+	End If
+	
+lblExit:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Finished.|)
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<sharedactionref id='70'>
+<action title='Close' icon='27' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='71'>
+<action title='Save &amp; Close' icon='21' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@If(@Command([FileSave]);@Command([CloseWindow]); "")</formula></code></action></sharedactionref>
+<sharedactionref id='72'>
+<action title='Edit' icon='5' showinmenu='false' hide='edit previewedit web mobile'><code
+ event='click'><formula>@Command([EditDocument])</formula></code></action></sharedactionref>
+<action title='Insert Merge Field' icon='115' showinmenu='false'><code event='click'><lotusscript
+>Sub Click(Source As Button)
+	
+	Call InsertMergeField()
+	
+End Sub
+</lotusscript></code></action></actionbar>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='0.7500in' hide='notes web'/>
+<section onread='collapse' onpreview='collapse' onedit='collapse' onprint='collapse'><sectiontitle
+ pardef='1' color='teal'><font size='8pt' color='red' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><text>Revision History</text></sectiontitle>
+<pardef id='2' align='none' leftmargin='1in' hide='notes web'/>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>-----------------------------------------------------------------------------------------------------------------<break
+/> Agenda Content Form<break/>-----------------------------------------------------------------------------------------------------------------<break
+/></run></par>
+<par def='2'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/> Description:</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> This form is used to enter the information that is used to build an agenda web page.</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> One document of this type exists for each locale specific version of an agenda for each event.</run></par>
+<pardef id='3' leftmargin='1in' hide='notes web'/>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/><break/></run><run><font size='8pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> Author:</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> Core Lan	<break/></run><run><font size='8pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/><break/> Revision History:</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/><break/></run><run><font size='8pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/> Date                        	By             	Description</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/> ---------                       	---                   	------------------</run></par>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> November 2007		Core Lan		Initial version.<break
+/>-----------------------------------------------------------------------------------------------------------------</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></section>
+<pardef id='4' hide='notes web mobile'/>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table cellbordercolor='red' widthtype='fixedleft' refwidth='8in'><tablecolumn
+ width='2in'/><tablecolumn width='6in'/>
+<tablerow>
+<tablecell>
+<pardef id='6' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Field</run></par></tablecell>
+<tablecell>
+<pardef id='7' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Description</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='8' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='DocType'><code event='defaultvalue'><formula>"E-mail Template"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>DocType </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The document type. (Hardcoded to '</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>E-mail Template</run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='Form'><code event='defaultvalue'><formula>"fEmailTemplate"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Form </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The form alias. (Hardcoded to '</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>fEmailTemplate</run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_ReferenceDbReplicaID'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_ReferenceDbReplicaID</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> - The replica ID of the reference database. (Includes the colon.  Use in @DBLookups.)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_IsMultiLingual'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_IsMultiLingual</run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Whether the canister is confiigured to support multiple locales.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='et_UNID'><code event='defaultvalue'><formula>@Text(@DocumentUniqueID)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>et_UNID</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - The UNID of this document.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='et_Format'><code event='defaultvalue'><formula>"Text"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>et_</run><run><font size='8pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>Format </run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>- The default e-mail format.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font color='red'/></run><run><font size='8pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computedwhencomposed' name='et_CreatedFromEvent'><code event='defaultvalue'><formula
+>""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>et_CreatedFromEvent</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> - Set to 'Yes' if created from an Event Profile.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='c_audit' listinputseparators='comma semicolon' listdisplayseparator='semicolon'><code
+ event='inputtranslation'><formula>Output := @Text(@Name([CN];@V3UserName))+" - "+@Text(@Now);
+@If(@IsDocBeingSaved;@If(c_audit = "";@SetField("c_audit"; Output);@SetField("c_audit"; c_audit:Output));@If(c_audit = "";Output;c_audit))</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>c_audit</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Used to track changes to this document.  Displayed on the Audit tab.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='d_IsAdminUser'><code event='defaultvalue'><formula>@If(@IsMember("[Admin]"; @UserRoles) | @IsMember("[CanisterAdmin]"; @UserRoles) | @IsMember("[Developer]"; @UserRoles); "Yes"; "No")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_Is</run><run><font size='8pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>AdminUser </run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>- Whether the current user is in the [Admin], [CanisterAdmin] or [Developer] roles.</run></par>
+<par def='7'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Used to show the fields that allow you to configure an e-mail template as a default or administration template.</run></par></tablecell></tablerow></table>
+<pardef id='9' tabs='L6.8125in'/>
+<par def='9'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fixedleft' refwidth='8in'><border dropshadow='true'/><tablecolumn
+ width='8in'/>
+<tablerow>
+<tablecell colorstyle='hgradient' borderwidth='0px' bgcolor='#3c5e84' altbgcolor='#c8d7e3'>
+<pardef id='11' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='11'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/></run><run><font size='12pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='white'/><computedtext><code event='value'><formula>@GetProfileField("fProfile";"dp_SystemName")</formula></code></computedtext></run><run
+><font size='12pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/></run></par>
+<par def='11'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/>E-mail template</run></par></tablecell></tablerow></table>
+<pardef id='12' leftmargin='1in'/>
+<par def='12'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table widthtype='fixedleft' refwidth='8in'><tablecolumn width='8in'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='14' hide='read print preview' keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font size='9pt' style='bold' name='Courier New' pitch='fixed'
+ truetype='true' familyid='30' color='red'/>*</run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> Required fields</run></par></tablecell></tablerow></table>
+<pardef id='15' leftmargin='1in' hide='read print preview'/>
+<par def='15'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table cellbordercolor='#3c5e84' rowdisplay='tabs' sizetabsequally='true'
+ widthtype='fixedleft' refwidth='8.0104in'><tablerowstyle><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='black'/></tablerowstyle><tablecolumn
+ width='8.0104in'/>
+<tablerow tablabel='Configuration      '>
+<tablecell>
+<pardef id='17' keepwithnext='true' keeptogether='true'/>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5f84' altbgcolor='#c8d7e3'>
+<pardef id='19' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='19'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/>E-mail template configuration</run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='20.0521%'/><tablecolumn width='42.6076%'/><tablecolumn
+ width='37.3403%'/>
+<tablerow>
+<tablecell>
+<pardef id='21' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Language</run></par></tablecell>
+<tablecell>
+<pardef id='22' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='22'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='et_Locale'><keywords
+ recalconchange='true' columns='1' ui='dialoglist'><formula>@GetProfileField("fProfile"; "dp_LocaleLookup")</formula></keywords><code
+ event='inputenabled'><formula>et_CreatedFromEvent != "Yes"</formula></code><code
+ event='defaultvalue'><formula>@GetProfileField("fProfile"; "dp_DefaultLocale")</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par>
+<pardef id='23' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='23'><run><font size='9pt'/></run><run><font size='9pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ allowmultivalues='true' kind='computed' name='et_LocaleName' listinputseparators='newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>tmpValues := @DbLookup("" : "Cache"; dp_ReferenceDbReplicaID; "vLookupEnabledLocaleProfiles"; et_Locale; 3);
+@If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<pardef id='24' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is not multi-lingual};
+!(dp_IsMultiLingual != "Yes")</formula></code></pardef>
+<par def='24'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='et_LocaleName_Display'><code event='defaultvalue'><formula>et_LocaleName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='25' leftmargin='0.1000in' rightmargin='98%' hide='read print preview'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='25'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Choose the language for the e-mail.</run></par>
+<pardef id='26' leftmargin='0.1000in' rightmargin='98%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The language for the e-mail.</run></par>
+<pardef id='27' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is not multi-lingual};
+!(dp_IsMultiLingual != "Yes")</formula></code></pardef>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The language for the e-mail.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Type of template</run><run><font size='9pt'
+ style='bold' name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='red'/> *</run></par></tablecell>
+<tablecell>
+<pardef id='28' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='et_Type'><keywords recalconchange='true'
+ columns='3' ui='dialoglist'><formula>@Trim("Confirmation | Confirmation" :
+"Reminder | Reminder" :
+"Follow up | Followup" :
+"Event Cancellation | Event Cancellation" :
+@If(@GetProfileField("fProfile"; "dp_EnableInvitations") = "Yes"; "Invitation | Invitation"; "") :
+"Post event | Postevent" :
+"Other | Other")</formula></keywords><code event='inputenabled'><formula>et_CreatedFromEvent != "Yes"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='29' leftmargin='0.1000in' rightmargin='98%' hide='read print preview'
+ keepwithnext='true' keeptogether='true'/>
+<par def='29'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>What type of e-mail is this?</run></par>
+<pardef id='30' leftmargin='0.1000in' rightmargin='98%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'/>
+<par def='30'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The type of e-mail.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='31' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(et_IsDefault != "Yes")</formula></code></pardef>
+<par def='31'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Event type</run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/> *</run></par></tablecell>
+<tablecell>
+<pardef id='32' leftmargin='0.1000in' rightmargin='98%' hide='read print preview'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(et_IsDefault != "Yes")</formula></code></pardef>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field runexitingonchange='true' borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='et_Usage'><keywords helperbutton='false' columns='1' ui='radiobutton'><textlist
+><text>Single event|Single</text><text>Roadshow|Any</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Single"</formula></code><code event='onchange'><lotusscript
+>Sub Onchange(Source As Field)
+	
+	Dim strUNID As String
+	Dim varEventIDs As Variant
+	Dim varEventTitles As Variant
+	Dim intCountEventsUsingTemplate As Integer
+	Dim strarrEventsUsingTemplate() As String
+	Dim intCurrEvent As Integer
+	Dim strCurrEventID As String
+	Dim strCurrEventTitle As String
+	Dim strMsg As String
+	Dim intCountEvents As Integer
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	Print |Was [| &amp; m_strUsage &amp; |] Now [| &amp; m_docCurr.et_Usage(0) &amp; |]|
+	
+	'Check whether the user is changing the usage from a roadshow e-mail to a single event e-mail
+	If m_strUsage = "Any"  And m_docCurr.et_Usage(0) = "Single" Then
+		'If they are, then check whether any of the roadshow events still use the
+		'template and if they do, don't allow the change.
+		
+		strUNID = m_docCurr.UniversalID
+		varEventIDs = m_docCurr.ep_ids
+		varEventTitles = m_docCurr.ep_EventTitles
+		intCountEvents = Ubound(varEventIDs) + 1
+		
+		'Initialize the array used to store the titles of any events that use the template
+		intCountEventsUsingTemplate = 0
+		Redim strarrEventsUsingTemplate(intCountEventsUsingTemplate)
+		
+		For intCurrEvent = 0 To Ubound(varEventIDs)
+			
+			strCurrEventID = varEventIDs(intCurrEvent)
+			strCurrEventTitle = varEventTitles(intCurrEvent)
+			
+			If (flgIsEmailTemplateUsedByEvent(strCurrEventID, strUNID)) Then
+				Redim Preserve strarrEventsUsingTemplate(intCountEventsUsingTemplate)
+				strarrEventsUsingTemplate(intCountEventsUsingTemplate) = strCurrEventTitle &amp; | (| &amp; strCurrEventID &amp; |)|
+				intCountEventsUsingTemplate = intCountEventsUsingTemplate + 1
+			End If
+			
+		Next
+		
+		'If the template is still being used by any events, show a message explaining
+		'that the template must first be removed from the events that use it.
+		
+		If (intCountEventsUsingTemplate &gt; 1) Then
+			
+			strMsg = |The e-mail template cannot be changed to a 'Single event' template because it is currently used by more than one event.| &amp; Chr$(13) &amp; Chr$(13)
+			strMsg = strMsg &amp; |The following events are still using this template:| &amp; Chr$(13) &amp; Chr$(13) 
+			Forall varEventTitle In strarrEventsUsingTemplate
+				strMsg = strMsg &amp; Cstr(varEventTitle) &amp; Chr$(13)
+			End Forall
+			strMsg = strMsg &amp; Chr$(13) &amp; |Before the template can be changed to a 'Single event' template, it must be used by only one event.|
+			
+				'Don't allow the change of value
+			m_docCurr.et_Usage = "Any"
+			
+			Call ShowInfoMsg(strMsg)				
+			
+		Else
+			
+			'It's OK to continue if the user wants to, so show a message if at least one event has been selected
+			If (m_docCurr.ep_ids(0) &lt;&gt; ||) Then
+				'If there is only one roadshow event or only one of the roadshow events is used, use that as the 'Single event'
+				If (intCountEvents = 1) Or (intCountEventsUsingTemplate = 1)Then
+					If (intCountEvents = 1) Then
+						m_docCurr.ep_id = m_docCurr.ep_ids
+						m_docCurr.ep_EventTitle = m_docCurr.ep_EventTitles
+						m_docCurr.ep_ids = ||
+						m_docCurr.ep_EventTitles =||
+					Else
+						Call Debug(STR_MODULE_NAME &amp; |: Setting usage to 'Single event'.  Event ID [| &amp; strGetEventID(strarrEventsUsingTemplate(0)) &amp; |] Event Title [| &amp; strGetEventTitle(strarrEventsUsingTemplate(0)) &amp; |]|)
+						'The entries in strarrEventsUsingTemplate as formatted as Event Name (Event ID) so we need to extract them first
+						m_docCurr.ep_id = strGetEventID(strarrEventsUsingTemplate(0))
+						m_docCurr.ep_EventTitle = strGetEventTitle(strarrEventsUsingTemplate(0))
+						m_docCurr.ep_ids = ||
+						m_docCurr.ep_EventTitles =||		
+					End If
+				Else
+					intReply = intAskQuestion(|If you change this template to a 'Single event' template, the list of events that use the template will be cleared.| &amp; Chr$(13) &amp; Chr$(13) &amp; |Do you want to continue?|)
+					If (intReply = IDYES) Then
+						m_docCurr.ep_ids = ||
+						m_docCurr.ep_EventTitles =||						
+					Else
+						'Don't allow the change of value
+						m_docCurr.et_Usage = "Any"
+					End If
+				End If
+			Else
+				'No events have been selected so we can just allow the change to 'Single event'
+				m_docCurr.ep_id = m_docCurr.ep_ids
+				m_docCurr.ep_EventTitle = m_docCurr.ep_EventTitles				
+				m_docCurr.ep_ids = ||
+				m_docCurr.ep_EventTitles = ""
+			End If
+			
+		End If
+		
+	End If
+	
+	'Check whether the user is changing the usage from a single event e-mail to a roadshow e-mail
+	If m_strUsage = "Single"  And m_docCurr.et_Usage(0) = "Any" Then
+		m_docCurr.ep_ids = m_docCurr.ep_id
+		m_docCurr.ep_EventTitles = m_docCurr.ep_EventTitle		
+		m_docCurr.ep_id = ||
+		m_docCurr.ep_EventTitle = ""
+	End If
+	
+	'Store the new value to use when comparing
+	m_strUsage = m_docCurr.et_Usage(0)
+	
+	'Refresh the UI
+	m_uidocCurr.Refresh
+	
+lblExit:
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit	
+	
+End Sub
+</lotusscript></code></field></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par>
+<pardef id='33' leftmargin='0.1000in' rightmargin='98%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(et_IsDefault != "Yes")</formula></code></pardef>
+<par def='33'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='et_Usage_Display'><code event='defaultvalue'><formula>@If(et_Usage = "Single"; "Single event"; et_Usage = "Any"; "Roadshow"; et_Usage)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='34' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(et_IsDefault != "Yes")</formula></code></pardef>
+<par def='34'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Is this e-mail for a specific event or for a roadshow?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='35' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(et_Usage = "Single" &amp; et_IsDefault != "Yes")</formula></code></pardef>
+<par def='35'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Event</run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/> *</run></par>
+<pardef id='36' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(et_Usage = "Any" &amp; et_IsDefault != "Yes")</formula></code></pardef>
+<par def='36'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Events</run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/> *</run></par></tablecell>
+<tablecell>
+<par def='23'><run><font size='9pt'/></run><run><font size='9pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computedwhencomposed' name='ep_id'><code event='defaultvalue'><formula
+>""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run><run><font size='9pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computedwhencomposed' name='ep_EventTitle'><code event='defaultvalue'><formula
+>""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='15' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computedwhencomposed' name='ep_ids' listinputseparators='newline' listdisplayseparator='newline'><code
+ event='defaultvalue'><formula>""</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run><run
+><font size='9pt' color='red' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' allowmultivalues='true' kind='computedwhencomposed'
+ name='ep_EventTitles' listinputseparators='newline' listdisplayseparator='newline'><code
+ event='defaultvalue'><formula>""</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='18' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<pardef id='37' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(et_Usage = "Single" &amp; ep_EventTitle != "" &amp; et_IsDefault != "Yes")</formula></code></pardef>
+<par def='37'><run><font size='9pt'/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computedfordisplay' name='ep_EventTitleDisplay'><code event='defaultvalue'><formula
+>@If(et_Usage = "Single"; ep_EventTitle + " (" + ep_id + ")"; "")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='38' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(et_Usage = "Any" &amp; ep_EventTitles != "" &amp; et_IsDefault != "Yes")</formula></code></pardef>
+<par def='38'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computedfordisplay' name='ep_EventTitlesDisplay' listinputseparators='newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>@If(et_Usage = "Any"; @Sort(ep_EventTitles + " (" + ep_ids + ")"); "")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='39' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(et_Usage = "Single" &amp; ep_EventTitle = "" &amp; et_IsDefault != "Yes")</formula></code></pardef>
+<par def='39'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>No event selected</run></par>
+<pardef id='40' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(et_Usage = "Any" &amp; ep_EventTitles = "" &amp; et_IsDefault != "Yes")</formula></code></pardef>
+<par def='40'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>No events selected</run></par></tablecell>
+<tablecell>
+<pardef id='41' leftmargin='0.1000in' rightmargin='98%' hide='read print preview'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(et_Usage = "Single" &amp; et_IsDefault != "Yes")</formula></code></pardef>
+<par def='41'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Which event uses this e-mail?</run></par>
+<par def='41'><run><font size='9pt' style='underline' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='#3c5e84'/></run><actionhotspot hotspotstyle='none'><run
+><font size='9pt' style='underline' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/>Select the event</run><code event='click'><lotusscript
+>Sub Click(Source As Button)
+	
+	Call SelectEvent()
+	
+End Sub
+</lotusscript></code></actionhotspot><run><font size='9pt' style='underline'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#3c5e84'/></run></par>
+<pardef id='42' leftmargin='0.1000in' rightmargin='98%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(et_Usage = "Single" &amp; et_IsDefault != "Yes")</formula></code></pardef>
+<par def='42'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The event that uses this e-mail.</run></par>
+<pardef id='43' leftmargin='0.1000in' rightmargin='98%' hide='read print preview'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(et_Usage = "Any" &amp; et_IsDefault != "Yes")</formula></code></pardef>
+<par def='43'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Which events use this e-mail?</run></par>
+<par def='43'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><actionhotspot hotspotstyle='none'><run
+><font size='9pt' style='underline' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/>Add events</run><code event='click'><lotusscript
+>Sub Click(Source As Button)
+	
+	Call AddEvents() 
+	
+End Sub
+</lotusscript></code></actionhotspot><run><font size='9pt' style='underline'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#3c5e84'/></run></par>
+<pardef id='44' leftmargin='0.1000in' rightmargin='98%' hide='read print preview'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(et_Usage = "Any" &amp; ep_ids != "" &amp; et_IsDefault != "Yes")</formula></code></pardef>
+<par def='44'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><actionhotspot hotspotstyle='none'><run
+><font size='9pt' style='underline' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/>Remove events</run><code event='click'><lotusscript
+>Sub Click(Source As Button)
+	
+	Call RemoveEvents()
+	
+End Sub
+</lotusscript></code></actionhotspot><run><font size='9pt' style='underline'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='#3c5e84'/></run></par>
+<pardef id='45' leftmargin='0.1000in' rightmargin='98%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(et_Usage = "Any" &amp; et_IsDefault != "Yes")</formula></code></pardef>
+<par def='45'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The events that use this e-mail.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Name</run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/> *</run></par></tablecell>
+<tablecell>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='et_Name'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='46' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='46'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>A name for the e-mail.  This is the name you will use when choosing this e-mail.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='47' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='47'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Description</run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/> *</run></par></tablecell>
+<tablecell>
+<pardef id='48' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='48'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='et_Desc'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='49' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='49'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>A brief description of the e-mail.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Copy to</run></par></tablecell>
+<tablecell>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='et_CopyTo' listinputseparators='comma semicolon newline'
+ listdisplayseparator='comma'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='46'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Who should be copied on this e-mail?</run></par>
+<par def='46'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Enter their internet e-mail addresses separated by commas.</run></par>
+<par def='46'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>(e.g. joe@us.ibm.com, jane@us.ibm.com)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Blind copy to</run></par></tablecell>
+<tablecell>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='et_BlindCopyTo' listinputseparators='comma semicolon newline'
+ listdisplayseparator='comma'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='46'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Who should be blind copied on this e-mail?</run></par>
+<par def='46'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Enter their internet e-mail addresses separated by commas.</run></par>
+<par def='46'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>(e.g. joe@us.ibm.com, jane@us.ibm.com)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Subject</run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/> *</run></par></tablecell>
+<tablecell>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='et_Subject'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='29'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>What is the subject of the e-mail?</run></par>
+<par def='30'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The subject of the e-mail.</run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='20.0521%'/><tablecolumn width='42.6076%'/><tablecolumn
+ width='37.3403%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<par def='47'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>E-mail text</run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/> *</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='#efefef'>
+<par def='48'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<pardef id='51' align='right' leftmargin='0.1000in' hide='read print preview'
+ keepwithnext='true' keeptogether='true'/>
+<par def='51'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell columnspan='3'>
+<pardef id='54' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='54'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='et_Text'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='20.0521%'/><tablecolumn width='42.6076%'/><tablecolumn
+ width='37.3403%'/>
+<tablerow>
+<tablecell columnspan='3' bgcolor='#efefef'>
+<pardef id='58' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(d_IsAdminUser = "Yes")</formula></code></pardef>
+<par def='58'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Admin use</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='59' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(d_IsAdminUser = "Yes")</formula></code></pardef>
+<par def='59'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Make default?</run></par></tablecell>
+<tablecell>
+<pardef id='60' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(d_IsAdminUser = "Yes")</formula></code></pardef>
+<par def='60'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='et_IsDefault'><keywords helperbutton='false'
+ recalconchange='true' columns='3' ui='radiobutton'><textlist><text>Yes</text><text
+>No</text></textlist></keywords><code event='defaultvalue'><formula>"No"</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='61' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(d_IsAdminUser = "Yes")</formula></code></pardef>
+<par def='61'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Make this the default template of this type for this language.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='59'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Admin template?</run></par></tablecell>
+<tablecell>
+<par def='60'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='et_IsAdmin'><keywords helperbutton='false'
+ recalconchange='true' columns='3' ui='radiobutton'><textlist><text>Yes</text><text
+>No</text></textlist></keywords><code event='defaultvalue'><formula>"No"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='61'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Is this an admin template?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='62' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(et_IsAdmin = "Yes" &amp; d_IsAdminUser = "Yes")</formula></code></pardef>
+<par def='62'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Administration task</run></par></tablecell>
+<tablecell>
+<pardef id='63' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(et_IsAdmin = "Yes" &amp; d_IsAdminUser = "Yes")</formula></code></pardef>
+<par def='63'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='et_AdminTask'><keywords columns='1'
+ ui='dialoglist'><textlist><text>Reminder to mark attendance 2 days pre event | pre2days</text><text
+>Reminder to mark attendance 1 week post event | post1week</text><text>Reminder to mark attendance 2 weeks post event | post2weeks</text></textlist></keywords></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='64' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(et_IsAdmin = "Yes" &amp; d_IsAdminUser = "Yes")</formula></code></pardef>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Which admin task is this template used for?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='62'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>From e-mail address</run></par></tablecell>
+<tablecell>
+<par def='63'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='et_From'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Who should be shown as the sender of the e-mail?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='65' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='65'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell>
+<tablecell>
+<pardef id='66' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='66'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='67' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='67'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='68' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>!(d_IsAdminUser = "Yes")</formula></code></pardef>
+<par def='68'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='69' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>!(d_IsAdminUser = "Yes")</formula></code></pardef>
+<par def='69'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='70' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>!(d_IsAdminUser = "Yes")</formula></code></pardef>
+<par def='70'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<pardef id='71' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='71'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow tablabel='Security'>
+<tablecell>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5f84' altbgcolor='#c8d7e3'>
+<par def='19'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/>Security</run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table cellbordercolor='silver' leftmargin='0.0104in' widthtype='fixedleft'
+ refwidth='7.9903in'><tablecolumn width='2in'/><tablecolumn width='3in'/><tablecolumn
+ width='2.9903in'/>
+<tablerow>
+<tablecell columnspan='2' bgcolor='#efefef'>
+<pardef id='75' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='75'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Security settings</run></par></tablecell>
+<tablecell bgcolor='#efefef'>
+<pardef id='76' keepwithnext='true' keeptogether='true'/>
+<par def='76'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='77' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='77'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Who can update?</run></par>
+<par def='77'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='78' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='78'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='et_SecurityType'><keywords
+ helperbutton='false' recalconchange='true' columns='1' ui='radiobutton'><textlist
+><text>All users|O</text><text>Only those users listed below|R</text></textlist></keywords><code
+ event='defaultvalue'><formula>"O"</formula></code></field></run><run><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell>
+<tablecell>
+<pardef id='79' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='79'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Who is allowed to update this template?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='80' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>et_SecurityType != "R"</formula></code></pardef>
+<par def='80'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Users allowed to update this template</run></par>
+<par def='80'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run></par>
+<par def='80'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par>
+<par def='80'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='81' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>et_SecurityType != "R"</formula></code></pardef>
+<par def='81'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='keyword' allowmultivalues='true'
+ kind='editable' name='et_Editors' listinputseparators='newline' listdisplayseparator='newline'><keywords
+ ui='dialoglist'><formula>tmpCanisterID := @GetProfileField("fProfile"; "dp_canisterid");
+@If(tmpCanisterid = ""; @Return("The canister ID has not been set in the database profile.  Please contact the system administrator."); "");
+tmpGroupName :="GRP " + tmpCanisterID + " Event Administrators";
+tmpList := @DbLookup("":"NoCache"; @Subset(@DbName;1):"names.nsf";"($VIMGroups)"; tmpGroupName; 3);
+tmpList2 := @If(@IsError(tmpList);@Return(""); tmpList);
+tmpList3 := @RightBack(@Name([CN]; tmpList); " ") + "#" + @Name([Abbreviate]; tmpList);
+tmpList4 := @Sort(tmpList3);
+tmpList5 := @Right(tmpList4; "#");
+@Sort(tmpList5)</formula></keywords><code event='inputtranslation'><formula
+>@If(et_SecurityType != "R"; @Return(""); "");
+tmpList :=@Trim(@Unique(@Name([Abbreviate]; @UserName) : @ThisValue));
+tmpList3 := @RightBack(@Name([CN]; tmpList); " ") + "#" + @Name([Abbreviate]; tmpList);
+tmpList4 := @Sort(tmpList3);
+tmpList5 := @Right(tmpList4; "#");
+@Sort(tmpList5)</formula></code></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell>
+<tablecell>
+<pardef id='82' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>et_SecurityType != "R"</formula></code></pardef>
+<par def='82'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Choose the users that you would like to be able to update this template.  (Remember to include yourself in the list.)</run></par>
+<par def='82'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Note that the list contains only those users that have sufficient access to be able to update templates in this canister.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='83' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='83'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell>
+<tablecell>
+<pardef id='84' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='84'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='85' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='85'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='86' keepwithnext='true' keeptogether='true'/>
+<par def='86'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='87' keepwithnext='true' keeptogether='true'/>
+<par def='87'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='88' keepwithnext='true' keeptogether='true'/>
+<par def='88'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run></par></tablecell></tablerow></table>
+<par def='71'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow tablabel='History'>
+<tablecell>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5f84' altbgcolor='#c8d7e3'>
+<par def='19'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/>History</run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='1.6000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell>
+<pardef id='91' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='91'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Document created</run></par></tablecell>
+<tablecell>
+<pardef id='92' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='92'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='datetime' kind='computedwhencomposed'
+ name='doccreated'><datetimeformat show='datetime' date='yearmonthday' time='hourminutesecond'
+ zone='always' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>@Created</formula></code></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='91'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Created by</run></par></tablecell>
+<tablecell>
+<par def='92'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='RCreated'><code event='defaultvalue'><formula>@V3UserName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='91'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Update history</run></par></tablecell>
+<tablecell>
+<par def='92'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='c_audit_display' listinputseparators='semicolon newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>c_audit</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='12'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='93' leftmargin='1in' hide='notes web mobile'/>
+<par def='93'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font color='red' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='computed' name='et_Category'><code event='defaultvalue'><formula
+>@If(et_IsAdmin = "Yes"; "Administration"; et_IsDefault = "Yes"; "Default"; et_Usage = "Single"; "Single event"; "Roadshow")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/></run></par></richtext></body>
+<item name='order_number' summary='false' sign='true'><number>0</number></item>
+<item name='Untitled' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='OriginalModTime' sign='true'><datetime dst='true'>20060504T094212,84-04</datetime></item>
+<item name='template_expiration' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$et_Usage_O' sign='true'>
+<rawitemdata type='14'>
+AQAAAkxTT0IDABQIZW4AAAQAOAAfBAQAAACgCpgLAAAAAJwGYAlsCQAAAAAoADABHAA8AAgBsAIA
+AAAAAAAAAAQAAAC0ACgJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADYB9gHAAAAAAAA
+AAAoCSgJtAAgAgoAAAD0AjgKAAAAAAAIAAgAAAAAMAYwBgAAAABgCGAIAAAAAAgD1AgAAAAA/AS4
+BgAAAAA4CjgK9AJQCQYAAAAkAGwJJANsCSQAJAAAAAAAAAAAAOgD6AMAAAAAAAAAAAAAAAAAAAAA
+AAAAAGQFZAUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAEABQBMb3R1cyBQcm9kdWN0AAAAVjAuMAAAAAAAAAAAAAAAAAAA
+AAAEAAAAHwQAAAAAAACgCgAAmAsAAAAAAAAAAAAAAQAAAAAAAAABAAAAAAAAAAEAAAAAAAAAAAAA
+AAUAAABXMzJJJQMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAwCcCwAAAABYAAoAJAAkAEUAVABfAFUAUwBBAEcARQAAAAAAcAADAE4ARQBXAAAAhAAGAEQA
+RQBMAEUAVABFAAAAAADAAAoASQBOAEkAVABJAEEATABJAFoARQAAAAAAjAAJAFQARQBSAE0ASQBO
+AEEAVABFAAAAdAEGAE8AQgBKAEUAQwBUAAAAAAD0AAAAAAAAAFgBFwAoAEcATABPAEIAQQBMAFMA
+KQBGAEUATQBBAEkATABUAEUATQBQAEwAQQBUAEUAAADYAhcAKABHAGwAbwBiAGEAbABzACkAZgBF
+AG0AYQBpAGwAVABlAG0AcABsAGEAdABlAAAAIAEGAFMATwBVAFIAQwBFAAAAAADUAQgATwBOAEMA
+SABBAE4ARwBFAAAAAADIAgUARgBJAEUATABEAAAARAEGACUATABTAEkARABFAAAAAACYAQcAUwBU
+AFIAVQBOAEkARAAAAFACCwBWAEEAUgBFAFYARQBOAFQASQBEAFMAAAB4Ag4AVgBBAFIARQBWAEUA
+TgBUAFQASQBUAEwARQBTAAAAAAAMAhsASQBOAFQAQwBPAFUATgBUAEUAVgBFAE4AVABTAFUAUwBJ
+AE4ARwBUAEUATQBQAEwAQQBUAEUAAAAsAhkAUwBUAFIAQQBSAFIARQBWAEUATgBUAFMAVQBTAEkA
+TgBHAFQARQBNAFAATABBAFQARQAAAKAGDABJAE4AVABDAFUAUgBSAEUAVgBFAE4AVAAAAAAAQAMO
+AFMAVABSAEMAVQBSAFIARQBWAEUATgBUAEkARAAAAAAAjAIRAFMAVABSAEMAVQBSAFIARQBWAEUA
+TgBUAFQASQBUAEwARQAAADgDBgBTAFQAUgBNAFMARwAAAAAACAMOAEkATgBUAEMATwBVAE4AVABF
+AFYARQBOAFQAUwAAAAAAaAUIAEwAQgBMAEUAUgBSAE8AUgAAAAAATAMFAFcAYQBzACAAWwAAAPQC
+CgBNAF8AUwBUAFIAVQBTAEEARwBFAAAAAABgAwcAXQAgAE4AbwB3ACAAWwAAACADCQBNAF8ARABP
+AEMAQwBVAFIAUgAAAHwDCABFAFQAXwBVAFMAQQBHAEUAAAAAALQDAQBdAAAA4AcDAEEAbgB5AAAA
+pAcGAFMAaQBuAGcAbABlAAAAAACQAwsAVQBOAEkAVgBFAFIAUwBBAEwASQBEAAAA9AMGAEUAUABf
+AEkARABTAAAAAAAIBA4ARQBQAF8ARQBWAEUATgBUAFQASQBUAEwARQBTAAAAAACABh0ARgBMAEcA
+SQBTAEUATQBBAEkATABUAEUATQBQAEwAQQBUAEUAVQBTAEUARABCAFkARQBWAEUATgBUAAAAAAQC
+ACAAKAAAAAAAVAYBACkAAAD8BHcAVABoAGUAIABlAC0AbQBhAGkAbAAgAHQAZQBtAHAAbABhAHQA
+ZQAgAGMAYQBuAG4AbwB0ACAAYgBlACAAYwBoAGEAbgBnAGUAZAAgAHQAbwAgAGEAIAAnAFMAaQBu
+AGcAbABlACAAZQB2AGUAbgB0ACcAIAB0AGUAbQBwAGwAYQB0AGUAIABiAGUAYwBhAHUAcwBlACAA
+aQB0ACAAaQBzACAAYwB1AHIAcgBlAG4AdABsAHkAIAB1AHMAZQBkACAAYgB5ACAAbQBvAHIAZQAg
+AHQAaABhAG4AIABvAG4AZQAgAGUAdgBlAG4AdAAuAAAAiAUzAFQAaABlACAAZgBvAGwAbABvAHcA
+aQBuAGcAIABlAHYAZQBuAHQAcwAgAGEAcgBlACAAcwB0AGkAbABsACAAdQBzAGkAbgBnACAAdABo
+AGkAcwAgAHQAZQBtAHAAbABhAHQAZQA6AAAAOAcNAFYAQQBSAEUAVgBFAE4AVABUAEkAVABMAEUA
+AABwBmMAQgBlAGYAbwByAGUAIAB0AGgAZQAgAHQAZQBtAHAAbABhAHQAZQAgAGMAYQBuACAAYgBl
+ACAAYwBoAGEAbgBnAGUAZAAgAHQAbwAgAGEAIAAnAFMAaQBuAGcAbABlACAAZQB2AGUAbgB0ACcA
+IAB0AGUAbQBwAGwAYQB0AGUALAAgAGkAdAAgAG0AdQBzAHQAIABiAGUAIAB1AHMAZQBkACAAYgB5
+ACAAbwBuAGwAeQAgAG8AbgBlACAAZQB2AGUAbgB0AC4AAABYBwsAUwBIAE8AVwBJAE4ARgBPAE0A
+UwBHAAAAMAkFAEUAUABfAEkARAAAALAGDQBFAFAAXwBFAFYARQBOAFQAVABJAFQATABFAAAA1AYF
+AEQARQBCAFUARwAAAGAKDwBTAFQAUgBfAE0ATwBEAFUATABFAF8ATgBBAE0ARQAAAJQJLgA6ACAA
+UwBlAHQAdABpAG4AZwAgAHUAcwBhAGcAZQAgAHQAbwAgACcAUwBpAG4AZwBsAGUAIABlAHYAZQBu
+AHQAJwAuACAAIABFAHYAZQBuAHQAIABJAEQAIABbAAAAAAC8Bw0AUwBUAFIARwBFAFQARQBWAEUA
+TgBUAEkARAAAAHwHDwBdACAARQB2AGUAbgB0ACAAVABpAHQAbABlACAAWwAAAAQJEABTAFQAUgBH
+AEUAVABFAFYARQBOAFQAVABJAFQATABFAAAAAADMCAgASQBOAFQAUgBFAFAATABZAAAAAABkCQ4A
+SQBOAFQAQQBTAEsAUQBVAEUAUwBUAEkATwBOAAAAAAD//3MASQBmACAAeQBvAHUAIABjAGgAYQBu
+AGcAZQAgAHQAaABpAHMAIAB0AGUAbQBwAGwAYQB0AGUAIAB0AG8AIABhACAAJwBTAGkAbgBnAGwA
+ZQAgAGUAdgBlAG4AdAAnACAAdABlAG0AcABsAGEAdABlACwAIAB0AGgAZQAgAGwAaQBzAHQAIABv
+AGYAIABlAHYAZQBuAHQAcwAgAHQAaABhAHQAIAB1AHMAZQAgAHQAaABlACAAdABlAG0AcABsAGEA
+dABlACAAdwBpAGwAbAAgAGIAZQAgAGMAbABlAGEAcgBlAGQALgAAAEQJGABEAG8AIAB5AG8AdQAg
+AHcAYQBuAHQAIAB0AG8AIABjAG8AbgB0AGkAbgB1AGUAPwAAAAAAFAkFAEkARABZAEUAUwAAAMwJ
+CwBNAF8AVQBJAEQATwBDAEMAVQBSAFIAAAB8CQcAUgBFAEYAUgBFAFMASAAAAFgJBwBMAEIATABF
+AFgASQBUAAAAOAoCADoAIAAAAAAAsAkJACAAaQBuACAAbABpAG4AZQAgAAAA7AkIAEwATwBHAEUA
+UgBSAE8AUgAAAAAAiAoKAEIASQBOAEQARQBWAEUATgBUAFMAAAAAAP//CwBPAEIASgBFAEMAVABO
+AEEATQBFAF8AAAAACg0ATgBPAFQARQBTAEQATwBDAFUATQBFAE4AVAAAALAKBgAlAEwAUwBYAEIA
+RQAAAAAAIAoNAE4ATwBUAEUAUwBEAEEAVABBAEIAQQBTAEUAAAD//wkATgBPAFQARQBTAFYASQBF
+AFcAAAD//xAAQwBPAE0ATQBPAE4AIABGAFUATgBDAFQASQBPAE4AUwAAAAAA1AoRAE4ATwBUAEUA
+UwBSAEkAQwBIAFQARQBYAFQASQBUAEUATQAAAOgKEABDAG8AbQBtAG8AbgAgAEYAdQBuAGMAdABp
+AG8AbgBzAAAAAAD//w8ATgBPAFQARQBTAFUASQBEAE8AQwBVAE0ARQBOAFQAAAD//wYAJQBMAFMA
+WABVAEkAAAAAAGwLPgBDAG8AbQBtAG8AbgAgAEYAdQBuAGMAdABpAG8AbgBzADoAIABTAGUAdAB0
+AGkAbgBnACAAdQBzAGEAZwBlACAAdABvACAAJwBTAGkAbgBnAGwAZQAgAGUAdgBlAG4AdAAnAC4A
+IAAgAEUAdgBlAG4AdAAgAEkARAAgAFsAAAAAAP//EgBDAG8AbQBtAG8AbgAgAEYAdQBuAGMAdABp
+AG8AbgBzADoAIAAAAAAABQCkCgAAAADh73cKGAAAAAAAkAC4ObQKQJkkDwQAAAAaAAAANAH//wAA
+AAAQAAAAJAMAACQBAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAxYTKe0uaRC/XQDdARGGtwAAAAAAAAAAAAAAAAAAAABkAAAA
+AAAAAAAAAAAAAAAAAgAYAAAAkAoAAAAAXAQBAP//AAAIAAAAIAIgAgwBAAAAAAAADQAAAEwBvAgA
+AAAAsAHgAWwB8AEAAAAAnAGcAQAAAAB8AcABXAG8CAAAAACMAdABTAFMAQQGBAYAAAAAAQAAABEA
+AAAGAAAAyAAAAAIAAAAAAhACEAIQAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAIAAgAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAMAAQBcAQAA+AAJAgAAJAADAAIAbAG8CEgBBgAAAAAAAwACAHwB8AFcAQAA
+CAAAAAMAAgCMAcABeAEAABgAAAADAAIAnAHQAZwBAQAoAAAAAwAKALABAADYAQYgLAAAANgCGQAD
+AAIAwAHgARACAQAwAAAAAwACANABAAAwAgYANAAAAAMAAgDgAQAAVAIGADgAAAADAAIA8AEAAHwC
+BgA8AAAAAwACAAQGAACQAgEAQAAAAA0ACAAQAgAASAkAALkDGQANAAgAAAAAALQCAADAAxkACAAA
+ANgHAACYCQAAAAAAAAIAAAC4AsgCAAAAAAAAAAAAAAAAAAAAALgCuAIAAAAAAAAAAAAAAAAAAAAA
+AAAAAMgCyAIAAAAAAAAAAAEAAAACAAAAAQQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADAAEAyAIAALQJBggAAAAAAwAgAAAA
+AAD4AAkCAAAkAA4AAAABAAQABiAAAAAAAAAAAAAAHAAEAGgCAAADAEAACANQCdwCBgAdAAQArAEA
+AAMAQAD8BNQIDAMJAgAAJAMaABgA8An//wAAAAAQAAQA6AMQB9AJAAAAAAAAAQAAALgEuAQAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALgEuAQAAAAABBQTKe0uaRC/
+XQDdARGGty4UEyntLmkQv10A3QERhrdkAAAAAAAAAAAAAAAAAAAAAgAYA7QDAADoAwAAAgABAP//
+AAASABQAAAAAAP//CQIAAAAAjQQAAAAAJAMYA///AAAAAAYAAgAAAAkCJAMJAiQDCQLoAxkAEAAA
+AGQFAAAECgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAIUEyntLmkQv10A3QERhrcAAAAAAAAAAAAAAAAAAAAAZAAAAAAAAAAA
+AAAAAAAAAAIAGAN4BAAAJAAAAAIAAQD//wAAEgAUAAAAAAD//wkCAAAAABIEAAAAAOgDGAP//wAA
+AAAGAAMAAAAJAugDCQLoAwYIBggZABYAAAAkA2c6AAAZABEAEAQAAAAAZAMGAH0EAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAABYAAACAA6cOAAAZABYAAACUA1eaAAAZACEABAB4EgAABwBAADAGuAa4Aw0A
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAIACwANAAYABgAGAAYACQJkBQYACQIkAw0AGQAQAAAAEAcAACQKAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAxQT
+Ke0uaRC/XQDdARGGtwAAAAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAAAAAAAAgAYAwAAAAAkAwAA
+AgABAP//AAAGAAIAAAAAAAAAAABYAAAABQACALwIAABsBQYAiAAAABgAAAAEADwKgM5AIkCZJA90
+CAAAIQAUBqg0AAAIAEAAuAYAAFgGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQABAAYAGQAWAAAAdAZ6BwAAGQAWAAAAhAYC
+TQAAGQAYAAAAFAakBhiNtApAmSQPGAcAACEAnAbAAgAACABAAAAIAACkBgAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEABAAG
+AAAACQIQBxAAAABsCWwJZAoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGFBMp7S5pEL9dAN0BEYa3BRQTKe0uaRC/XQDdARGG
+t2QAAAAAAAAAAAAAAAAAAAACABgDoAcAAGQFAAACAAEA//8AABIAFAAAAAAA//8JAgAAAABJBQAA
+AAAQBxgD//8AAAAABwADAAAACQIQBwkCEAcJCiQDBggZABkABAAAACgJAAC0BgYAAAAAAIwKAAAA
+AAAAAAAAAAAAAAAhAAQAbBEAAAcAQABgCAAAPAcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAQABgAGAAYABgAhAAQAcBQA
+AAcAQADUCAAAgAcGAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAABAAUABgAGAAYABgAGABkAAwACAAAAAACoBwAAuAAAACEAFAaw
+LgAABwBAAFAJAADABwEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAgABAAYABAAAAAAAAAAICQEAAAAAAAYAAAAAAAAAAgAA
+AAAAAAAdAAQAWAIAAAMAQAA4CgAAGAkJAgAAbAkaABgD2Ar//wAAAAAQAAAAAAAAALQKAAAAAAAA
+AQAAAPwJ/AkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD8
+CfwJBBUTKe0uaRC/XQDdARGGtwAAAAAAAAAAAAAAAAAAAABkAAAAAAAAAAAAAAAAAAAAAgBgCQAA
+AAAQBwAACgABAP//AAASABQAAAAAADQJCgAAAAAA2AYAAAAAbAlgCf//AAAAAAYABAAAAAoACQJs
+CYAAgACAABkAIQCcBkwEAAAIAEAAAAAAAIAJAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAEAAYAAAAJAhAHEwAAAAwBAADs
+AAAAAAAAAAQAIwQAAAAA0sQAHQAAGhcACwAARAAJOq4DGhkAfcwCR/QCv334Ar9LCANTrASFJb99
+PAO/PwEaHABH9AJ9RAOySwgDU6wEhSV9UAO4xDj3AhogAF5cAUsIAy24BCOlGiEAXmwBSwgDUNwE
+pRoiAF58AUsIA1DoBKUaIwBiAkAASmwBgAY7hqinAhomAGICKACFpwIaJwCFWAIoAF6cAXGcARop
+AGICMACFSmwBgAY7jQJe9AU0cwAaKwBewAFYAjAAZWwBAZulGiwAXtABWAIwAGV8AQGbpRouACn8
+BF7AAV5cASM4NwAaLwCFWAIoAF6cAXKcARowAFgCKABvnAFK0AF9+AO/SsABv30EBL+lGjEAYgIo
+AFgCKACGqKcCGjIAGjQAXvQFNo3/GjkAWAIoAIa0OI8AGjsAXuABfQwEjw0DBkKbv48NAwZCm7+l
+GjwAXuABSuABfQAFv48NAwZCm7+PDQMGQpu/pRo9AEqcATUEBh4AGj4AXuABSuABRgQGm7+PDQMG
+Qpu/pRo/ADcEBuL/GkAAXuABSuABjw0DBkKbv32MBb+lGkMASwgDUawEfUQDpRpFACkwBl7gASMa
+RwA6ggEaSgBLCANT3ASFJX2IALs4MAEaTABYAkAAhrJYAigAhrLDOLcAGk0AWAJAAIayOEAAGk4A
+SwgDUYQGSwgDUNwEpRpPAEsIA1GQBksIA1DoBKUaUABLCANR3AR9iAClGlEASwgDUegEfYgApRpS
+ADplABpTACm4Bn3sCikACIVvnAEjv31cB78pYAiFb5wBI799PAO/IxpVAEsIA1GEBikACIVvnAEj
+pRpWAEsIA1GQBilgCIVvnAEjpRpXAEsIA1HcBH2IAKUaWABLCANR6AR9iAClGlkAGloAOmAAGlsA
+XrwIKdQIfeQHjw0DBkKbv48NAwZCm7990Ai/I6UaXABKvAh+OAm4OCAAGl0ASwgDUdwEfYgApRpe
+AEsIA1HoBH2IAKUaXwA6EAAaYQBLCANRrAR9RAOlGmIAGmMAGmQAOj0AGmYASwgDUYQGSwgDUNwE
+pRpnAEsIA1GQBksIA1DoBKUaaABLCANR3AR9iAClGmkASwgDUegEfYgApRpqABpsABpuABpxAEf0
+An1QA7JLCANTrASFJX1EA7jEODoAGnIASwgDUdwESwgDUIQGpRpzAEsIA1HoBEsIA1CQBqUadABL
+CANRhAZ9iAClGnUASwgDUZAGfYgApRp2ABp5AFv0AksIA1OsBIUlpRp8AEtQCSz8CYsAiwCLACMa
+fgAagAAcGoIAGoQAKbgGfXALFL99XAm/FpO/fWgJvxW/myMahQApOAp9cAsUv31cCb8Wk799aAm/
+Fb+bIxqGAA+8/xqIAB0ajABbyAJJuALKJACmGo0AR8gCy+wAAAC0ABqOAB0CAAAAEQAYAAAAAAD/
+/wEAAwADAAAABgAMAQgAmAmJAAoAAAAA
+</rawitemdata></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>fEmailTemplate</text></item></form>
+

@@ -1,0 +1,82 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Dialog\Enter Text)' alias='dlgEnterText' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='8.5.3'
+ fromtemplate='GEP TEMP' bgcolor='#ece9d8'>
+<noteinfo noteid='15286' unid='5FFA3C1B7FA5B9938625801A00694FE5' sequence='2'>
+<created><datetime dst='true'>20160825T141017,33-05</datetime></created>
+<modified><datetime dst='true'>20180930T002133,21-05</datetime></modified>
+<revised><datetime dst='true'>20160422T121447,19-07</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002133,21-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002133,21-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Allison Janicki/OU=Armonk/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=Allison Janicki/OU=Armonk/OU=Contr/O=IBM</name></wassignedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+
+</lotusscript></code></globals>
+<actionbar bgcolor='#ece9d8' bordercolor='black'>
+<actionbuttonstyle bgcolor='#ece9d8'/><font color='system'/><border style='solid'
+ width='0px 0px 1px'/></actionbar>
+<body><richtext>
+<pardef id='1' leftmargin='1in' hide='notes web mobile'/>
+<par def='1'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='fldLabel'><code event='defaultvalue'><formula>fldLabel</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<pardef id='2' hide='notes web mobile' tabs='L2.8750in'/>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table extrahtmlattrs='width="443" height="18"' widthtype='fixedleft' refwidth='4.4368in'><tablecolumn
+ width='0.1875in'/><tablecolumn width='4.0625in'/><tablecolumn width='0.1868in'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#ece9d8' extrahtmlattrs='width="13"'>
+<pardef id='4' align='center' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#ece9d8' extrahtmlattrs='width="180"'>
+<pardef id='5' tabs='L2.8750in' keepwithnext='true' keeptogether='true'/>
+<par def='5'/>
+<table leftmargin='0' widthtype='fixedleft' refwidth='4.0625in'><tablecolumn
+ width='4.0625in'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='7' spaceafter='1.5' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Please enter the value you want in the </run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><computedtext><code event='value'><formula>@LowerCase(fldLabel)</formula></code></computedtext></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/> field.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='8' keepwithnext='true' keeptogether='true'/>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field usenotesstyle='false' height='0.4000in' width='4in'
+ multiline='true' borderstyle='single' type='text' kind='editable' name='en_text'/></run></par></tablecell></tablerow></table>
+<pardef id='9' tabs='L9in L9.5000in L10in L10.5000in L11in L11.5000in L12in L12.5000in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='9'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#ece9d8'>
+<pardef id='10' keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='blue'/></run></par></tablecell></tablerow></table>
+<pardef id='3' leftmargin='1in' hide='notes web'/>
+<par def='3'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<pardef id='11'/>
+<par def='11'/></richtext></body>
+<item name='OriginalModTime' sign='true'><datetime dst='true'>20060718T124918,55-04</datetime></item>
+<item name='$$ScriptName' summary='false' sign='true'><text> dlgEnterEmail</text></item></form>
+

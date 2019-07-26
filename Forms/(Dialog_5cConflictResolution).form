@@ -1,0 +1,477 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Dialog\ConflictResolution)' alias='dlgConflictResolution' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web'
+ nocompose='true' publicaccess='false' designerversion='8.5'>
+<noteinfo noteid='62752' unid='39C7B1F3AB2DE7698625815D0061DEA2' sequence='1'>
+<created><datetime dst='true'>20170714T124859,86-05</datetime></created>
+<modified><datetime dst='true'>20180930T002343,32-05</datetime></modified>
+<revised><datetime dst='true'>20170714T124859,86-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002343,32-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002343,32-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Allison Janicki/OU=Armonk/OU=Contr/O=IBM</name><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=Allison Janicki/OU=Armonk/OU=Contr/O=IBM</name></wassignedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+Use "ConflictResolution"
+</lotusscript></code><code event='UpdateStatus'><lotusscript>Sub UpdateStatus(sfld As String, status As String, wdoc As NOTESDOCUMENT)
+	Dim fldnames As Variant
+	Dim fldStatus As Variant
+	Dim ub%
+	
+	fldnames = wdoc.GETITEMVALUE("PL_ChgFields")
+	fldStatus = wdoc.GETITEMVALUE("ChgFldStatus")
+	
+	For ub = 0 To Ubound(fldnames)
+		If fldnames(ub) = sfld Then
+			fldStatus(ub) = status
+			Exit For
+		End If
+	Next
+	wdoc.ChgFldStatus = fldStatus
+	If ub+1 &gt; Ubound(fldnames) Then wdoc.ChangedField = "" Else wdoc.ChangedField = fldnames(ub+1)
+	wdoc.Doc1Value = ""
+	wdoc.Doc2Value = ""
+End Sub
+</lotusscript></code><code event='CheckParentChildRelationship'><lotusscript
+>Sub CheckParentChildRelationship( doc2 As NotesDocument, formName As String )
+	Dim s As New NotesSession
+	Dim db As NotesDatabase
+	Dim parentView As NotesView
+	Dim parentDoc As NotesDocument
+	
+	Set db = s.CurrentDatabase
+	
+	If formName = "PERSON" Then
+		
+		Set parentView = db.GetView("LBPN")
+		If Not parentView Is Nothing Then
+			Set parentDoc = parentView.GetDocumentByKey( doc2.PrevCustNum(0), True )
+			If Not parentDoc Is Nothing Then
+				Call doc2.MakeResponse( parentDoc )
+			End If
+		End If
+		
+	Elseif formName = "OPPLINEITEM" Then
+		
+		Set parentView = db.GetView("OppsByKey")
+		If Not parentView Is Nothing Then
+			Set parentDoc = parentView.GetDocumentByKey( doc2.UniqueOtherNo(0), True )
+			If Not parentDoc Is Nothing Then
+				Call doc2.MakeResponse( parentDoc )
+			End If
+		End If
+		
+	End If
+	
+End Sub</lotusscript></code></globals><code event='options'><lotusscript>Option Declare
+Use "ConflictResolution"
+</lotusscript></code><code event='postopen'><lotusscript>Sub Postopen(Source As Notesuidocument)
+	Dim db As NOTESDATABASE
+	Dim wtd%, ub%, unid1, unid2
+	Set db = source.DOCUMENT.PARENTDATABASE
+	unid1 = source.DOCUMENT.UNID1(0)
+	unid2 = source.DOCUMENT.UNID2(0)
+	
+	On Error Resume Next
+	Set doc1 = db.GETDOCUMENTBYUNID(unid1)
+	Set doc2 = db.GETDOCUMENTBYUNID(unid2)
+	If doc1 Is Nothing Then
+		Print "unable to retrieve document for unid: [" &amp; unid1 &amp; "]"
+		Msgbox "Cannot find parent document for this conflict.  You will have to make this conflict an actual document."
+		source.close
+		Exit Sub
+	End If
+	If doc2 Is Nothing Then
+		Print "unable to retrieve document for unid: [" &amp; unid2 &amp; "]"
+		Msgbox "Cannot find parent document for this conflict.  You will have to make this conflict an actual document."
+		source.close
+		source.close
+		Exit Sub
+	End If
+	
+	Print "Retireved docs [" &amp; unid1 &amp; "] [" &amp; unid2 &amp; "]"
+	Set origDocument = doc1
+	If Not hasDocChanged(doc2) Then
+		Msgbox "There are no significant differences in these two documents.  This routine will not process them!", MB_ICONEXCLAMATION, "Exiting"
+		source.close
+		Exit Sub
+	End If
+	Set workingField = New ChangedField("", Nothing, Nothing)
+	
+End Sub
+</lotusscript></code><code event='postrecalc'><lotusscript>Sub Postrecalc(Source As Notesuidocument)
+	Dim sfld$, sfldStatus$, ub%, tStr$
+	Dim fldnames As Variant
+	Dim outvalue() As String
+	
+	sfld = source.DOCUMENT.ChangedField(0)
+	If Not sfld = "" Then
+		Stop
+		If Not Ucase(sfld) = Ucase(workingField.FldName) Then
+			Set workingField = Nothing
+			Forall cf In changedFields
+				If Ucase(sfld) = Ucase(cf.fldName) Then
+					Set workingField = cf
+					Exit Forall
+				End If
+			End Forall
+			If workingField Is Nothing Then
+				Set workingField = New ChangedField("", Nothing, Nothing)
+			Else
+				Redim outValue(0)
+				outValue(0) = ""
+				Forall wv In workingField.origValue
+					If outvalue(0) = "" Then ub = 0 Else ub = Ubound(outvalue) + 1
+					Redim Preserve outValue(ub)
+					outValue(ub) = Cstr(wv)
+				End Forall
+				source.DOCUMENT.Doc1Value = outValue
+				
+				Redim outValue(0)
+				outValue(0) = ""
+				If Isarray(workingField.currValue) Then
+					Forall wv In workingField.currValue
+						If outvalue(0) = "" Then ub = 0 Else ub = Ubound(outvalue) + 1
+						Redim Preserve outValue(ub)
+						outValue(ub) = Cstr(wv)
+					End Forall
+				End If
+				source.DOCUMENT.Doc2Value = outValue
+				
+				fldnames = source.DOCUMENT.GETITEMVALUE("PL_ChgFields")
+				sfldStatus = "x"
+				For ub = 0 To Ubound(fldnames)
+					If fldnames(ub) = sfld Then
+						sfldStatus = source.DOCUMENT.chgFldStatus(ub)
+						Exit For
+					End If
+				Next
+				Select Case sfldStatus
+				Case "0"
+					source.DOCUMENT.WinLoss_1 = ""
+					source.DOCUMENT.WinLoss_2 = ""
+					source.DOCUMENT.D_Winner = "x"
+				Case "1"
+					source.DOCUMENT.WinLoss_1 = "1"
+					source.DOCUMENT.WinLoss_2 = ""
+					source.DOCUMENT.D_Winner = "1"
+				Case "2"
+					source.DOCUMENT.WinLoss_1 = ""
+					source.DOCUMENT.WinLoss_2 = "2"
+					source.DOCUMENT.D_Winner = "2"
+				Case "x"
+					source.DOCUMENT.WinLoss_1 = ""
+					source.DOCUMENT.WinLoss_2 = ""
+					source.DOCUMENT.D_Winner = "x"
+				End Select
+				Call source.RELOAD
+			End If
+		End If
+	End If
+End Sub</lotusscript></code>
+<actionbar bgcolor='#e0dfe3' bordercolor='black'>
+<actionbuttonstyle bgcolor='#e0dfe3'/><font color='system'/><border style='solid'
+ width='0px 0px 1px'/>
+<action title='Categori_ze' showinbar='false' systemcommand='categorize'/>
+<action title='_Edit Document' showinbar='false' systemcommand='edit'/>
+<action title='_Send Document' showinbar='false' systemcommand='send'/>
+<action title='_Forward' showinbar='false' systemcommand='forward'/>
+<action title='_Move To Folder...' showinbar='false' systemcommand='movetofolder'/>
+<action title='_Remove From Folder' showinbar='false' systemcommand='removefromfolder'/></actionbar>
+<body><richtext>
+<pardef id='1' leftmargin='1in' hide='read edit preview previewedit'/>
+<par def='1'><field type='text' kind='computedwhencomposed' name='SaveOptions'><code
+ event='defaultvalue'><formula>"0"</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><field type='text'
+ kind='computedwhencomposed' name='UNID1'><code event='defaultvalue'><formula
+>UNID1</formula></code></field><compositedata type='98' prevtype='65418' nexttype='222'
+ afterparcount='13' containertype='65418' aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><field
+ type='text' kind='computedwhencomposed' name='UNID2'><code event='defaultvalue'><formula
+>UNID2</formula></code></field><compositedata type='98' prevtype='65418' nexttype='222'
+ afterparcount='19' containertype='65418' aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><field
+ type='text' kind='computedwhencomposed' name='ModBy1'><code event='defaultvalue'><formula
+>ModBy1</formula></code></field><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='25' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><field type='text' kind='computedwhencomposed'
+ name='ModBy2'><code event='defaultvalue'><formula>ModBy2</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='31' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><field type='text'
+ allowmultivalues='true' kind='computedwhencomposed' name='PL_ChgFields' listinputseparators='comma semicolon'
+ listdisplayseparator='semicolon'><code event='defaultvalue'><formula>"PickList" : "D_PickList" : "DocKey"</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='37' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><field type='text'
+ allowmultivalues='true' kind='computedwhencomposed' name='ChgFldStatus' listinputseparators='comma semicolon'
+ listdisplayseparator='semicolon'><code event='defaultvalue'><formula>"0" : "0" : "0"</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='43' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par><compositedata
+ type='183' prevtype='129' nexttype='65410' afterparcount='1'>
+txygBf0bGR4NAAAAJAAAAAAAAAAAAAAAAAAAAA==
+</compositedata>
+<pardef id='2' leftmargin='1in'/>
+<par def='2'/><compositedata type='186' prevtype='129' nexttype='65410' afterparcount='1'>
+uiroBSABBwlJEgEAAAgBAAEA////AAEAAAADAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<pardef id='3' leftmargin='1in'/>
+<par def='3'><run><font size='8pt'/><field borderstyle='inset' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='ChangedField'><keywords
+ recalconchange='true' columns='1' ui='listbox'><formula>PL_ChgFields</formula></keywords></field></run></par><compositedata
+ type='184' prevtype='129' nexttype='131' afterparcount='1'>
+uCroBQAAgQchAQEBAAoBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='3'><run><font style='bold'/>Changed Fields:</run></par><compositedata
+ type='184' prevtype='129' nexttype='131' afterparcount='1'>
+uCowD0QBiQIhAQEBAAoBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='3'><run><font style='bold'/>Doc1:</run></par><compositedata type='184'
+ prevtype='129' nexttype='131' afterparcount='1'>
+uCoMD8gNiQJFAQEBAAoBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='3'><run><font style='bold'/>Doc2:</run></par><compositedata type='186'
+ prevtype='129' nexttype='131' afterparcount='1'>
+uiq4ESABMQ8hCgEAAAgBAAEA////AA0AAAAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='3'><run><font size='8pt'/><field type='text' allowmultivalues='true'
+ kind='computedwhencomposed' name='Doc1Value' listinputseparators='comma semicolon newline'
+ listdisplayseparator='semicolon'><code event='defaultvalue'><formula>""</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par><compositedata
+ type='186' prevtype='129' nexttype='131' afterparcount='1'>
+uiqUEcgNMQ8hCgEAAAgBAAEA////AA0AAAAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='3'><run><font size='8pt'/><field type='text' allowmultivalues='true'
+ kind='computedwhencomposed' name='Doc2Value' listinputseparators='comma semicolon'
+ listdisplayseparator='semicolon'><code event='defaultvalue'><formula>""</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par><compositedata
+ type='194' prevtype='129' nexttype='131' afterparcount='1'>
+wioMD2QCaAKWAQEAAAgBAAEA////AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='3'><button width='2in' widthtype='maximum' maxlines='1' wraptext='true'
+ bgcolor='system'><font size='8pt'/>Win<code event='options'><lotusscript
+>Option Declare
+
+</lotusscript></code><code event='click'><lotusscript>Sub Click(Source As Button)
+     Dim ws As New NOTESUIWORKSPACE
+     Dim uidoc As NOTESUIDOCUMENT
+     Dim wdoc As NOTESDOCUMENT
+     
+     Set uidoc = ws.CURRENTDOCUMENT
+     Set wdoc = uidoc.DOCUMENT
+     
+     Print "Doc 1 wins for [" &amp; workingField.fldName &amp; "]"
+     Call UpdateStatus(workingField.fldName, "1", wdoc)
+     uidoc.RELOAD
+     uidoc.REFRESH
+End Sub
+
+</lotusscript></code><code event='xxUpdateStatus'><lotusscript>Sub xxUpdateStatus(sfld As String, status As String, wdoc As NOTESDOCUMENT)
+     Dim fldnames As Variant
+     Dim fldStatus As Variant
+     Dim ub%
+     
+     fldnames = wdoc.GETITEMVALUE("PL_ChgFields")
+     fldStatus = wdoc.GETITEMVALUE("ChgFldStatus")
+     
+     For ub = 0 To Ubound(fldnames)
+          If fldnames(ub) = sfld Then
+               fldStatus(ub) = status
+               Exit For
+          End If
+     Next
+     wdoc.ChgFldStatus = fldStatus
+     wdoc.ChangedField = ""
+     wdoc.Doc1Value = ""
+     wdoc.Doc2Value = ""
+     wdoc.D_Winner = "x"
+End Sub</lotusscript></code></button></par><compositedata type='194' prevtype='129'
+ nexttype='131' afterparcount='1'>
+wioMBrAT/ASWAQEAAAgBAAEA////AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='3'><button width='2in' widthtype='maximum' maxlines='1' wraptext='true'
+ bgcolor='system'><font size='8pt'/>Update Docs<code event='options'><lotusscript
+>Option Declare
+</lotusscript></code><code event='click'><lotusscript>Sub Click(Source As Button)
+	Dim s As New NotesSession
+	Dim ws As New NOTESUIWORKSPACE
+	Dim winner$, wtd%, idx&amp;, cValue$
+	Dim CFStatus As Variant
+	Dim CFields As Variant
+	Dim continue As Variant
+	Dim ti As Variant, iValue As Variant
+	Dim ni As NotesItem
+	
+	CFStatus = ws.CURRENTDOCUMENT.DOCUMENT.GETITEMVALUE("ChgFldStatus")
+	CFields = ws.CURRENTDOCUMENT.DOCUMENT.GETITEMVALUE("PL_ChgFields")
+	
+	continue = True
+	Forall cs In CFStatus
+		If Not (cs = "1" Or cs = "2") Then continue = False
+	End Forall
+	If Not continue Then
+		wtd = Msgbox("One or more fields have not been resolved, Continue saving unresolved items from Doc 1?", MB_ICONQUESTION + MB_YESNO, "Continue?")
+		If wtd = IDNO Then Exit Sub
+	End If
+	
+	'AJ 3/29 - changed code to always delete conflict and save real doc	
+	For idx = 0 To Ubound(CFStatus)
+		If CFStatus(idx) = "1" Then
+			iValue = doc2.GETITEMVALUE(CFields(idx))
+			cValue = CFields(idx) &amp; " = " &amp; iValue(0)
+			
+			Call doc2.REMOVEITEM(CFields(idx))
+			Set ti = doc2.APPENDITEMVALUE(CFields(idx), doc1.GETITEMVALUE(CFields(idx)))
+		Else
+			iValue = doc1.GETITEMVALUE(CFields(idx))
+			cValue = CFields(idx) &amp; " = " &amp; iValue(0)
+		End If
+		
+		If idx = 0 Then
+			Set ni = New NotesItem( doc2, "ConflictValues",  cValue)
+		Else
+			Call ni.AppendToTextList( cValue )
+		End If
+	Next
+	
+	Call doc2.REMOVEITEM("$Conflict")  ' In case this is a Rep/Save conflict
+	
+	'AJ 3/29 - check for opp line item or person doc to make sure parent/child relationship still exists
+	If Ucase(doc2.Form(0)) = "OPPLINEITEM" Then
+		Call CheckParentChildRelationship( doc2, "OPPLINEITEM" )
+	Elseif Ucase(doc2.Form(0)) = "PERSON" Then		
+		Call CheckParentChildRelationship( doc2, "PERSON" )
+	End If
+	
+	If doc2.HasItem("ConflictResolvedBy") Then
+		Call doc2.RemoveItem("ConflictResolvedBy")
+	End If
+	Set ni = New NOTESITEM(doc2, "ConflictResolvedBy", s.UserName, NAMES)
+	ni.ISSUMMARY = True	
+	doc2.ConflictResolvedOn = Now
+	
+	Call doc2.Save(True, False)
+	
+	wtd = Msgbox("Document 2 updated.  Delete document 1 from the database?", MB_ICONQUESTION + MB_YESNO, "Delete Conflict Doc?")
+	If wtd = IDYES Then 
+		Call doc1.remove(True)
+	End If
+	
+	Call ws.CURRENTDOCUMENT.Close
+End Sub</lotusscript></code></button></par><compositedata type='194' prevtype='129'
+ nexttype='131' afterparcount='1'>
+wioMD8QOaAKWAQEAAAgBAAEA////AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='3'><button width='2in' widthtype='maximum' maxlines='1' wraptext='true'
+ bgcolor='system'><font size='8pt'/>Win<code event='options'><lotusscript
+>Option Declare
+
+</lotusscript></code><code event='click'><lotusscript>Sub Click(Source As Button)
+     Dim ws As New NOTESUIWORKSPACE
+     Dim uidoc As NOTESUIDOCUMENT
+     Dim wdoc As NOTESDOCUMENT
+     
+     Set uidoc = ws.CURRENTDOCUMENT
+     Set wdoc = uidoc.DOCUMENT
+     
+     Print "Doc 2 wins for [" &amp; workingField.fldName &amp; "]"
+     Call UpdateStatus(workingField.fldName, "2", wdoc)
+     uidoc.RELOAD
+     uidoc.REFRESH
+End Sub</lotusscript></code></button></par><compositedata type='186' prevtype='129'
+ nexttype='65410' afterparcount='1'>
+uir0FIgLQQv9AAEAAAgBAAUA////AAkAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<pardef id='4'/>
+<par def='4'><run><font size='8pt'/><field type='text' kind='computedfordisplay'
+ name='Doc1ModifiedBy'><code event='defaultvalue'><formula>ModBy1</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par><compositedata
+ type='184' prevtype='129' nexttype='131' afterparcount='1'>
+uCroBRAXTQIhAQEBAAgBAAUA////AAAAAFAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'>Form:</par><compositedata type='184' prevtype='129' nexttype='131'
+ afterparcount='1'>
+uCooEVQYYQMhAQEBAAgBAAUA////AAAAAFAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'>Mod. By:</par><compositedata type='186' prevtype='129' nexttype='131'
+ afterparcount='1'>
+uirQFFQY1Qr9AAEAAAgBAAUA////AAkAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt'/><field type='text' kind='computedfordisplay'
+ name='Doc2ModifiedBy'><code event='defaultvalue'><formula>ModBy2</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par><compositedata
+ type='184' prevtype='129' nexttype='131' afterparcount='1'>
+uCooEYgLbQMhAQEBAAgBAAUA////AAAAAFAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'>Mod. By:</par><compositedata type='186' prevtype='129' nexttype='131'
+ afterparcount='1'>
+uipwCBAXwQb9AAEAAAgBAAUA////AAkAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt'/><field type='text' kind='computedwhencomposed'
+ name='ConflictForm'><code event='defaultvalue'><formula>ConflictForm</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par><compositedata
+ type='184' prevtype='129' nexttype='131' afterparcount='1'>
+uCpMEYQMbQMhAQEBAAgBAAUA////AAAAAFAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'>Mod. On:</par><compositedata type='186' prevtype='129' nexttype='131'
+ afterparcount='1'>
+uir0FIQMQQv9AAEAAAgBAAUA////AAkAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt'/><field type='text' kind='computedfordisplay'
+ name='Doc1ModifiedOn'><code event='defaultvalue'><formula>ModOn1</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par><compositedata
+ type='184' prevtype='129' nexttype='131' afterparcount='1'>
+uCooEVAZbQMhAQEBAAgBAAUA////AAAAAFAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'>Mod. On:</par><compositedata type='186' prevtype='129' nexttype='131'
+ afterparcount='1'>
+uirQFFAZ1Qr9AAEAAAgBAAUA////AAkAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font size='8pt'/><field type='text' kind='computedfordisplay'
+ name='Doc2ModifiedOn'><code event='defaultvalue'><formula>ModOn2</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata></par><compositedata
+ type='184' prevtype='129' nexttype='131' afterparcount='1'>
+uCoMBiQbkRuJAgEAAggBAAUA////AAAAABAAAAAAAAAAAAAAAAAAAAAA
+</compositedata>
+<par def='4'><run><font color='red'/>Highlight the field in the 'Changed Fields' box and then click the 'Win' button next to the Doc that is correct.  When you have gone through all of the fields and chosen the winner, click on the 'Update Docs' button to fix the conflict.</run><compositedata
+ type='185' prevtype='222' nexttype='129' afterparcount='7'>
+uRIAAAAAAAAAAAAAAAAAAAAA
+</compositedata></par>
+<par def='1'/>
+<par def='1'/></richtext></body>
+<item name='OriginalModTime' sign='true'><datetime dst='true'>20050718T163101,89-07</datetime></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>ConflictResolution</text></item></form>
+

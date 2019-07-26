@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(frmFormDetails)' alias='frmFormDetails' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' publicaccess='false'
+ designerversion='7' renderpassthrough='true'>
+<noteinfo noteid='14bc6' unid='30C96218E27AF75386257F710078AF6C' sequence='7'>
+<created><datetime>20160309T155812,28-06</datetime></created>
+<modified><datetime dst='true'>20180929T235600,41-05</datetime></modified>
+<revised><datetime>20160310T111658,71-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235600,41-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235600,41-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+
+</lotusscript></code><code event='declarations'><lotusscript>Dim doc As NotesDocument 
+Dim uidoc As NotesUIDocument </lotusscript></code></globals><code event='postopen'><lotusscript
+>Sub Postopen(Source As Notesuidocument)
+	Set uidoc = source
+	Set doc = uidoc.Document 	
+End Sub
+</lotusscript></code>
+<body><richtext>
+<pardef id='1'/>
+<par def='1'><button width='2in' widthtype='maximum' maxlines='1' wraptext='true'
+ bgcolor='system'>Update Field List<code event='click'><lotusscript>Sub Click(Source As Button)
+	Dim myFormName As String
+	myFormName= doc.FormName(0)
+	If myFormName = "" Then Exit Sub
+	Dim myForm As NotesForm 
+	Set myForm = doc.ParentDatabase.GetForm(myFormName)
+	If myForm Is Nothing Then Exit Sub
+	
+	Dim outField As NotesItem 
+	Set outField = doc.GetFirstItem("FieldList")
+	outField.Values = ""
+	
+	Forall field In myForm.Fields
+		outField.AppendToTextList(field)
+	End Forall
+	
+End Sub
+</lotusscript></code></button></par>
+<par def='1'><field type='text' kind='editable' name='FormName'/></par>
+<par def='1'/>
+<par def='1'><run><font style='bold'/>Form Field List:</run></par>
+<par def='1'><field type='text' allowmultivalues='true' kind='editable' name='FieldList'
+ listinputseparators='newline' listdisplayseparator='newline'><code event='inputtranslation'><formula
+>@Sort( FieldList )</formula></code></field></par>
+<par def='1'/>
+<par def='1'/>
+<par def='1'/></richtext></body>
+<item name='OriginalModTime' sign='true'><datetime dst='true'>20100408T105641,67-04</datetime></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>frmFormDetails</text></item></form>
+

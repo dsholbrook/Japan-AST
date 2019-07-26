@@ -1,0 +1,289 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(CoreWeb UI\Help - Using Forms and Fields)' alias='frmCoreWebHelpUsingForms'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' publicaccess='false' designerversion='8.5.3'
+ renderpassthrough='true'>
+<noteinfo noteid='628d2' unid='B1B2149EFFC097BB85257B580069B997' sequence='2'>
+<created><datetime dst='true'>20130425T151447,91-04</datetime></created>
+<modified><datetime dst='true'>20180930T002406,92-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170835,00-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002406,92-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002406,92-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='windowtitle'><formula>tmpName := @DbLookup("";"";"luAppProfile"; "App" ; "dp_SystemName");
+@If( @IsError( tmpName ) ; "Set up database profile" ; tmpName )</formula></code>
+<body><richtext>
+<pardef id='1' leftmargin='1in' hide='notes web mobile'/>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<pardef id='2'><parstyle name='Between Paragraphs' incyclekey='true' alldocuments='true'
+ username='Joseph Francis-'><font size='3pt' color='red' name='face26'/></parstyle></pardef>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table minrowheight='0.7500in' cellbordercolor='gray' leftmargin='0.7500in'
+ widthtype='fixedleft' columnspacing='0.1000in' refwidth='7.1833in'><tablecolumn
+ width='4.7125in'/><tablecolumn width='2.0708in'/>
+<tablerow>
+<tablecell valign='center' borderwidth='3px 0px'>
+<cellbackground repeat='hrepeat'/>
+<pardef id='4' leftmargin='0' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='13pt' style='bold'/>Website Administration</run></par>
+<par def='4'><run><font size='13pt' style='bold' color='#0083b8'/>Using Forms and Fields</run></par>
+<par def='4'><run><font size='13pt' style='bold' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='3px 0px'>
+<cellbackground repeat='center'/>
+<pardef id='5' align='right' hide='print' keepwithnext='true' keeptogether='true'/>
+<par def='5'><picture width='199px' height='68px'><imageref name='coreSiteLogo.jpg'/></picture></par></tablecell></tablerow></table>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='#0083b8' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='7.1000in'><tablecolumn
+ width='7in'/>
+<tablerow>
+<tablecell borderwidth='2px 0px 0px' bgcolor='white'>
+<pardef id='7' leftmargin='0.0104in' rightmargin='7in' spaceafter='1.5' keepwithnext='true'
+ keeptogether='true'/>
+<par def='7'><run><font size='12pt' style='bold' color='#0083b8'/>Overview</run></par>
+<pardef id='8' leftmargin='0.0104in' rightmargin='7in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='11pt'/>This document covers how to create an XPage web form used to create and edit a Notes document.</run></par>
+<pardef id='9' leftmargin='0.0104in' rightmargin='7in' spacebefore='1.5' keepwithnext='true'
+ keeptogether='true'/>
+<par def='9'><run><font size='13pt' style='bold'/>Forms and Fields</run></par>
+<pardef id='10' leftmargin='0.2604in' rightmargin='7in' list='bullet' keepwithnext='true'
+ keeptogether='true'/>
+<par def='10'><run><font size='11pt' style='bold'/>Form </run><run><font size='11pt'
+ style='bold'/>- coreSiteForm</run><run><font size='11pt'/> - Custom Control that contains once facet.  Add a panel and then add fields.</run></par>
+<par def='10'><run><font size='11pt' style='bold'/>Field </run><run><font
+ size='11pt' style='bold'/>- coreSiteField</run><run><font size='11pt'/> - Custom Control that represents a field on the form.  Field name, label, isRequired details and most importantly .. control type .. are all </run></par>
+<par def='8'><run><font size='11pt'/></run></par></tablecell></tablerow></table>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='#0083b8' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='7.1000in'><tablecolumn
+ width='7in'/>
+<tablerow>
+<tablecell borderwidth='2px 0px 0px' bgcolor='white'>
+<par def='7'><run><font size='12pt' style='bold' color='#0083b8'/>Creating the form</run></par>
+<par def='8'><run><font size='11pt' style='bold'/>Use the following steps to create an XPage form:</run></par>
+<par def='10'><run><font size='11pt'/>Create an XPage with a data document called </run><run
+><font size='11pt' style='bold'/>document1</run><run><font size='11pt'/> and reference the related Notes Form.</run></par>
+<par def='10'><run><font size='11pt'/>Add the standrad page frame with content area and optionally use the navID as usual to include the page in the sites tabbed navigational area.</run></par>
+<par def='10'><run><font size='11pt'/>In the content area, add a </run><run
+><font size='11pt' style='bold'/>coreSiteForm</run><run><font size='11pt'/> control and in the only facet, add a standard </run><run
+><font size='11pt' style='bold'/>Panel</run><run><font size='11pt'/> control to hold the fields.  </run></par>
+<par def='10'><run><font size='11pt'/>In the panel on the form, add </run><run
+><font size='11pt' style='bold'/>coreSiteField</run><run><font size='11pt'/> controls and HTML (i.e. &lt;h2&gt; for section headers) as needed to make up the content of the form itself.</run></par>
+<par def='10'><run><font size='11pt'/>After all the fields and content, but in the same form panel, add the </run><run
+><font size='11pt' style='bold'/>coreSiteFormSubmitButtons</run><run><font
+ size='11pt'/> custom control to add the standard IBM submit / cancel buttons.</run></par>
+<par def='10'><run><font size='11pt'/>Preview in a browser.</run></par>
+<par def='8'><run><font size='11pt'/></run></par>
+<par def='8'><run><font size='11pt'/>At this point you should be able to submit the form.  Naturally the "Form processed" message will show if no $$Return or WQS is included.  Required fields will validate automatically.</run></par>
+<par def='8'><run><font size='11pt'/></run></par>
+<par def='7'><run><font size='11pt' style='bold' color='#0083b8'/>Next steps - Add custom functionality</run></par>
+<par def='8'><run><font size='11pt' style='bold'/>Common types of updates needed</run></par>
+<par def='10'><run><font size='11pt'/>Custom </run><run><font size='11pt'
+ style='bold'/>validation </run><run><font size='11pt'/>beyond isRequired.</run></par>
+<par def='10'><run><font size='11pt'/>Custom </run><run><font size='11pt'
+ style='bold'/>updates </run><run><font size='11pt'/>of what is displayed based on selections</run></par>
+<par def='10'><run><font size='11pt'/>Other customizations based on changes made and/or buttons / actions on the form.</run></par>
+<par def='8'><run><font size='11pt'/></run></par>
+<par def='8'><run><font size='11pt'/>The system provides field </run><run
+><font size='11pt' style='bold'/>plug-ins</run><run><font size='11pt'/> as a simple way of implementing common field level validations and related form updates.  Normal web development techniques such as dojo and HTML can all be used as usual, either in lue of or in addition to this option.  Plug-ins are optional features to help speed develpment, reduce bugs and make things easy.</run></par>
+<par def='8'><run><font size='11pt'/></run></par>
+<par def='8'><run><font size='12pt' style='bold' color='#0083b8'/>How does it work?</run></par>
+<par def='8'><run><font size='11pt' style='bold'/></run></par>
+<par def='8'><run><font size='11pt' style='bold'/>Field Validation Plug-ins</run></par>
+<par def='10'><run><font size='11pt'/>Fields have associated validation(s).  Associating the validation to the field allows for common activities such as setting focus, showing validations next to the offending fields and the like to be performed.</run></par>
+<par def='10'><run><font size='11pt'/>Validations are implemented by providing a function that does the validation and returns either the "invalid message" text or a blank value if validation is passed.</run></par>
+<par def='10'><run><font size='11pt'/>Validation functions have these params </run><run
+><font size='11pt' style='bold'/>function(theField, theForm, theOptions)</run></par>
+<par def='10'><run><font size='11pt'/>Common validations can also be used by simply providing the string name of the validation to run, such as "ccard" for common credit card validation.  .</run></par>
+<par def='10'><run><font size='11pt'/></run></par>
+<par def='8'><run><font size='11pt' style='bold'/>Field Update Plug-ins</run></par>
+<par def='10'><run><font size='11pt'/>Fields have associated updates(s).  Associating the updates needed on the form to the field allows for common activities such as triggering these actions when needed automatically (i.e. when a field is changed or when a form is loaded).</run></par>
+<par def='10'><run><font size='11pt'/>Updates are implemented the same way as validations.  Provide a function that does the needed updates on the form based on the field value. This will run automatically when needed.</run></par>
+<par def='10'><run><font size='11pt'/>Updates functions have these params </run><run
+><font size='11pt' style='bold'/>function(theField, theForm, theOptions)</run></par>
+<par def='10'><run><font size='11pt'/>Common updates can also be used by simply providing the string name of the update to run or providing an object with details (i.e. {name:'showif', fieldName:'other_field'}).</run></par>
+<par def='8'><run><font size='11pt'/></run></par>
+<par def='8'><run><font size='12pt' style='bold' color='#0083b8'/>How to add field plug-ins to a form</run></par>
+<par def='8'><run><font size='11pt'/>1. Define a global object called </run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>coreFormConfig</run><run
+><font size='11pt'/> used to provide details about this form</run></par>
+<pardef id='12' leftmargin='0.0104in' rightmargin='7in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='12'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='blue'/>coreFormConfig = {}; </run><run><font name='Courier New'
+ pitch='fixed' truetype='true' familyid='30' color='purple'/>//-- Important: (no "var", global object needed)</run></par>
+<par def='8'><run><font size='11pt'/>2. Create an object that defines the fields and the related plug-ins: </run></par>
+<par def='12'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='blue'/>var tmpPlugins = {};</run></par>
+<par def='8'><run><font size='11pt'/>3. Add an entry for each field with the plug-ins for that field (more on types and usage later)</run></par>
+<par def='12'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='blue'/>tmpPlugins.person_category = {</run></par>
+<par def='12'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='blue'/>	updates: {name:'showif',fieldName: 'person_category_other', fieldValue:'Other'}</run></par>
+<par def='12'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='blue'/>};</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='blue'/>tmpPlugins.some_field = {</run></par>
+<par def='12'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='blue'/>	validations: function(theField, theForm, theOptions){</run></par>
+<par def='12'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='blue'/>      return 'You can not submit this form';</run></par>
+<par def='12'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='blue'/>  }</run></par>
+<par def='12'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='blue'/>};</run></par>
+<par def='12'><run><font size='11pt'/>4. Add a </run><run><font name='Courier New'
+ pitch='fixed' truetype='true' familyid='30'/>fieldPlugins</run><run><font
+ size='11pt'/> entry to the coreFormConfig objec:</run></par>
+<par def='12'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='blue'/>coreFormConfig.fieldPlugins = tmpPlugins;</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/></run></par>
+<par def='8'><run><font size='11pt'/></run></par>
+<par def='8'><run><font size='11pt' style='bold'/>Code Example:</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>//===== GLOBAL VARIABLE: coreFormConfig</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>// * used to define details when there is one form in the page</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>coreFormConfig = {};</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/></run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>//--- Object to hold details about each field to tell the form how to behave</run></par>
+<par def='8'><run><font style='bold' name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='#820040'/>var</run><run><font name='Courier New' pitch='fixed'
+ truetype='true' familyid='30'/> tmpPlugins = {};</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/></run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>/* </run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>//--- For simple "other field" type show / hide, no function is needed</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>tmpPlugins.person_category = {</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>	updates: {name:'showif',fieldName: 'person_category_other', fieldValue:'Other'}</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>};</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>*/</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>//--- When more advanced updates needs arise, implement a function</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>tmpPlugins.person_category = {</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>	</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30' color='#3f8080'/>//--- When updated ...</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>	updates: </run><run
+><font style='bold' name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#820040'/>function</run><run><font name='Courier New' pitch='fixed'
+ truetype='true' familyid='30'/>(theField, theForm, theOptions){</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30' color='#3f8080'/>//--- Get the category</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		</run><run
+><font style='bold' name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#820040'/>var</run><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30'/> tmpCat = core.form.getFieldValue(</run><run><font name='Courier New'
+ pitch='fixed' truetype='true' familyid='30' color='#4200ff'/>"person_category"</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>);</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30' color='#3f8080'/>//--- Set a div tag ID based on the category value</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		core.setAreaDisplay(</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30' color='#4200ff'/>'show_for_Contacts'</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>,(tmpCat == </run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30' color='#4200ff'/>'Contacts'</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>));</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30' color='#3f8080'/>//--- Show / hide a field based on the category value</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		core.form.setFieldDisplay(</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30' color='#4200ff'/>'person_category_other'</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>,(tmpCat == </run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30' color='#4200ff'/>'Other'</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>));</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>	}</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>};</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/></run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/></run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>//--- For common validations, just call them by name</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>tmpPlugins.person_email = {</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>	validations: </run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30' color='#4200ff'/>'email'</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>};</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/></run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>//--- For advanded validations, use a function</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>tmpPlugins.person_first = {</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>	validations: </run><run
+><font style='bold' name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#820040'/>function</run><run><font name='Courier New' pitch='fixed'
+ truetype='true' familyid='30'/>(theField, theForm, theOptions){</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		</run><run
+><font style='bold' name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#820040'/>var</run><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30'/> tmpFirst = core.form.getFieldValue(</run><run><font name='Courier New'
+ pitch='fixed' truetype='true' familyid='30' color='#4200ff'/>"person_first"</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>) || </run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30' color='#4200ff'/>''</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>;</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		</run><run
+><font style='bold' name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#820040'/>var</run><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30'/> tmpLast = core.form.getFieldValue(</run><run><font name='Courier New'
+ pitch='fixed' truetype='true' familyid='30' color='#4200ff'/>"person_last"</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>) || </run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30' color='#4200ff'/>''</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>;</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		</run><run
+><font style='bold' name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#820040'/>if</run><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30'/>( !tmpFirst || !tmpLast ){</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>			</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30' color='#3f8080'/>//--- No value, let required catch that</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>			</run><run
+><font style='bold' name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#820040'/>return</run><run><font name='Courier New' pitch='fixed'
+ truetype='true' familyid='30'/> </run><run><font name='Courier New' pitch='fixed'
+ truetype='true' familyid='30' color='#4200ff'/>''</run><run><font name='Courier New'
+ pitch='fixed' truetype='true' familyid='30'/>;</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		}</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		</run><run
+><font style='bold' name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#820040'/>if</run><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30'/>( tmpFirst.length &lt; 2 &amp;&amp; tmpLast.length &lt; 2 ){</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>			</run><run
+><font style='bold' name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#820040'/>return</run><run><font name='Courier New' pitch='fixed'
+ truetype='true' familyid='30'/> </run><run><font name='Courier New' pitch='fixed'
+ truetype='true' familyid='30' color='#4200ff'/>'Name is too short'</run><run
+><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>;</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		}</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>		</run><run
+><font style='bold' name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#820040'/>return</run><run><font name='Courier New' pitch='fixed'
+ truetype='true' familyid='30'/> </run><run><font name='Courier New' pitch='fixed'
+ truetype='true' familyid='30' color='#4200ff'/>''</run><run><font name='Courier New'
+ pitch='fixed' truetype='true' familyid='30'/>;</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>	}</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>};</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/></run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='#3f8080'/>//--- Add field level plug-ins to the form config</run></par>
+<par def='8'><run><font name='Courier New' pitch='fixed' truetype='true' familyid='30'/>coreFormConfig.fieldPlugins = tmpPlugins;</run></par>
+<par def='8'><run><font size='11pt'/></run></par>
+<par def='8'><run><font size='11pt'/></run></par>
+<par def='8'><run><font size='11pt'/></run></par>
+<par def='8'><run><font size='11pt'/></run></par>
+<par def='8'><run><font size='11pt'/></run></par>
+<par def='8'><run><font size='11pt'/></run></par></tablecell></tablerow></table>
+<pardef id='13' leftmargin='0.8000in'/>
+<par def='13'/>
+<pardef id='14'><parstyle name='Code'><font size='10pt' color='blue' name='face27'/></parstyle></pardef>
+<par def='14'><run><font name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='blue'/></run></par></richtext></body>
+<item name='$FrameInfo'><textlist><text>CoreWeb - Admin|coreWebAdmin</text><text
+>Body</text></textlist></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>frmCoreWebHelpXpageToNav</text></item></form>
+

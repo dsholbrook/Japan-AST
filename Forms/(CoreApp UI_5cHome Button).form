@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(CoreApp UI\Home Button)' alias='coreAppHomeButton' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' publicaccess='false'
+ designerversion='8.5.3' renderpassthrough='true'>
+<noteinfo noteid='6276e' unid='7E10A0493961EE4086258170001F0264' sequence='3'>
+<created><datetime dst='true'>20170802T003842,28-05</datetime></created>
+<modified><datetime dst='true'>20180930T002356,76-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170832,51-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002356,76-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002356,76-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby>
+<body><richtext>
+<pardef id='1' align='center'/>
+<par def='1'><run><font size='7pt'/></run><button width='1.5000in' widthtype='fixed'
+ wraptext='true' edge='rounded' bgcolor='#0083b8'><code event='click'><formula
+>@SetTargetFrame("SiteBody");
+@Command([OpenFrameset];"coreAppHomeLanding")</formula></code><font size='9pt'
+ color='white' style='bold'/>Site Dashboard</button><run><font size='7pt'/></run></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>coreSiteNavHomeLink</text></item></form>
+

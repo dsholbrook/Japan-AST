@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(CoreApp Navigation\Admin)' alias='coreAppAdmin' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' publicaccess='false'
+ designerversion='8.5.3' renderpassthrough='true'>
+<noteinfo noteid='626f6' unid='D30B694BF6E7CD3C85257B4D003C0DF4' sequence='4'>
+<created><datetime dst='true'>20130414T065557,32-04</datetime></created>
+<modified><datetime dst='true'>20180930T002335,15-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170831,56-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002335,15-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002335,15-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='windowtitle'><formula>"Site Admin"</formula></code>
+<body><richtext>
+<pardef id='1' leftmargin='0.8125in'/>
+<par def='1'><embeddedoutline outline='coreAppAdmin' showtwistie='true' osstyletwistie='true'
+ type='flat' widthtype='fitwindow' heighttype='fitwindow' width='95%' height='3.4896in'
+ expand='none' targetframe='Body'><control><eoutlinebackground normalcolor='white'/></control><title
+><layout labelalign='topleft' labelhoffset='0' labelvoffset='0'/></title><toplevel
+ normalcolor='white' mouseovercolor='white'><font size='11pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><eoutlinebackground
+ normalcolor='#0083b8' selectedcolor='white' mouseovercolor='#0083b8'/><layout
+ labelalign='middleleft' heighttype='fixed' height='0.3000in' entryvoffset='0.0201in'
+ imagealign='topleft' labelhoffset='0.0500in' labelvoffset='0'/></toplevel><sublevel
+ normalcolor='white' selectedcolor='#0083b8' mouseovercolor='white'><font
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><eoutlinebackground
+ normalcolor='#0083b8' selectedcolor='white' mouseovercolor='#0083b8'/><layout
+ labelalign='topleft' entryhoffset='0.2000in' imagealign='topleft' labelhoffset='0.1000in'
+ labelvoffset='0'/></sublevel><border width='1px'/></embeddedoutline></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>coreAppAdmin</text></item></form>
+

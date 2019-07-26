@@ -1,0 +1,1699 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Admin\Locale Settings)' alias='fLocaleSettings' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='8.5'
+ inherit='true' editonopen='true'>
+<noteinfo noteid='14fd2' unid='0E96EA795892D1B086257F710078ACD1' sequence='84'>
+<created><datetime>20160309T155805,61-06</datetime></created>
+<modified><datetime dst='true'>20180929T235605,73-05</datetime></modified>
+<revised><datetime>20160310T111652,39-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235605,73-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235605,73-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+
+</lotusscript></code><code event='declarations'><lotusscript>Dim m_docCurr As NotesDocument
+Dim m_uidocCurr As NotesUIDocument</lotusscript></code></globals><code event='windowtitle'><formula
+>"Locale settings"</formula></code><code event='options'><lotusscript>Option Declare
+
+</lotusscript></code><code event='postopen'><lotusscript>Sub Postopen(Source As Notesuidocument)
+	
+	Set m_uidocCurr = Source
+	Set m_docCurr = m_uidocCurr.Document	
+	
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<sharedactionref id='70'>
+<action title='Close' icon='27' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='71'>
+<action title='Save &amp; Close' icon='21' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@If(@Command([FileSave]);@Command([CloseWindow]); "")</formula></code></action></sharedactionref>
+<sharedactionref id='72'>
+<action title='Edit' icon='5' showinmenu='false' hide='edit previewedit web mobile'><code
+ event='click'><formula>@Command([EditDocument])</formula></code></action></sharedactionref>
+<sharedactionref id='82'>
+<action title='Load Defaults' icon='22' showinmenu='false' hide='web mobile'><code
+ event='click'><lotusscript>Sub Click(Source As Button)
+	
+	Call LoadLocaleDefaults(m_docCurr, Cstr(m_docCurr.ls_Locale(0)))
+	
+	Call m_uidocCurr.Reload()
+	Call m_uidocCurr.Refresh()
+	
+End Sub
+</lotusscript></code><code event='hidewhen'><formula>!(ls_Locale != "")</formula></code></action></sharedactionref></actionbar>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='0.7500in' hide='notes web'/>
+<section onread='collapse' onpreview='collapse' onedit='collapse' onprint='collapse'><sectiontitle
+ pardef='1' color='teal'><font size='8pt' color='red' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><text>Revision History</text></sectiontitle>
+<pardef id='2' align='none' leftmargin='1in' hide='notes web'/>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>-----------------------------------------------------------------------------------------------------------------<break
+/> </run><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Locale Settings</run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/> Form<break/>-----------------------------------------------------------------------------------------------------------------<break
+/></run></par>
+<par def='2'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/> Description:</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> This form is used to define locale specific settings for this canister.</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> One document of this type exists for each locale that is defined in this canister.</run></par>
+<pardef id='3' leftmargin='1in' hide='notes web'/>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/><break/></run><run><font size='8pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> Author:</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> Core Lan	<break/></run><run><font size='8pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/><break/> Revision History:</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/><break/></run><run><font size='8pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/> Date                        	By             	Description</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/> ---------                       	---                   	------------------</run></par>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> November 2007		Core Lan		Initial version.<break
+/>-----------------------------------------------------------------------------------------------------------------</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></section>
+<pardef id='4' hide='notes web mobile'/>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table cellbordercolor='red' widthtype='fixedleft' refwidth='8in'><tablecolumn
+ width='2in'/><tablecolumn width='6in'/>
+<tablerow>
+<tablecell>
+<pardef id='6' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Field</run></par></tablecell>
+<tablecell>
+<pardef id='7' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Description</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='8' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='DocType'><code event='defaultvalue'><formula>"Locale Settings"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>DocType </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The document type. (Hardcoded to '</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>Locale Settings</run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='Form'><code event='defaultvalue'><formula>"fLocaleSettings"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Form </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The form alias. (Hardcoded to '</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>fLocaleSettings</run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_ReferenceDbReplicaID'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_ReferenceDbReplicaID</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> - The replica ID of the reference database. (Includes the colon.  Use in @DBLookups.)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_IsMultiLingual'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_IsMultiLingual</run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Whether the canister is confiigured to support multiple locales.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='ls_UNID'><code event='defaultvalue'><formula>@Text(@DocumentUniqueID)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>ls_UNID</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - The UNID of this document.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='c_audit' listinputseparators='comma semicolon' listdisplayseparator='semicolon'><code
+ event='inputtranslation'><formula>Output := @Text(@Name([CN];@V3UserName))+" - "+@Text(@Now);
+@If(@IsDocBeingSaved;@If(c_audit = "";@SetField("c_audit"; Output);@SetField("c_audit"; c_audit:Output));@If(c_audit = "";Output;c_audit))</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>c_audit</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Used to track changes to this document.  Displayed on the Audit tab.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_EnableInvitations'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_EnableInvitations</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> - Whether invitations are enabled in this canister.  Used to show/hide the invitations section.</run></par></tablecell></tablerow></table>
+<pardef id='9' tabs='L6.8125in'/>
+<par def='9'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table cellbordercolor='gray' widthtype='fixedleft' refwidth='8in'><border
+ dropshadow='true'/><tablecolumn width='8in'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5e84' altbgcolor='#c8d7e3'>
+<pardef id='11' leftmargin='0.1000in' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='11'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/></run><run><font size='12pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='white'/><computedtext><code event='value'><formula>@GetProfileField("fProfile";"dp_SystemName")</formula></code></computedtext></run><run
+><font size='12pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/></run></par>
+<par def='11'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/>Locale settings</run></par></tablecell></tablerow></table>
+<pardef id='12' leftmargin='1in'/>
+<par def='12'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table widthtype='fixedleft' refwidth='8in'><tablecolumn width='8in'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='14' hide='read print preview' keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>* Required fields</run></par></tablecell></tablerow></table>
+<pardef id='15' leftmargin='1in' hide='read print preview'/>
+<par def='15'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table cellbordercolor='#3c5e84' rowdisplay='tabs' sizetabsequally='true'
+ widthtype='fixedleft' refwidth='8.0104in'><tablerowstyle><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='black'/></tablerowstyle><tablecolumn
+ width='8.0104in'/>
+<tablerow tablabel='Configuration      '>
+<tablecell>
+<pardef id='17' keepwithnext='true' keeptogether='true'/>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5f84' altbgcolor='#c8d7e3'>
+<pardef id='19' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='19'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/>Locale settings</run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='2in'/><tablecolumn width='50.2014%'/><tablecolumn
+ width='49.7986%'/>
+<tablerow>
+<tablecell>
+<pardef id='21' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Language</run></par></tablecell>
+<tablecell>
+<pardef id='22' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='ls_Locale'><keywords recalconchange='true'
+ columns='1' ui='dialoglist'><formula>@GetProfileField("fProfile"; "dp_LocaleLookup")</formula></keywords><code
+ event='defaultvalue'><formula>@GetProfileField("fProfile"; "dp_DefaultLocale")</formula></code></field></run><run
+><font name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par>
+<pardef id='23' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='23'><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='ls_LocaleName' listinputseparators='newline' listdisplayseparator='newline'><code
+ event='defaultvalue'><formula>tmpValues := @DbLookup("" : "Cache"; dp_ReferenceDbReplicaID; "vLookupEnabledLocaleProfiles"; ls_Locale; 3);
+@If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<par def='23'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='ResetFields'><code event='defaultvalue'><formula>REM {This field is used to reset any locale dependent fields if the locale has been changed};
+@If(ls_Locale = OriginalLocale; @Return(""); "");
+
+REM {Reset fields if necessary};
+tmpValues := @DbLookup("" : "Cache"; dp_ReferenceDbReplicaID; "vLookupLocaleProfiles"; ls_Locale; "lc_ScreeningMsg");
+FIELD ls_Screening_Statement := @If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues);
+tmpValues := @DbLookup("" : "Cache"; dp_ReferenceDbReplicaID; "vLookupLocaleProfiles"; ls_Locale; "lc_News");
+FIELD ls_NewsLinkText := @If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues);
+""</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='23'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run><run><font size='9pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computed' name='OriginalLocale'><code event='defaultvalue'><formula
+>ls_Locale</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<pardef id='24' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is not multi-lingual};
+!(dp_IsMultiLingual != "Yes")</formula></code></pardef>
+<par def='24'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='computedfordisplay' name='ls_LocaleName_Display'><code
+ event='defaultvalue'><formula>ls_LocaleName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='25' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='25'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Choose the locale.</run></par>
+<pardef id='26' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is not multi-lingual};
+!(dp_IsMultiLingual != "Yes")</formula></code></pardef>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The locale.</run></par></tablecell></tablerow></table>
+<par def='17'/>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='25.0313%'/><tablecolumn width='37.5486%'/><tablecolumn
+ width='37.4201%'/>
+<tablerow>
+<tablecell columnspan='3' bgcolor='#efefef'>
+<pardef id='30' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='30'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Registration form configuration</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Include salutation?</run></par></tablecell>
+<tablecell>
+<pardef id='31' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='ls_IncludePrefix'><keywords helperbutton='false'
+ recalconchange='true' columns='2' ui='radiobutton'><textlist><text>Yes</text><text
+>No</text></textlist></keywords><code event='defaultvalue'><formula>"No"</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='32' leftmargin='0.0917in' rightmargin='98%' firstlineleftmargin='0.1000in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Whether to include the salutation/prefix field in the registration page.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='33' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_IncludePrefix = "Yes")</formula></code></pardef>
+<par def='33'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Require salutation?</run></par></tablecell>
+<tablecell>
+<pardef id='34' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_IncludePrefix = "Yes")</formula></code></pardef>
+<par def='34'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='ls_RequirePrefix'><keywords helperbutton='false'
+ columns='2' ui='radiobutton'><textlist><text>Yes</text><text>No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"No"</formula></code><code event='inputtranslation'><formula
+>@If(ls_IncludePrefix = "Yes"; @ThisValue; "No")</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='35' leftmargin='0.0917in' rightmargin='98%' firstlineleftmargin='0.1000in'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(ls_IncludePrefix = "Yes")</formula></code></pardef>
+<par def='35'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Does the user always have to supply a value for the salutation/prefix field.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Include title?</run></par></tablecell>
+<tablecell>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='ls_IncludePersonTitle'><keywords helperbutton='false'
+ recalconchange='true' columns='2' ui='radiobutton'><textlist><text>Yes</text><text
+>No</text></textlist></keywords><code event='defaultvalue'><formula>"No"</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Whether to include the title field in the registration page.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Include middle initial?</run></par></tablecell>
+<tablecell>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='ls_IncludeMiddleInitial'><keywords helperbutton='false'
+ columns='2' ui='radiobutton'><textlist><text>Yes</text><text>No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"No"</formula></code></field></run><run><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Whether to include the middle initial field in the registration page.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Include fax?</run></par></tablecell>
+<tablecell>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='ls_IncludeFax'><keywords helperbutton='false'
+ columns='2' ui='radiobutton'><textlist><text>Yes</text><text>No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"No"</formula></code></field></run><run><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Whether to include the fax field in the registration page.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='36' keepwithnext='true' keeptogether='true'/>
+<par def='36'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>   Include role based marketing?</run></par></tablecell>
+<tablecell>
+<pardef id='37' keepwithnext='true' keeptogether='true'/>
+<par def='37'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>   </run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='ls_IncludeRole'><keywords helperbutton='false' columns='2' ui='radiobutton'><textlist
+><text>Yes</text><text>No</text></textlist></keywords><code event='defaultvalue'><formula
+>"No"</formula></code></field></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='38' leftmargin='0.0917in' keepwithnext='true' keeptogether='true'/>
+<par def='38'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>   Whether to include the role based marketing field        in the registration page.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='39' keepwithnext='true' keeptogether='true'><code event='hidewhen'
+ enabled='false'><formula>!(ls_IncludeStateProvince = "Yes")</formula></code></pardef>
+<par def='39'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>   Require zip code?</run></par></tablecell>
+<tablecell>
+<pardef id='40' keepwithnext='true' keeptogether='true'><code event='hidewhen'
+ enabled='false'><formula>!(ls_IncludeStateProvince = "Yes")</formula></code></pardef>
+<par def='40'>   <run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='ls_RequireZip'><keywords helperbutton='false'
+ columns='2' ui='radiobutton'><textlist><text>Yes</text><text>No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Yes"</formula></code><code event='inputtranslation'><formula
+>@If(ls_IncludeStateProvince = "Yes"; @ThisValue; "No")</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='41' keepwithnext='true' keeptogether='true'/>
+<par def='41'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/> Whether to include the zip code field    in the  registration page.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Include state/province?</run></par></tablecell>
+<tablecell>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='ls_IncludeStateProvince'><keywords helperbutton='false'
+ recalconchange='true' columns='2' ui='radiobutton'><textlist><text>Yes</text><text
+>No</text></textlist></keywords><code event='defaultvalue'><formula>"No"</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Whether to include the state/province field in the registration page.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='42' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_IncludeStateProvince = "Yes")</formula></code></pardef>
+<par def='42'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Require state/province?</run></par></tablecell>
+<tablecell>
+<pardef id='43' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_IncludeStateProvince = "Yes")</formula></code></pardef>
+<par def='43'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='ls_RequireStateProvince'><keywords helperbutton='false'
+ columns='2' ui='radiobutton'><textlist><text>Yes</text><text>No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"No"</formula></code><code event='inputtranslation'><formula
+>@If(ls_IncludeStateProvince = "Yes"; @ThisValue; "No")</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='44' leftmargin='0.0917in' rightmargin='98%' firstlineleftmargin='0.1000in'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(ls_IncludeStateProvince = "Yes")</formula></code></pardef>
+<par def='44'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Does the user always have to supply a value for the state/province field in the registration page.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='45' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='45'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell>
+<tablecell>
+<pardef id='46' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='46'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='47' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='47'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='48' keepwithnext='true' keeptogether='true'/>
+<par def='48'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='49' keepwithnext='true' keeptogether='true'/>
+<par def='49'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='50' keepwithnext='true' keeptogether='true'/>
+<par def='50'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<pardef id='51' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='51'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='2in'/><tablecolumn width='50.0069%'/><tablecolumn
+ width='49.9931%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<pardef id='53' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='53'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Locale specific defaults</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='#efefef'>
+<pardef id='54' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='54'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<pardef id='55' align='right' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='55'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Confirmation message</run></par></tablecell>
+<tablecell>
+<pardef id='56' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_ConfirmationMsg'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='57' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The confirmation message to display after a registration has been processed.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Duplicate registration message</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_DuplicateMsg'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The message to display when a duplicate registration is submitted.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Screening statement</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_ScreeningMsg'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The text for the optional screening statement.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Registration closed message</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_RegistrationClosedMsg'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The message to display if registration for an event is closed.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Registration not yet available message</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_RegistrationNotYetOpenMsg'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The message to display if the live registration page for an event that is not active is displayed.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Optional questions</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_OptionalQuestionsTitle'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The title of the 'Optional questions' section.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Default message</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_OptionalQuestionsMessage'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The default message to display at top of the 'Optional questions' section.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Badge information</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_BadgeInformation'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The title of the 'Badge information' section.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Default message</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_BadgeMessage'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The default message to display at top of the 'Badge information' section.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Badge question</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_BadgeQuestion'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The default question for the 'Badge information' section.</run></par>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>For example, a translation of:</run></par>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>'How would you like your name to appear on your badge?'</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Emergency contact</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_EmergencyContactTitle'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The title of the 'Emergency contact' section.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Default message</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_EmergencyContactMessage'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The default message to display at top of the 'Emergency contact' section.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Emergenct contact name</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_EmergencyContactName'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The prompt to display for the emergency contact name field.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Day phone</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_EmergencyContactDayPhone'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The prompt to display for the emergency contact day phone field.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Evening phone</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_EmergencyContactEveningPhone'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The prompt to display for the emergency contact evening phone field.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Relationship</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_EmergencyContactRelationship'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The prompt to display for the emergency contact relationship field.</run></par></tablecell></tablerow></table>
+<par def='17'/>
+<table cellbordercolor='gray' leftmargin='0.0104in' widthtype='fixedleft'
+ refwidth='8in'><tablecolumn width='2in'/><tablecolumn width='3in'/><tablecolumn
+ width='3in'/>
+<tablerow>
+<tablecell columnspan='3' bgcolor='#efefef'>
+<pardef id='61' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(dp_EnableInvitations = "Yes")</formula></code></pardef>
+<par def='61'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Invitations</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='62' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(dp_EnableInvitations = "Yes")</formula></code></pardef>
+<par def='62'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Accept invitation message</run></par></tablecell>
+<tablecell>
+<pardef id='63' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(dp_EnableInvitations = "Yes")</formula></code></pardef>
+<par def='63'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='ls_AcceptInvitationMsg'><code event='inputtranslation'><formula
+>@Trim(@ThisValue)</formula></code></field></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='8' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='64' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(dp_EnableInvitations = "Yes")</formula></code></pardef>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The message to display on the web page that an invitee uses to accept an invitation.</run></par>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>For example, a translation of:</run></par>
+<pardef id='65' leftmargin='0.1000in' rightmargin='98%' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(dp_EnableInvitations = "Yes")</formula></code></pardef>
+<par def='65'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>'Yes, I would like to accept the invitation to attend this event.'</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='62'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Already accepted message</run></par></tablecell>
+<tablecell>
+<par def='63'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='ls_AlreadyAcceptedMsg'><code event='inputtranslation'><formula
+>@Trim(@ThisValue)</formula></code></field></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The message to display if a user attempts to accept an invitation that has already been accepted.</run></par>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>For example, a translation of:</run></par>
+<par def='65'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>'Our records indicate that this invitation has already been accepted.'</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='62'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Decline invitation message</run></par></tablecell>
+<tablecell>
+<par def='63'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='ls_DeclineInvitationMsg'><code event='inputtranslation'><formula
+>@Trim(@ThisValue)</formula></code></field></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The message to display on the web page that an invitee uses to decline an invitation.</run></par>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>For example, a translation of:</run></par>
+<par def='65'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>"No thanks, I will not be attending this event."</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='62'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Confirm invitation declined message</run></par></tablecell>
+<tablecell>
+<par def='63'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='ls_ConfirmDeclineMsg'><code event='inputtranslation'><formula
+>@Trim(@ThisValue)</formula></code></field></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The message confirming that an invitee has declined their invitation.</run></par>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>For example, a translation of:</run></par>
+<par def='65'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>"We're sorry you won't be attending the event.  We hope to see you at a future event."</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='62'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Already declined message</run></par></tablecell>
+<tablecell>
+<par def='63'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='ls_AlreadyDeclinedMsg'><code event='inputtranslation'><formula
+>@Trim(@ThisValue)</formula></code></field></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The message to display if a user attempts to decline an invitation that has already been declined.</run></par>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>For example, a translation of:</run></par>
+<par def='65'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>'Our records indicate that this invitation has already been declined.'</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='62'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>No invitation found message</run></par></tablecell>
+<tablecell>
+<par def='63'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='ls_NoInvitationFoundMsg'><code event='inputtranslation'><formula
+>@Trim(@ThisValue)</formula></code></field></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The message to display if an invitation cannot be found for an invitee.</run></par>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>For example, a translation of:</run></par>
+<par def='65'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>"We're sorry, we are unable to confirm your invitation to this event."</run></par></tablecell></tablerow></table>
+<pardef id='66' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>!(dp_EnableInvitations = "Yes")</formula></code></pardef>
+<par def='66'/>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='2in'/><tablecolumn width='50.0069%'/><tablecolumn
+ width='49.9931%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<par def='53'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Landing page defaults</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='#efefef'>
+<par def='54'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<par def='55'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Country</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_HomePageCountryHeader'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>This is the translation of the word 'Country'.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>City</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_HomePageCityHeader'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>This is the translation of the word 'City'.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='68' leftmargin='0.1000in' rightmargin='98%' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='68'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Register online</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='ls_HomePageRegisterHeader'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>This is a prompt for the user to click the link below to link to the registration form.</run></par>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>For example, a translation of 'Register online'.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Date</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='ls_HomePageDateHeader'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>This is the translation of the word 'Date'.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>No event currently scheduled</run></par></tablecell>
+<tablecell>
+<par def='56'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='ls_HomePageNoEventMsg'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='57'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>This sentence will show up in place of the table if no events are scheduled for the landing page.  For example, a translation of 'There are no events currently scheduled. Please check back at a later time.'</run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='2in'/><tablecolumn width='50.1910%'/><tablecolumn
+ width='49.8090%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<par def='53'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Top link</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='#efefef'>
+<pardef id='70' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='70'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<pardef id='71' align='right' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='71'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Text</run></par></tablecell>
+<tablecell>
+<pardef id='72' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='72'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_TopLinkText'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='73' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='73'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The text to show for the top link.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>URL</run></par></tablecell>
+<tablecell>
+<par def='72'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_TopLinkURL'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='73'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The URL.</run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='2in'/><tablecolumn width='50.1910%'/><tablecolumn
+ width='49.8090%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<par def='53'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>News link</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='#efefef'>
+<par def='70'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<par def='71'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Text</run></par></tablecell>
+<tablecell>
+<par def='72'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_NewsLinkText'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='73'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The text to show for the 'News' link.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>URL</run></par></tablecell>
+<tablecell>
+<par def='72'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='ls_NewsLinkURL'><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='73'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The URL for the 'News' link.</run></par>
+<par def='73'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>(Leave blank if you do not want the 'News' link to show.)</run></par></tablecell></tablerow></table>
+<par def='17'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9903in'><tablecolumn width='50%'/><tablecolumn width='50%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<pardef id='76' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='76'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Related links</run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<pardef id='77' align='right' keepwithnext='true' keeptogether='true'/>
+<par def='77'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow></table>
+<par def='51'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='2in'/><tablecolumn width='50.1910%'/><tablecolumn
+ width='49.8090%'/>
+<tablerow>
+<tablecell borderwidth='0px 1px 1px'>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Header</run></par></tablecell>
+<tablecell borderwidth='0px 1px 1px'>
+<par def='72'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='ls_RelatedLinkHeader'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px 1px 1px'>
+<par def='73'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The text to show as the heading for the 'Related link's section of the navigator.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>How many links?</run></par></tablecell>
+<tablecell>
+<pardef id='79' leftmargin='0.1000in' rightmargin='98%' hide='read print preview'
+ keepwithnext='true' keeptogether='true'/>
+<par def='79'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='ls_CountRelatedLinksChoice'><keywords
+ recalconchange='true' columns='1' ui='dialoglist'><formula>"0":"1":"2":"3":"4":"5"</formula></keywords><code
+ event='defaultvalue'><formula>"0"</formula></code></field></run><run><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='80' leftmargin='0.1000in' rightmargin='98%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'/>
+<par def='80'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='number' kind='computed' name='ls_CountRelatedLinks'><numberformat
+ format='general' varying='true' digits='2' punctuated='false' parens='false'
+ percent='false' bytes='false'/><code event='defaultvalue'><formula>@If(ls_CountRelatedLinksChoice = ""; 0; @TextToNumber(ls_CountRelatedLinksChoice))</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='73'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>How many links do you want to show in the 'Related links' section.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='81' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 1)</formula></code></pardef>
+<par def='81'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 1 text</run></par></tablecell>
+<tablecell>
+<pardef id='82' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 1)</formula></code></pardef>
+<par def='82'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='ls_RelatedLinkText_1'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='8' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='83' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 1)</formula></code></pardef>
+<par def='83'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='ls_RelatedLinkHtml_1'><code event='defaultvalue'><formula>"&lt;tr class=\"rlinks\"&gt;"+
+	"&lt;td&gt;&lt;img src=\"//www.ibm.com/i/v14/t/rl-bullet.gif\" width=\"2\" height=\"8\" alt=\"\"/&gt;&lt;/td&gt;"+
+	"&lt;td&gt;&lt;a class=\"rlinks\" href=\"" + ls_RelatedLinkURL_1 +"\"&gt;" + ls_RelatedLinkText_1 +"&lt;/a&gt;&lt;/td&gt;"+
+"&lt;/tr&gt;"</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='11' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/></run></par>
+<par def='83'><run><font size='9pt' color='gray' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='ls_v16_RelatedLinkHtml_1'><code
+ event='defaultvalue'><formula>"&lt;li&gt;&lt;a href=\"" + ls_RelatedLinkURL_1 +"\"&gt;" + ls_RelatedLinkText_1 +"&lt;/a&gt;&lt;/li&gt;"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='81'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 1 URL</run></par></tablecell>
+<tablecell>
+<par def='82'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='ls_RelatedLinkURL_1'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='84' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 1)</formula></code></pardef>
+<par def='84'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='85' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 2)</formula></code></pardef>
+<par def='85'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 2 text</run></par></tablecell>
+<tablecell>
+<pardef id='86' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 2)</formula></code></pardef>
+<par def='86'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='ls_RelatedLinkText_2'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='8' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='87' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 2)</formula></code></pardef>
+<par def='87'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='ls_RelatedLinkHtml_2'><code event='defaultvalue'><formula>"&lt;tr class=\"rlinks\"&gt;"+
+	"&lt;td&gt;&lt;img src=\"//www.ibm.com/i/v14/t/rl-bullet.gif\" width=\"2\" height=\"8\" alt=\"\"/&gt;&lt;/td&gt;"+
+	"&lt;td&gt;&lt;a class=\"rlinks\" href=\"" + ls_RelatedLinkURL_2 +"\"&gt;" + ls_RelatedLinkText_2 +"&lt;/a&gt;&lt;/td&gt;"+
+"&lt;/tr&gt;"</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='11' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/></run></par>
+<par def='83'><run><font size='9pt' color='gray' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='ls_v16_RelatedLinkHtml_2'><code
+ event='defaultvalue'><formula>"&lt;li&gt;&lt;a href=\"" + ls_RelatedLinkURL_2 +"\"&gt;" + ls_RelatedLinkText_2 +"&lt;/a&gt;&lt;/li&gt;"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='85'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 2 URL</run></par></tablecell>
+<tablecell>
+<par def='86'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='ls_RelatedLinkURL_2'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='88' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 2)</formula></code></pardef>
+<par def='88'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='89' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 3)</formula></code></pardef>
+<par def='89'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 3 text</run></par></tablecell>
+<tablecell>
+<pardef id='90' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 3)</formula></code></pardef>
+<par def='90'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='ls_RelatedLinkText_3'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='8' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='91' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 3)</formula></code></pardef>
+<par def='91'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='ls_RelatedLinkHtml_3'><code event='defaultvalue'><formula>"&lt;tr class=\"rlinks\"&gt;"+
+	"&lt;td&gt;&lt;img src=\"//www.ibm.com/i/v14/t/rl-bullet.gif\" width=\"2\" height=\"8\" alt=\"\"/&gt;&lt;/td&gt;"+
+	"&lt;td&gt;&lt;a class=\"rlinks\" href=\"" + ls_RelatedLinkURL_3 +"\"&gt;" + ls_RelatedLinkText_3 +"&lt;/a&gt;&lt;/td&gt;"+
+"&lt;/tr&gt;"</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='11' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/></run></par>
+<par def='83'><run><font size='9pt' color='gray' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='ls_v16_RelatedLinkHtml_3'><code
+ event='defaultvalue'><formula>"&lt;li&gt;&lt;a href=\"" + ls_RelatedLinkURL_3 +"\"&gt;" + ls_RelatedLinkText_3 +"&lt;/a&gt;&lt;/li&gt;"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='89'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 3 URL</run></par></tablecell>
+<tablecell>
+<par def='90'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='ls_RelatedLinkURL_3'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='92' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 3)</formula></code></pardef>
+<par def='92'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='93' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 4)</formula></code></pardef>
+<par def='93'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 4 text</run></par></tablecell>
+<tablecell>
+<pardef id='94' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 4)</formula></code></pardef>
+<par def='94'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='ls_RelatedLinkText_4'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='8' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='95' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 4)</formula></code></pardef>
+<par def='95'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='ls_RelatedLinkHtml_4'><code event='defaultvalue'><formula>"&lt;tr class=\"rlinks\"&gt;"+
+	"&lt;td&gt;&lt;img src=\"//www.ibm.com/i/v14/t/rl-bullet.gif\" width=\"2\" height=\"8\" alt=\"\"/&gt;&lt;/td&gt;"+
+	"&lt;td&gt;&lt;a class=\"rlinks\" href=\"" + ls_RelatedLinkURL_4 +"\"&gt;" + ls_RelatedLinkText_4 +"&lt;/a&gt;&lt;/td&gt;"+
+"&lt;/tr&gt;"</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='11' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/></run></par>
+<par def='83'><run><font size='9pt' color='gray' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='ls_v16_RelatedLinkHtml_4'><code
+ event='defaultvalue'><formula>"&lt;li&gt;&lt;a href=\"" + ls_RelatedLinkURL_4 +"\"&gt;" + ls_RelatedLinkText_4 +"&lt;/a&gt;&lt;/li&gt;"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='93'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 4 URL</run></par></tablecell>
+<tablecell>
+<par def='94'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='ls_RelatedLinkURL_4'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='96' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 4)</formula></code></pardef>
+<par def='96'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='97' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 5)</formula></code></pardef>
+<par def='97'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 5 text</run></par></tablecell>
+<tablecell>
+<pardef id='98' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 5)</formula></code></pardef>
+<par def='98'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='ls_RelatedLinkText_5'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='8' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='99' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 5)</formula></code></pardef>
+<par def='99'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='ls_RelatedLinkHtml_5'><code event='defaultvalue'><formula>"&lt;tr class=\"rlinks\"&gt;"+
+	"&lt;td&gt;&lt;img src=\"//www.ibm.com/i/v14/t/rl-bullet.gif\" width=\"2\" height=\"8\" alt=\"\"/&gt;&lt;/td&gt;"+
+	"&lt;td&gt;&lt;a class=\"rlinks\" href=\"" + ls_RelatedLinkURL_5+"\"&gt;" + ls_RelatedLinkText_5 +"&lt;/a&gt;&lt;/td&gt;"+
+"&lt;/tr&gt;"</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='11' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/></run></par>
+<par def='83'><run><font size='9pt' color='gray' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='ls_v16_RelatedLinkHtml_5'><code
+ event='defaultvalue'><formula>"&lt;li&gt;&lt;a href=\"" + ls_RelatedLinkURL_5 +"\"&gt;" + ls_RelatedLinkText_5 +"&lt;/a&gt;&lt;/li&gt;"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='97'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 5 URL</run></par></tablecell>
+<tablecell>
+<par def='98'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='ls_RelatedLinkURL_5'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='100' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(ls_CountRelatedLinks &gt;= 5)</formula></code></pardef>
+<par def='100'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='101' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='101'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='102' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='102'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='ls_RelatedLink_List'><code event='defaultvalue'><formula>@If(ls_CountRelatedLinks &gt; 0;
+	"&lt;br /&gt;" +
+	 "&lt;div id=\"ibm-secondary-navigation\"&gt;" +
+			 "&lt;table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"150\"&gt;"+
+				 "&lt;tr&gt;"+
+				 "&lt;td colspan=\"2\" class=\"related\"&gt;&lt;b class=\"related\"&gt;" + ls_RelatedLinkHeader +"&lt;/b&gt;&lt;/td&gt;"+
+				 "&lt;/tr&gt;"+
+					@If(ls_CountRelatedLinks &gt;= 1;ls_RelatedLinkHtml_1+ @NewLine;"")+
+					@If(ls_CountRelatedLinks &gt;= 2;ls_RelatedLinkHtml_2+ @NewLine;"")+
+					@If(ls_CountRelatedLinks &gt;= 3;ls_RelatedLinkHtml_3+ @NewLine;"")+
+					@If(ls_CountRelatedLinks &gt;= 4;ls_RelatedLinkHtml_4+ @NewLine;"")+
+					@If(ls_CountRelatedLinks &gt;= 5;ls_RelatedLinkHtml_5+ @NewLine;"")+					
+				 "&lt;tr&gt;"+
+				"&lt;td width=\"14\"&gt;&lt;img src=\"//www.ibm.com/i/c.gif\" width=\"14\" height=\"1\" alt=\"\" class=\"display-img\" /&gt;&lt;/td&gt;"+
+				"&lt;td width=\"136\"&gt;"+
+				"&lt;img src=\"//www.ibm.com/i/c.gif\" width=\"136\" height=\"19\" alt=\"\" class=\"display-img\" /&gt;&lt;/td&gt;"+
+				 "&lt;/tr&gt;"+
+			 "&lt;/table&gt;"+"&lt;/div&gt;";
+"")</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='10' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='103' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='103'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='101'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='102'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='ls_v16_RelatedLink_List'><code event='defaultvalue'><formula>@If(ls_CountRelatedLinks &gt; 0;
+"&lt;div id=\"ibm-secondary-navigation\"&gt;" + @NewLine +
+"&lt;h2&gt;" + ls_RelatedLinkHeader +"&lt;/h2&gt;" + @NewLine +
+"&lt;ul id=\"ibm-related-links\"&gt;" + @NewLine +
+					@If(ls_CountRelatedLinks &gt;= 1; ls_v16_RelatedLinkHtml_1 + @NewLine; "") +
+					@If(ls_CountRelatedLinks &gt;= 2; ls_v16_RelatedLinkHtml_2 + @NewLine; "") +
+					@If(ls_CountRelatedLinks &gt;= 3; ls_v16_RelatedLinkHtml_3 + @NewLine; "") +
+					@If(ls_CountRelatedLinks &gt;= 4; ls_v16_RelatedLinkHtml_4 + @NewLine; "") +
+					@If(ls_CountRelatedLinks &gt;= 5; ls_v16_RelatedLinkHtml_5 + @NewLine; "") +					
+"&lt;/ul&gt;" + @NewLine +
+"&lt;/div&gt;";
+"")</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='103'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<par def='48'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='104' keepwithnext='true' keeptogether='true'/>
+<par def='104'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='105' keepwithnext='true' keeptogether='true'/>
+<par def='105'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<par def='51'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow tablabel='History'>
+<tablecell>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5f84' altbgcolor='#c8d7e3'>
+<par def='19'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/>History</run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9896in'><tablecolumn width='1.6000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell>
+<pardef id='108' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='108'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Document created</run></par></tablecell>
+<tablecell>
+<pardef id='109' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='109'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='datetime' kind='computedwhencomposed'
+ name='doccreated'><datetimeformat show='datetime' date='yearmonthday' time='hourminutesecond'
+ zone='always' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>@Created</formula></code></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='108'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Created by</run></par></tablecell>
+<tablecell>
+<par def='109'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='RCreated'><code event='defaultvalue'><formula>@V3UserName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='108'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Update history</run></par></tablecell>
+<tablecell>
+<par def='109'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='c_audit_display' listinputseparators='semicolon newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>c_audit</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell></tablerow></table>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='3'><run><font style='bold' name='Helv' pitch='variable' truetype='false'
+ familyid='20'/></run></par></richtext></body>
+<item name='order_number' summary='false'><number>0</number></item>
+<item name='Description' summary='false'><number>0</number></item>
+<item name='OriginalModTime'><datetime dst='true'>20060416T115020,23-04</datetime></item>
+<item name='template_expiration' summary='false'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='ls_CountRelatedLinks' summary='false'><number>0</number></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>fLocaleSettings</text></item></form>
+

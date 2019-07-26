@@ -1,0 +1,87 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Dialog\Import Registrations' alias='dlgImportRegistrations' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='7'
+ comment='used with import registrations' bgcolor='#ece9d8'>
+<noteinfo noteid='14caa' unid='7A5E39F5199FC85886257F710078ADF2' sequence='10'>
+<created><datetime>20160309T155808,50-06</datetime></created>
+<modified><datetime dst='true'>20180929T235601,61-05</datetime></modified>
+<revised><datetime>20160310T111655,06-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235601,61-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235601,61-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+
+</lotusscript></code></globals>
+<actionbar bgcolor='#ece9d8' bordercolor='black'>
+<actionbuttonstyle bgcolor='#ece9d8'/><font size='9pt' color='system'/><border
+ style='solid' width='0px 0px 1px'/></actionbar>
+<body><richtext>
+<pardef id='1' hide='notes web mobile' tabs='L2.8750in'/>
+<par def='1'><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computedwhencomposed' name='Locales' listinputseparators='newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<table extrahtmlattrs='width="443" height="18"' widthtype='fixedleft' refwidth='5.8743in'><tablecolumn
+ width='0.1875in'/><tablecolumn width='5.5000in'/><tablecolumn width='0.1868in'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#ece9d8' extrahtmlattrs='width="13"'>
+<pardef id='3' align='center' keepwithnext='true' keeptogether='true'/>
+<par def='3'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#ece9d8' extrahtmlattrs='width="180"'>
+<pardef id='4' tabs='L2.8750in' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<pardef id='5' tabs='L9in L9.5000in L10in L10.5000in L11in L11.5000in L12in L12.5000in'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>!(Message != "")</formula></code></pardef>
+<par def='5'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='Message'><code event='defaultvalue'><formula>@ThisValue</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<par def='5'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<pardef id='6' tabs='L2.8750in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(Message != "")</formula></code></pardef>
+<par def='6'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='Locale'><keywords helperbutton='false'
+ columns='1' ui='radiobutton'><formula>Locales</formula></keywords><code event='defaultvalue'><formula
+>@ThisValue</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<pardef id='7' keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>What do you want to happen if a registration already exists in  the database?</run></par>
+<pardef id='8' tabs='L9in L9.5000in L10in L10.5000in L11in L11.5000in L12in L12.5000in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='dlg_DuplicateAction'><keywords helperbutton='false'
+ columns='1' ui='radiobutton'><textlist><text>Keep the existing registration|Keep</text><text
+>Update it with the information from the spreadsheet|Update</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Update"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#ece9d8'>
+<pardef id='9' keepwithnext='true' keeptogether='true'/>
+<par def='9'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='blue'/></run></par></tablecell></tablerow></table>
+<pardef id='10' leftmargin='1in' hide='notes web mobile'/>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></richtext></body>
+<item name='OriginalModTime' sign='true'><datetime dst='true'>20060718T124918,55-04</datetime></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>dlgImportRegistrations</text></item></form>
+

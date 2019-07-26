@@ -1,0 +1,1502 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Content\Landing Page Configuration)' alias='fLandingPageProfile'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' nocompose='true' noquery='true'
+ publicaccess='false' designerversion='7' editonopen='true' renderpassthrough='true'>
+<noteinfo noteid='14e6a' unid='780D8DEEF72E10E986257F710078ACFC' sequence='192'>
+<created><datetime>20160309T155806,04-06</datetime></created>
+<modified><datetime dst='true'>20180929T235603,89-05</datetime></modified>
+<revised><datetime>20160310T111652,85-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235603,89-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235603,89-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+</lotusscript></code><code event='declarations'><lotusscript>Dim m_docCurr As NotesDocument
+Dim m_uidocCurr As NotesUIDocument</lotusscript></code></globals><code event='windowtitle'><formula
+>"Landing Page"</formula></code><code event='options'><lotusscript>Option Declare
+</lotusscript></code><code event='querysave'><lotusscript>Sub Querysave(Source As Notesuidocument, Continue As Variant)
+	
+	Const STR_MODULE_NAME = |Landing page profile: Querysave|
+	
+	Dim docLandingPage As NotesDocument
+	Dim y As Integer
+	Dim ret As Variant
+	Dim x As Integer
+	Dim strMsg As String
+	Dim intCountErrors As Integer
+	Dim strErrorFieldName As String
+	
+     'Trap errors
+	On Error Goto lblError
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Started.|)
+	
+	Set docLandingPage = Source.Document
+	
+	If (docLandingPage.IsNewNote And  flgIsDuplicateLandingPage(m_docCurr)) Then
+		Call ShowErrorMsg(|A landing page profile already exists with this landing page id.| &amp; Chr$(13) &amp; Chr$(13) &amp; |Please choose a different landing page id.|)
+		Continue = False
+		Goto lblExit
+	End If
+	
+	intCountErrors = 0
+	strMsg = "The following fields are required to save this document:" &amp; Chr$(13) &amp; Chr$(13)
+	
+	If (m_docCurr.lp_name(0) = "") Then
+		If strErrorFieldName = "" Then
+			strErrorFieldName = "lp_name"
+		End If
+		intCountErrors = intCountErrors + 1
+		strMsg = strMsg &amp; " Landing page id" &amp; Chr$(13)
+	End If
+	
+	If (m_docCurr.lp_description(0) = "") Then
+		If strErrorFieldName = "" Then
+			strErrorFieldName = "lp_description"
+		End If
+		intCountErrors = intCountErrors + 1
+		strMsg = strMsg &amp; " Description" &amp; Chr$(13)
+	End If
+	
+	If (m_docCurr.lp_locale(0) = "") Then
+		If strErrorFieldName = "" Then
+			strErrorFieldName = "lp_locale"
+		End If
+		intCountErrors = intCountErrors + 1
+		strMsg = strMsg &amp; " Language" &amp; Chr$(13)
+	End If
+	
+	If intCountErrors &gt; 0 Then
+		Call ShowErrorMsg(strMsg)
+		Source.GotoField(strErrorFieldName)
+		Continue = False	
+		Goto lblExit
+	End If
+	
+	If Instr(m_docCurr.lp_name(0), " ") &gt; 0 Then
+		strMsg = "The Landing page id cannot contain spaces between words. Please remove them."_ 
+		&amp; " If you have already distributed the landing page URL you would need to replace with the new URL once you remove the spaces and save this document." &amp; Chr$(13)
+		Call ShowErrorMsg(strMsg)
+		strErrorFieldName = "lp_name"
+		Source.GotoField(strErrorFieldName)
+		Continue = False	
+		Goto lblExit
+	End If
+	
+	'Build the Landing page query filter on Query Save after the fields have been selected
+	
+	'Start with a default of all active events
+	Dim query As String
+	Dim strOR As String
+	strOR = " | "
+	query  = { Form = "fEventProfile"  &amp; status = "Active"  &amp; ep_IsInvitationOnly != "Yes" &amp; (ep_WebSiteType = "" | ep_WebSiteType = "S") }
+	
+	If (docLandingPage.lp_QueryLocale(0) &lt;&gt; "") Then
+		query  = query  + | &amp; @Contains(ep_Locales;"| + docLandingPage.lp_QueryLocale(0) + |") |
+	End If
+	
+	'Define the potential criteria fields
+	Dim criterias(1 To 5) As String
+	criterias(1) = "lp_loc_confcountry"
+	criterias(2) = "lp_geo"
+	criterias(3) = "lp_category"
+	criterias(4) = "lp_sponsor_bu_pri"
+	criterias(5) = "lp_es_brand"
+	
+	'Now add any other filters
+	Dim strCriteria As String
+	
+	For y = 1 To 5
+		strCriteria = Trim(Source.FieldGetText(criterias(y)))
+		Dim intLength As Integer
+		Dim strFieldName As String
+		intLength = Len(criterias(y))
+		intLength = intLength - 3 'Remove the "lp_" prefix
+		strFieldName = Right(criterias(y),intLength)
+		If ( strCriteria &lt;&gt; "") Then			
+			If Instr(strCriteria,",") Then '@@@ Is there several criteria?
+				'@@@ Yes, add THEM
+				ret = Split(strCriteria,",")
+				query  = query + " &amp; ( "
+				For x = 0 To Ubound(ret)
+					If x &gt; 0 Then ' if second or higher subscript in list then add a OR clause
+						query  = query + strOR + | | + strFieldName + | = "| + Trim$(ret(x)) + |" |
+					Else  'Otherwise do not
+						query  = query + | | + strFieldName + | = "| + Trim$(ret(x)) + |" |
+					End If				
+				Next
+				query  = query + " ) "
+			Else '@@@ Nope, just one, add IT
+				query  = query + | &amp; | + strFieldName + | = "| + Trim$(strCriteria) + |" |
+			End If		
+		End If					
+	Next
+	
+	'Update to allow for brand being a multi-value field in the event profile
+	strCriteria = Trim(Source.FieldGetText("lp_brand"))
+	strFieldName = "brand"
+	If (strCriteria &lt;&gt; "") Then			
+		If Instr(strCriteria,",") Then 'Are there several criteria?
+			'Yes, add them
+			ret = Split(strCriteria, ",")
+			query  = query + " &amp; ( "
+			For x = 0 To Ubound(ret)
+				If x &gt; 0 Then ' if second or higher subscript in list then add a OR clause
+					query  = query + strOR + | | + |@Contains(| + strFieldName + |; "| + Trim$(ret(x)) + |") |
+				Else  'Otherwise do not
+					query  = query + | | + |@Contains(| + strFieldName + |; "| + Trim$(ret(x)) + |") |
+				End If				
+			Next
+			query  = query + " ) "
+		Else 'Nope, just one, so add it
+			query  = query + | &amp; | + |@Contains(| + strFieldName + |; "| + Trim$(strCriteria) + |") |
+		End If		
+	End If					
+	
+	docLandingPage.lp_query = query
+	
+	'Build graphic table using commons function
+	'Build the graphic table for the landing page
+	docLandingPage.lp_graphicTableComputed = getGraphicTable(docLandingPage)
+	
+	
+lblExit:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Finished.|)
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Sub
+</lotusscript></code><code event='postopen'><lotusscript>Sub Postopen(Source As Notesuidocument)
+	
+	Set m_uidocCurr = Source
+	Set m_docCurr = m_uidocCurr.Document	
+	
+End Sub
+</lotusscript></code><code event='queryopen'><lotusscript>Sub Queryopen(Source As Notesuidocument, Mode As Integer, Isnewdoc As Variant, Continue As Variant)
+	
+	Const STR_MODULE_NAME = |Landing page profile: Queryopen|
+	
+	Dim doc As NotesDocument
+	Dim flgAllowedToEdit As Integer
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Started.|)
+	
+	Set doc = Source.Document
+	
+	flgAllowedToEdit = flgCanEdit(doc, g_strUserName)
+	
+	'Check that the user is allowed to edit the document and display a message and exit they are not allowed.
+	If (Not flgAllowedToEdit) Then
+		Call ShowErrorMsg(|You are not allowed to edit a default landing page.| &amp; Chr$(13) &amp; Chr$(13) &amp; |To create a new landing page click the 'Add Landing Page Configuration' button.|)
+		Call Debug(STR_MODULE_NAME &amp; |: [| &amp; g_strUserName &amp; |] attempted to edit a default landing page.|)
+		Continue = False
+	End If     
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Finished.|)
+	
+End Sub
+</lotusscript></code><code event='querymodechange'><lotusscript>Sub Querymodechange(Source As Notesuidocument, Continue As Variant)
+	
+	Const STR_MODULE_NAME = |Landing page profile: Querymodechange|
+	
+	Dim doc As NotesDocument
+	Dim flgAllowedToEdit As Integer
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Started.|)
+	
+	Set doc = Source.Document
+	
+	flgAllowedToEdit = flgCanEdit(doc, g_strUserName)
+	
+	If Not Source.EditMode And (Not flgAllowedToEdit) Then
+		Call ShowErrorMsg(|You are not allowed to edit a default landing page.| &amp; Chr$(13) &amp; Chr$(13) &amp; |To create a new landing page click the 'Add Landing Page Configuration' button.|)
+		Call Debug(STR_MODULE_NAME &amp; |: [| &amp; g_strUserName &amp; |] attempted to edit a default landing page.|)
+		Continue = False
+	End If     
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Finished.|)
+	
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<sharedactionref id='70'>
+<action title='Close' icon='27' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='71'>
+<action title='Save &amp; Close' icon='21' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@If(@Command([FileSave]);@Command([CloseWindow]); "")</formula></code></action></sharedactionref>
+<action title='Preview' icon='39' showinmenu='false'><code event='click'><formula
+>@Command([FileSave]);
+@URLOpen(lp_URL)</formula></code><code event='hidewhen'><formula>qa_open != "Yes"</formula></code></action>
+<sharedactionref id='91'>
+<action title='Insert\Carriage Return' icon='29' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; "&lt;br /&gt;" )</formula></code></action></sharedactionref>
+<sharedactionref id='92'>
+<action title='Insert\Bold Font' icon='58' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; "&lt;b&gt;PLACE THE TEXT TO MAKE BOLD IN BETWEEN THESE TAGS&lt;/b&gt;" )</formula></code></action></sharedactionref>
+<sharedactionref id='93'>
+<action title='Insert\Link to IBM web page' icon='44' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; "&lt;a href=\"ENTER THE URL TO LINK HERE\"&gt;ENTER THE NAME OF THE LINK HERE&lt;/a&gt;" )</formula></code></action></sharedactionref>
+<sharedactionref id='90'>
+<action title='Insert\Link to page outside IBM' icon='41' showinmenu='false'
+ hide='preview read web mobile'><code event='click'><formula>link := "&lt;a class=\"ibm-external-link ibm-leaving-prompt\" href=\"http://www.ibm.com/links/?prompt=1&amp;url=http://ENTER URL TO LINK HERE\"&gt;ENTER THE NAME OF THE LINK HERE&lt;/a&gt;";
+@Command([EditInsertText];@NewLine + link)</formula></code></action></sharedactionref>
+<sharedactionref id='89'>
+<action title='Insert\Map link' icon='107' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>link := "&lt;a class=\"ibm-external-link\" href=\"#\" onClick=\"OpenNonIBMPage('ENTER URL TO LINK HERE');return false;\"&gt;Map to this location&lt;/a&gt;";
+@Command([EditInsertText];@NewLine + link)</formula></code></action></sharedactionref>
+<sharedactionref id='94'>
+<action title='Insert\Contact E-mail' icon='59' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; "&lt;a href=\"mailto:ENTER E-MAIL ADDRESS HERE\"&gt;ENTER SAME E-MAIL ADDRESS HERE&lt;/a&gt;" )</formula></code></action></sharedactionref>
+<sharedactionref id='96'>
+<action title='Insert\Unordered List' icon='146' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; @NewLine +"&lt;p&gt;&lt;ul class=\"ibm-bullet-list ibm-no-links\"&gt;" + @NewLine + "&lt;li&gt;ADD HERE UNORDERED LIST ELEMENT ONE&lt;/li&gt;" + @NewLine + "&lt;li&gt;ADD HERE UNORDERED LIST ELEMENT TWO&lt;/li&gt;" + @NewLine + "&lt;li&gt;ADD HERE UNORDERED LIST ELEMENT THREE&lt;/li&gt;" + @NewLine + "&lt;li&gt;ADD HERE UNORDERED LIST ELEMENT FOUR&lt;/li&gt;" + @NewLine + "&lt;/ul&gt;&lt;/p&gt;" )</formula></code></action></sharedactionref>
+<sharedactionref id='97'>
+<action title='Insert\Ordered List' icon='146' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; @NewLine + "&lt;p&gt;&lt;ol&gt;" + @NewLine + "&lt;li&gt;ADD HERE ORDERED LIST ELEMENT ONE&lt;/li&gt;" + @NewLine + "&lt;li&gt;ADD HERE ORDERED LIST ELEMENT TWO&lt;/li&gt;" + @NewLine + "&lt;li&gt;ADD HERE ORDERED LIST ELEMENT THREE&lt;/li&gt;" + @NewLine + "&lt;li&gt;ADD HERE ORDERED LIST ELEMENT FOUR&lt;/li&gt;" + @NewLine + "&lt;/ol&gt;&lt;/p&gt;" )</formula></code></action></sharedactionref>
+<sharedactionref id='98'>
+<action title='Insert\Add Line to List' icon='146' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@Command([EditInsertText]; @NewLine + "&lt;li&gt;ADD HERE NEW ENTRY TO LIST&lt;/li&gt;" )</formula></code></action></sharedactionref>
+<action title='Load Defaults' icon='145' showinmenu='false' hide='preview read'><code
+ event='click'><lotusscript>Sub Click(Source As Button)
+	
+	Call LoadLandingPageDefaults(m_docCurr, Cstr(m_docCurr.lp_Locale(0)))
+	
+	Call m_uidocCurr.Reload()
+	Call m_uidocCurr.Refresh()
+	
+End Sub
+</lotusscript></code><code event='hidewhen'><formula>!(lp_Locale != "")</formula></code></action></actionbar>
+<body><richtext>
+<pardef id='1' hide='read edit copy preview previewedit web'/>
+<par def='1'><run><font size='8pt' color='red'/><field type='text' kind='computed'
+ name='docid'><code event='defaultvalue'><formula>@Text(@DocumentUniqueID)</formula></code></field></run><run
+><font color='red'/></run><run><font size='8pt' color='red'/><field type='text'
+ allowmultivalues='true' kind='editable' name='c_audit' listinputseparators='comma semicolon'
+ listdisplayseparator='semicolon'><code event='inputtranslation'><formula
+>Output := @Text(@Name([CN];@V3UserName))+" - "+@Text(@Now);
+@If(@IsDocBeingSaved;@If(c_audit = "";@SetField("c_audit"; Output);@SetField("c_audit"; c_audit:Output));@If(c_audit = "";Output;c_audit))</formula></code></field></run><run
+><font size='8pt' color='red'/><field type='text' kind='computed' name='graphicname'><code
+ event='defaultvalue'><formula>@If(whichgraphic != "";@Left(whichgraphic; "::");"")</formula></code></field></run><run
+><font size='8pt' color='red'/><field type='text' kind='computed' name='graphicfile'><code
+ event='defaultvalue'><formula>@If(whichgraphic != "";@Right(whichgraphic; "::");"")</formula></code></field></run></par>
+<pardef id='2'/>
+<par def='2'/>
+<table cellbordercolor='red' widthtype='fixedleft' refwidth='8in'><tablecolumn
+ width='2in'/><tablecolumn width='6in'/>
+<tablerow>
+<tablecell>
+<pardef id='4' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='4'>   <run><font size='8pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_ReferenceDbReplicaID'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='5' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='5'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>   </run><run><font size='8pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/>dp_ReferenceDbReplicaID</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> - The replica ID of the reference database. (Includes the colon.  Use in @DBLookups.)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='6' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='dp_IsMultiLingual'><code event='defaultvalue'><formula>@GetProfileField("fProfile"; @ThisName)</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='7' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_IsMultiLingual</run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Whether the canister is configured to support multiple locales.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='d_IsDeveloper'><code event='defaultvalue'><formula>@If(@IsMember("[Developer]"; @UserRoles); "Yes"; "No")</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>dp_IsDeveloper </run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- Whether the current user is in the [Developer] role.</run></par>
+<par def='7'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Used to show the fields that allow you to configure a landing page as a default.</run></par></tablecell></tablerow></table>
+<pardef id='8' leftmargin='1in' hide='notes web'/>
+<par def='8'/>
+<table widthtype='fixedleft' refwidth='8in'><border dropshadow='true'/><tablecolumn
+ width='8in'/>
+<tablerow>
+<tablecell colorstyle='hgradient' borderwidth='0px' bgcolor='#3c5e84' altbgcolor='#c8d7e3'>
+<pardef id='10' leftmargin='0.1000in' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='14pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/></run><run><font size='14pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/><computedtext><code event='value'><formula
+>@GetProfileField("fProfile";"dp_SystemName")</formula></code></computedtext></run><run
+><font size='14pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='white'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell colorstyle='hgradient' borderwidth='0px' bgcolor='#3c5e84' altbgcolor='#c8d7e3'>
+<pardef id='11' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='11'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/>Landing Page</run></par></tablecell></tablerow></table>
+<pardef id='12' leftmargin='1in'/>
+<par def='12'><run><font name='Helv' pitch='variable' truetype='false' familyid='20'/></run></par>
+<table rowdisplay='tabs' sizetabsequally='true' widthtype='fixedleft' refwidth='8.0625in'><tablerowstyle
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='black'/></tablerowstyle><border dropshadow='true'/><tablecolumn width='8.0625in'/>
+<tablerow tablabel='Configuration       '>
+<tablecell>
+<pardef id='14' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='8.0417in'><tablecolumn width='1.6000in'/><tablecolumn width='3.4000in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell>
+<pardef id='16' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='16'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Landing page id</run><run><font size='9pt'
+ style='bold' name='Courier New' pitch='fixed' truetype='true' familyid='30'
+ color='red'/> *</run></par></tablecell>
+<tablecell>
+<pardef id='17' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='17'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='lp_Name' listinputseparators='newline' listdisplayseparator='newline'><code
+ event='defaultvalue'><formula>""</formula></code><code event='inputtranslation'><formula
+>@LowerCase(@ThisValue)</formula></code></field></run><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='18' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>This is the id used to identify this landing page in the url of your site.</run></par>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>For example, if you enter 'main', the url for the landing page will be of the format:</run></par>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>.../events?openform&amp;lp=main</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='16'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Description</run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/> *</run></par></tablecell>
+<tablecell>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' allowmultivalues='true' kind='editable'
+ name='lp_Description' listinputseparators='newline' listdisplayseparator='newline'><code
+ event='defaultvalue'><formula>""</formula></code></field></run><run><font
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Describe the purpose and content of this landing page.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='16'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Language</run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/> *</run></par></tablecell>
+<tablecell>
+<pardef id='19' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='19'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='lp_Locale'><keywords recalconchange='true'
+ columns='1' ui='dialoglist'><formula>@GetProfileField("fProfile"; "dp_LocaleLookup")</formula></keywords><code
+ event='defaultvalue'><formula>@GetProfileField("fProfile"; "dp_DefaultLocale")</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='20' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='20'><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='lp_LocaleName' listinputseparators='newline' listdisplayseparator='newline'><code
+ event='defaultvalue'><formula>tmpValues := @DbLookup("" : "Cache"; dp_ReferenceDbReplicaID; "vLookupEnabledLocaleProfiles"; lp_Locale; 3);
+@If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues)</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<pardef id='21' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is not multi-lingual};
+!(dp_IsMultiLingual != "Yes")</formula></code></pardef>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='computedfordisplay' name='lp_LocaleName_Display'><code
+ event='defaultvalue'><formula>lp_LocaleName</formula></code></field></run></par></tablecell>
+<tablecell>
+<pardef id='22' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes")</formula></code></pardef>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Choose the language for this landing page.</run></par>
+<pardef id='23' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is not multi-lingual};
+!(dp_IsMultiLingual != "Yes")</formula></code></pardef>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The landing page for this language.</run></par></tablecell></tablerow></table>
+<par def='14'/>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='8.0417in'><tablecolumn width='20.0521%'/><tablecolumn width='42.6181%'/><tablecolumn
+ width='37.3333%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<pardef id='25' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='25'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Content layout</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='#efefef'>
+<pardef id='26' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='26'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<pardef id='27' align='right' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='27'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='28' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Graphic</run></par></tablecell>
+<tablecell>
+<pardef id='29' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='29'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='keyword' kind='editable'
+ name='lp_graphic'><keywords ui='dialoglist'><formula>@DbColumn("" : "NoCache"; ""; "LookupElementsImage"; 1)</formula></keywords></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='30' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='30'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='lp_dblookup_graphic'><code
+ event='inputtranslation'><formula>@If(lp_graphic != "";@DbLookup("" : "NoCache"; ""; "LookupElementsImage"; lp_graphic;3);"")</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='lp_dblookup_graphicALT'><code
+ event='inputtranslation'><formula>@If(lp_graphic != "";@DbLookup("" : "NoCache"; ""; "LookupElementsImage"; lp_graphic;4);"")</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='31' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The graphic to show at the top of the landing page.</run></par>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>NOTE: All graphics must be in jpeg format and conform to </run><urllink
+ showborder='false' href='http://cwt01-stds.webmaster.ibm.com/pageelements/imagery/imagery-or.html'><run
+><font size='9pt' style='underline' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/>IBM graphics size and usage standards</run></urllink><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='#3c5e84'/>.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Graphic text (optional)</run></par></tablecell>
+<tablecell>
+<par def='29'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_graphictext'/></run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The text to display to the right of the graphic.  </run></par>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Only use if the graphic does not already contain text.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Page title</run></par></tablecell>
+<tablecell>
+<par def='29'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_title'><code event='defaultvalue'><formula>"Events"</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>What title do you want for the page?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Page subtitle</run></par></tablecell>
+<tablecell>
+<par def='29'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_sub_title'><code event='defaultvalue'><formula>@GetProfileField("fProfile";"dp_SystemName")</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='32' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includeloc = "No"</formula></code></pardef>
+<par def='32'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>What subtitle do you want for the page?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Include paragraph </run></par>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>above table?</run></par></tablecell>
+<tablecell>
+<par def='29'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='includemaincontent'><keywords helperbutton='false' recalconchange='true'
+ columns='2' ui='radiobutton'><textlist><text>Yes</text><text>No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"No"</formula></code></field></run><run><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='33' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen' enabled='false'><formula>includeloc = "No"</formula></code></pardef>
+<par def='33'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Do you want to include any text or html above the list of events?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='34' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includemaincontent != "Yes"</formula></code></pardef>
+<par def='34'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Content paragraph above table</run></par></tablecell>
+<tablecell>
+<pardef id='35' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includemaincontent != "Yes"</formula></code></pardef>
+<par def='35'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field defaultfocus='true'
+ type='text' kind='editable' name='maincontent'/></run><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='36' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includemaincontent != "Yes"</formula></code></pardef>
+<par def='36'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The text or html to include above the list of events.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Include paragraph below table?</run></par></tablecell>
+<tablecell>
+<par def='29'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='includebelowtable'><keywords helperbutton='false' recalconchange='true'
+ columns='2' ui='radiobutton'><textlist><text>Yes</text><text>No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"No"</formula></code></field></run><run><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Do you want to include any text or html below the list of events?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='37' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includebelowtable != "Yes"</formula></code></pardef>
+<par def='37'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Content paragraph below table</run></par></tablecell>
+<tablecell>
+<pardef id='38' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includebelowtable != "Yes"</formula></code></pardef>
+<par def='38'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field defaultfocus='true'
+ type='text' kind='editable' name='mainbelowtable'/></run><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='39' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includebelowtable != "Yes"</formula></code></pardef>
+<par def='39'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The text or html to include below the list of events.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Include right column</run></par></tablecell>
+<tablecell>
+<par def='29'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field borderstyle='none'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='includerightcontent'><keywords helperbutton='false' recalconchange='true'
+ columns='2' ui='radiobutton'><textlist><text>Yes</text><text>No</text></textlist></keywords><code
+ event='defaultvalue'><formula>"No"</formula></code></field></run><run><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Do you want to include a column at the right of the page?</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='40' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includerightcontent != "Yes"</formula></code></pardef>
+<par def='40'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Right column content</run></par></tablecell>
+<tablecell>
+<pardef id='41' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includerightcontent != "Yes"</formula></code></pardef>
+<par def='41'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field defaultfocus='true'
+ type='text' kind='editable' name='rightcontent'/></run><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='42' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>includerightcontent != "Yes"</formula></code></pardef>
+<par def='42'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The text of html for the right column.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='43' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='43'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell>
+<tablecell>
+<pardef id='44' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='44'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='45' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='45'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='46' keepwithnext='true' keeptogether='true'/>
+<par def='46'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='47' keepwithnext='true' keeptogether='true'/>
+<par def='47'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='48' keepwithnext='true' keeptogether='true'/>
+<par def='48'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<pardef id='49' leftmargin='0.0104in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='49'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='8.0417in'><tablecolumn width='20.0521%'/><tablecolumn width='42.6076%'/><tablecolumn
+ width='37.3403%'/>
+<tablerow>
+<tablecell columnspan='2' borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<pardef id='52' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='52'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Events selection criteria</run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<pardef id='53' align='right' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='53'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='54' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='54'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Selection method</run></par></tablecell>
+<tablecell>
+<pardef id='55' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='55'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='lp_EventSelectionMethod'><keywords
+ helperbutton='false' recalconchange='true' columns='2' ui='radiobutton'><textlist
+><text>By Query|ByQuery</text><text>By Direct Link|ByDirectLink</text></textlist></keywords><code
+ event='defaultvalue'><formula>"No"</formula></code></field></run><run><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='56' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='56'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='57' leftmargin='0.1000in' rightmargin='98%' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>lp_EventSelectionMethod !="ByQuery"</formula></code></pardef>
+<par def='57'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Topic keyword</run></par></tablecell>
+<tablecell>
+<pardef id='58' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>lp_EventSelectionMethod !="ByQuery"</formula></code></pardef>
+<par def='58'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='keyword' allowmultivalues='true'
+ kind='editable' name='lp_brand' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ ui='dialoglist'><formula>tmpValues := @DbLookup("" : "NoCache"; dp_ReferenceDbReplicaID; "vLookupSystemwideDefaultsByKey"; "Defaults"; "sd_Topics");
+@If(@IsError(tmpValues) | tmpValues = ""; "Error: The systemwide default could not be found in the reference database."; tmpValues)</formula></keywords></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='59' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>lp_EventSelectionMethod !="ByQuery"</formula></code></pardef>
+<par def='59'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Topic keyword from the event profile.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='60' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>lp_EventSelectionMethod !="ByQuery"</formula></code></pardef>
+<par def='60'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Locale</run></par></tablecell>
+<tablecell>
+<pardef id='61' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes" &amp; lp_EventSelectionMethod ="ByQuery")</formula></code></pardef>
+<par def='61'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' allowmultivalues='true' kind='editable'
+ name='lp_QueryLocale' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ recalconchange='true' columns='1' ui='dialoglist'><formula>tmpValues := @DbColumn("" : "NoCache"; dp_ReferenceDbReplicaID; "vLookupEnabledLocaleProfiles"; 2);
+tmpList := @If(@IsError(tmpValues) | tmpValues = ""; "Error: No locales have been defined or enabled.  Please either create or enable a Locale Profile in the reference database."; tmpValues);
+@Sort(tmpList)</formula></keywords></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='62' leftmargin='0.1000in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='62'><run><font size='9pt'/></run><run><font size='9pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ allowmultivalues='true' kind='computed' name='lp_QueryLocaleName' listinputseparators='newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>tmpValues := @DbLookup("" : "Cache"; dp_ReferenceDbReplicaID; "vLookupEnabledLocaleProfiles"; lp_QueryLocale; 3);
+@If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues)</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>   </run></par>
+<pardef id='63' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>REM {Show if canister is not multi-lingual};
+!(dp_IsMultiLingual != "Yes" &amp; lp_EventSelectionMethod ="ByQuery")</formula></code></pardef>
+<par def='63'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='lp_QueryLocaleName_Display'><code event='defaultvalue'><formula>lp_QueryLocaleName</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='64' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>REM {Show if canister is multi-lingual};
+!(dp_IsMultiLingual = "Yes" &amp; lp_EventSelectionMethod ="ByQuery")</formula></code></pardef>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Choose a locale. </run></par>
+<par def='64'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>This is a combination of both a country and a language. This can be useful if you only want events published in one language to be included on this landing page.  Leave blank to include all events regardless of their locale.</run></par>
+<pardef id='65' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>REM {Show if canister is not multi-lingual};
+!(dp_IsMultiLingual != "Yes" &amp; lp_EventSelectionMethod ="ByQuery")</formula></code></pardef>
+<par def='65'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The locale.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='57'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Country</run></par></tablecell>
+<tablecell>
+<par def='58'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='keyword' allowmultivalues='true'
+ kind='editable' name='lp_loc_confcountry' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ ui='dialoglist'><formula>tmpValues := @DbColumn("":"NoCache";"":"";"vLookupLandingQueryValues";3);
+
+@If(@IsError(tmpValues) | tmpValues = ""; "Error: No values available for selection."; @Unique(tmpValues))</formula></keywords></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='66' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>lp_EventSelectionMethod !="ByQuery"</formula></code></pardef>
+<par def='66'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Country where the event is taking place.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='57'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Geography</run></par></tablecell>
+<tablecell>
+<par def='58'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='keyword' allowmultivalues='true'
+ kind='editable' name='lp_geo' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ ui='dialoglist'><formula>tmpValues := @DbColumn("":"NoCache";"":"";"vLookupLandingQueryValues";4);
+
+@If(@IsError(tmpValues) | tmpValues = ""; "Error: No values available for selection."; @Unique(tmpValues))</formula></keywords></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='59'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Geography</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='57'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Category</run></par></tablecell>
+<tablecell>
+<par def='58'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='keyword' allowmultivalues='true'
+ kind='editable' name='lp_category' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ ui='dialoglist'><formula>tmpValues := @DbColumn("":"NoCache";"":"";"vLookupLandingQueryValues";6);
+
+@Unique(tmpValues)</formula></keywords></field></run><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='59'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Category from the event profile.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='57'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Primary BU</run></par></tablecell>
+<tablecell>
+<par def='58'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='keyword' allowmultivalues='true'
+ kind='editable' name='lp_sponsor_bu_pri' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ ui='dialoglist'><formula>tmpValues := @DbColumn("":"NoCache";"":"";"vLookupLandingQueryValues";1);
+
+@If(@IsError(tmpValues) | tmpValues = ""; "Error: No values available for selection."; @Unique(tmpValues))</formula></keywords></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='59'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Primary BU field pulled from ES.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='67' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>lp_EventSelectionMethod !="ByQuery"</formula></code></pardef>
+<par def='67'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Primary brand/sector</run></par></tablecell>
+<tablecell>
+<par def='58'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='keyword' allowmultivalues='true'
+ kind='editable' name='lp_es_brand' listinputseparators='comma' listdisplayseparator='comma'><keywords
+ ui='dialoglist'><formula>tmpValues := @DbColumn("":"NoCache";"":"";"vLookupLandingQueryValues";5);
+
+@If(@IsError(tmpValues) | tmpValues = ""; "Error: No values available for selection."; @Unique(tmpValues))</formula></keywords></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='59'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Primary brand field pulled from ES.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='67'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Landing page query</run></par></tablecell>
+<tablecell>
+<par def='58'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='lp_Query'><code event='defaultvalue'><formula>lp_Query</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='59'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The query that will be used to find the events to include on this landing page.</run></par>
+<par def='59'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>NOTE: The query will update when you save the document.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Landing page URL</run></par></tablecell>
+<tablecell>
+<pardef id='68' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='68'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/><field usenotesstyle='false'
+ height='0.6000in' width='100%' heighttype='dynamic' multiline='true' borderstyle='none'
+ type='text' kind='computed' name='lp_URL'><code event='defaultvalue'><formula
+>@GetProfileField("fProfile"; "dp_LiveDomainName") + "/" + @GetProfileField("fProfile"; "dp_LiveDbPath")  + "/" +  @GetProfileField("fProfile"; "dp_LiveDbFilename") + "/v16_events?openform&amp;lp=" + lp_Name  + "&amp;locale=" + lp_Locale</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='69' leftmargin='0.1000in' rightmargin='98%' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='69'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><actionhotspot hotspotstyle='none'><code
+ event='click'><formula>@Command([FileSave]);
+@URLOpen(lp_URL)</formula></code><run><font size='8pt' style='underline' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='#3c5e84'/>Preview page</run></actionhotspot><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='#3c5e84'/> </run></par></tablecell></tablerow></table>
+<pardef id='70' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(d_IsDeveloper = "Yes")</formula></code></pardef>
+<par def='70'/>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='8.0417in'><tablecolumn width='20.0521%'/><tablecolumn width='42.6076%'/><tablecolumn
+ width='37.3403%'/>
+<tablerow>
+<tablecell columnspan='3' bgcolor='#efefef'>
+<pardef id='74' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(d_IsDeveloper = "Yes")</formula></code></pardef>
+<par def='74'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Admin use</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='75' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(d_IsDeveloper = "Yes")</formula></code></pardef>
+<par def='75'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Make default?</run></par></tablecell>
+<tablecell>
+<pardef id='76' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(d_IsDeveloper = "Yes")</formula></code></pardef>
+<par def='76'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='lp_IsDefault'><keywords helperbutton='false'
+ recalconchange='true' columns='3' ui='radiobutton'><textlist><text>Yes</text><text
+>No</text></textlist></keywords><code event='defaultvalue'><formula>"No"</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='77' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(d_IsDeveloper = "Yes")</formula></code></pardef>
+<par def='77'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Make this a default landing page.</run></par></tablecell></tablerow></table>
+<par def='14'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<par def='49'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow tablabel='Left navigation'>
+<tablecell>
+<pardef id='78' keepwithnext='true' keeptogether='true'/>
+<par def='78'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='8.0417in'><tablecolumn width='1.6000in'/><tablecolumn width='3.4000in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<pardef id='80' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='80'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Top link</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='#efefef'>
+<pardef id='81' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='81'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<pardef id='82' align='right' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='82'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='16'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Text</run></par></tablecell>
+<tablecell>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='lp_TopLinkText'><code
+ event='defaultvalue'><formula>tmpValues := @DbLookup("" : "Cache"; "":""; "vLookupLocaleSettings"; lp_Locale; "ls_TopLinkText");
+@If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues)</formula></code><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The text to show for the top link.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='16'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>URL</run></par></tablecell>
+<tablecell>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='lp_TopLinkURL'><code
+ event='defaultvalue'><formula>tmpValues := @DbLookup("" : "Cache"; "":""; "vLookupLocaleSettings"; lp_Locale; "ls_TopLinkURL");
+@If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues)</formula></code><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The URL.</run></par></tablecell></tablerow></table>
+<par def='78'/>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='8.0417in'><tablecolumn width='1.6000in'/><tablecolumn width='3.4000in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<par def='80'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Primary link</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='#efefef'>
+<par def='81'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<par def='82'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='16'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Override default?</run></par></tablecell>
+<tablecell>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='lp_EnableLeftNavCustomOverride'><keywords
+ helperbutton='false' recalconchange='true' columns='2' ui='radiobutton'><textlist
+><text>Yes</text><text>No</text></textlist></keywords><code event='defaultvalue'><formula
+>"No"</formula></code></field></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The default is one single entry with the link to this landing page. If you wish to add other primary links to this landing page please click 'Yes' in this override field and paste your custom HTML in the free text area that appears below.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 1px 0px'>
+<pardef id='84' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_EnableLeftNavCustomOverride = "Yes")</formula></code></pardef>
+<par def='84'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Custom free text</run></par></tablecell>
+<tablecell borderwidth='1px 1px 0px'>
+<pardef id='85' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_EnableLeftNavCustomOverride = "Yes")</formula></code></pardef>
+<par def='85'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='lp_LeftNavCustomOverride'><code
+ event='defaultvalue'><formula>"&lt;!-- Your HTML should follow this format: --&gt;" + @NewLine+
+"&lt;li id=\"ibm-overview\"&gt;&lt;a href=\"TopUrl\"&gt;Top link&lt;/a&gt;&lt;/li&gt;" + @NewLine+
+"&lt;li&gt;&lt;a href=\"Url1\" class=\"ibm-is-active\"&gt;link 1&lt;/a&gt;&lt;/li&gt;"+ @NewLine+
+"&lt;li&gt;&lt;a href=\"Url2\" &gt;&lt;/a&gt;link 2&lt;/li&gt;"+ @NewLine+
+"&lt;li&gt;&lt;a href=\"Url3\" &gt;&lt;/a&gt;link 3&lt;/li&gt;"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 1px 0px'>
+<pardef id='86' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_EnableLeftNavCustomOverride = "Yes")</formula></code></pardef>
+<par def='86'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The free text HTML that renders your desired left navigation primary menu, including toplink.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px 1px 1px'>
+<pardef id='87' keepwithnext='true' keeptogether='true'/>
+<par def='87'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='0px 1px 1px'>
+<pardef id='88' keepwithnext='true' keeptogether='true'/>
+<par def='88'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='0px 1px 1px'>
+<pardef id='89' keepwithnext='true' keeptogether='true'/>
+<par def='89'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<par def='78'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='8.0417in'><tablecolumn width='1.6000in'/><tablecolumn width='3.4000in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<par def='80'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>News link</run></par></tablecell>
+<tablecell borderwidth='1px 0px' bgcolor='#efefef'>
+<par def='81'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<par def='82'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='16'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Text</run></par></tablecell>
+<tablecell>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='lp_NewsLinkText'><code
+ event='defaultvalue'><formula>tmpValues := @DbLookup("" : "Cache"; "":""; "vLookupLocaleSettings"; lp_Locale; "ls_NewsLinkText");
+@If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues)</formula></code><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The text to show for the 'News' link.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='16'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>URL</run></par></tablecell>
+<tablecell>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='lp_NewsLinkURL'><code
+ event='defaultvalue'><formula>tmpValues := @DbLookup("" : "Cache"; "":""; "vLookupLocaleSettings"; lp_Locale; "ls_NewsLinkURL");
+@If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues)</formula></code><code
+ event='inputtranslation'><formula>@Trim(@ThisValue)</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell>
+<tablecell>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The URL for the 'News' link.</run></par>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>(Leave blank if you do not want the 'News' link to show.)</run></par></tablecell></tablerow></table>
+<par def='78'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='8.0417in'><tablecolumn width='50%'/><tablecolumn width='50%'/>
+<tablerow>
+<tablecell borderwidth='1px 0px 1px 1px' bgcolor='#efefef'>
+<pardef id='92' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='92'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Related links</run></par></tablecell>
+<tablecell borderwidth='1px 1px 1px 0px' bgcolor='#efefef'>
+<pardef id='93' align='right' keepwithnext='true' keeptogether='true'/>
+<par def='93'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='#3c5e84'/></run></par></tablecell></tablerow></table>
+<pardef id='94' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='94'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='8.0417in'><tablecolumn width='1.6000in'/><tablecolumn width='3.4000in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px 1px 1px'>
+<par def='16'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Header</run></par></tablecell>
+<tablecell borderwidth='0px 1px 1px'>
+<par def='17'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='lp_RelatedLinkHeader'><code
+ event='defaultvalue'><formula>tmpValues := @DbLookup("" : "Cache"; "":""; "vLookupLocaleSettings"; lp_Locale; "ls_RelatedLinkHeader");
+@If(@IsError(tmpValues) | tmpValues = ""; ""; tmpValues)</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px 1px 1px'>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The text to show as the heading for the 'Related links' section of the navigator.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='16'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>How many links?</run></par></tablecell>
+<tablecell>
+<pardef id='96' leftmargin='0.1000in' rightmargin='98%' hide='read print preview'
+ keepwithnext='true' keeptogether='true'/>
+<par def='96'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='lp_CountRelatedLinksChoice'><keywords
+ recalconchange='true' columns='1' ui='dialoglist'><formula>"0":"1":"2":"3":"4":"5"</formula></keywords><code
+ event='defaultvalue'><formula>"0"</formula></code></field></run><run><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='97' leftmargin='0.1000in' rightmargin='98%' hide='edit previewedit'
+ keepwithnext='true' keeptogether='true'/>
+<par def='97'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='number' kind='computed' name='lp_CountRelatedLinks'><numberformat
+ format='general' varying='true' digits='2' punctuated='false' parens='false'
+ percent='false' bytes='false'/><code event='defaultvalue'><formula>@If(lp_CountRelatedLinksChoice = ""; 0; @TextToNumber(lp_CountRelatedLinksChoice))</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='18'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>How many links do you want to show in the 'Related links' section.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='98' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 1)</formula></code></pardef>
+<par def='98'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 1 text</run></par></tablecell>
+<tablecell>
+<pardef id='99' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 1)</formula></code></pardef>
+<par def='99'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_RelatedLinkText_1'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='100' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='100'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='lp_RelatedLinkHtml_1'><code
+ event='defaultvalue'><formula>"&lt;tr class=\"rlinks\"&gt;"+
+	"&lt;td&gt;&lt;img src=\"//www.ibm.com/i/v14/t/rl-bullet.gif\" width=\"2\" height=\"8\" alt=\"\"/&gt;&lt;/td&gt;"+
+	"&lt;td&gt;&lt;a class=\"rlinks\" href=\"" + lp_RelatedLinkURL_1 +"\"&gt;" + lp_RelatedLinkText_1 +"&lt;/a&gt;&lt;/td&gt;"+
+"&lt;/tr&gt;"</formula></code></field></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='100'><run><font color='red'/></run><run><font size='9pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computed' name='lp_v16_RelatedLinkHtml_1'><code event='defaultvalue'><formula
+>"&lt;li&gt;&lt;a href=\"" + lp_RelatedLinkURL_1 +"\"&gt;" + lp_RelatedLinkText_1 +"&lt;/a&gt;&lt;/li&gt;"</formula></code></field></run><run
+><font color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='98'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 1 URL</run></par></tablecell>
+<tablecell>
+<par def='99'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_RelatedLinkURL_1'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='101' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 1)</formula></code></pardef>
+<par def='101'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='102' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 2)</formula></code></pardef>
+<par def='102'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 2 text</run></par></tablecell>
+<tablecell>
+<pardef id='103' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 2)</formula></code></pardef>
+<par def='103'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_RelatedLinkText_2'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='100'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='lp_RelatedLinkHtml_2'><code
+ event='defaultvalue'><formula>"&lt;tr class=\"rlinks\"&gt;"+
+	"&lt;td&gt;&lt;img src=\"//www.ibm.com/i/v14/t/rl-bullet.gif\" width=\"2\" height=\"8\" alt=\"\"/&gt;&lt;/td&gt;"+
+	"&lt;td&gt;&lt;a class=\"rlinks\" href=\"" + lp_RelatedLinkURL_2 +"\"&gt;" + lp_RelatedLinkText_2 +"&lt;/a&gt;&lt;/td&gt;"+
+"&lt;/tr&gt;"</formula></code></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='100'><run><font color='red'/></run><run><font size='9pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computed' name='lp_v16_RelatedLinkHtml_2'><code event='defaultvalue'><formula
+>"&lt;li&gt;&lt;a href=\"" + lp_RelatedLinkURL_2 +"\"&gt;" + lp_RelatedLinkText_2 +"&lt;/a&gt;&lt;/li&gt;"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='102'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 2 URL</run></par></tablecell>
+<tablecell>
+<par def='103'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_RelatedLinkURL_2'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='104' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 2)</formula></code></pardef>
+<par def='104'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='105' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 3)</formula></code></pardef>
+<par def='105'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 3 text</run></par></tablecell>
+<tablecell>
+<pardef id='106' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 3)</formula></code></pardef>
+<par def='106'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_RelatedLinkText_3'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='100'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='lp_RelatedLinkHtml_3'><code
+ event='defaultvalue'><formula>"&lt;tr class=\"rlinks\"&gt;"+
+	"&lt;td&gt;&lt;img src=\"//www.ibm.com/i/v14/t/rl-bullet.gif\" width=\"2\" height=\"8\" alt=\"\"/&gt;&lt;/td&gt;"+
+	"&lt;td&gt;&lt;a class=\"rlinks\" href=\"" + lp_RelatedLinkURL_3 +"\"&gt;" + lp_RelatedLinkText_3 +"&lt;/a&gt;&lt;/td&gt;"+
+"&lt;/tr&gt;"</formula></code></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='100'><run><font color='red'/></run><run><font size='9pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computed' name='lp_v16_RelatedLinkHtml_3'><code event='defaultvalue'><formula
+>"&lt;li&gt;&lt;a href=\"" + lp_RelatedLinkURL_3 +"\"&gt;" + lp_RelatedLinkText_3 +"&lt;/a&gt;&lt;/li&gt;"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='105'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 3 URL</run></par></tablecell>
+<tablecell>
+<par def='106'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_RelatedLinkURL_3'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='107' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 3)</formula></code></pardef>
+<par def='107'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='108' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 4)</formula></code></pardef>
+<par def='108'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 4 text</run></par></tablecell>
+<tablecell>
+<pardef id='109' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 4)</formula></code></pardef>
+<par def='109'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_RelatedLinkText_4'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='100'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='lp_RelatedLinkHtml_4'><code
+ event='defaultvalue'><formula>"&lt;tr class=\"rlinks\"&gt;"+
+	"&lt;td&gt;&lt;img src=\"//www.ibm.com/i/v14/t/rl-bullet.gif\" width=\"2\" height=\"8\" alt=\"\"/&gt;&lt;/td&gt;"+
+	"&lt;td&gt;&lt;a class=\"rlinks\" href=\"" + lp_RelatedLinkURL_4 +"\"&gt;" + lp_RelatedLinkText_4 +"&lt;/a&gt;&lt;/td&gt;"+
+"&lt;/tr&gt;"</formula></code></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='100'><run><font color='red'/></run><run><font size='9pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computed' name='lp_v16_RelatedLinkHtml_4'><code event='defaultvalue'><formula
+>"&lt;li&gt;&lt;a href=\"" + lp_RelatedLinkURL_4 +"\"&gt;" + lp_RelatedLinkText_4 +"&lt;/a&gt;&lt;/li&gt;"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='108'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 4 URL</run></par></tablecell>
+<tablecell>
+<par def='109'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_RelatedLinkURL_4'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='110' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 4)</formula></code></pardef>
+<par def='110'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='111' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 5)</formula></code></pardef>
+<par def='111'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 5 text</run></par></tablecell>
+<tablecell>
+<pardef id='112' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 5)</formula></code></pardef>
+<par def='112'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_RelatedLinkText_5'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='100'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='lp_RelatedLinkHtml_5'><code
+ event='defaultvalue'><formula>"&lt;tr class=\"rlinks\"&gt;"+
+	"&lt;td&gt;&lt;img src=\"//www.ibm.com/i/v14/t/rl-bullet.gif\" width=\"2\" height=\"8\" alt=\"\"/&gt;&lt;/td&gt;"+
+	"&lt;td&gt;&lt;a class=\"rlinks\" href=\"" + lp_RelatedLinkURL_5+"\"&gt;" + lp_RelatedLinkText_5 +"&lt;/a&gt;&lt;/td&gt;"+
+"&lt;/tr&gt;"</formula></code></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='100'><run><font color='red'/></run><run><font size='9pt' color='red'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computed' name='lp_v16_RelatedLinkHtml_5'><code event='defaultvalue'><formula
+>"&lt;li&gt;&lt;a href=\"" + lp_RelatedLinkURL_5 +"\"&gt;" + lp_RelatedLinkText_5 +"&lt;/a&gt;&lt;/li&gt;"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='111'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Link 5 URL</run></par></tablecell>
+<tablecell>
+<par def='112'><run><font size='9pt'/></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lp_RelatedLinkURL_5'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='113' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(lp_CountRelatedLinks &gt;= 5)</formula></code></pardef>
+<par def='113'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='114' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='114'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='20'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computed'
+ name='lp_RelatedLink_List'><code event='defaultvalue'><formula>@If(lp_CountRelatedLinks &gt; 0;	"&lt;br /&gt;" +
+	 "&lt;div id=\"ibm-secondary-navigation\"&gt;" +
+			 "&lt;table border=\"0\" cellpadding=\"0\" cellspacing=\"0\" width=\"150\"&gt;"+
+				 "&lt;tr&gt;"+
+				 "&lt;td colspan=\"2\" class=\"related\"&gt;&lt;b class=\"related\"&gt;" + lp_RelatedLinkHeader +"&lt;/b&gt;&lt;/td&gt;"+
+				 "&lt;/tr&gt;"+
+					@If(lp_CountRelatedLinks &gt;= 1;lp_RelatedLinkHtml_1+ @NewLine;"")+
+					@If(lp_CountRelatedLinks &gt;= 2;lp_RelatedLinkHtml_2+ @NewLine;"")+
+					@If(lp_CountRelatedLinks &gt;= 3;lp_RelatedLinkHtml_3+ @NewLine;"")+
+					@If(lp_CountRelatedLinks &gt;= 4;lp_RelatedLinkHtml_4+ @NewLine;"")+
+					@If(lp_CountRelatedLinks &gt;= 5;lp_RelatedLinkHtml_5+ @NewLine;"")+					
+				 "&lt;tr&gt;"+
+				"&lt;td width=\"14\"&gt;&lt;img src=\"//www.ibm.com/i/c.gif\" width=\"14\" height=\"1\" alt=\"\" class=\"display-img\" /&gt;&lt;/td&gt;"+
+				"&lt;td width=\"136\"&gt;"+
+				"&lt;img src=\"//www.ibm.com/i/c.gif\" width=\"136\" height=\"19\" alt=\"\" class=\"display-img\" /&gt;&lt;/td&gt;"+
+				 "&lt;/tr&gt;"+
+			 "&lt;/table&gt;"+"&lt;/div&gt;"
+;"")</formula></code></field></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par>
+<par def='20'><run><font size='9pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computed' name='lp_v16_RelatedLink_List'><code
+ event='defaultvalue'><formula>@If(lp_CountRelatedLinks &gt; 0;
+"&lt;div id=\"ibm-secondary-navigation\"&gt;" + @NewLine +
+"&lt;h2&gt;" + lp_RelatedLinkHeader +"&lt;/h2&gt;" + @NewLine +
+"&lt;ul id=\"ibm-related-links\"&gt;" + @NewLine +
+					@If(lp_CountRelatedLinks &gt;= 1; lp_v16_RelatedLinkHtml_1 + @NewLine; "") +
+					@If(lp_CountRelatedLinks &gt;= 2; lp_v16_RelatedLinkHtml_2 + @NewLine; "") +
+					@If(lp_CountRelatedLinks &gt;= 3; lp_v16_RelatedLinkHtml_3 + @NewLine; "") +
+					@If(lp_CountRelatedLinks &gt;= 4; lp_v16_RelatedLinkHtml_4 + @NewLine; "") +
+					@If(lp_CountRelatedLinks &gt;= 5; lp_v16_RelatedLinkHtml_5 + @NewLine; "") +					
+"&lt;/ul&gt;" + @NewLine +
+"&lt;/div&gt;";
+"")</formula></code></field></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='100'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='115' keepwithnext='true' keeptogether='true'/>
+<par def='115'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='116' keepwithnext='true' keeptogether='true'/>
+<par def='116'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<pardef id='117' keepwithnext='true' keeptogether='true'/>
+<par def='117'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<par def='94'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow tablabel='History'>
+<tablecell>
+<pardef id='118' leftmargin='0.0625in' keepwithnext='true' keeptogether='true'/>
+<par def='118'><run><font name='Helv' pitch='variable' truetype='false' familyid='20'/></run></par>
+<table cellbordercolor='silver' leftmargin='0.0625in' widthtype='fixedleft'
+ refwidth='8in'><tablecolumn width='1.6875in'/><tablecolumn width='6.3125in'/>
+<tablerow>
+<tablecell borderwidth='0px 0px 1px'>
+<pardef id='120' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='120'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Document created</run></par></tablecell>
+<tablecell borderwidth='0px 0px 1px'>
+<pardef id='121' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='121'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='datetime' kind='computedwhencomposed'
+ name='doccreated'><datetimeformat show='datetime' date='yearmonthday' time='hourminutesecond'
+ zone='always' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>@Created</formula></code></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='120'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Created by</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='121'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='RCreated'><code event='defaultvalue'><formula>@V3UserName</formula></code></field></run><run
+><font name='Helv' pitch='variable' truetype='false' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='120'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Record history</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='121'><run><font color='gray'/></run><run><font size='9pt' color='gray'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ allowmultivalues='true' kind='computed' name='c_audit_display' listinputseparators='semicolon newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>c_audit</formula></code></field></run><run
+><font name='Helv' pitch='variable' truetype='false' familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<par def='118'><run><font name='Helv' pitch='variable' truetype='false' familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='12'/></richtext></body>
+<item name='OriginalModTime'><datetime dst='true'>20100617T153900,35-04</datetime></item>
+<item name='lp_CountRelatedLinks' summary='false'><number>0</number></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>fLandingPageProfile</text></item></form>
+

@@ -1,0 +1,167 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Admin \ Replication Conflicts)' alias='RepConflicts' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' nocompose='true'
+ publicaccess='false' designerversion='7'>
+<noteinfo noteid='14eda' unid='8853CD3962BC5D7E86257F710078AC81' sequence='5'>
+<created><datetime>20160309T155804,81-06</datetime></created>
+<modified><datetime dst='true'>20180929T235604,45-05</datetime></modified>
+<revised><datetime>20160310T111651,53-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235604,45-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235604,45-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<actionbar bgcolor='#ebe9ed' bordercolor='black'>
+<actionbuttonstyle bgcolor='#ebe9ed'/><font size='9pt' color='system'/><border
+ style='solid' width='0px 0px 1px'/>
+<action title='Categori_ze' showinbar='false' systemcommand='categorize'/>
+<action title='_Edit Document' showinbar='false' systemcommand='edit'/>
+<action title='_Send Document' showinbar='false' systemcommand='send'/>
+<action title='_Forward' showinbar='false' systemcommand='forward'/>
+<action title='_Move To Folder...' showinbar='false' systemcommand='movetofolder'/>
+<action title='_Remove From Folder' showinbar='false' systemcommand='removefromfolder'/></actionbar>
+<body><richtext>
+<pardef id='1'/>
+<par def='1'/>
+<par def='1'><run><font size='14pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='#0060a0'/>Replication Conflicts</run></par>
+<par def='1'><run><font size='14pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Comparision of Two Documents</run></par>
+<par def='1'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Run By: </run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computedfordisplay' name='WhoRand' listinputseparators='comma semicolon newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>@Name([Abbreviate];WhoRan)</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='1'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fixedleft' refwidth='7in'><tablecolumn width='1.2500in'/><tablecolumn
+ width='2.8750in'/><tablecolumn width='2.8750in'/>
+<tablerow>
+<tablecell bgcolor='#efefef'>
+<pardef id='3' align='center' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='3'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><button width='2in' widthtype='maximum' maxlines='1'
+ wraptext='true' bgcolor='system'><code event='click'><formula>@Command([FilePrint])</formula></code><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/>PRINT</button><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell bgcolor='#efefef'>
+<pardef id='4' leftmargin='0.0104in' rightmargin='2.8750in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='4'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Doc 1</run></par></tablecell>
+<tablecell bgcolor='#efefef'>
+<pardef id='5' leftmargin='0.0104in' rightmargin='2.8750in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='5'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Doc 2</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='6' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Form:</run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='Form1'/></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='5'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='Form2'/></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='7' leftmargin='0.0104in' rightmargin='1.2500in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='7'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Last Updated By:</run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computedfordisplay' name='LUBy1d' listinputseparators='comma semicolon newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>@Name([Abbreviate];LuBy1)</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='5'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computedfordisplay' name='LUBy2d' listinputseparators='comma semicolon newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>@Name([Abbreviate];LuBy2)</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Last Updated On:</run></par></tablecell>
+<tablecell>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='LUOn1' listinputseparators='comma semicolon newline'
+ listdisplayseparator='newline'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='5'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='LUOn2' listinputseparators='comma semicolon newline'
+ listdisplayseparator='newline'/></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<pardef id='8' hide='notes web mobile'/>
+<par def='8'/>
+<table widthtype='fixedleft' refwidth='7in'><tablecolumn width='1.2500in'/><tablecolumn
+ width='2.8750in'/><tablecolumn width='2.8750in'/>
+<tablerow>
+<tablecell>
+<pardef id='10' leftmargin='0.0104in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='10'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>HIDDEN</run></par>
+<par def='10'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Last, First</run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>:</run></par></tablecell>
+<tablecell>
+<pardef id='11' leftmargin='0.0104in' rightmargin='2.8750in' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='Name1'/></run><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='12' leftmargin='0.0104in' rightmargin='2.8750in' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='Name2'/></run><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow></table>
+<pardef id='13' leftmargin='1in'/>
+<par def='13'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='14' leftmargin='0.7500in'/>
+<section onread='collapse' onpreview='collapse' onedit='collapse'><sectiontitle
+ pardef='14' borderstyle='shadow' color='#c8d7e3'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><text>Differences Only Between The Docs</text></sectiontitle>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='DiffField'/></run><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></section>
+<section onread='collapse' onpreview='collapse' onedit='collapse'><sectiontitle
+ pardef='14' borderstyle='shadow' color='#c8d7e3'><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><text>All Document Fields</text></sectiontitle>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='AllField'/></run><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></section>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>RepConflicts</text></item></form>
+

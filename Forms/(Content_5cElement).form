@@ -1,0 +1,660 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Content\Element)' alias='Element' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='8.5.2'
+ editonopen='true'>
+<noteinfo noteid='14fb6' unid='53F7A87C6ED5042F86257F710078ACF9' sequence='53'>
+<created><datetime>20160309T155806,01-06</datetime></created>
+<modified><datetime dst='true'>20180929T235605,55-05</datetime></modified>
+<revised><datetime>20160310T111652,70-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235605,55-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235605,55-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby><code
+ event='windowtitle'><formula>tmp := @If(el_type = "Graphic"; "Graphic"; el_type = "PDF"; "PDF File"; el_type = "MP3"; "MP3 File"; el_type = "Video"; "Video file";el_type = "HTML"; "HTML Element"; el_type = "Text"; "Text Element"; "Element");
+@If(@IsNewDoc; "New " + tmp; tmp + ": " + el_description)</formula></code><code
+ event='querysave'><lotusscript>Sub Querysave(Source As Notesuidocument, Continue As Variant)
+	
+	Dim doc As notesdocument
+	Set doc = source.document
+	
+	Dim count As Integer
+	Dim message As String
+	
+	Dim strType As String
+	
+	message = "Please enter the following required field(s): "
+	count = 0
+	
+	strType = Trim(doc.getitemvalue("el_type")(0))
+	
+	'Extract the first attachment file name, remove the .pdf extension and stick it in the el_key if this is a PDF or MP3
+	If strType = "PDF" Or strType = "MP3"  Or strType = "Video" Then
+		
+		
+	Else		
+		' Only check validate el_key if not PDF
+		If Trim(doc.getitemvalue("el_key")(0)) = "" Then	
+			count = count + 1
+			message = message + " Element Key"	
+		End If
+	End If	
+	
+	If Trim(doc.getitemvalue("el_description")(0)) = "" Then	
+		If count &gt; 0 Then
+			message = message + ", Description"
+		Else
+			message = message + "Description"
+		End If
+		count = count + 1		
+	End If
+	
+	
+	If (strType = |Video|) Then
+		
+		Dim totalSize As Long
+		
+		Set doc = Source.document
+		
+		Call Source.refresh(True)
+		Dim rtitem As Variant
+		Dim embedObjs As Variant
+		
+		Set rtitem = doc.getFirstItem("el_elementRT")
+		embedObjs = rtitem.embeddedObjects
+		totalSize = 0
+		Dim oneMB As Long
+		oneMB = 1048576
+		
+		
+		If Not Isempty(embedObjs) Then
+			If Ubound(embedObjs)&gt;0 Then
+				Print Ubound(embedObjs)
+				Msgbox("Only one (1) file may be attach per document, please delete extra files and re-save.")
+				Continue = False
+			End If
+			For i = 0 To Ubound(embedObjs)
+				totalSize = totalSize + embedObjs(i).filesize
+				If embedObjs(i).filesize &gt; 3 * oneMB Then
+					Msgbox("Your attachment '"  +embedObjs(i).name +"' is " +Cstr(Round(embedObjs(i).filesize / oneMB,1)) +" mb. The limit is 3.0 mb.")
+					Continue = False						
+				End If
+			Next
+			
+			'If totalSize &gt; 4 * oneMB Then
+				'Msgbox("Your total attachment size is " +Cstr(Round (totalSize / oneMB,1)) +" mb.  The limit is 4.0 mb.")
+				'Continue = False					
+			'End If
+			
+		End If
+		
+	End If
+	
+	If (strType = |PDF| Or strType = |MP3| Or strType = |Graphic|) Then		
+		
+		If Trim(doc.getitemvalue("el_ALT")(0)) = "" Then	
+			If count &gt; 0 Then
+				message = message + ", Alt text"
+			Else
+				message = message + "Alt text"
+			End If
+			count = count + 1		
+		End If
+	End If
+	
+	If Trim(doc.getitemvalue("el_type")(0)) = "" Then	
+		If count &gt; 0 Then
+			message = message + ", Type"
+		Else
+			message = message + "Type"
+		End If
+		count = count + 1		
+	End If
+	
+	If count &gt; 0 Then
+		answer% = Messagebox(message, 0 + 16, "Element Information")
+		continue = False	
+	End If
+End Sub
+</lotusscript></code>
+<actionbar bgcolor='#c8d7e3' bordercolor='black'><actionbarstyle height='45px'/>
+<actionbuttonstyle bgcolor='#c8d7e3' displayborder='always'/><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><border style='solid'
+ width='0px 0px 1px' color='#3c5e84'/>
+<sharedactionref id='70'>
+<action title='Close' icon='27' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='71'>
+<action title='Save &amp; Close' icon='21' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@If(@Command([FileSave]);@Command([CloseWindow]); "")</formula></code></action></sharedactionref>
+<sharedactionref id='72'>
+<action title='Edit' icon='5' showinmenu='false' hide='edit previewedit web mobile'><code
+ event='click'><formula>@Command([EditDocument])</formula></code></action></sharedactionref>
+<action title='Attach File' icon='115' showinmenu='false' hide='preview read'><code
+ event='click'><formula>@Command([EditGotoField]; "el_elementRT");
+@Command( [EditInsertFileAttachment])</formula></code><code event='hidewhen'><formula
+>!(el_type = "Graphic" | el_type = "PDF" | el_type = "MP3")</formula></code><code
+ event='label'><formula>"Attach " + @If(el_type = "Graphic"; "Graphic File"; el_type = "PDF"; "PDF File"; el_type = "MP3"; "MP3 File"; "File")</formula></code></action></actionbar>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='0.7500in' hide='notes web'/>
+<section onread='collapse' onpreview='collapse' onedit='collapse' onprint='collapse'><sectiontitle
+ pardef='1' color='teal'><font size='8pt' color='red' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><text>Revision History</text></sectiontitle>
+<pardef id='2' align='none' leftmargin='1in' hide='notes web'/>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>-----------------------------------------------------------------------------------------------------------------<break
+/> Element Form<break/>-----------------------------------------------------------------------------------------------------------------<break
+/></run></par>
+<par def='2'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/> Description:</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> This form is used to store HTML, text, graphics, PDF files or MP3 files.</run></par>
+<pardef id='3' leftmargin='1in' hide='notes web'/>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/><break/></run><run><font size='8pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> Author:</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> Core Lan	<break/></run><run><font size='8pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/><break/> Revision History:</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/><break/></run><run><font size='8pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/> Date                        	By             	Description</run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/> ---------                       	---                   	------------------</run></par>
+<par def='3'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> November 2007		Core Lan		Initial version.<break
+/>-----------------------------------------------------------------------------------------------------------------</run></par>
+<par def='2'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></section>
+<pardef id='4' hide='notes web mobile'/>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table cellbordercolor='red' widthtype='fixedleft' refwidth='8in'><tablecolumn
+ width='2in'/><tablecolumn width='6in'/>
+<tablerow>
+<tablecell>
+<pardef id='6' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Field</run></par></tablecell>
+<tablecell>
+<pardef id='7' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Description</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='8' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='DocType'><code event='defaultvalue'><formula>"Element"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>DocType </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The document type. (Hardcoded to 'Element')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='Form'><code event='defaultvalue'><formula>"Element"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Form </run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/>- The form alias. (Hardcoded to 'Element')</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='c_audit' listinputseparators='comma semicolon' listdisplayseparator='semicolon'><code
+ event='inputtranslation'><formula>Output := @Text(@Name([CN];@V3UserName))+" - "+@Text(@Now);
+@If(@IsDocBeingSaved;@If(c_audit = "";@SetField("c_audit"; Output);@SetField("c_audit"; c_audit:Output));@If(c_audit = "";Output;c_audit))</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>c_audit</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Used to track changes to this document.  Displayed on the History tab.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='AttachmentNames' listinputseparators='comma semicolon'
+ listdisplayseparator='semicolon'><code event='defaultvalue'><formula>@AttachmentNames</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>AttachmentNames</run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - A list of the files attached to this document.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field defaultfocus='true'
+ type='text' kind='computedwhencomposed' name='el_showtype'><code event='defaultvalue'><formula
+>el_showtype</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='10' containertype='65418' aftercontainercount='1'
+ afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='7'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>el_showtype</run><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> - Set by any function that creates one of thes documents via the UI.  If set to 'No', the el_type field is hidden so the user cannot change the type of element being created.</run></par></tablecell></tablerow></table>
+<pardef id='9'/>
+<par def='9'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table cellbordercolor='gray' widthtype='fixedleft' refwidth='8in'><border
+ dropshadow='true'/><tablecolumn width='8in'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5e84' altbgcolor='#c8d7e3'>
+<pardef id='11' leftmargin='0.0104in' keepwithnext='true' keeptogether='true'/>
+<par def='11'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/> </run><run><font size='12pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='white'/><computedtext><code event='value'><formula>@GetProfileField("fProfile";"dp_SystemName")</formula></code></computedtext></run><run
+><font size='12pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/></run></par>
+<par def='11'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/> </run><run><font size='12pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='white'/><computedtext><code event='value'><formula>tmp := @If(el_type = "Graphic"; "Graphic"; el_type = "PDF"; "PDF File"; el_type = "MP3"; "MP3 File"; el_type = "HTML"; "HTML Element"; el_type = "Text"; "Text Element"; "Element");
+@If(@IsNewDoc; "New " + tmp; tmp + ": " + el_description)</formula></code></computedtext></run><run
+><font size='12pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/></run></par></tablecell></tablerow></table>
+<pardef id='12' leftmargin='1in'/>
+<par def='12'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table widthtype='fixedleft' refwidth='8in'><tablecolumn width='8in'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='14' keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font size='9pt' style='bold' name='Courier New' pitch='fixed'
+ truetype='true' familyid='30' color='red'/>*</run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> Required fields</run></par></tablecell></tablerow></table>
+<par def='12'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table cellbordercolor='#3c5e84' rowdisplay='tabs' sizetabsequally='true'
+ widthtype='fixedleft' refwidth='8in'><tablerowstyle><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='black'/></tablerowstyle><tablecolumn
+ width='8in'/>
+<tablerow tablabel='Configuration      '>
+<tablecell>
+<pardef id='16' keepwithnext='true' keeptogether='true'/>
+<par def='16'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9792in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5f84' altbgcolor='#c8d7e3'>
+<pardef id='18' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='18'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/></run><run><font style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/><computedtext><code event='value'><formula
+>@If(el_type = "Graphic"; "Graphic"; el_type = "PDF"; "PDF file"; el_type = "MP3"; "MP3 file"; el_type = "HTML"; "HTML"; el_type = "Text"; "Text"; "Element")</formula></code></computedtext></run><run
+><font style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='white'/> </run><run><font style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='white'/>configuration</run></par></tablecell></tablerow></table>
+<par def='16'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9792in'><tablecolumn width='1.6000in'/><tablecolumn width='3.4000in'/><tablecolumn
+ width='100%'/>
+<tablerow>
+<tablecell>
+<pardef id='20' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>el_showtype = "No"</formula></code></pardef>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Type</run></par></tablecell>
+<tablecell>
+<pardef id='21' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>el_showtype = "No"</formula></code></pardef>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='el_type'><keywords
+ helperbutton='false' recalconchange='true' columns='1' ui='radiobutton'><textlist
+><text>HTML | HTML</text><text>Graphic | Graphic</text><text>PDF | PDF</text><text
+>Text | Text</text><text>MP3 | MP3</text><text>Video | Video</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Graphic"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='navy'/></run></par></tablecell>
+<tablecell>
+<pardef id='22' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>el_showtype = "No"</formula></code></pardef>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The type of element.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='23' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>(el_type = "PDF" : "MP3")</formula></code></pardef>
+<par def='23'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Name</run></par></tablecell>
+<tablecell>
+<pardef id='24' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>(el_type = "PDF" : "MP3")</formula></code></pardef>
+<par def='24'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field defaultfocus='true' type='text' kind='editable'
+ name='el_key'><code event='defaultvalue'><formula>@If(el_type="PDF";@LeftBack(@AttachmentNames;".pdf");el_type="MP3";@LeftBack(@AttachmentNames;".");@Trim(el_key))</formula></code><code
+ event='inputtranslation'><formula>@If(el_type="PDF";@LeftBack(@AttachmentNames;".pdf");el_type="MP3";@LeftBack(@AttachmentNames;".");@Trim(el_key))</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='12' containertype='65418'
+ aftercontainercount='1' afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell>
+<tablecell>
+<pardef id='25' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>(el_type = "PDF" : "MP3")</formula></code></pardef>
+<par def='25'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>A unique name for the </run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/><computedtext
+><code event='value'><formula>@If(el_type = "Graphic"; "graphic"; el_type = "PDF"; "PDF file"; el_type = "MP3"; "MP3 file";el_type = "MP3"; "MP3 file"; el_type = "HTML"; "HTML"; el_type = "Text"; "text"; el_type)</formula></code></computedtext></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/>.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='26' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='26'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Description </run><run><font size='9pt' style='bold'
+ name='Courier New' pitch='fixed' truetype='true' familyid='30' color='red'/>*</run></par></tablecell>
+<tablecell>
+<pardef id='27' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='el_description'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run></par></tablecell>
+<tablecell>
+<pardef id='28' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>A brief description of the </run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/><computedtext
+><code event='value'><formula>@If(el_type = "Graphic"; "graphic"; el_type = "PDF"; "PDF file"; el_type = "MP3"; "MP3 file"; el_type = "HTML"; "HTML"; el_type = "Text"; "text"; el_type)</formula></code></computedtext></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/>.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='29' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(el_type = "Graphic" : "PDF" : "MP3")</formula></code></pardef>
+<par def='29'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Alt text</run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/> </run><run
+><font size='9pt' style='bold' name='Courier New' pitch='fixed' truetype='true'
+ familyid='30' color='red'/>*</run></par></tablecell>
+<tablecell>
+<pardef id='30' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(el_type = "Graphic" : "PDF" : "MP3")</formula></code></pardef>
+<par def='30'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field defaultfocus='true' type='text' kind='editable'
+ name='el_ALT'/></run><compositedata type='98' prevtype='65418' nexttype='222'
+ afterparcount='12' containertype='65418' aftercontainercount='1' afterbegincount='4'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='navy'/></run></par></tablecell>
+<tablecell>
+<pardef id='31' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(el_type = "Graphic" : "PDF" : "MP3")</formula></code></pardef>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The ALT  text to display when this </run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/><computedtext><code event='value'><formula>@If(el_type = "Graphic"; "graphic"; el_type = "PDF"; "PDF file"; el_type = "MP3"; "MP3 file"; el_type = "HTML"; "HTML"; el_type = "Text"; "text"; el_type)</formula></code></computedtext></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/> is displayed in a web page.</run></par>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>This is required for all graphics and PDF or MP3 files.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='32' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(el_type = "HTML")</formula></code></pardef>
+<par def='32'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>HTML category</run></par></tablecell>
+<tablecell>
+<pardef id='33' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(el_type = "HTML")</formula></code></pardef>
+<par def='33'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='navy'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='el_htmlcategory'><keywords
+ helperbutton='false' recalconchange='true' columns='1' ui='radiobutton'><textlist
+><text>Masthead | Masthead</text><text>Footer | Footer</text><text>Other | Other</text></textlist></keywords></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='navy'/></run></par></tablecell>
+<tablecell>
+<pardef id='34' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(el_type = "HTML")</formula></code></pardef>
+<par def='34'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The category of HTML.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='32'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Add HTML below</run></par>
+<pardef id='35' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(el_type = "Text")</formula></code></pardef>
+<par def='35'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Add text below</run></par></tablecell>
+<tablecell>
+<pardef id='36' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(el_type = "HTML" : "Text")</formula></code></pardef>
+<par def='36'/></tablecell>
+<tablecell>
+<pardef id='37' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen'><formula>!(el_type = "HTML" : "Text")</formula></code></pardef>
+<par def='37'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The </run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/><computedtext
+><code event='value'><formula>@If(el_type = "Graphic"; "graphic"; el_type = "PDF"; "PDF file"; el_type = "MP3"; "MP3 file"; el_type = "HTML"; "HTML"; el_type = "Text"; "text"; el_type)</formula></code></computedtext></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/>.</run></par></tablecell></tablerow></table>
+<pardef id='38' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='38'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<table cellbordercolor='gray' leftmargin='0' widthtype='fixedleft' refwidth='7.9882in'><tablecolumn
+ width='7.9882in'/>
+<tablerow>
+<tablecell>
+<pardef id='40' leftmargin='0.0368in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(el_type = "HTML" : "Text")</formula></code></pardef>
+<par def='40'><field type='text' kind='editable' name='el_elementtext'><code
+ event='inputtranslation'><formula>@If(el_elementtext = "" &amp; el_type = "HTML";"Place your HTML here";el_elementtext)</formula></code></field><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell></tablerow></table>
+<par def='38'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<table cellbordercolor='gray' leftmargin='0' widthtype='fixedleft' refwidth='7.9792in'><tablecolumn
+ width='1.6000in'/><tablecolumn width='3.4000in'/><tablecolumn width='2.9792in'/>
+<tablerow>
+<tablecell>
+<pardef id='42' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(el_type = "Graphic")</formula></code></pardef>
+<par def='42'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Attach graphic here</run></par>
+<pardef id='43' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(el_type = "PDF")</formula></code></pardef>
+<par def='43'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Attach PDF file here</run></par>
+<pardef id='44' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(el_type = "MP3")</formula></code></pardef>
+<par def='44'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Attach MP3 file here</run></par>
+<pardef id='45' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(el_type = "Video")</formula></code></pardef>
+<par def='45'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Attach Video file here</run></par></tablecell>
+<tablecell>
+<pardef id='46' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(el_type = "Graphic" : "PDF" : "MP3": "Video")</formula></code></pardef>
+<par def='46'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='richtext' kind='editable' name='el_elementRT'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAEAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='navy'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='computed' name='el_size'><code event='defaultvalue'><formula
+>@If((el_type = "Graphic" | el_type = "PDF"| el_type = "Video") &amp; @Attachments &gt; 0;@If(@AttachmentLengths &gt;= 1000000;@Text(@Integer(@AttachmentLengths/1000000)) + " MB";@AttachmentLengths &gt;= 1000;@Text(@Integer(@AttachmentLengths/1000)) + " KB";@Text(@AttachmentLengths) + " Bytes");"")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='17' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<pardef id='47' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>!(el_type = "Graphic" : "PDF" : "MP3": "Video")</formula></code></pardef>
+<par def='47'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The </run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/><computedtext
+><code event='value'><formula>@If(el_type = "Graphic"; "graphic"; el_type = "PDF"; "PDF file"; el_type = "MP3"; "MP3 file"; el_type = "Video"; "Video file";el_type = "HTML"; "HTML"; el_type = "Text"; "text"; el_type)</formula></code></computedtext></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/>.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='48' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='48'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='49' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='49'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='50' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='50'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='48'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Resource url:</run></par></tablecell>
+<tablecell>
+<par def='49'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='resourceUrl'><code event='defaultvalue'><formula>tmp := @LeftBack(@Subset(@Subset(@DbName; 2); -1); "\\");
+
+"https://www-950.ibm.com/"+ @ReplaceSubstring(tmp; "\\"; "/") +"/vLookupVideo/"+el_key+"/$file/"+ @AttachmentNames</formula></code><code
+ event='inputtranslation'><formula>tmp := @LeftBack(@Subset(@Subset(@DbName; 2); -1); "\\");
+
+"https://www-950.ibm.com/"+ @ReplaceSubstring(tmp; "\\"; "/") +"/vLookupVideo/"+el_key+"/$file/"+ @AttachmentNames</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell>
+<tablecell>
+<pardef id='51' keepwithnext='true' keeptogether='true'/>
+<par def='51'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px 0px'>
+<par def='48'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<par def='49'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px 0px'>
+<par def='50'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell></tablerow></table>
+<par def='38'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>Always hidden</run></par></tablecell></tablerow>
+<tablerow tablabel='History'>
+<tablecell>
+<par def='16'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9792in'><tablecolumn width='100%'/>
+<tablerow>
+<tablecell colorstyle='hgradient' bgcolor='#3c5f84' altbgcolor='#c8d7e3'>
+<par def='18'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='white'/>History</run></par></tablecell></tablerow></table>
+<par def='16'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' leftmargin='0.0104in'
+ refwidth='7.9792in'><tablecolumn width='1.6000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell>
+<par def='26'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Document created</run></par></tablecell>
+<tablecell>
+<pardef id='54' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='54'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='datetime' kind='computedwhencomposed'
+ name='doccreated'><datetimeformat show='datetime' date='yearmonthday' time='hourminutesecond'
+ zone='always' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>@Created</formula></code></field></run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='26'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Created by</run></par></tablecell>
+<tablecell>
+<par def='54'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='RCreated'><code event='defaultvalue'><formula>@V3UserName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='26'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Update history</run></par></tablecell>
+<tablecell>
+<par def='54'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run><run><font size='9pt' color='gray' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='c_audit_display' listinputseparators='semicolon newline'
+ listdisplayseparator='newline'><code event='defaultvalue'><formula>c_audit</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/></run></par></tablecell></tablerow></table>
+<par def='16'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='3'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></richtext></body>
+<item name='doccreated_1' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='OriginalModTime' sign='true'><datetime>20060302T122805,13-05</datetime></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>Element</text></item></form>
+

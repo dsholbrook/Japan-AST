@@ -1,0 +1,352 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(frmProfile)' alias='frmProfile' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='true' designerversion='8.5.3'
+ renderpassthrough='true'>
+<noteinfo noteid='14dc2' unid='60287EBD3E93DF9D86257F710078AF8E' sequence='8'>
+<created><datetime>20160309T155812,62-06</datetime></created>
+<modified><datetime dst='true'>20180929T235603,03-05</datetime></modified>
+<revised><datetime>20160310T111659,01-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235603,03-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235603,03-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby><code
+ event='windowtitle'><formula>"Database Profile" + @If(@IsNewDoc; ""; " for " + dp_SystemName)</formula></code><code
+ event='querysave'><formula>FIELD dp_OriginalEventBriefsServer := @DeleteField;
+FIELD dp_OriginalEventBriefsFilename := @DeleteField;
+""</formula></code>
+<actionbar bgcolor='white' bordercolor='black'>
+<actionbuttonstyle bgcolor='white'/><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/><border style='solid' width='0px 0px 1px'
+ color='gray'/>
+<action title='Close' icon='27' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([FileCloseWindow])</formula></code></action>
+<action title='Save &amp; Close' icon='21' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@If(@Command([FileSave]);@Command([CloseWindow]); "")</formula></code></action>
+<action title='Edit' icon='5' showinmenu='false' hide='edit previewedit web mobile'><code
+ event='click'><formula>@Command([EditDocument])</formula></code></action></actionbar>
+<body><richtext>
+<pardef id='1' align='none' leftmargin='0.7500in' hide='notes web'/>
+<section onread='collapse' onpreview='collapse' onedit='collapse' onprint='collapse'><sectiontitle
+ pardef='1' color='teal'><font size='9pt' color='red' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><text>Revision History</text></sectiontitle>
+<pardef id='2' align='none' leftmargin='1in' hide='notes web'/>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>-----------------------------------------------------------------------------------------------------------------<break
+/> Database Profile Form<break/>-----------------------------------------------------------------------------------------------------------------<break
+/></run></par>
+<par def='2'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/> Description:</run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> This form is used to define reference information such as keyword lists that are used</run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> throughout the system.  Only one document of this type exists in the system.</run></par>
+<pardef id='3' leftmargin='1in' hide='notes web'/>
+<par def='3'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/><break/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/> Author:</run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> Tim Vallely<break/></run><run><font size='9pt' style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/><break
+/> Revision History:</run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/><break/><break/></run><run><font
+ size='9pt' style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/> Date                        	By             	Description</run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/><break/> ---------                       	---                   	------------------</run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/> February 2 2009		Tim Vallely	Initial version<break
+/>-----------------------------------------------------------------------------------------------------------------</run></par>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></section>
+<pardef id='4' hide='notes web mobile'/>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Always hidden</run></par>
+<table widthtype='fitmargins' cellbordercolor='red' refwidth='11.8021in'><tablecolumn
+ width='2.9375in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell>
+<pardef id='6' leftmargin='0.1000in' rightmargin='58%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Field</run></par></tablecell>
+<tablecell>
+<pardef id='7' leftmargin='0.1000in' rightmargin='98%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='7'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>Description</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='8' leftmargin='0.1000in' rightmargin='100%' hide='notes web mobile'
+ tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='DocType'><code event='defaultvalue'><formula>"Profile"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='9' leftmargin='0.1000in' rightmargin='100%' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='9'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The document type. </run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='10' leftmargin='0.1000in' hide='notes web mobile' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='Form'><code event='defaultvalue'><formula>"frmProfile"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='11' leftmargin='0.1000in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='11'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>The form alias.</run></par></tablecell></tablerow></table>
+<pardef id='12' leftmargin='2.0625in' firstlineleftmargin='1in'/>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' user4spacing='true' refwidth='11.8125in'><tablecolumn
+ width='1.9000in'/><tablecolumn width='100%'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='black'>
+<pardef id='14' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='14'><picture width='109px' height='51px' alttext='IBM'><gif>
+R0lGODlhbQAzAOIAAAAAAP///xAYILi4uLCwsFhYWHBwcEBAQCwAAAAAbQAzAEAI/wAFCBxIsKDB
+gwgTKlzIsKFDggAiSpxIsaLFixgzatzIsaPHjyBDihxJsqTJkyhTqlzJsqXLlzBjypxJs6bNmzhz
+6tzJs6fPnxkLACggdCjQo0iTKl16k0CAp1CjRiUAwKnUq1IHGKA4AGvUrRUNeJ0Ks+tYslbPjqUK
+wOxZsBLFqg0woCbWjG6fUkwLFW7Et3HPsr15F2PeuRbV1uWLdbDNwhcPC06ctarXulcd272akTFX
+zhSv1m1b+W9pmYzH1pU8N2rE1FBHk34qG8DkiUWNlmTdeHZrqXB5B3DctbbttRRz52bKvLnz59Cj
+S59Ovbr169hdCq+8fazf7sZfz4oNn/16d6hUz6uOeF4zbNHl41eEbNHzRMnz17M/S16+fPoVvYcV
+eVjJ9ZSBB8Ln34ISAfjZbwFQRtZxoCnI4IIOTmSfRKn5RWFsESEYAFyZXagTUcuNpB5dvkEIYotS
+DWagX7dFJFQBB9xoIko66kiSgDHC2JpWGurXYH5eaTYUUTs26eSTUEZZXkAAOw==
+</gif></picture><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='white'>
+<pardef id='15' leftmargin='0.1000in' rightmargin='98%' keepwithnext='true'
+ keeptogether='true'/>
+<par def='15'><run><font size='12pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='navy'/></run></par>
+<par def='15'><run><font size='14pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Database Profile</run></par>
+<par def='15'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Created by </run><run><font size='8pt' color='gray'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/><field type='text'
+ kind='computedwhencomposed' name='CreatedBy'><code event='defaultvalue'><formula
+>@Name([CN]; @UserName)</formula></code></field></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/> on </run><run><font size='8pt'
+ color='gray' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='datetime' kind='computedwhencomposed' name='CreatedOn'><datetimeformat
+ show='datetime' date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='shortname'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='-'
+ dateseparator3='-' timeseparator=':' timeformat24='true' preference='custom'/><code
+ event='defaultvalue'><formula>@Now</formula></code></field></run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/>.</run></par>
+<par def='15'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Last Modified by </run><run><font size='8pt'
+ color='gray' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='computed' name='LastModifiedBy'><code event='defaultvalue'><formula
+>@Name([CN]; @UserName)</formula></code></field></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/> on </run><run><font size='8pt'
+ color='gray' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='datetime' kind='computed' name='LastModifiedOn'><datetimeformat show='datetime'
+ date='yearmonthday' fourdigityearfor21stcentury='true' time='hourminute'
+ zone='never' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='shortname'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='-'
+ dateseparator3='-' timeseparator=':' timeformat24='true' preference='custom'/><code
+ event='defaultvalue'><formula>@Now</formula></code></field></run><run><font
+ size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/>.</run></par></tablecell></tablerow></table>
+<pardef id='16' leftmargin='1in'/>
+<par def='16'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' refwidth='11.8021in'><tablecolumn
+ width='30.75%'/><tablecolumn width='43.2257%'/><tablecolumn width='26.0243%'/>
+<tablerow>
+<tablecell columnspan='3' bgcolor='silver'>
+<pardef id='20' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>General Information</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<pardef id='21' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>System name</run></par></tablecell>
+<tablecell>
+<pardef id='22' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='dp_SystemName'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<pardef id='23' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The name of the system (used in message boxes).</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>System server path</run></par></tablecell>
+<tablecell>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='dp_SystemPath'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The full path and filename of the database on the server in web format. (i.e. - </run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='gray'/>events/wwe/tools/ibmhtmgen.nsf)</run></par></tablecell></tablerow></table>
+<par def='16'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par>
+<table widthtype='fitmargins' cellbordercolor='gray' refwidth='11.8021in'><tablecolumn
+ width='30.75%'/><tablecolumn width='43.2257%'/><tablecolumn width='26.0243%'/>
+<tablerow>
+<tablecell columnspan='3' bgcolor='silver'>
+<par def='20'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Debug Settings</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>System mode</run></par></tablecell>
+<tablecell>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='dp_SystemMode'><keywords
+ helperbutton='false' columns='2' ui='radiobutton'><textlist><text>Test</text><text
+>Production</text></textlist></keywords><code event='defaultvalue'><formula
+>"Test"</formula></code></field></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Whether the system is in Test or Production mode.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>E-mail mode</run></par></tablecell>
+<tablecell>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='dp_EmailMode'><keywords
+ helperbutton='false' columns='2' ui='radiobutton'><textlist><text>Test</text><text
+>Production</text></textlist></keywords><code event='defaultvalue'><formula
+>"Test"</formula></code></field></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Whether the e-mail system is in Test or Production mode.</run></par>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>In Test mode, all e-mails generated by this database will be sent to the e-mail address shown below.</run></par>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>In Production mode, all e-mails are sent to their intended recipients.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Test mode e-mail address</run></par></tablecell>
+<tablecell>
+<pardef id='27' leftmargin='0.1000in' keepwithnext='true' keeptogether='true'/>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='dp_TestModeEmailAddress' listinputseparators='newline'
+ listdisplayseparator='newline'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='7' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The e-mail address to send all e-mails when the e-mail system is in Test mode.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Enable debug?</run></par></tablecell>
+<tablecell>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='dp_EnableDebug'><keywords
+ helperbutton='false' columns='2' ui='radiobutton'><textlist><text>Yes</text><text
+>No</text></textlist></keywords><code event='defaultvalue'><formula>"No"</formula></code></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Whether to create Debug Log documents.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Enable debug e-mails?</run></par></tablecell>
+<tablecell>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field borderstyle='none' lookupeachchar='false'
+ lookupaddressonrefresh='false' type='keyword' kind='editable' name='dp_EnableDebugEmail'><keywords
+ helperbutton='false' columns='2' ui='radiobutton'><textlist><text>Yes</text><text
+>No</text></textlist></keywords><code event='defaultvalue'><formula>"No"</formula></code></field></run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Whether to email Error Logs. </run></par></tablecell></tablerow>
+<tablerow>
+<tablecell>
+<par def='21'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Error reporting e-mail address</run></par></tablecell>
+<tablecell>
+<par def='27'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='editable' name='dp_ErrorReportingEmailAddress' listinputseparators='newline'
+ listdisplayseparator='newline'/></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell>
+<par def='23'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The e-mail address to send any error reporting e-mails generated in this database.</run></par></tablecell></tablerow></table>
+<par def='16'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></richtext></body>
+<item name='NextCustID' summary='false'><number>0</number></item>
+<item name='NextUserID' summary='false'><number>0</number></item>
+<item name='NextEventID' summary='false'><number>0</number></item>
+<item name='NextLocationID' summary='false'><number>0</number></item>
+<item name='$SubForm_RepIDs' sign='true'><text>0000000000000000</text></item>
+<item name='dp_Events' summary='false'><number>0</number></item>
+<item name='dp_CurrPOYear' summary='false'><number>0</number></item>
+<item name='dp_CurrPOEvents' summary='false'><number>0</number></item>
+<item name='OriginalModTime'><datetime dst='true'>20100407T103313,31-04</datetime></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>frmProfile</text></item></form>
+

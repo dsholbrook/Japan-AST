@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(CoreApp UI\Home Page)' alias='coreAppHome' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' publicaccess='false'
+ designerversion='8.5.3' renderpassthrough='true'>
+<noteinfo noteid='6276a' unid='6AA3FC6A92EB949486258170001F0266' sequence='7'>
+<created><datetime dst='true'>20170802T003842,30-05</datetime></created>
+<modified><datetime dst='true'>20180930T002356,72-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170833,29-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002356,72-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002356,72-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='windowtitle'><formula>tmpName := @DbLookup("";"";"luAppProfile"; "App" ; "dp_SystemName");
+@If( @IsError( tmpName ) ; "Set up database profile" ; tmpName )</formula></code>
+<body><richtext>
+<pardef id='1' leftmargin='1in' hide='notes web mobile'/>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<pardef id='2' leftmargin='1in'><parstyle name='Between Paragraphs' incyclekey='true'><font
+ size='3pt' color='red' name='face26'/></parstyle></pardef>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table minrowheight='0.7500in' cellbordercolor='gray' leftmargin='0.7500in'
+ widthtype='fixedleft' columnspacing='0.1000in' refwidth='7.1417in'><tablecolumn
+ width='3.9625in'/><tablecolumn width='2.7792in'/>
+<tablerow>
+<tablecell valign='center' borderwidth='3px 0px'>
+<cellbackground repeat='hrepeat'/>
+<pardef id='4' leftmargin='0' tabs='L4.7500in' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='14pt' style='bold'/></run><run><font size='11pt'
+ style='bold'/><computedtext><code event='value'><formula>tmpName := @DbLookup("";"";"luAppProfile"; "App" ; "dp_SystemName");
+@If( @IsError( tmpName ) ; "Set up database profile" ; tmpName )</formula></code></computedtext></run><run
+><font size='14pt' style='bold'/></run></par>
+<par def='4'><run><font size='14pt' style='bold'/></run></par>
+<pardef id='5' align='right' leftmargin='0' keepwithnext='true' keeptogether='true'/>
+<par def='5'><run><font size='11pt' style='bold' color='gray'/></run></par></tablecell>
+<tablecell borderwidth='3px 0px'>
+<cellbackground repeat='center'/>
+<pardef id='6' hide='print' keepwithnext='true' keeptogether='true'/>
+<par def='6'><picture width='199px' height='68px'><imageref name='coreSiteLogo.jpg'/></picture></par></tablecell></tablerow></table>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='#0083b8' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='7.1000in'><tablecolumn
+ width='7in'/>
+<tablerow>
+<tablecell borderwidth='2px 0px 0px' bgcolor='white'>
+<pardef id='8' leftmargin='0.0104in' rightmargin='7in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='11pt' style='bold'/>Site Administration</run></par>
+<pardef id='9' leftmargin='0.0104in' rightmargin='7in' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='9'><run><font size='11pt'/></run><namedelementlink showborder='false'
+ type='frameset' name='coreAppReg' targetframe='SiteBody'><run><font size='13pt'
+ style='underline' color='#0082bf'/>Registration Administration</run></namedelementlink><run
+><font size='11pt'/> - Manage registrations (DEMO HIDDEN)</run></par>
+<pardef id='10' leftmargin='0.0104in' rightmargin='7in' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>@IsNotMember("[Admin]";@UserRoles)</formula></code></pardef>
+<par def='10'><run><font size='11pt'/></run></par>
+<pardef id='11' leftmargin='0.0104in' rightmargin='7in' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen' enabled='false'><formula
+>@IsNotMember("[Admin]";@UserRoles)</formula></code></pardef>
+<par def='11'><run><font size='11pt'/></run><namedelementlink showborder='false'
+ type='frameset' name='coreMailMergeAdmin' targetframe='SiteBody'><run><font
+ size='13pt' style='underline' color='#008abf'/>Mail Merge Administration</run></namedelementlink><run
+><font size='11pt'/> - Mail merge admin (HIDDEN - SEPARATE MODULE)</run></par>
+<pardef id='12' leftmargin='0.0104in' rightmargin='7in' keepwithnext='true'
+ keeptogether='true'><code event='hidewhen' enabled='false'><formula>@IsNotMember("[Admin]";@UserRoles)</formula></code></pardef>
+<par def='12'><run><font size='11pt'/></run><namedelementlink showborder='false'
+ type='frameset' name='coreAppAdmin' targetframe='SiteBody'><run><font size='13pt'
+ style='underline' color='#008abf'/>Site Administration</run></namedelementlink><run
+><font size='11pt'/> - Database profile, debug, keywords, etc.</run></par>
+<par def='12'><run><font size='11pt'/></run><namedelementlink showborder='false'
+ type='frameset' name='coreWebAdmin' targetframe='SiteBody'><run><font size='13pt'
+ style='underline' color='#008abf'/>Website Administration</run></namedelementlink><run
+><font size='11pt'/> - Site navigation and content creation.</run></par></tablecell></tablerow></table>
+<pardef id='13' leftmargin='1in'/>
+<par def='13'/>
+<pardef id='14'/>
+<par def='14'><run><font size='12pt'/></run></par></richtext></body>
+<item name='$$ScriptName' summary='false' sign='true'><text>coreSiteHome</text></item></form>
+

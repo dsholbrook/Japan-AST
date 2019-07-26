@@ -1,0 +1,631 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(CoreWeb\ContentNav)' alias='frmWebContentNav' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' publicaccess='false'
+ designerversion='8.5.3' inherit='true' renderpassthrough='true'>
+<noteinfo noteid='62792' unid='90AD5C52C58C028C85257B21005B796F' sequence='5'>
+<created><datetime>20130301T113908,63-05</datetime></created>
+<modified><datetime dst='true'>20180930T002356,98-05</datetime></modified>
+<revised><datetime dst='true'>20170809T170835,83-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002356,98-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002356,98-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby><code
+ event='windowtitle'><formula>nav_title</formula></code>
+<actionbar bgcolor='white' bordercolor='black'><actionbarstyle height='32px'/>
+<actionbuttonstyle bgcolor='white'/><font size='9pt' color='system'/><border
+ style='solid' width='0px 0px 1px' color='#0083b8'/>
+<sharedactionref id='1'>
+<action title='Close' icon='27' showinmenu='false' hide='web mobile'><code
+ event='click'><formula>@Command([FileCloseWindow])</formula></code></action></sharedactionref>
+<sharedactionref id='2'>
+<action title='Edit' icon='5' showinmenu='false' hide='edit previewedit web mobile'><code
+ event='click'><formula>@Command([EditDocument])</formula></code></action></sharedactionref>
+<sharedactionref id='3'>
+<action title='Save &amp; Close' icon='21' showinmenu='false' hide='preview read web mobile'><code
+ event='click'><formula>@If(@Command([FileSave]);@Command([CloseWindow]); "")</formula></code></action></sharedactionref>
+<action title='Update tabs (saves and closes)' icon='41'><code event='click'><formula
+>@If( @Command([FileSave]) ; "" ; @Return(""));
+tmpPath := @ReplaceSubstring(@Subset(@DbName; -1); "\\":" "; "/":"+");
+@URLOpen("http://localhost/" + tmpPath + "/luContentNav/" + nav_id);
+@Command([FileCloseWindow])</formula></code></action></actionbar>
+<body><richtext>
+<pardef id='1' leftmargin='1in' hide='notes web mobile'/>
+<par def='1'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/>Hidden: </run><run><font color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='$$Return'><code event='defaultvalue'><formula>"Navigation updated: " + nav_title</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<pardef id='2' leftmargin='1in' rightmargin='100%'><parstyle name='Between Paragraphs'
+ incyclekey='true'><font size='3pt' color='red' name='face26'/></parstyle></pardef>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table minrowheight='0.7500in' cellbordercolor='gray' leftmargin='0.7500in'
+ widthtype='fixedleft' columnspacing='0.1000in' refwidth='7.1833in'><tablecolumn
+ width='4.7125in'/><tablecolumn width='2.0708in'/>
+<tablerow>
+<tablecell valign='center' borderwidth='3px 0px'>
+<cellbackground repeat='hrepeat'/>
+<pardef id='4' leftmargin='0' tabs='L5.5000in' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='13pt' style='bold'/>Content Naviation Area (Tabs)</run></par>
+<pardef id='5' leftmargin='0' keepwithnext='true' keeptogether='true'/>
+<par def='5'><run><font size='13pt' style='bold' color='#0083b8'/></run><run
+><font style='bold' color='#0083b8'/><computedtext><code event='value'><formula
+>nav_title</formula></code></computedtext></run><run><font size='13pt' style='bold'
+ color='#0083b8'/></run></par>
+<par def='5'><run><font size='13pt' style='bold'/></run></par></tablecell>
+<tablecell borderwidth='3px 0px'>
+<cellbackground repeat='center'/>
+<pardef id='6' align='right' hide='print' keepwithnext='true' keeptogether='true'/>
+<par def='6'><picture width='199px' height='68px'><imageref name='coreSiteLogo.jpg'/></picture></par></tablecell></tablerow></table>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='gray' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='7.1000in'><tablecolumn
+ width='7in'/>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='8' leftmargin='0.0104in' rightmargin='7in' hide='web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='8'><run><font size='14pt' style='bold' name='Calibri' pitch='variable'
+ truetype='true' familyid='20'/>Navigation area details</run></par></tablecell></tablerow></table>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='#0083b8' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0299in' columnspacing='0.0500in' refwidth='7.1250in'><tablecolumn
+ width='1.5875in'/><tablecolumn width='3.3375in'/><tablecolumn width='1.9000in'/>
+<tablerow>
+<tablecell borderwidth='2px 0px 1px'>
+<pardef id='10' keepwithnext='true' keeptogether='true'/>
+<par def='10'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Navigation ID *</run></par></tablecell>
+<tablecell borderwidth='2px 0px 1px'>
+<pardef id='11' keepwithnext='true' keeptogether='true'/>
+<par def='11'><field type='text' kind='editable' name='nav_id'><code event='defaultvalue'><formula
+>wp_key</formula></code></field><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='2px 0px 1px'>
+<pardef id='12' keepwithnext='true' keeptogether='true'/>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Key value used to look up this document.  </run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='2px 0px 1px'>
+<par def='10'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Site profile</run></par></tablecell>
+<tablecell borderwidth='2px 0px 1px'>
+<par def='11'><field type='keyword' kind='editable' name='nav_wp_key'><keywords
+ ui='dialoglist'><formula>@DbColumn("":"NoCache" ; "" ; "listWebSiteProfiles" ; 3 )</formula></keywords><code
+ event='defaultvalue'><formula>wp_key</formula></code></field><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='2px 0px 1px'>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Select the Site Profile this area will reside in.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='10'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Navigation title *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='11'><field type='text' kind='editable' name='nav_title'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Name displayed in selection lists.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='10'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Default page title</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='11'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='nav_page_title'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Page title as seen on the site.</run></par>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/>Note: </run><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='gray'/>If using a header graphic that has the title, leave this and other header text / titles blank.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='10'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Default sub-title</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='11'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='nav_page_sub_title'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='6' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Page sub title as seen on the site.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='13' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='13'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Default sub-text</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='14' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='nav_page_sub_text'/></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='15' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='15'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Page sub text as seen on the site.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='13'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Default navigation url</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='14'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='nav_site_url'/></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='15'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Default page this navigation area should land on.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='10'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Leadspace type *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='11'><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='nav_lead_type'><keywords recalconchange='true'
+ columns='1' ui='dialoglist'><textlist><text>Standard</text><text>Custom HTML|Custom</text><text
+>Custom Control|Control</text></textlist></keywords><code event='defaultvalue'><formula
+>"Short"</formula></code></field><run><font style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Specify the type of header style </run></par>
+<par def='12'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/>Note: The size of the image selected should match.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='16' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_type != "Custom"</formula></code></pardef>
+<par def='16'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Leadspace HTML</run></par>
+<pardef id='17' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_type != "Control"</formula></code></pardef>
+<par def='17'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Leadspace Control</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='18' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_type != "Custom" &amp; nav_lead_type != "Control"</formula></code></pardef>
+<par def='18'><field type='text' kind='editable' name='nav_lead_style'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='19' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_type != "Custom" &amp; nav_lead_type != "Control"</formula></code></pardef>
+<par def='19'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Use when type is custom</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='20' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+> nav_lead_type != "Standard"</formula></code></pardef>
+<par def='20'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Image type *</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='21' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+> nav_lead_type != "Standard"</formula></code></pardef>
+<par def='21'><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='nav_lead_image_type'><keywords recalconchange='true'
+ columns='1' ui='dialoglist'><textlist><text>No Image|None</text><text>Web File - Single Image|Single</text><text
+>Database Image|Database</text></textlist></keywords><code event='defaultvalue'><formula
+>"None"</formula></code></field><run><font style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='22' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+> nav_lead_type != "Standard"</formula></code></pardef>
+<par def='22'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Specify the type of image to be used with this area if any.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='23' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_image_type != "Single" | nav_lead_type != "Standard"</formula></code></pardef>
+<par def='23'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Leadspace image</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='24' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_image_type != "Single" | nav_lead_type != "Standard"</formula></code></pardef>
+<par def='24'><field type='keyword' kind='editable' name='nav_lead_img_id'><keywords
+ ui='dialoglist'><formula>@DbColumn("":"NoCache" ; "" ; "listCoreWebFilesSingle" ; 3 )</formula></keywords></field><run
+><font style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='25' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_image_type != "Single" | nav_lead_type != "Standard"</formula></code></pardef>
+<par def='25'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Select the web file from the list. </run></par>
+<par def='25'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/>Note: The image should be the only file in this web file document.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='26' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_image_type != "Database" |  nav_lead_type != "Standard"</formula></code></pardef>
+<par def='26'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Leadspace image</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='27' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_image_type != "Database" |  nav_lead_type != "Standard"</formula></code></pardef>
+<par def='27'><field type='text' kind='editable' name='nav_lead_img'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='28' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_image_type != "Database" |  nav_lead_type != "Standard"</formula></code></pardef>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Specify the image name for the header. </run></par>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/>Note: The image should be imported into the images area of this database</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='29' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_image_type != "Single" |  nav_lead_type != "Standard"</formula></code></pardef>
+<par def='29'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Leadspace BG image</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='30' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_image_type != "Single" |  nav_lead_type != "Standard"</formula></code></pardef>
+<par def='30'><field type='keyword' kind='editable' name='nav_lead_bg_img_id'><keywords
+ ui='dialoglist'><formula>@DbColumn("":"NoCache" ; "" ; "listCoreWebFilesSingle" ; 3 )</formula></keywords></field><run
+><font style='bold' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='31' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_image_type != "Single" |  nav_lead_type != "Standard"</formula></code></pardef>
+<par def='31'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Optional. Select the web file from the list to use as a faded background behind the main graphic. </run></par>
+<par def='31'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/>Note: The image should be the only file in this web file document.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='26'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Leadspace BG image</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='27'><field type='text' kind='editable' name='nav_lead_bg_img'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Optional. Specify the image name for the faded background header. </run></par>
+<par def='28'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='gray'/>Note: The image should be imported into the images area of this database</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='26'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Button Text</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='27'><field type='text' kind='editable' name='nav_lead_btn_text'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Optional: Provide all three fields when used. </run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='26'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Button Color</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='27'><field type='text' kind='editable' name='nav_lead_btn_color'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Provide all three fields when used.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='26'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Button URL</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='27'><field type='text' kind='editable' name='nav_lead_btn_url'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='28'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Provide all three fields when used.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='32' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_type = "Custom" | nav_lead_type != "Standard"</formula></code></pardef>
+<par def='32'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Background Color (V18)</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='33' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_type = "Custom" | nav_lead_type != "Standard"</formula></code></pardef>
+<par def='33'><field type='text' kind='editable' name='nav_lead_bg_color'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='34' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_type = "Custom" | nav_lead_type != "Standard"</formula></code></pardef>
+<par def='34'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Optional: Use #xxxxxx format</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='16'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='35' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_type != "Custom"</formula></code></pardef>
+<par def='35'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='36' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_lead_type != "Custom"</formula></code></pardef>
+<par def='36'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/></run></par></tablecell></tablerow></table>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='gray' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='7.1000in'><tablecolumn
+ width='7in'/>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='8'><run><font size='14pt' style='bold' name='Calibri' pitch='variable'
+ truetype='true' familyid='20'/>Common sidebar details</run></par></tablecell></tablerow></table>
+<pardef id='38' leftmargin='0.8000in' rightmargin='100%'/>
+<par def='38'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='#0083b8' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0299in' columnspacing='0.0500in' refwidth='7.1250in'><tablecolumn
+ width='1.5875in'/><tablecolumn width='3.3375in'/><tablecolumn width='1.9000in'/>
+<tablerow>
+<tablecell borderwidth='2px 0px 1px'>
+<par def='10'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Default sidebar type</run></par></tablecell>
+<tablecell borderwidth='2px 0px 1px'>
+<par def='11'><field lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' kind='editable' name='nav_sidebar_type'><keywords recalconchange='true'
+ columns='1' ui='dialoglist'><textlist><text>Standard details|Standard</text><text
+>Use XPage or Control|Include</text></textlist></keywords><code event='defaultvalue'><formula
+>"Standard"</formula></code></field><run><font style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='2px 0px 1px'>
+<par def='12'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Use the standard setup or use an XPage or Control for sidebard content.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='40' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_sidebar_type != "Standard"</formula></code></pardef>
+<par def='40'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Top sidebar content</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='41' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_sidebar_type != "Standard"</formula></code></pardef>
+<par def='41'><field type='text' kind='editable' name='nav_sidebar_content_top'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='42' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_sidebar_type != "Standard"</formula></code></pardef>
+<par def='42'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Add HTML that shows on all pages in this area.  Will show above the contact details below.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='40'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Include contact details?</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='41'><field borderstyle='none' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' allowmultivalues='true' kind='editable' name='nav_sidebar_incl_contact'
+ listinputseparators='comma' listdisplayseparator='comma'><keywords helperbutton='false'
+ recalconchange='true' columns='1' ui='checkbox'><textlist><text>Yes - Include contact us link|Yes</text></textlist></keywords></field><run
+><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='42'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Include a standard e-mail link.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='43' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_sidebar_type != "Standard" | nav_sidebar_incl_contact != "Yes"</formula></code></pardef>
+<par def='43'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Contact name</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='44' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_sidebar_type != "Standard" | nav_sidebar_incl_contact != "Yes"</formula></code></pardef>
+<par def='44'><field type='text' kind='editable' name='nav_sidebar_contact_name'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='45' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_sidebar_type != "Standard" | nav_sidebar_incl_contact != "Yes"</formula></code></pardef>
+<par def='45'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The name to display for the link.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='43'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Contact e-mail</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='44'><field type='text' kind='editable' name='nav_sidebar_contact_email'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='45'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>The e-mail to use in the link.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<par def='40'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Bottom sidebar content</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='41'><field type='text' kind='editable' name='nav_sidebar_content_bottom'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<par def='42'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Add HTML that shows on all pages in this area.  Will show below the contact details below.</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='1px 0px'>
+<pardef id='46' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_sidebar_type != "Include"</formula></code></pardef>
+<par def='46'><run><font style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Default sidebar .xsp</run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='47' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_sidebar_type != "Include"</formula></code></pardef>
+<par def='47'><field type='text' kind='editable' name='nav_sidebar_content_include'/><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='7' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font style='bold'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='1px 0px'>
+<pardef id='48' keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula
+>nav_sidebar_type != "Include"</formula></code></pardef>
+<par def='48'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>Name of the custom control or XPage to use as a server side include. (</run><run
+><font size='9pt' style='bold' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='gray'/>include .xsp</run><run><font size='9pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='gray'/>)</run></par></tablecell></tablerow></table>
+<par def='2'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table cellbordercolor='gray' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='7.2083in'><tablecolumn
+ width='7.1083in'/>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='8'><run><font size='14pt' style='bold' name='Calibri' pitch='variable'
+ truetype='true' familyid='20'/>Navigation object</run></par>
+<pardef id='50' leftmargin='0.0104in' rightmargin='7in' keepwithnext='true'
+ keeptogether='true'/>
+<par def='50'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='editable' name='nav_object'/></run><compositedata type='98'
+ prevtype='65418' nexttype='222' afterparcount='6' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='14pt' style='bold' name='Calibri'
+ pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='8'><run><font size='12pt' style='bold' name='Calibri' pitch='variable'
+ truetype='true' familyid='20' color='blue'/>Example Object: <break/></run><run
+><font size='12pt' name='Calibri' pitch='variable' truetype='true' familyid='20'
+ color='blue'/>{"tabs":</run></par>
+<pardef id='51' leftmargin='0.0104in' rightmargin='7in' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='51'><run><font size='12pt' name='Calibri' pitch='variable' truetype='true'
+ familyid='20' color='blue'/>[</run></par>
+<par def='51'><run><font size='12pt' name='Calibri' pitch='variable' truetype='true'
+ familyid='20' color='blue'/>{"text":"Welcome","name":"welcome","href":"[tmpBaseURL]/Welcome.xsp"},</run></par>
+<par def='51'><run><font size='12pt' name='Calibri' pitch='variable' truetype='true'
+ familyid='20' color='blue'/>{"text":"Agenda","name":"agenda","href":"[tmpBaseURL]/Agenda.xsp"},</run></par>
+<par def='51'><run><font size='12pt' name='Calibri' pitch='variable' truetype='true'
+ familyid='20' color='blue'/>{"text":"Registration","name":"registration","href":"[tmpBaseURL]/Registration.xsp"}</run></par>
+<par def='51'><run><font size='12pt' name='Calibri' pitch='variable' truetype='true'
+ familyid='20' color='blue'/>]}</run></par>
+<pardef id='52' leftmargin='0.0104in' rightmargin='7in' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='52'><run><font size='14pt' style='bold' name='Calibri' pitch='variable'
+ truetype='true' familyid='20'/>Use menubar object? (V18 only) (always uses nav bar now)</run></par>
+<par def='52'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ borderstyle='inset' lookupeachchar='false' lookupaddressonrefresh='false'
+ type='keyword' allowmultivalues='true' kind='editable' name='use_menunav'
+ listinputseparators='comma' listdisplayseparator='comma'><keywords helperbutton='false'
+ columns='1' ui='checkbox'><textlist><text>Yes - Use Menu Nav</text></textlist></keywords><code
+ event='defaultvalue'><formula>"Yes"</formula></code></field></run><run><font
+ size='14pt' style='bold' name='Calibri' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow></table>
+<pardef id='53' leftmargin='0.8000in' rightmargin='100%'><code event='hidewhen'><formula
+>@IsNewDoc</formula></code></pardef>
+<par def='53'><run><font color='red'/></run><button width='2in' widthtype='maximum'
+ maxlines='1' wraptext='false' edge='rounded' bgcolor='#0083b8'><code event='click'><formula
+>@Command([Compose]; "frmWebContentDoc" )</formula></code><font color='white'
+ style='bold'/>Add content document</button><run><font color='red'/>  </run><button
+ width='2in' widthtype='maximum' maxlines='1' wraptext='false' edge='rounded'
+ bgcolor='#0083b8'><code event='click'><formula>@If( @IsDocBeingEdited ; "" ; @Command([EditDocument]));
+@Command([ViewRefreshFields])</formula></code><font color='white' style='bold'/>Refresh</button><run
+><font color='red'/>  </run><button width='2.5104in' widthtype='maximum' maxlines='1'
+ wraptext='false' edge='rounded' bgcolor='#0083b8'><code event='click'><formula
+>@If( @Command([FileSave]) ; "" ; @Return(""));
+tmpPath := @ReplaceSubstring(@Subset(@DbName; -1); "\\":" "; "/":"+");
+@URLOpen("http://localhost/" + tmpPath + "/luContentNav/" + nav_id);
+@Command([FileCloseWindow])</formula></code><font color='white' style='bold'/>Update tabs (saves and closes)</button><run
+><font size='3pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par>
+<table cellbordercolor='gray' leftmargin='0.8000in' widthtype='fixedleft'
+ rowspacing='0.0500in' columnspacing='0.0500in' refwidth='7.1000in'><tablecolumn
+ width='7in'/>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='55' leftmargin='0.0104in' rightmargin='7in' hide='web mobile'
+ keepwithnext='true' keeptogether='true'><code event='hidewhen'><formula>@IsNewDoc</formula></code></pardef>
+<par def='55'><run><font size='14pt' style='bold' name='Calibri' pitch='variable'
+ truetype='true' familyid='20'/>Navigation Areas (Sets of Tabs)</run></par></tablecell></tablerow></table>
+<par def='53'><run><font size='3pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><embeddedview name='vContentPages' width='7.1201in'
+ height='2in'><code event='showsinglecategory'><formula>nav_id</formula></code><border
+ style='dot' width='1px' dropshadow='true'/></embeddedview><run><font color='red'/></run></par>
+<pardef id='56' leftmargin='0.8000in' rightmargin='100%'><code event='hidewhen'><formula
+>!@IsNewDoc</formula></code></pardef>
+<par def='56'><run><font color='red'/></run><button width='2in' widthtype='maximum'
+ maxlines='1' wraptext='false' edge='rounded' bgcolor='#0083b8'><code event='click'><formula
+>@Command([FileSave]);
+@Command([ViewRefreshFields])</formula></code><font color='white' style='bold'/>Save to add documents</button><run
+><font color='red'/>  </run><button width='3.4792in' widthtype='maximum' maxlines='1'
+ wraptext='false' edge='rounded' bgcolor='#0083b8'><code event='click'><formula
+>@If( @Command([FileSave]) ; "" ; @Return(""));
+tmpPath := @ReplaceSubstring(@Subset(@DbName; -1); "\\":" "; "/":"+");
+@URLOpen("http://localhost/" + tmpPath + "/luContentNav/" + nav_id);
+@Command([FileCloseWindow])</formula></code><font color='white' style='bold'/>Save and update tabs now (closes document)</button><run
+><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></richtext></body>
+<item name='$XPageAlt'><text>coreWebNavBuilder.xsp</text></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>frmContentDoc</text></item></form>
+

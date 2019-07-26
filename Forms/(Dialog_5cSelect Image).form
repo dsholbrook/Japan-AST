@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Dialog\Select Image)' alias='dlgSelectImage' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='web mobile'
+ nocompose='true' noquery='true' publicaccess='false' designerversion='8.5'
+ bgcolor='#ece9d8' inherit='true'>
+<noteinfo noteid='14f92' unid='58F09618DF2C8EBA86257F710078ADFA' sequence='7'>
+<created><datetime>20160309T155808,58-06</datetime></created>
+<modified><datetime dst='true'>20180929T235605,37-05</datetime></modified>
+<revised><datetime>20160310T111655,13-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235605,37-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235605,37-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<actionbar bgcolor='#ece9d8' bordercolor='black'>
+<actionbuttonstyle bgcolor='#ece9d8'/><font size='9pt' color='system'/><border
+ style='solid' width='0px 0px 1px'/></actionbar>
+<body><richtext>
+<pardef id='1' hide='notes web mobile' tabs='L2.8750in'/>
+<par def='1'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' allowmultivalues='true'
+ kind='computed' name='ImageList' listinputseparators='comma semicolon' listdisplayseparator='semicolon'><code
+ event='defaultvalue'><formula>ImageList</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<table extrahtmlattrs='width="443" height="18"' widthtype='fixedleft' refwidth='5.9375in'><tablecolumn
+ width='0.1875in'/><tablecolumn width='5.7500in'/>
+<tablerow>
+<tablecell borderwidth='0px' bgcolor='#ece9d8' extrahtmlattrs='width="13"'>
+<pardef id='3' align='center' keepwithnext='true' keeptogether='true'/>
+<par def='3'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px' bgcolor='#ece9d8' extrahtmlattrs='width="180"'>
+<pardef id='4' tabs='L9in L9.5000in L10in L10.5000in L11in L11.5000in L12in L12.5000in'
+ keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='blue'/></run></par>
+<pardef id='5' keepwithnext='true' keeptogether='true'/>
+<par def='5'><run><font name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ usenotesstyle='false' height='3in' width='5.6000in' multiline='true' borderstyle='single'
+ lookupeachchar='false' lookupaddressonrefresh='false' type='keyword' kind='editable'
+ name='ImageName' bgcolor='white'><keywords helperbutton='false' recalconchange='true'
+ columns='1' ui='listbox'><formula>@Trim(ImageList)</formula></keywords></field></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<par def='4'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell></tablerow></table>
+<pardef id='6' leftmargin='1in' hide='notes web'/>
+<par def='6'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></richtext></body>
+<item name='OriginalModTime'><datetime dst='true'>20060718T124918,55-04</datetime></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>dlgSelectImage</text></item></form>
+

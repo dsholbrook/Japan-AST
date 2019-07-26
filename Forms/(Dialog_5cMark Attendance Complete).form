@@ -1,0 +1,93 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Dialog\Mark Attendance Complete)' alias='dlgMarkAttendanceComplete'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='web mobile' nocompose='true' noquery='true'
+ publicaccess='false' designerversion='8.5.3'>
+<noteinfo noteid='1535e' unid='921A6258FE033C7C8625809E006B42ED' sequence='1'>
+<created><datetime>20170104T133134,85-06</datetime></created>
+<modified><datetime dst='true'>20180930T002215,49-05</datetime></modified>
+<revised><datetime>20170104T133134,85-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180930T002215,49-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002215,49-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=Allison Janicki/OU=Armonk/OU=Contr/O=IBM</name><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=Allison Janicki/OU=Armonk/OU=Contr/O=IBM</name></wassignedby>
+<globals><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions"
+
+
+</lotusscript></code></globals>
+<actionbar bgcolor='#ece9d8' bordercolor='black'>
+<actionbuttonstyle bgcolor='#ece9d8'/><font color='system'/><border style='solid'
+ width='0px 0px 1px'/></actionbar>
+<body><richtext>
+<pardef id='1' leftmargin='1in' hide='notes web mobile'/>
+<par def='1'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='9pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='EventName'><code event='defaultvalue'><formula>EventName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='9pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par>
+<par def='1'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table widthtype='fixedleft' refwidth='5.3667in'><tablecolumn width='0.1833in'/><tablecolumn
+ width='5in'/><tablecolumn width='0.1833in'/>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='2' keepwithnext='true' keeptogether='true'/>
+<par def='2'><run><font size='9pt' style='bold underline' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='3' keepwithnext='true' keeptogether='true'/>
+<par def='3'><run><font size='9pt' style='bold underline' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='4' keepwithnext='true' keeptogether='true'/>
+<par def='4'><run><font size='9pt' style='bold underline' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='5' rightmargin='0.1875in' keepwithnext='true' keeptogether='true'/>
+<par def='5'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='3'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>You are about to upload data for event:</run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/> </run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/><computedtext
+><code event='value'><formula>EventName</formula></code></computedtext></run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par>
+<pardef id='6' spacebefore='2' keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/>IMPORTANT MESSAGE: Once attendance is marked complete, data remediation is no longer supported.</run></par>
+<par def='6'><run><font size='9pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/>Be sure all records are marked correctly</run><run
+><font size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/> (including lead routing Qtags). </run></par>
+<par def='6'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>Click </run><run><font size='9pt' style='bold' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/>'Cancel'</run><run><font
+ size='9pt' name='Arial' pitch='variable' truetype='true' familyid='20'/> if you are not ready to proceed.</run></par>
+<par def='6'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/>If you have any questions, please contact GRP Solution/Westford/Contr/IBM</run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='4'><run><font size='9pt' style='bold underline' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='2'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='3'><run><font size='9pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='4'><run><font size='9pt' style='bold underline' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/></run></par></tablecell></tablerow></table>
+<par def='1'/></richtext></body>
+<item name='OriginalModTime' sign='true'><datetime dst='true'>20060718T124918,55-04</datetime></item>
+<item name='$$ScriptName' summary='false' sign='true'><text> dlgEnterEmail</text></item></form>
+

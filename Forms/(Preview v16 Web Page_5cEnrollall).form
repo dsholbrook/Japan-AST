@@ -1,0 +1,505 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE form SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<form name='(Preview v16 Web Page\Enrollall)' alias='enrollall' xmlns='http://www.lotus.com/dxl'
+ version='10.0' maintenanceversion='1.0' replicaid='862577A00065A565' hide='notes mobile'
+ nocompose='true' noquery='true' htmlallfields='true' publicaccess='false'
+ designerversion='8.5.3' renderpassthrough='true'>
+<noteinfo noteid='14f86' unid='B28ABCC531C4C4F486257F710078AFB0' sequence='21'>
+<created><datetime>20160309T155812,96-06</datetime></created>
+<modified><datetime dst='true'>20180929T235605,31-05</datetime></modified>
+<revised><datetime>20160310T111659,36-06</datetime></revised>
+<lastaccessed><datetime dst='true'>20180929T235605,31-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180929T235605,31-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby><code
+ event='webquerysave'><formula>@SetField("regid";@LowerCase(@Middle(@Text(@DocumentUniqueID);6;6)));
+@Command([ToolsRunMacro]; "(SubmitEnrollment)")</formula></code><code event='webqueryopen'><formula
+>@Command([ToolsRunMacro]; "(WebQueryOpenEnrollAll)")</formula></code><code
+ event='jsheader' for='web'><javascript>/* All the following section are initially disabled for validation, each subform is responsible to turn its validation ON in JS Header as it loads*/
+var validateMIQuestions       = false;
+var validateEmergencyContact  = false;
+var validateBadgeInfo         = false; 
+var validateOptionalQuestions = false;
+
+function disableSubmit() {
+	// Hide the Button area and show the Message area
+	clc_changeVisibility('divSubmitButtonArea', 'hidden');
+	clc_changeVisibility('divProcessingMsgArea', 'visible');
+}
+
+function enableSubmit() {
+	// Show the Button area and hide the Message area
+	clc_changeVisibility('divSubmitButtonArea', 'visible');
+	clc_changeVisibility('divProcessingMsgArea', 'hidden');
+}
+
+function setFormIDs() {
+	for(var i=1; i&lt;document.forms.length; i++) {
+		document.forms[i].id = 'formTag_' + i;
+	}
+}
+
+function validateForm() {
+
+   var sFailed = "";
+   var oGoto = "";
+   var temp;
+    
+	// Validate person section fields (Always included)
+	temp = personValidation(sFailed, oGoto);
+	sFailed = temp[0];
+	oGoto = temp[1];
+		
+	// Validate company section fields (Always included)
+	temp = companyValidation(sFailed, oGoto);
+	sFailed = temp[0];
+	oGoto = temp[1];	
+    
+	// Validate emergency contact section fields (if included)
+	if (validateEmergencyContact){ // boolean "validateEmergencyContact" is set in the subform JS Header
+		temp = emergencycontactValidation(sFailed, oGoto);
+		sFailed = temp[0];
+		oGoto = temp[1];
+	}
+
+	// Validate badge section fields (if included)
+	if (validateBadgeInfo){ // boolean "validateBadgeInfo" is set in the subform JS Header
+		temp = badgeValidation(sFailed, oGoto);
+		sFailed = temp[0];
+		oGoto   = temp[1];
+	}
+   
+   	// Validate MI question section fields (if included)
+	if (validateMIQuestions){ // boolean "validateMIQuestions" is set in the subform JS Header for MI questions (miquestions)
+			temp = MIquestionsValidation(sFailed, oGoto);
+			sFailed = temp[0];
+			oGoto   = temp[1];	
+	}
+	
+	// Validate optional question section fields (if included)
+	if (validateOptionalQuestions){ // boolean "validateOptionalQuestions" is set in the subform JS Header		
+			temp = optionalquestionsValidation(sFailed, oGoto);
+			sFailed = temp[0];
+			oGoto   = temp[1];	
+		
+	}
+	
+	document.forms[1].en_CurrentOptStatus.value =  ibmNC.currentOptStatus;
+	
+	if(sFailed != ""){
+     	// If not passed validation, then re-enable the submit button
+		enableSubmit();
+		// Some fields failed validation so alert the user and do not submit the form.
+		sFailed = sFailed.replace(/\n/g,"&lt;br /&gt;");
+		sFailed = labels['lc_ValidationMsg'] + "&lt;br /&gt;&lt;br /&gt;" + sFailed;
+		// Show the errors
+		document.getElementById('errorMsgs').innerHTML = '&lt;p class="ibm-error"&gt;&lt;strong&gt;' + sFailed + '&lt;/strong&gt;&lt;/p&gt;';			
+		document.getElementById('errorMsgs').style.display = 'block';
+		document.anchors.item('showErrors').scrollIntoView();
+		return false;
+	} else {
+		// The form passed validation so continue with submit.
+		document.getElementById('errorMsgs').style.display = 'none';
+    		if(document.forms[1].privacyyes || document.forms[1].en_first.value == "test"){
+			document.forms[1].submit();
+		}
+		return true;
+	}
+}
+
+function submit2() {
+	setFormIDs();
+	if(document.getElementById('formTag_1').en_country_locale_lang &amp;&amp; document.getElementById('formTag_1').en_country.options){
+		// For the web service no submit as it does it for us at this time  (really should not but for now...  TODO change it with Jayant),
+		// But we need to reset the value of the country list now set to an ISO code back to a country name in the local language.
+		// we look for the en_country because China do not use it and to avoid a JS error we do not proces this script.
+		var w = document.getElementById('formTag_1').en_country.selectedIndex;
+		var selectedtext = document.getElementById('formTag_1').en_country.options[w].text;			
+		document.getElementById('formTag_1').en_country_locale_lang.value = selectedtext;
+	}
+	// Run function that disables the submit button and enables the processing message
+	disableSubmit();
+	// This setTimeout call will wait 1/4 of a second and then call the validateForm() function
+	//setTimeout('validateForm()', 250) ;
+	return validateForm();
+}</javascript></code>
+<body><richtext>
+<pardef id='1' align='full' leftmargin='1in' hide='notes web mobile' tabs='L0.5000in L1in L1.5000in L2in L2.5000in L3in L3.5000in L4in'/>
+<par def='1'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par>
+<table widthtype='fixedleft' refwidth='7.5000in'><tablecolumn width='1.6875in'/><tablecolumn
+ width='5.8125in'/>
+<tablerow>
+<tablecell columnspan='2' borderwidth='0px'>
+<pardef id='4' hide='notes web' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen' enabled='false'><formula>!@If(@Contains(@UserRoles;"$$WebClient"))</formula></code></pardef>
+<par def='4'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/></run><run><font size='8pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='languagecode'><code
+ event='defaultvalue'><formula>@UrlQueryString("locale")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='8' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run><run><font
+ size='8pt' color='red' name='Arial' pitch='variable' truetype='true' familyid='20'/><field
+ type='text' kind='computedfordisplay' name='$$HTMLTagAttributes'><code event='defaultvalue'><formula
+>langcode := @If(languagecode="en"; "en"; languagecode="ja_JP"; "ja"; "en");
+"xmlns=\"http://www.w3.org/1999/xhtml\" lang=\""+langcode+"\" xml:lang=\""+langcode+"\""</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='14' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run><run
+><font size='8pt' color='red' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='editable' name='$$HTMLFrontMatter'><code
+ event='defaultvalue'><formula>"&lt;!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"&gt;" + @NewLine</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='23' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run><run
+><font size='8pt' color='red' name='Arial' pitch='variable' truetype='true'
+ familyid='20'/><field type='text' kind='computedfordisplay' name='DbNameWeb'><code
+ event='defaultvalue'><formula>@ReplaceSubstring(@Subset(@DbName;-1); "\\"; "/")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='32' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<pardef id='5' hide='print notes web mobile' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>@IsNotMember("[admin]";@UserRoles)</formula></code></pardef>
+<par def='5'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedwhencomposed'
+ name='RCreated'><code event='defaultvalue'><formula>@V3UserName</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='11' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='6' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='6'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='5'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='datetime' kind='computedwhencomposed'
+ name='doccreated'><datetimeformat show='datetime' date='yearmonthday' time='hourminutesecond'
+ zone='always' dateformat='weekdaymonthdayyear' dayformat='twodigitday' monthformat='twodigitmonth'
+ yearformat='fourdigityear' weekdayformat='shortname' dateseparator1=' ' dateseparator2='/'
+ dateseparator3='/' timeseparator=':' preference='usersetting'/><code event='defaultvalue'><formula
+>@Created</formula></code></field></run><run><font size='8pt' name='Arial'
+ pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='7' hide='notes web mobile' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen'><formula>ad_formstatus != "Cancelled" &amp; ad_formstatus != "Canceled"</formula></code></pardef>
+<par def='7'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='5'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field lookupeachchar='false'
+ lookupaddressonrefresh='false' type='authors' allowmultivalues='true' kind='computedwhencomposed'
+ name='doccreator' description='eg: "Derek Stephens/White Plains/IBM, Scott McGrath/White Plains/Contr/IBM"'
+ listinputseparators='comma' listdisplayseparator='comma'><keywords columns='1'
+ ui='dialoglist' allownew='true'/><code event='htmlattributes'><formula>"size=70"</formula></code><code
+ event='defaultvalue'><formula>@V3UserName</formula></code></field></run><run
+><font size='8pt' name='Arial' pitch='variable' truetype='true' familyid='20'
+ color='red'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<par def='7'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell borderwidth='0px'>
+<par def='5'><run><font size='8pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='en_referer'><code
+ event='defaultvalue'><formula>temp := @UrlQueryString("referer");
+@If(temp = ""; @UrlQueryString("REF"); temp)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell borderwidth='0px'>
+<pardef id='8' hide='notes web mobile' keepwithnext='true' keeptogether='true'><code
+ event='hidewhen' enabled='false'><formula>!@If(@Contains(@UserRoles;"$$WebClient"))</formula></code></pardef>
+<par def='8'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow></table>
+<pardef id='9' hide='notes web mobile'/>
+<par def='9'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par><subformref name='(Web - Standard Header) | subWebStandardHeader'/>
+<par def='9'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par><subformref name='(Web - Enrollment URL Parameters) | subEnrollmentURLParameters'/>
+<par def='9'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par><subformref name='(Enrollment Fields) | subEnrollmentFields'/>
+<par def='9'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par><subformref name='(Web - Locale Support) | subWebLocaleSupport'/>
+<par def='9'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par><subformref name='(Meta Tags) | subMetaTags'/>
+<par def='9'><run><font size='8pt' style='bold' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par>
+<table cellbordercolor='red' widthtype='fixedleft' refwidth='8in'><tablecolumn
+ width='3in'/><tablecolumn width='5in'/>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='11' leftmargin='0.1000in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='computedfordisplay'
+ name='lc_RegPageTitle'><code event='defaultvalue'><formula>lc_RegPageTitle</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='10' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='12' leftmargin='0.1000in' hide='notes web mobile' keepwithnext='true'
+ keeptogether='true'/>
+<par def='12'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Page title, set by agent - (WebQueryOpenEnrollall)</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='AgendaNav'><code event='defaultvalue'><formula>REM {Only highlight this leftnav item if this is the selected menu item link or form};
+isActive := @If(@Contains(Path_Info;"agenda?");" class=\"ibm-is-active\"";"");
+tmpShowAgendaPage := @GetDocField(ep_UNID; "ep_ShowAgendaPage");
+@If(ag_UNID != "" &amp; tmpShowAgendaPage;
+	"&lt;li"+isActive+"&gt;&lt;a href=\"/"+DbNameWeb+"/agenda?openform&amp;amp;seminar="+ep_id+"&amp;amp;locale="+locale+@If(Mode = "preview"; "&amp;mode=preview"; "")+"\"&gt;"+lc_AgendaPageTitle+"&lt;/a&gt;&lt;/li&gt;";
+	""
+)</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='9' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='13' leftmargin='0.1000in' rightmargin='4.9958in' hide='notes web mobile'
+ keepwithnext='true' keeptogether='true'/>
+<par def='13'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Used to highlight on/off the agenda option on left navigator</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='11'><run><font size='8pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='SponsorsNav'><code
+ event='defaultvalue'><formula>REM {Only highlight this leftnav item if this is the selected menu item link or form};
+isActive := @If(@Contains(Path_Info;"sponsors?");" class=\"ibm-is-active\"";"");
+tmpShowSponsorsPage := @GetDocField(ep_UNID; "ep_ShowSponsorsPage");
+tmpLookupSponsorPages := @DbLookup(""; ""; "vLookupSponsorsByID"; ep_id; 1; [FailSilent]);
+
+@If(tmpLookupSponsorPages != "" &amp; tmpShowSponsorsPage;
+	"&lt;li"+isActive+"&gt;&lt;a href=\"/"+DbNameWeb+"/sponsors?openform&amp;amp;seminar="+ep_id+"&amp;amp;locale="+locale+@If(Mode = "preview"; "&amp;mode=preview"; "")+"\"&gt;"+lc_SponsorPageTitle+"&lt;/a&gt;&lt;/li&gt;";
+	""
+)</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='5' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='12'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Used to highlight on/off the sponsors option on left navigator</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='11'><run><font size='8pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='SpeakersNav'><code
+ event='defaultvalue'><formula>REM {Only highlight this leftnav item if this is the selected menu item link or form};
+isActive := @If(@Contains(Path_Info;"speakers?");" class=\"ibm-is-active\"";"");
+tmpShowSpeakersPage := @GetDocField(ep_UNID; "ep_ShowSpeakersPage");
+tmpLookupSpeakerPages := @DbLookup(""; ""; "vLookupSpeakersByID"; ep_id; 1; [FailSilent]);
+@If(tmpLookupSpeakerPages != "" &amp; tmpShowSpeakersPage;
+	"&lt;li"+isActive+"&gt;&lt;a href=\"/"+DbNameWeb+"/speakers?openform&amp;amp;seminar="+ep_id+"&amp;amp;locale="+locale+@If(Mode = "preview"; "&amp;mode=preview"; "")+"\"&gt;"+lc_SpeakerPageTitle+"&lt;/a&gt;&lt;/li&gt;";
+	""
+)</formula></code></field></run><compositedata type='98' prevtype='65418'
+ nexttype='222' afterparcount='5' containertype='65418' aftercontainercount='1'
+ afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt' name='Arial' pitch='variable'
+ truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='12'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Used to highlight on/off the speakers option on left navigator</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='11'><run><font size='8pt' color='red' name='Arial' pitch='variable'
+ truetype='true' familyid='20'/><field type='text' kind='editable' name='RegNav'><code
+ event='defaultvalue'><formula>REM {Only highlight this leftnav item if this is the selected menu item link or form };
+isActive := @If(
+	@Contains(Path_Info;"enrollall?");" class=\"ibm-is-active\"";
+	@Contains(Path_Info;"wienrollall?");" class=\"ibm-is-active\"";
+	@Contains(Path_Info;"confirmationmsg?");" class=\"ibm-is-active\"";
+	@Contains(Path_Info;"duplicatemsg?");" class=\"ibm-is-active\"";
+	@Contains(Path_Info;"registrationnotyetavailable?");" class=\"ibm-is-active\"";
+	@Contains(Path_Info;"registrationclosed?");" class=\"ibm-is-active\"";
+	@Contains(Path_Info;"accept?");" class=\"ibm-is-active\"";
+	@Contains(Path_Info;"decline?");" class=\"ibm-is-active\"";
+"");
+
+REM {Depending on the login type use the domain.};
+domain := @If(kw_login_type = "WILogin"; @GetProfileField("fProfile"; "dp_LiveDomainName_WI"); @GetProfileField("fProfile"; "dp_LiveDomainName"));
+
+REM {Depending on the login type use the correct form to prompt WI login from the ACLIN file looking for "*/wi*?openform"};
+form := @If(kw_login_type = "WILogin";"wienrollall"; "enrollall");
+
+REM {Lookup the locale document from the Reference Database to lookup the Registration Page Title.};
+refDb_RepID := @GetProfileField("fProfile"; "dp_ReferenceDbReplicaID");
+RegPageTitle := @DbLookup("":"NoCache"; refDb_RepID; "vLocaleProfiles"; Locale; "lc_RegPageTitle"; [FailSilent]);
+
+"&lt;li"+isActive+"&gt;&lt;a href=\""+domain+"/"+DbNameWeb+"/"+form+"?openform&amp;amp;seminar="+ep_id+"&amp;amp;locale="+locale+@If(Mode = "preview"; "&amp;mode=preview"; "")+"\"&gt;"+RegPageTitle+"&lt;/a&gt;&lt;/li&gt;"</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='5' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='12'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/>Used to highlight on/off the various 'registration' options on left navigator</run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='TopLinkURL'><code event='defaultvalue'><formula>@GetDocField(rp_UNID; "rp_TopLinkURL")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='12'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='TopLinkText'><code event='defaultvalue'><formula>@GetDocField(rp_UNID; "rp_TopLinkText")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='12'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='CurrentYear'><code event='defaultvalue'><formula>@Text(@Year(@Today))</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='12'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='Meta_Abstract'><code event='defaultvalue'><formula>@GetDocField(ep_UNID; "offeringDescription")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<pardef id='14' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='14'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='tmpCountryFix'><code event='defaultvalue'><formula>@LowerCase(@If(LocaleCountry = "GB"; "UK"; LocaleCountry))</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='14'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='LocaleLanguageLC'><code event='defaultvalue'><formula>@LowerCase(LocaleLanguage)</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='14'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='EventName'><code event='defaultvalue'><formula>@GetDocField(rp_UNID; "eventname")</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='14'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<par def='11'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run><run><font size='8pt' color='red' name='Arial'
+ pitch='variable' truetype='true' familyid='20'/><field type='text' kind='editable'
+ name='lc_RegPageTitleLookup'><code event='defaultvalue'><formula>REM {Lookup the locale document from the Reference Database to lookup the Registration Page Title.};
+refDb_RepID := @GetProfileField("fProfile"; "dp_ReferenceDbReplicaID");
+@DbLookup("":"NoCache"; refDb_RepID; "vLocaleProfiles"; Locale; "lc_RegPageTitle"; [FailSilent])</formula></code></field></run><compositedata
+ type='98' prevtype='65418' nexttype='222' afterparcount='9' containertype='65418'
+ aftercontainercount='1' afterbegincount='3'>
+Yg4BAIQAAAAAAAAAAAA=
+</compositedata><run><font size='8pt'
+ name='Arial' pitch='variable' truetype='true' familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='14'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow>
+<tablerow>
+<tablecell bgcolor='white'>
+<pardef id='15' hide='notes web mobile' keepwithnext='true' keeptogether='true'/>
+<par def='15'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell>
+<tablecell bgcolor='white'>
+<par def='14'><run><font size='8pt' name='Arial' pitch='variable' truetype='true'
+ familyid='20' color='red'/></run></par></tablecell></tablerow></table>
+<par def='9'/></richtext></body>
+<item name='ad_canceldate' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='RoadshowNum' summary='false' sign='true'><number>0</number></item>
+<item name='iCalDTSTART' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='iCalDTEND' summary='false' sign='true'>
+<rawitemdata type='400'>
+AAAAAAAAAAA=
+</rawitemdata></item>
+<item name='$SubForm_RepIDs' sign='true'><textlist><text>0000000000000000</text><text
+>0000000000000000</text><text>0000000000000000</text><text>0000000000000000</text><text
+>0000000000000000</text></textlist></item>
+<item name='$$ScriptName' summary='false' sign='true'><text>enrollall</text></item></form>
+
