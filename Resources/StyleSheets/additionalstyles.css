@@ -1,0 +1,16 @@
+.regerror{ color: #ff0000; }
+.tdgryellow{ background: #F4F6E4; }
+.tdbrown{ background: #999966; }
+.lgray{ background: #CCCCCC; }
+.ask { color: #ff3300; }
+#ibm-universal-nav {height:22px;}
+#ibm-footer {height:22px;}
+#ibm-page-tools {height:22px;}
+#etplnk {height:11px;}
+#ptplnk {height:11px;}
+#ibmCommonDynamicNavDiggLink {
+height:auto;
+}
+#ibmCommonDynamicNavDeliciousLink {
+height:auto;
+}

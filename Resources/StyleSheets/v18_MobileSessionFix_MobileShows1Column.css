@@ -1,0 +1,5 @@
+@media all and (max-width: 650px){
+  #ibm-content-main table.ibm-data-table tr {display:block}
+  #ibm-content-main table.ibm-data-table tr td {display:block}
+  #ibm-content-main table.ibm-data-table tr th {display:none} /* Hide table head in mobile */
+}

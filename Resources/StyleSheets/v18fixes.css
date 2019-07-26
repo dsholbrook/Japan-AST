@@ -1,0 +1,20 @@
+div.ibm-selectlist-styled:after {
+    background-color: white;
+}
+
+div.ibm-selectlist-styled {
+    padding: 0px;
+    margin:0px;
+    width:100%;
+    
+}
+
+.ibm-column-form .ibm-input-group label, .ibm-row-form .ibm-input-group label {
+    padding-left: 4px;
+}
+
+select{
+	height: 2.5em;
+	}
+
+
