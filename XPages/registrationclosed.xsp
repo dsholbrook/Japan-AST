@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom" styleClass="ibm-type">
+	<xp:this.resources>
+		<xp:script src="/CoreWebCommon.jss" clientSide="false"></xp:script>
+		<xp:script src="/RegistrationSSJS.jss" clientSide="false"></xp:script>
+	</xp:this.resources>
+	<xp:this.data>
+		<xp:dominoDocument var="document1" formName="mynom">
+		</xp:dominoDocument>
+	</xp:this.data>
+	<xp:this.beforePageLoad><![CDATA[#{javascript:
+	try {
+	
+		viewScope.formSpecs = viewScope.formSpecs || {};
+		
+		var ibmVersion = "v18";
+		var tmpSite = context.getUrlParameter('site') || '';
+		if( tmpSite.toLowerCase().indexOf('v17') >= 0 ){
+			ibmVersion = "v17"
+		}
+		viewScope.ibmVersion = ibmVersion;
+		
+		var db = session.getCurrentDatabase();
+		var tmpLocale = context.getUrlParameter("locale");
+		if (tmpLocale == '' | tmpLocale == 'undefined') {
+			tmpLocale = 'en_US';
+		};
+
+		var strEventID = context.getUrlParameter('seminar');
+		var tmpEmail = context.getUrlParameter("invemail");
+		var docEventProfile:NotesDocument = XReg.docGetEventProfile(strEventID);
+		var ep_ID = docEventProfile.getItemValueString('ep_ID');
+		viewScope.seminar = strEventID;
+		viewScope.invemail = tmpEmail;
+		viewScope.lpunid = @DbLookup("","vLookupLocaleSettings",tmpLocale, 2);
+		viewScope.epunid = @DbLookup("","vLookupEventsByKey",strEventID, 3);
+		viewScope.rpunid = @DbLookup("","vLookupRegistrationProfilesByIDLocale",strEventID.concat(tmpLocale), 2);
+		var docRegistrationProfile:NotesDocument = XReg.docGetRegProfileByBriefIDAndLocale(ep_ID,tmpLocale);
+		XPage.localeProfileDoc = db.getDocumentByUNID(viewScope.lpunid);
+		XPage.eventProfileDoc = db.getDocumentByUNID(viewScope.epunid);
+		XPage.regProfileDoc = db.getDocumentByUNID(viewScope.rpunid);
+		
+		var docLocaleProfileGRP:NotesDocument = XReg.docGetLocaleProfileGRP(tmpLocale);
+		viewScope.formSpecs.regPageTitle = docLocaleProfileGRP.getItemValueString('lc_RegPageTitle');
+		viewScope.formSpecs.regClosedMessage = docRegistrationProfile.getItemValueString('rp_RegistrationClosedMsg');
+		
+		var tmpQS = "OpenForm&seminar=" + strEventID + "&locale=" + tmpLocale + "&invemail=" + tmpEmail;
+		document1.getDocument().replaceItemValue("query_string", tmpQS);
+		document1.getDocument().replaceItemValue("isXPage", "true");
+
+		//--- Set 'ep_id' on the Notes doc, for the WebQuerySaveAgent to be able to use, and set other fields
+		//document1.getDocument().replaceItemValue("ep_id", strEventID);
+		
+		//--- Run WebQueryOpen() agent
+		//agent.runWithDocumentContext(document1.getDocument())
+		
+	} catch (ex) {
+		viewScope.errorDetails = ex.toString();
+	}}]]></xp:this.beforePageLoad>
+
+	<xp:this.data>
+		<xp:dominoDocument var="document1" formName="mynom">
+		</xp:dominoDocument>
+	</xp:this.data>
+
+	<xp:scriptBlock>
+		<xp:this.value><![CDATA[
+	//===== GLOBAL VARIABLE: coreFormConfig
+	// * used to define details when there is one form in the page
+	coreFormConfig = {};
+	
+	//--- Object to hold details about each field to tell the form how to behave
+	var tmpPlugins = {};
+	
+	//--- Custom Validation
+	//--- This will show or hide a message about needing more other information
+	//    only if needed.  This updates when the user leaves the field.
+	var fvdemo_other = function(theField, theForm){
+	var tmpValue = theForm.getFieldValue( theField.fieldName );
+	var tmpValueL = tmpValue.toLowerCase();
+	if( tmpValueL == 'na' | tmpValueL == 'n/a' ){
+   	    return 'The value entered: ' + tmpValue + ', is not enough detail, please add more details.'
+	}
+		return '';
+	}
+
+	//--- Custom Update
+	//--- This will show or hide a message about needing more other information
+	//    only if needed.  This updates when the user leaves the field.
+	var fsdemo_other = function(theField, theForm, theOptions){
+	var tmpValue = theForm.getFieldValue( theField.fieldName );
+	var tmpOptValue = theForm.getFieldValue( 'demo_option2' );
+   	var tmpShow = false;
+   
+	if( (tmpOptValue == 'Other' && !theField.isHidden && tmpValue.length < 3) ){
+   		tmpShow = true
+	}
+		theForm.setAreaDisplay('id_other_2_enough',tmpShow);
+	}
+	
+	//--- Add field level plug-ins to the form config
+	coreFormConfig.fieldPlugins = tmpPlugins;
+	
+]]></xp:this.value>
+	</xp:scriptBlock>
+	<xp:this.resources>
+		<xp:script src="/CoreWebCommon.jss" clientSide="false">
+		</xp:script>
+	</xp:this.resources>
+
+	<xc:coreSitePageFrame_Registration autoInitialize="true"
+		navID="RegistrationV18"
+		pageTitle="#{javascript:viewScope.formSpecs.regPageTitle || 'お申し込み'}"
+		pageSubTitle="#{javascript:(XPage.eventProfileDoc != null) ? XPage.eventProfileDoc.getItemValueString('eventname') : '';}">
+
+		<xp:this.facets>
+			<xc:coreSiteNavContentLayout xp:key="facet_content_main">
+				<xp:this.facets>
+					<xp:panel xp:key="facet_content_main">
+						<xc:coreSiteField isRequired="false"
+							labelPos="form default" controlType="Hidden" fieldName="isXPage"
+							fieldLabel="isXPage">
+						</xc:coreSiteField>
+						<xc:coreSiteField isRequired="false"
+							labelPos="form default" controlType="Hidden" fieldName="msg">
+						</xc:coreSiteField>
+						
+						<p>
+						
+							<xp:text escape="false" disableTheme="true">
+									<xp:this.value>
+										<![CDATA[#{javascript:
+							return "<br /><br /><b>Error: </b>" + viewScope.errorDetails + "<br />";}]]>
+									</xp:this.value>
+									<xp:this.rendered>
+										<![CDATA[#{javascript:viewScope.errorDetails != "" && viewScope.errorDetails != null;}]]>
+									</xp:this.rendered>
+							</xp:text>
+							
+							<xp:text escape="true"
+								value="#{javascript:viewScope.formSpecs.regClosedMessage}"
+								contentType="html">
+							</xp:text>
+
+						</p>
+					</xp:panel>
+				</xp:this.facets>
+			</xc:coreSiteNavContentLayout>
+		</xp:this.facets>
+
+	</xc:coreSitePageFrame_Registration>
+</xp:view>

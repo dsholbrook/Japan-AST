@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom" styleClass="ibm-type">
+	
+	<xp:this.resources>
+		<xp:script src="/CoreWebCommon.jss" clientSide="false">
+		</xp:script>
+		<xp:script src="/RegistrationSSJS.jss" clientSide="false"></xp:script>
+	</xp:this.resources>
+	
+	<xp:this.data>
+		<xp:dominoDocument var="document1" formName="confirmationmsg">
+		</xp:dominoDocument>
+	</xp:this.data>
+	
+	<xp:this.beforePageLoad>
+	<![CDATA[#{javascript:
+	try {
+	
+		viewScope.formSpecs = viewScope.formSpecs || {};
+		var requestScope = {};
+		
+		var ibmVersion = "v18";
+		var tmpSite = context.getUrlParameter('site') || '';
+		viewScope.ibmVersion = ibmVersion;
+		
+		var db = session.getCurrentDatabase();
+		var tmpLocale = context.getUrlParameter("locale");
+		if (tmpLocale == '' | tmpLocale == 'undefined') {
+			tmpLocale = 'ja_JP';
+		};
+		var tmpSem = context.getUrlParameter("seminar");
+		viewScope.seminar = tmpSem;
+//		viewScope.lpunid = @DbLookup("","vLookupLocaleSettings", tmpLocale, 2);
+//		viewScope.epunid = @DbLookup("","vLookupEventsByKey", tmpSem, 3);
+//		requestScope.localeProfileDoc = db.getDocumentByUNID(viewScope.lpunid);		
+		var docLocaleProfileGRP:NotesDocument = XReg.docGetLocaleProfileGRP(tmpLocale);
+		var docLocaleSettings:NotesDocument = XReg.docGetLocaleSettings(tmpLocale);
+		var docLocaleProfile:NotesDocument = XReg.docGetLocaleProfile(tmpLocale);
+		var docEventProfile:NotesDocument = XReg.docGetEventProfile(tmpSem);
+		var ep_ID = (docEventProfile != null) ? docEventProfile.getItemValueString('ep_ID') : '';
+		var docRegistrationProfile:NotesDocument = XReg.docGetRegProfileByBriefIDAndLocale(ep_ID,tmpLocale);
+		
+//		var vw:NotesView = db.getView('vLookupEventsByKey');
+//		var docEventProfile:NotesDocument = vw.getDocumentByKey(tmpSem, true);
+		requestScope.eventProfile = docEventProfile;
+		
+//		var usepredefined_a = docEventProfile.getItemValueString('kwa_usepredefined');
+//		viewScope.formSpecs.usepredefined_a = usepredefined_a;
+//		var templates_a = docEventProfile.getItemValueString('kwa_templates');
+//		var languagecode = @Left(tmpLocale, 2);
+//		var strkey_a = languagecode;
+//		var allwebconfigurations = docEventProfile.getItemValueString('allwebconfigurations');			
+//		if (usepredefined_a == 'Yes') {
+//			if (templates_a != 'Standard') {
+//				strkey_a = languagecode + '_' + templates_a;
+//			}
+//		} else {
+//			if (@Contains(allwebconfigurations, languagecode + "_")) {
+//				strkey_a = languagecode + '_' + tmpSem;
+//			}
+//		}
+//		viewScope.formSpecs.kwpageskey = 'kwa' + strkey_a;
+//		requestScope.pagesDoc = db.getProfileDocument('kwpages', viewScope.formSpecs.kwpageskey);
+//		viewScope.formSpecs.pageTitle = requestScope.pagesDoc.getItemValueString('kw_pa_se_pagetitle') || '';
+		
+//		var tmpStartMonth = docEventProfile.getItemValueString("startmonth");
+//		viewScope.formSpecs.mth = @Select(@TextToNumber(tmpStartMonth), "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
+//		viewScope.formSpecs.confstartdate = docEventProfile.getItemValueString('startday') + " " + viewScope.formSpecs.mth + " " + docEventProfile.getItemValueString('startyear');
+//		var tmpEndMonth = docEventProfile.getItemValueString("endmonth");
+//		viewScope.formSpecs.mthEnd = @If(tmpEndMonth != "", @Select(@TextToNumber(tmpEndMonth), "Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"), "");
+//		var startDate = viewScope.formSpecs.confstartdate;
+//		var endDate = docEventProfile.getItemValueString('endday') + " " + viewScope.formSpecs.mthEnd + " " + docEventProfile.getItemValueString('endyear');
+//		var dateDisplay = (startDate == endDate ? startDate : startDate + ' - ' + endDate);
+//		viewScope.formSpecs.pageSubtitle = docEventProfile.getItemValueString('eventname') + " - " + docEventProfile.getItemValueString('loc_confcity') + " - " + dateDisplay || ''
+		
+		viewScope.formSpecs.message = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_DuplicateMsg') : '';
+		viewScope.formSpecs.emailadmin = (docEventProfile != null) ? docEventProfile.getItemValueString('emailadmin') : '';
+		viewScope.formSpecs.nameadmin = (docEventProfile != null) ? docEventProfile.getItemValueString('nameadmin') || viewScope.formSpecs.emailadmin : '';
+		
+		var tmpQS = "OpenForm&seminar=" + tmpSem + "&locale=" + tmpLocale;
+		document1.getDocument().replaceItemValue("query_string", tmpQS);
+		document1.getDocument().replaceItemValue("isXPage", "true");
+		
+		viewScope.formSpecs.regPageTitle = (docLocaleProfileGRP != null) ? docLocaleProfileGRP.getItemValueString('lc_RegPageTitle') : '';
+		viewScope.formSpecs.startDateWebDisplay = (docEventProfile != null) ? docEventProfile.getItemValueString('ep_StartDateWebDisplay') : '';
+		viewScope.formSpecs.eventName = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('eventname') : '';
+		viewScope.formSpecs.confCity = (docEventProfile != null) ? docEventProfile.getItemValueString('loc_confcity') : '';
+		
+	} catch (ex) {
+		viewScope.errorMessage = ex.toString();
+	}}]]>
+	</xp:this.beforePageLoad>
+
+	<xp:scriptBlock>
+		<xp:this.value><![CDATA[
+	//===== GLOBAL VARIABLE: coreFormConfig
+	// * used to define details when there is one form in the page
+	var coreFormConfig = coreFormConfig || {};
+	
+	//--- Object to hold details about each field to tell the form how to behave
+	var tmpPlugins = {};
+	
+	//--- Add field level plug-ins to the form config
+	coreFormConfig.fieldPlugins = tmpPlugins;
+	
+]]></xp:this.value>
+	</xp:scriptBlock>
+
+	<xc:coreSitePageFrame autoInitialize="true"
+		navID="RegistrationV18"
+		pageTitle="#{javascript:viewScope.formSpecs.regPageTitle}">
+		
+		<xc:this.pageSubTitle>
+		<![CDATA[#{javascript:tmpDate = (viewScope.formSpecs.startDateWebDisplay) ? '<br />' + viewScope.formSpecs.startDateWebDisplay : '';
+tmpFullHeader = viewScope.formSpecs.eventName + '<br />' + viewScope.formSpecs.confCity + tmpDate;
+tmpPartialHeader = viewScope.formSpecs.eventName + tmpDate;
+tmpPartialHeader}]]>
+		</xc:this.pageSubTitle>
+		
+		<xp:this.facets>
+			<xc:coreSiteNavContentLayout xp:key="facet_content_main">
+				<xp:this.facets>
+				
+					<xp:panel xp:key="facet_sidebar_top">
+
+						<!--  Right Top -->
+						<xp:panel>
+
+							<h2 class="ibm-rule ibm-h2">Welcome</h2>
+							<xp:text escape="false" disableTheme="true"
+								rendered="#{javascript:return viewScope.auth === true;}">
+								<xp:this.value>
+									<![CDATA[#{javascript:
+return 'Your Account (' + document1.getItemValueString('en_first') + ' ' + document1.getItemValueString('en_last') + ')' || '';
+}]]>
+								</xp:this.value>
+							</xp:text>
+
+							<xp:text escape="true"
+								rendered="#{javascript:(viewScope.formSpecs.emailadmin != '')}"
+								contentType="html">
+								<xp:this.value><![CDATA[#{javascript:tmpContact = '<h2 class="ibm-rule ibm-bold ibm-h3">Contact us</h2>';
+tmpContact = tmpContact + '<p>';
+tmpContact = tmpContact + 'Contact <a class="ibm-inlinelink ibm-email-link" href="mailto:' + viewScope.formSpecs.emailadmin + '">' + viewScope.formSpecs.nameadmin + '</a> for questions or assistance.';
+tmpContact = tmpContact + '</p>';
+tmpContact}]]></xp:this.value>
+							</xp:text>
+
+						</xp:panel>
+						<!--  Right Top END -->
+
+					</xp:panel>
+				
+					<xp:panel xp:key="facet_content_main">
+						<xc:coreSiteField isRequired="false"
+							labelPos="form default" controlType="Hidden" fieldName="isXPage"
+							fieldLabel="isXPage">
+						</xc:coreSiteField>
+						<xc:coreSiteField isRequired="false"
+							labelPos="form default" controlType="Hidden" fieldName="msg">
+						</xc:coreSiteField>
+						
+						<xp:text escape="false"
+							disableTheme="true">
+							<xp:this.value>
+								<![CDATA[#{javascript:return viewScope.errorMessage || "";}]]>
+							</xp:this.value>
+						</xp:text>
+						
+						<p>
+
+							<xc:coreSiteField isRequired="false"
+								labelPos="form default" controlType="Display Only"
+								fieldName="Message"
+								currentValue="#{javascript:return viewScope.formSpecs.message;}">
+							</xc:coreSiteField>
+
+						</p>
+					</xp:panel>
+				</xp:this.facets>
+			</xc:coreSiteNavContentLayout>
+		</xp:this.facets>
+
+	</xc:coreSitePageFrame>
+</xp:view>

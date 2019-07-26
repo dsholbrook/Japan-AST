@@ -1,0 +1,946 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom" dojoForm="true"
+	dojoParseOnLoad="true">
+
+	<xp:this.data>
+		<xp:dominoDocument var="document1" formName="xp_v18enrollall">
+		</xp:dominoDocument>
+	</xp:this.data>
+	
+	<xp:this.resources>
+		<xp:script src="/RegistrationSSJS.jss" clientSide="false"></xp:script>
+		<xp:script src="/CoreWebCommon.jss" clientSide="false"></xp:script>
+		<xp:styleSheet href="/v18_AlignFix.css"></xp:styleSheet>
+		<xp:styleSheet href="/v18_MobileSessionFix.css"></xp:styleSheet>
+		<xp:script src="/RegistrationValidation.js" clientSide="true"></xp:script>
+	</xp:this.resources>
+
+	<xp:scriptBlock>
+		<xp:this.value><![CDATA[
+		
+function showDialog(theContent){
+		jQuery('#overlayMessageText').html(theContent);
+		IBMCore.common.widget.overlay.show('overlayMessage');
+}
+
+function submitReg() {
+	passValidation = validateAll();
+	if(passValidation == true) {
+		//If VCPI tags are not in the URL, then pull them from sessionStorage
+		var tmp_mmc = dl.fn.getCampInfo().cm_mmc;
+		console.log('cm_mmc is ' + tmp_mmc);
+		if (tmp_mmc != "" && tmp_mmc != undefined) {
+			core.form.setFieldValue('Q_cm_mmc', tmp_mmc);
+		}
+	
+		var tmp_mmca1 = dl.fn.getCampInfo().cm_mmca1;
+		console.log('cm_mmca1 is ' + tmp_mmca1);
+		if (tmp_mmca1 != "" && tmp_mmca1 != undefined) {
+			core.form.setFieldValue('Q_cm_mmca1', tmp_mmca1);
+		}
+	
+		var tmp_mmca2 = dl.fn.getCampInfo().cm_mmca2;
+		console.log('cm_mmca2 is ' + tmp_mmca2);
+		if (tmp_mmca2 != "" && tmp_mmca2 != undefined) {
+			core.form.setFieldValue('Q_cm_mmca2', tmp_mmca2);
+		}
+	
+		var tmp_mmca3 = dl.fn.getCampInfo().cm_mmca3;
+		console.log('cm_mmca3 is ' + tmp_mmca3);
+		if (tmp_mmca3 != "" && tmp_mmca3 != undefined) {
+			core.form.setFieldValue('Q_cm_mmca3', tmp_mmca3);
+		}
+		setTimeout(function(){core.form.submit()},500);
+	}
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i <ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') {
+            c = c.substring(1);
+        }
+        if (c.indexOf(name) == 0) {
+            return c.substring(name.length, c.length);
+        }
+    }
+    return "";
+}
+
+function checkCookie() {
+    var username = getCookie("usernameJapan");
+    if (username != "") {
+        alert("Welcome again " + username);
+    } else {
+        username = prompt("Please enter your name:", "");
+        if (username != "" && username != null) {
+            setCookie("username", username, 365);
+        }
+    }
+}
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+}
+		
+var goeUpdates = function(theField, theForm){
+	var tmpGoe = core.form.getFieldValue("en_goe");
+	var tmpGoeType = core.form.getFieldValue("en_goetype");
+	var tmpShowGoeType = false;
+	var tmpShowGoeTypeOther = false;
+		
+	if (tmpGoe == 'Yes'){
+		tmpShowGoeType = true;
+	}
+	if (core.form.containsFieldValue('en_goetype', 'Other', theForm) && tmpGoe == 'Yes'){
+		tmpShowGoeTypeOther = true;
+	}
+		
+	core.form.setFieldDisplay('en_goetype',tmpShowGoeType);
+	core.form.setFieldDisplay('en_goetypeother',tmpShowGoeTypeOther);
+}
+
+var countryUpdates = function(theField, theForm){
+	var tmpCountry = core.form.getFieldValue("en_country");
+	var tmpCountryText = jQuery('#ff_en_country option:selected').text() || '';
+	core.form.setFieldValue('en_country_locale_lang', tmpCountryText);
+	
+	var tmpShowState = false;
+	if (tmpCountry == 'US' || tmpCountry == 'CA') {
+		tmpShowState = true;
+	}	
+	if(tmpCountry == 'CA' ){
+		tmpList = en_CA_StateList.concat(en_US_StateList);
+	} else if (tmpCountry == 'CA') {
+		tmpList = en_CA_StateList;
+	} else {
+		tmpList = en_US_StateList;
+	};
+	core.form.setFieldList('state_list', tmpList);
+	core.form.setFieldValue('state_list', '');
+	core.form.setFieldDisplay('state_list',tmpShowState);
+}
+
+var en_US_StateList =
+				['Alabama | AL' ,
+				'Alaska | AK' ,
+				'Arizona | AZ' ,
+				'Arkansas | AR' ,
+				'California | CA' ,
+				'Colorado | CO' ,
+				'Connecticut | CT' ,
+				'Delaware | DE' ,
+				'District Of Columbia | DC' ,
+				'Florida | FL' ,
+				'Georgia | GA' ,
+				'Hawaii | HI' ,
+				'Idaho | ID' ,
+				'Illinois | IL' ,
+				'Indiana | IN' ,
+				'Iowa | IA' ,
+				'Kansas | KS' ,
+				'Kentucky | KY' ,
+				'Louisiana | LA' ,
+				'Maine | ME' ,
+				'Maryland | MD' ,
+				'Massachusetts | MA' ,
+				'Michigan | MI' ,
+				'Minnesota | MN' ,
+				'Mississippi | MS' ,
+				'Missouri | MO' ,
+				'Nebraska | NE' ,
+				'Nevada | NV' ,
+				'New Hampshire | NH' ,
+				'New Jersey | NJ' ,
+				'New Mexico | NM' ,
+				'New York | NY' ,
+				'North Carolina | NC' ,
+				'North Dakota | ND' ,
+				'Ohio | OH' ,
+				'Oklahoma | OK' ,
+				'Oregon | OR' ,
+				'Pennsylvania | PA' ,
+				'Rhode Island | RI' ,
+				'South Carolina | SC' ,
+				'South Dakota | SD' ,
+				'Tennessee | TN' ,
+				'Texas | TX' ,
+				'Utah | UT' ,
+				'Vermont | VT' ,
+				'Virginia | VA' ,
+				'Washington | WA' ,
+				'West Virginia | WV' ,
+				'Wisconsin | WI' ,
+				'Wyoming | WY' ,
+				'Armed Forces Africa | AE' ,
+				'Armed Forces Americas | AA' ,
+				'Armed Forces Canada | AE' ,
+				'Armed Forces Europe | AE' ,
+				'Armed Forces Middle East | AE' ,
+				'Armed Forces Pacific | AP'];
+			
+var en_CA_StateList = [
+				'Alberta | AB',
+				'British Columbia | BC',
+				'Manitoba | MB',
+				'New Brunswick | NB',
+				'Newfoundland and Labrador | NL',
+				'Northwest Territories | NT',
+				'Nova Scotia | NS',
+				'Nunavut | NU',
+				'Ontario | ON',
+				'Prince Edward Island | PE',
+				'Quebec | QC',
+				'Saskatchewan | SK',
+				'Yukon | YT'];
+		
+		]]></xp:this.value>
+	</xp:scriptBlock>
+
+	<xp:this.beforePageLoad>
+	
+	<![CDATA[#{javascript:
+	
+viewScope.showForm = context.getUrlParameter('auth') == 'anonymous';
+
+//setCookie("usernameJapan", 'David', 30);
+//getCookie("usernameJapan");
+
+viewScope.cm_mmc = context.getUrlParameter('cm_mmc') || context.getUrlParameter('S_VCPI');
+viewScope.cm_mmca1 = context.getUrlParameter('cm_mmca1');
+viewScope.cm_mmca2 = context.getUrlParameter('cm_mmca2');
+viewScope.cm_mmca3 = context.getUrlParameter('cm_mmca3');
+
+viewScope.langStrings = {}
+
+//--- Main Routine
+
+try {
+
+	viewScope.formSpecs = viewScope.formSpecs || {};
+	viewScope.formSpecs.errorDetails = '';
+	
+	//--- Get Query String
+	var tmpQS = context.getUrl().getQueryString();
+	viewScope.allowRegister = true;
+
+	//--- Get User Sign In 
+	viewScope.username = '';
+	viewScope.userid = '';
+	viewScope.userInfo = {fullName:''};
+	
+	var tmpAsUser = '';
+	var tmpDB:NotesDatabase = session.getCurrentDatabase();
+	viewScope.currentServer = tmpDB.getServer();
+
+	var tmpClientType = facesContext.getExternalContext().getRequest().getHeader("User-Agent");
+	viewScope.clientType = tmpClientType;
+
+	var tmpUserID = XPage.getHeaderValue("iv-user-l");
+	viewScope.fullid = tmpUserID;
+	viewScope.username = tmpUserID.replace(",","/");	
+	viewScope.useremail = XPage.getHeaderValue("iv-user");
+	//viewScope.authusername = @UserName();
+	
+	var tmpID = viewScope.username;
+	var tmpInet = viewScope.useremail || tmpID;
+	viewScope.userid = tmpID;
+
+	viewScope.userInfoDisplay = viewScope.useremail;
+	
+	var tmpBaseURL = facesContext.getExternalContext().getRequestContextPath();
+
+	//-- Turn off IBMid at this time as requested by Japan on 8/14/2017.
+	/*
+	//--- If not logged in, log in and end
+	if( !tmpID || tmpID == 'unauthenticated' ){
+		if( context.getUrlParameter('auth') == '1' ){
+			var tmpQS = facesContext.getExternalContext().getRequest().getQueryString();
+			if( tmpQS ){
+				tmpQS = '?' + tmpQS;
+			} else {
+				tmpQS = '?OpenPage';
+			}
+			var tmpURI = facesContext.getExternalContext().getRequest().getRequestURI();
+			var tmpRedirectURL = tmpURI + java.net.URLEncoder.encode(tmpQS,"UTF-8");
+			//var tmpRedir = 'https://www-947.ibm.com/usrsrvc/account/userservices/jsp/login.jsp?persistPage=true&page=';
+			var tmpRedir = 'https://www-01.ibm.com/usrsrvc/account/userservices/jsp/login.jsp?persistPage=true&page=';
+			tmpRedir += tmpRedirectURL;
+			//tmpRedir += '&PD-REFERER=none&error=';
+			facesContext.getExternalContext().redirect(tmpRedir);
+		} else if( context.getUrlParameter('auth') == 'ns' ){
+			var tmpQS = facesContext.getExternalContext().getRequest().getQueryString();
+			if( tmpQS ){
+				tmpQS = '?' + tmpQS;
+			} else {
+				tmpQS = '?OpenPage';
+			}
+			var tmpURI = facesContext.getExternalContext().getRequest().getRequestURI();
+			var tmpReturnServer = 'https%3A%2F%2Fwww-01.ibm.com';			
+			var tmpRedirectURL = tmpReturnServer + tmpURI + java.net.URLEncoder.encode(tmpQS,"UTF-8");
+			var tmpRedir = 'https://www-947.ibm.com/usrsrvc/account/userservices/jsp/login.jsp?persistPage=true&page=';
+			tmpRedir += tmpRedirectURL;
+			facesContext.getExternalContext().redirect(tmpRedir);
+		} else if( context.getUrlParameter('auth') == 'login' ){
+			var tmpQS = facesContext.getExternalContext().getRequest().getQueryString();
+			if( tmpQS ){
+				tmpQS = '?' + tmpQS;
+			} else {
+				tmpQS = '?OpenPage';
+			}
+			var tmpURI = facesContext.getExternalContext().getRequest().getRequestURI();
+			var tmpReturnServer = 'https%3A%2F%2Fwww-01.ibm.com';			
+			var tmpRedirectURL = tmpReturnServer + tmpURI + java.net.URLEncoder.encode(tmpQS,"UTF-8");
+			var tmpRedir = 'https://idaas.iam.ibm.com/idaas/mtfim/sps/authsvc?PolicyId=urn:ibm:security:authentication:asf:basicldapuser&Target=';
+			tmpRedir += tmpRedirectURL;
+			facesContext.getExternalContext().redirect(tmpRedir)
+		} else if( context.getUrlParameter('auth') == 'new' ){
+			var tmpQS = facesContext.getExternalContext().getRequest().getQueryString();
+			if( tmpQS ){
+				tmpQS = '?' + tmpQS;
+			} else {
+				tmpQS = '?OpenPage';
+			}
+			var tmpURI = facesContext.getExternalContext().getRequest().getRequestURI();
+			var tmpReturnServer = 'https%3A%2F%2Fwww-01.ibm.com';
+			var tmpRedirectURL = tmpReturnServer + tmpURI + java.net.URLEncoder.encode(tmpQS,"UTF-8");
+			//var tmpRedir = 'https://www-01.ibm.com/usrsrvc/account/userservices/jsp/login.jsp?persistPage=true&page=';
+			//var tmpRedir = 'https://www-947.ibm.com/usrsrvc/account/userservices/jsp/login.jsp?persistPage=true&page=';
+			//var tmpRedir = 'https://www.ibm.com/account/us-en/signup/register.html?Target=';
+			
+			//--- New ID that works when signed in immediately
+			//var tmpRedir = 'https://www.ibm.com/account/us-en/signup/register.html?a=@OIDC_CLIENT_ID@&Target=';
+			//var tmpRedir = 'https://www.ibm.com/account/jp-ja/signup/register.html?a=@OIDC_CLIENT_ID@&Target=';
+			var tmpRedir = 'https://www.ibm.com/account/reg/jp-ja/signup?formid=urx-19776&target=';
+			tmpRedir += tmpRedirectURL;
+			//tmpRedir += '&PD-REFERER=none&error=';
+			facesContext.getExternalContext().redirect(tmpRedir)
+		} else {
+			XPage.addData("userid", '' );
+			XPage.addData("useremail", '' );
+			XPage.addData("userFullName", 'Anonymous' );
+			viewScope.userid = '';
+			viewScope.useremail = '';
+							
+			//XPage.addData("errorDetails", viewScope.formSpecs.errorDetails || "");
+		}
+	}
+	*/
+	
+	//viewScope.userFullName = tmpName || "";
+	
+	XPage.addData("userid", viewScope.userid );
+	XPage.addData("useremail", viewScope.useremail );
+	XPage.addData("userFullName", viewScope.userFullName );
+	XPage.addData("errorDetails", viewScope.formSpecs.errorDetails || "");
+
+} catch(ex){
+	viewScope.formSpecs.errorDetails = ex.toString();	
+	XPage.addData("errorDetails", viewScope.formSpecs.errorDetails || "");
+}
+
+try {
+
+	var tmpUserName = viewScope.username;
+	
+	if( tmpUserName != "Unauthenticated" && tmpUserName != "" ){
+	
+		var tmpView = XPage.getView('luRegByCreatedBy');
+		var tmpKey = viewScope.username;
+		 
+		var tmpRegDoc:NotesDocument = tmpView.getDocumentByKey(tmpKey, true)
+		if( tmpRegDoc && tmpRegDoc != null){
+			viewScope.isUserRegistered = true;
+			tmpRegDoc.copyAllItems(document1.getDocument(), true);
+		} else {
+		   //--- This is a new document
+		   
+			//--- Lookup default details using web identity
+			var tmpRegFieldMapping = {
+				 "firstName" :"en_first", 
+				 "lastName" :"en_last", 
+				 "email" :"en_email", 
+				 "jobTitle" :"en_title", 
+				 "daytimePhoneNumber" :"en_phone", 
+				 "addressLine1" :"en_mailstreet1", 
+				 "addressLine2" :"en_mailstreet2", 
+				 "city" :"en_city", 
+				 "postalCode" :"en_zip", 
+				 "stateCode" :"en_state", 
+				 "country" :"en_country", 
+				 "companyName" :"en_companyname"
+			}
+			
+			importPackage(com.corelan);
+			var tmpAPI = new WebIdentityProxy();
+			
+			var tmpFields = tmpAPI.getIBMUserProfile(viewScope.useremail);
+			
+			var tmpProfileFields = {};
+			
+			if( typeof(tmpFields) == 'java.util.Hashtable' ){
+				//--- Process fields
+				var tmpKeys = tmpFields.keySet();
+				for(var tmpKey in tmpKeys){
+		            var tmpVal = tmpFields.get(tmpKey);
+		             tmpProfileFields[tmpKey] = tmpVal;
+					 if( tmpRegFieldMapping[tmpKey] && tmpRegFieldMapping[tmpKey] != null ){
+					 	 document1.replaceItemValue(tmpRegFieldMapping[tmpKey], tmpVal);
+					 }		            
+		        }
+			}			
+		}
+	}
+	
+	viewScope.hideRegisterButton = viewScope.isUserRegistered;
+} catch(ex){
+	viewScope.formSpecs.errorDetails = ex.toString();	
+	XPage.addData("errorDetails", viewScope.formSpecs.errorDetails || "");
+}
+
+viewScope.formInEditMode = !viewScope.isUserRegistered;
+
+var tmpEMail = viewScope.useremail;
+viewScope.auth = (tmpEMail != '');
+
+//-- Turn off IBMid at this time as requested by Japan on 8/14/2017.
+/*
+if( viewScope.auth == true ){
+	viewScope.showForm = true;
+}
+if( viewScope.allowRegister == false ){
+	viewScope.showForm = false;
+}
+*/
+//-- Delete or comment out the 3 lines below when IBMid is ready to go back on.
+viewScope.auth = true;
+viewScope.formSpecs.authShowName = false; // Change this below to use viewScope.auth instead on the right top area.
+viewScope.showForm = true;
+
+var tmpUser = viewScope.useremail;
+
+viewScope.userInfo = {
+	ivuser:tmpUser,
+	userkey:viewScope.username 
+}
+
+XPage.addData("userInfo", viewScope.userInfo);
+
+var currdb:NotesDatabase = session.getCurrentDatabase();
+var g_dbCurr:NotesDatabase = database;	//if we need for conversion
+var strFullUrl = facesContext.getExternalContext().getRequest().getQueryString();
+var g_strWebPath = context.getUrl().getAddress().replace(view.getPageName(), '');
+var strURL = 'http://www.ibm.com/pagenotfound';
+
+viewScope.formSpecs = viewScope.formSpecs || {};
+
+try {
+
+//	--- Get Query String
+	var tmpQS = context.getUrl().getQueryString();
+
+	//--- Update Query String to look like this is a form for backward compatibility
+	tmpQS = tmpQS.replace("OpenPage","OpenForm");	
+	tmpQS = tmpQS.replace("%40","@");
+	tmpQS = tmpQS.replace("amp;", "");
+
+	//--- Add the modified query_string to the document
+	document1.getDocument().replaceItemValue("query_string", tmpQS);
+
+	var params = {}, queries, temp, i, l;
+    // Split into key/value pairs
+    queries = tmpQS.split("&");
+    // Convert the array of strings into an object
+    for ( i = 0, l = queries.length; i < l; i++ ) {
+    	if(queries[i].indexOf('=') > 0) {
+        	temp = queries[i].split('=');
+        	params[temp[0]] = temp[1];
+        }
+    }
+    
+    //var strEventID = context.getUrlParameter('seminar');
+    var strEventID = params['seminar'] == undefined ? '' : params['seminar'];
+	
+	//var strLocale = context.getUrlParameter('locale');
+	var strLocale = params['locale'] == undefined ? '' : params['locale'];
+	
+	strLocale = (strLocale == '') ? 'ja_JP' : strLocale;
+	//var strMode = context.getUrlParameter('mode');
+	var strMode = params['mode'] == undefined ? '' : params['mode'];
+	//var strInvID = context.getUrlParameter('invid');
+	var strInvID = params['invid'] == undefined ? '' : params['invid'];
+	//var strInvEmail = context.getUrlParameter('invemail');
+	var strInvEmail = params['invemail'] == undefined ? '' : params['invemail'];
+	var mode = strMode;
+
+	document1.getDocument().replaceItemValue("ep_ID", strEventID);
+	document1.getDocument().replaceItemValue("in_id", strInvID);
+	document1.getDocument().replaceItemValue("in_email", strInvEmail);
+	document1.getDocument().replaceItemValue("Locale", strLocale);
+	document1.getDocument().replaceItemValue("Form", "xp_v18enrollall");
+	document1.getDocument().replaceItemValue("ivuser", viewScope.useremail);
+	document1.getDocument().replaceItemValue("userkey", viewScope.username);
+	
+	document1.getDocument().computeWithForm(false,false);
+
+	var docEventProfile:NotesDocument = XReg.docGetEventProfile(strEventID);
+	var ep_ID = docEventProfile.getItemValueString('ep_ID');
+	var ep_UNID = docEventProfile.getUniversalID();
+	
+	document1.getDocument().replaceItemValue("ep_ID", ep_ID);
+	document1.getDocument().replaceItemValue("ep_UNID", ep_UNID);
+	
+	viewScope.formSpecs.preview = mode == 'preview' ? true : false;
+	viewScope.formSpecs.confCity = docEventProfile.getItemValueString('loc_confcity');
+	viewScope.formSpecs.startDateWebDisplay = docEventProfile.getItemValueString('ep_StartDateWebDisplay');
+	var docLocaleSettings:NotesDocument = XReg.docGetLocaleSettings(strLocale);
+	var docLocaleProfile:NotesDocument = XReg.docGetLocaleProfile(strLocale);
+	var docLocaleProfileGRP:NotesDocument = XReg.docGetLocaleProfileGRP(strLocale);
+	//This sets the default dialog list option to locale based choice
+	viewScope.formSpecs.selectText = (docLocaleProfile != null) ? docLocaleProfile.getItemValueString('lc_Select') : '';
+	viewScope.formSpecs.lc_ValidationMsg = (docLocaleProfile != null) ? docLocaleProfile.getItemValueString('lc_ValidationMsg') : '';
+	viewScope.formSpecs.regAnonymous = (docLocaleProfileGRP != null) ? docLocaleProfileGRP.getItemValueString('lc_RegAnonymous') : '';
+	viewScope.formSpecs.signInToRegister = (docLocaleProfileGRP != null) ? docLocaleProfileGRP.getItemValueString('lc_SignInToRegister') : '';
+	viewScope.formSpecs.regPageTitle = (docLocaleProfileGRP != null) ? docLocaleProfileGRP.getItemValueString('lc_RegPageTitle') : '';
+	viewScope.formSpecs.login = (docLocaleProfileGRP != null) ? docLocaleProfileGRP.getItemValueString('lc_Login') : '';
+	viewScope.formSpecs.createAccount = (docLocaleProfileGRP != null) ? docLocaleProfileGRP.getItemValueString('lc_CreateAccount') : '';
+	viewScope.formSpecs.loginToRegister = (docLocaleProfileGRP != null) ? docLocaleProfileGRP.getItemValueString('lc_LoginToRegister') : '';
+	viewScope.formSpecs.forgetYourIBMid = (docLocaleProfileGRP != null) ? docLocaleProfileGRP.getItemValueString('lc_ForgetYourIBMid') : '';
+	viewScope.formSpecs.forgetYourIBMid = 'あなたのIBMidを忘れる？';
+	viewScope.formSpecs.forgetYourIBMidPassword = (docLocaleProfileGRP != null) ? docLocaleProfileGRP.getItemValueString('lc_ForgetYourIBMidPassword') : '';
+	viewScope.formSpecs.forgetYourIBMidPassword = 'IBMidパスワードを忘れてしまいましたか？';
+	var docRegistrationProfile:NotesDocument = XReg.docGetRegProfileByBriefIDAndLocale(ep_ID,strLocale);
+	viewScope.formSpecs.lc_GOE_Label_With_Link = (docLocaleProfileGRP != null) ? docLocaleProfileGRP.getItemValueString('lc_GOE_Label_With_Link') : '';
+	viewScope.formSpecs.lc_GOE_description = (docLocaleProfileGRP != null) ? docLocaleProfileGRP.getItemValueString('lc_GOE_description') : '';
+	viewScope.formSpecs.lc_GOE_Title = (docLocaleProfileGRP != null) ? docLocaleProfileGRP.getItemValueString('lc_GOE_Title') : '';
+	viewScope.formSpecs.lc_Cancel = (docLocaleProfile != null) ? docLocaleProfile.getItemValueString('lc_Cancel') : '';
+	viewScope.formSpecs.lc_Submit = (docLocaleProfile != null) ? docLocaleProfile.getItemValueString('lc_Submit') : '';
+	viewScope.formSpecs.ls_IncludePrefix = (docLocaleSettings != null) ? docLocaleSettings.getItemValueString('ls_IncludePrefix') : '';
+	viewScope.formSpecs.ls_IncludeMiddleInitial = (docLocaleSettings != null) ? docLocaleSettings.getItemValueString('ls_IncludeMiddleInitial') : '';
+	viewScope.formSpecs.ls_IncludeFax = (docLocaleSettings != null) ? docLocaleSettings.getItemValueString('ls_IncludeFax') : '';
+	
+	viewScope.formSpecs.eventName = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('eventname') : '';
+	viewScope.formSpecs.rp_SessionButtonType = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_SessionButtonType') : '';
+	viewScope.formSpecs.emergencycontact_sectiontitle = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_emergencycontact_sectiontitle') : '';
+	viewScope.formSpecs.showEmergContactSection = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_IncludeEmergencyContactInfo') : '';
+	viewScope.formSpecs.badgeinfo_sectiontitle = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_badgeinfo_sectiontitle') : '';
+	viewScope.formSpecs.showBadgeSection = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_IncludeBadgeSection') : '';
+	viewScope.formSpecs.badgeinfo_message = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_badgeinfo_message') : '';
+	viewScope.formSpecs.oq_sectiontitle = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_oq_sectiontitle') : '';
+	viewScope.formSpecs.optionalQuestions_Number = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_OptionalQuestions_Number') : '';
+	viewScope.formSpecs.oq_message = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_oq_message') : '';
+	viewScope.formSpecs.rp_Screening_Statement = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_Screening_Statement') : '';
+	viewScope.formSpecs.rp_RequireSession = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_RequireSession') : '';
+	viewScope.formSpecs.SMissingMsg = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_SessionMissingText') : '';
+	viewScope.formSpecs.SVMsg = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_SessionValidationText') : '';
+	viewScope.formSpecs.DayTxt = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_DayText') : '';
+	viewScope.formSpecs.SessionTxt = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_SessionText') : '';
+	viewScope.formSpecs.DBVMsg = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_DoubleByteValidationText') : '';
+	viewScope.formSpecs.SBVMsg = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_SingleByteValidationText') : '';
+	viewScope.formSpecs.lc_StateValues = (docLocaleProfile != null) ? docLocaleProfile.getItemValue('lc_StateValues') : '';
+	viewScope.formSpecs.rp_PrivacyAddendum = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_PrivacyAddendum') : '';
+	viewScope.formSpecs.rp_IncludeRole = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('rp_IncludeRole') : '';
+	
+	viewScope.formSpecs.oq_re_optionq1 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq1') : '';
+	viewScope.formSpecs.oq_choice1 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice1') : '';
+	viewScope.formSpecs.oq_in_optionq1 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq1') : '';	
+	viewScope.formSpecs.kw_option_q1 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q1') : '';
+	viewScope.formSpecs.oq_re_optionq2 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq2') : '';
+	viewScope.formSpecs.oq_choice2 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice2') : '';
+	viewScope.formSpecs.oq_in_optionq2 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq2') : '';	
+	viewScope.formSpecs.kw_option_q2 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q2') : '';
+	viewScope.formSpecs.oq_re_optionq3 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq3') : '';
+	viewScope.formSpecs.oq_choice3 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice3') : '';
+	viewScope.formSpecs.oq_in_optionq3 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq3') : '';	
+	viewScope.formSpecs.kw_option_q3 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q3') : '';
+	viewScope.formSpecs.oq_re_optionq4 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq4') : '';
+	viewScope.formSpecs.oq_choice4 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice4') : '';
+	viewScope.formSpecs.oq_in_optionq4 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq4') : '';	
+	viewScope.formSpecs.kw_option_q4 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q4') : '';
+	viewScope.formSpecs.oq_re_optionq5 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq5') : '';
+	viewScope.formSpecs.oq_choice5 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice5') : '';
+	viewScope.formSpecs.oq_in_optionq5 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq5') : '';	
+	viewScope.formSpecs.kw_option_q5 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q5') : '';
+	viewScope.formSpecs.oq_re_optionq6 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq6') : '';
+	viewScope.formSpecs.oq_choice6 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice6') : '';
+	viewScope.formSpecs.oq_in_optionq6 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq6') : '';	
+	viewScope.formSpecs.kw_option_q6 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q6') : '';
+	viewScope.formSpecs.oq_re_optionq7 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq7') : '';
+	viewScope.formSpecs.oq_choice7 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice7') : '';
+	viewScope.formSpecs.oq_in_optionq7 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq7') : '';	
+	viewScope.formSpecs.kw_option_q7 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q7') : '';
+	viewScope.formSpecs.oq_re_optionq8 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq8') : '';
+	viewScope.formSpecs.oq_choice8 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice8') : '';
+	viewScope.formSpecs.oq_in_optionq8 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq8') : '';	
+	viewScope.formSpecs.kw_option_q8 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q8') : '';
+	viewScope.formSpecs.oq_re_optionq9 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq9') : '';
+	viewScope.formSpecs.oq_choice9 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice9') : '';
+	viewScope.formSpecs.oq_in_optionq9 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq9') : '';	
+	viewScope.formSpecs.kw_option_q9 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q9') : '';
+	viewScope.formSpecs.oq_re_optionq10 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq10') : '';
+	viewScope.formSpecs.oq_choice10 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice10') : '';
+	viewScope.formSpecs.oq_in_optionq10 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq10') : '';	
+	viewScope.formSpecs.kw_option_q10 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q10') : '';
+	viewScope.formSpecs.oq_re_optionq11 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq11') : '';
+	viewScope.formSpecs.oq_choice11 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice11') : '';
+	viewScope.formSpecs.oq_in_optionq11 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq11') : '';	
+	viewScope.formSpecs.kw_option_q11 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q11') : '';
+	viewScope.formSpecs.oq_re_optionq12 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq12') : '';
+	viewScope.formSpecs.oq_choice12 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice12') : '';
+	viewScope.formSpecs.oq_in_optionq12 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq12') : '';	
+	viewScope.formSpecs.kw_option_q12 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q12') : '';
+	viewScope.formSpecs.oq_re_optionq13 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq13') : '';
+	viewScope.formSpecs.oq_choice13 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice13') : '';
+	viewScope.formSpecs.oq_in_optionq13 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq13') : '';	
+	viewScope.formSpecs.kw_option_q13 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q13') : '';
+	viewScope.formSpecs.oq_re_optionq14 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq14') : '';
+	viewScope.formSpecs.oq_choice14 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice14') : '';
+	viewScope.formSpecs.oq_in_optionq14 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq14') : '';	
+	viewScope.formSpecs.kw_option_q14 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q14') : '';
+	viewScope.formSpecs.oq_re_optionq15 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq15') : '';
+	viewScope.formSpecs.oq_choice15 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice15') : '';
+	viewScope.formSpecs.oq_in_optionq15 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq15') : '';	
+	viewScope.formSpecs.kw_option_q15 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q15') : '';
+	viewScope.formSpecs.oq_re_optionq16 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq16') : '';
+	viewScope.formSpecs.oq_choice16 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice16') : '';
+	viewScope.formSpecs.oq_in_optionq16 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq16') : '';	
+	viewScope.formSpecs.kw_option_q16 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q16') : '';
+	viewScope.formSpecs.oq_re_optionq17 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq17') : '';
+	viewScope.formSpecs.oq_choice17 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice17') : '';
+	viewScope.formSpecs.oq_in_optionq17 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq17') : '';	
+	viewScope.formSpecs.kw_option_q17 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q17') : '';
+	viewScope.formSpecs.oq_re_optionq18 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq18') : '';
+	viewScope.formSpecs.oq_choice18 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice18') : '';
+	viewScope.formSpecs.oq_in_optionq18 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq18') : '';	
+	viewScope.formSpecs.kw_option_q18 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q18') : '';
+	viewScope.formSpecs.oq_re_optionq19 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq19') : '';
+	viewScope.formSpecs.oq_choice19 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice19') : '';
+	viewScope.formSpecs.oq_in_optionq19 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq19') : '';	
+	viewScope.formSpecs.kw_option_q19 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q19') : '';
+	viewScope.formSpecs.oq_re_optionq20 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_re_optionq20') : '';
+	viewScope.formSpecs.oq_choice20 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_choice20') : '';
+	viewScope.formSpecs.oq_in_optionq20 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValueString('oq_in_optionq20') : '';	
+	viewScope.formSpecs.kw_option_q20 = (docRegistrationProfile != null) ? docRegistrationProfile.getItemValue('kw_option_q20') : '';
+	
+	document1.getDocument().replaceItemValue("ls_UNID", docLocaleSettings.getUniversalID());
+	document1.getDocument().replaceItemValue("rp_UNID", docRegistrationProfile.getUniversalID());
+	
+	//--- Run the agent and use the current document as the context  
+	var agent = database.getAgent("(WebQueryOpenEnrollall_XPage)");
+	agent.runWithDocumentContext(document1.getDocument());
+	//--- Run Web Identity agent
+	agent = database.getAgent("(BlueIDLogin)");
+	agent.runWithDocumentContext(document1.getDocument());
+	
+	if(document1.getDocument().getItemValueString('redirectTo') != '') {
+		context.redirectToPage(document1.getDocument().getItemValueString('redirectTo'));
+	}
+	
+	viewScope.formSpecs.sessionHTML = document1.getDocument().getItemValueString('txt_SessionHTML');
+
+} catch(ex) {
+	print (ex.toString());
+}
+}]]>
+	</xp:this.beforePageLoad>
+
+	<xc:coreSitePageFrame autoInitialize="true" navID="RegistrationV18"
+		includeDojo="true"
+		pageTitle="#{javascript:viewScope.formSpecs.regPageTitle}">
+
+		<xc:this.pageSubTitle>
+		<![CDATA[#{javascript:tmpDate = (viewScope.formSpecs.startDateWebDisplay) ? '<br />' + viewScope.formSpecs.startDateWebDisplay : '';
+tmpFullHeader = viewScope.formSpecs.eventName + '<br />' + viewScope.formSpecs.confCity + tmpDate;
+tmpPartialHeader = viewScope.formSpecs.eventName + tmpDate;
+tmpPartialHeader}]]>
+		</xc:this.pageSubTitle>
+
+		<xp:this.facets>
+			<xc:coreSiteNavContentLayout xp:key="facet_content_main">
+				<xp:this.facets>
+					
+					<xp:panel xp:key="facet_sidebar_top">
+
+						<xp:panel>
+							<h2 class="ibm-rule ibm-h2">ようこそ</h2>
+							<xp:text escape="false" disableTheme="true"
+								rendered="#{javascript:return viewScope.formSpecs.authShowName === true;}">
+								<xp:this.value>
+									<![CDATA[#{javascript:
+return 'あなたのアカウント (' + document1.getItemValueString('en_first') + ' ' + 
+document1.getItemValueString('en_last') + ')' || '';
+}]]>
+								</xp:this.value>
+							</xp:text>
+
+							<div class="ibm-rule">
+								<hr></hr>
+							</div>
+
+							<p class="ibm-ind-link">
+								<a target="_blank"
+									class="ibm-external-link"
+									href="https://1.dam.s81c.com/m/140780024e9a3744/original/CODE-OF-CONDUCT-1-16-18-Japanese.pdf">
+									IBM のイベント行動規範については、ここをクリックしてください。
+								</a>
+							</p>
+
+							<div class="ibm-rule">
+								<hr></hr>
+							</div>
+
+							<p class="ibm-ind-link">
+								<a target="_blank"
+									class="ibm-external-link"
+									href="https://1.dam.s81c.com/m/0d19be1e0b8736be/original/Tracking-Technology-at-events-translation-Japanese-05-15-18.pdf">
+									IBMはこのイベントにおいて、トラッキング・テクノロジーを使用する場合があります。詳細については、ここをクリックしてください。
+								</a>
+							</p>
+
+						</xp:panel>
+
+					</xp:panel>
+					 
+						<xc:coreSiteForm action="Default"
+							formIBMClass="ibm-row-form" selectDisplay="Default" xp:key="facet_content_main">
+							<xp:this.facets>
+								<xp:panel xp:key="facet_FormArea">
+
+									<!--  For IBMid -->
+									<xp:scriptBlock>
+										<xp:this.value><![CDATA[
+(function($, IBM, CLC) {
+
+	var me = IBM.namespace(CLC, "header");
+
+	me.showDebug = true;
+	
+	var debug = function(theText){
+		if( !me.showDebug ){
+			return;
+		}
+		console.log(theText);
+	}
+	me.debug = debug;
+	
+ 	function endsWith(theString, thePattern) {
+	    var d = theString.length - thePattern.length;
+	    return d >= 0 && theString.lastIndexOf(thePattern) === d;
+	};
+
+ 	var login = function(theType){
+ 		var tmpType = theType || '1';
+ 		var tmpLoc = window.location + '';
+ 		if( endsWith(tmpLoc, 'xsp') ){
+ 			tmpLoc += '?open';
+ 		} 		 
+ 		window.location = tmpLoc + '&auth=' + tmpType + '';
+ 	}
+ 	me.login = login;
+
+ 	var register = function(){
+ 		//window.location = core.data.baseURL + '/Registration.xsp' + core.data.qs;
+ 		window.location = core.data.baseURL + '/Registration.xsp' + core.data.queryString;
+ 	}
+ 	me.register = register;
+
+ 	var init = function(){
+		debug('header init');
+		//debug(core.data.formSpecs);
+ 	}
+ 	me.init = init;
+	
+})(jQuery, IBMCore, CLRoot);
+
+header = CLRoot.header;
+
+jQuery( document ).ready(function() {
+
+	if( header ){
+		header.showDebug = false;
+		header.init();
+	}
+});
+				]]></xp:this.value>
+									</xp:scriptBlock>
+
+									<xp:panel>
+									
+										<xp:this.rendered><![CDATA[#{javascript:return !viewScope.auth && viewScope.allowRegister != false;}]]></xp:this.rendered>
+										<xp:panel
+											rendered="#{javascript:viewScope.showForm !== true;}">
+											<h4 class="ibm-h4">
+												<xp:text escape="false"
+													value="#{javascript:viewScope.formSpecs.loginToRegister}">
+												</xp:text>
+											</h4>
+
+											<p
+												class="ibm-button-link-alternate ibm-btn-row">
+												<a id="reg-signin"
+													class="ibm-btn-pri ibm-btn-blue-50" href="#"
+													onclick="window.header.login('login');return false">
+													<xp:text
+														escape="false"
+														value="#{javascript:viewScope.formSpecs.login}">
+													</xp:text>
+												</a>
+												<a id="a1"
+													class="ibm-btn-sec ibm-btn-blue-50" href="#"
+													onclick="window.header.login('new');return false">
+													<xp:text
+														escape="false"
+														value="#{javascript:viewScope.formSpecs.createAccount}">
+													</xp:text>
+												</a>
+												<a id="a2"
+													class="ibm-btn-sec ibm-btn-blue-50 ibm-inlinelink" href="#"
+													onclick="window.header.login('anonymous');return false">
+													<xp:text
+														escape="true">
+														<xp:text
+															escape="false"
+															value="#{javascript:viewScope.formSpecs.regAnonymous}">
+														</xp:text>
+													</xp:text>
+												</a>
+											</p>
+
+											<p>
+												<a
+													href="https://www.ibm.com/account/profile/jp?page=reghelpdesk">
+													<xp:text
+														escape="true">
+														<xp:this.value>
+															<![CDATA[#{javascript:viewScope.formSpecs.forgetYourIBMid}]]>
+														</xp:this.value>
+													</xp:text>
+												</a>
+												<br />
+												<a
+													href="https://www.ibm.com/account/jp-ja/forgot/forgot-password-start.html" target="_blank">
+													<xp:text
+														escape="true">
+														<xp:this.value>
+															<![CDATA[#{javascript:viewScope.formSpecs.forgetYourIBMidPassword;}]]>
+														</xp:this.value>
+													</xp:text>
+												</a>
+											</p>
+
+										</xp:panel>
+										
+									</xp:panel>
+
+									<xp:panel
+										rendered="#{javascript:return viewScope.showForm === true}">
+										
+										<xp:text escape="true"
+											rendered="#{javascript:(viewScope.formSpecs.preview == true)}"
+											contentType="html" style="color:rgb(255,0,0)">
+											<xp:this.value>
+											<![CDATA[#{javascript:'注意！：このページのURLをお客様に配信しないでください。正式なURLはQAの承認後、有効になります。<br /><br />'}]]>
+											</xp:this.value>
+										</xp:text>
+
+										<xp:text escape="true"
+											rendered="#{javascript:(viewScope.formSpecs.rp_Screening_Statement != '')}"
+											contentType="html">
+											<xp:this.value><![CDATA[#{javascript:viewScope.formSpecs.rp_Screening_Statement + '<br /><br />'}]]></xp:this.value>
+										</xp:text>
+										
+										<!-- This is an error message area for errors with the Sessions -->
+										<a name="showErrors" id="showErrors"></a>
+										<div id='errorMsgs' style='display:none'></div>
+										<xp:text escape="false"
+											disableTheme="true">
+											<xp:this.value>
+												<![CDATA[#{javascript:
+								return "<br /><br /><b>Error: </b>" + viewScope.formSpecs.errorDetails + "<br />";}]]>
+											</xp:this.value>
+											<xp:this.rendered>
+												<![CDATA[#{javascript:viewScope.formSpecs.errorDetails != "" && viewScope.formSpecs.errorDetails != null;}]]>
+											</xp:this.rendered>
+										</xp:text>
+
+										<!--  Attendee Info - Japan -->
+										<xc:v18_attendeeinfojp></xc:v18_attendeeinfojp>
+
+										<!--  Company info -->
+										<xc:v18_companyinfojp></xc:v18_companyinfojp>
+
+										<!--  MI questions -->
+										<!-- <xc:v18_miquestionsjp></xc:v18_miquestionsjp> -->
+
+										<!--  Emergency contact info -->
+										<xp:panel
+											rendered="#{javascript:viewScope.formSpecs.showEmergContactSection == 'Yes'}">
+											<xc:v18_emergencycontactjp></xc:v18_emergencycontactjp>
+										</xp:panel>										
+
+										<!--  Badges info -->
+										<xp:panel
+											rendered="#{javascript:viewScope.formSpecs.showBadgeSection == 'Yes'}">
+											<xc:v18_bagesinfojp></xc:v18_bagesinfojp>
+										</xp:panel>
+
+										<!--  Sessions info -->
+										<xc:sessionHTML></xc:sessionHTML>
+										
+										<!--  Optional info -->
+										<xp:panel>
+											<xp:this.rendered><![CDATA[#{javascript:(viewScope.formSpecs.optionalQuestions_Number != '') && (viewScope.formSpecs.optionalQuestions_Number != '0')}]]></xp:this.rendered>
+											<xc:v18_optionalquestionsjp></xc:v18_optionalquestionsjp>
+										</xp:panel>
+										
+										<!--  Information release -->
+										<xc:coreSiteIBMInfoRelease
+											fomParam="xp_v18enrollall" countryParam="en_country"
+											emailParam="en_email" questionChoiceParam="1,2,3">
+										</xc:coreSiteIBMInfoRelease>
+										
+										<div class="ibm-rule">
+											<hr></hr>
+										</div>
+										
+										<p>また、私は、申し込みにあたりIBM がプロモーションの目的でイベント中にグループ写真を撮影する場合があること、またはライブ・ストリーミングを実施する場合があることを理解しました。</p>
+										
+										<xp:text escape="true"
+											contentType="html"
+											rendered="#{javascript:viewScope.formSpecs.rp_PrivacyAddendum != '';}">
+											<xp:this.value><![CDATA[#{javascript:'<br />' + viewScope.formSpecs.rp_PrivacyAddendum}]]></xp:this.value>
+										</xp:text>
+
+										<xc:v18_hiddenfields></xc:v18_hiddenfields>
+										
+										<div
+											class="ibm-common-overlay ibm-overlay-alt"
+											data-widget="overlay" id="overlayMessage">
+											<p
+												id="overlayMessageText">
+											</p>
+										</div>
+
+										<!--  Submit buttons -->
+										<xc:coreSiteFormSubmitButtons_Japan
+											buttonTextForSubmit="#{javascript:return viewScope.formSpecs.lc_Submit;}"
+											buttonTextForCancel="#{javascript:return viewScope.formSpecs.lc_Cancel;}">
+										</xc:coreSiteFormSubmitButtons_Japan>
+
+									</xp:panel>
+								</xp:panel>
+							</xp:this.facets>
+						</xc:coreSiteForm>
+					
+				</xp:this.facets>
+			</xc:coreSiteNavContentLayout>
+		</xp:this.facets>
+	</xc:coreSitePageFrame>
+</xp:view>
