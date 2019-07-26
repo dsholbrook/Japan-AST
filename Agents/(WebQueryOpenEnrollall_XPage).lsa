@@ -1,0 +1,371 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE agent SYSTEM 'xmlschemas/domino_10_0_1.dtd'>
+<agent name='(WebQueryOpenEnrollall_XPage)' alias='(WebQueryOpenEnrollall_XPage)'
+ xmlns='http://www.lotus.com/dxl' version='10.0' maintenanceversion='1.0'
+ replicaid='862577A00065A565' hide='notes v3' runaswebuser='true' publicaccess='false'
+ designerversion='8.5.3' restrictions='fulladminunrestricted'>
+<noteinfo noteid='627b2' unid='66F4347430BA85D586258172000D79B4' sequence='71'>
+<created><datetime dst='true'>20170803T212711,24-05</datetime></created>
+<modified><datetime dst='true'>20190402T200723,06-05</datetime></modified>
+<revised><datetime dst='true'>20190402T200723,05-05</datetime></revised>
+<lastaccessed><datetime dst='true'>20190402T200723,06-05</datetime></lastaccessed>
+<addedtofile><datetime dst='true'>20180930T002358,44-05</datetime></addedtofile></noteinfo>
+<updatedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></updatedby>
+<wassignedby><name>CN=David Holbrook/OU=White Plains/OU=Contr/O=IBM</name></wassignedby>
+<designchange><datetime dst='true'>20190402T200723,04-05</datetime></designchange>
+<trigger type='agentlist'/>
+<documentset type='runonce'/><code event='options'><lotusscript>Option Public
+Option Declare
+
+Use "Common Functions" 
+
+</lotusscript></code><code event='initialize'><lotusscript>Sub Initialize	
+	'------------------------------------------------------------------------------------------------------
+    'Description
+    '------------------
+	'
+    'Parameters
+    '-----------------------
+	'
+    'Return Values
+    '-----------------------
+    'None.
+    '------------------------------------------------------------------------------------------------------  
+	
+	Const STR_MODULE_NAME = |WebQueryOpenEnrollall_XPage|
+	
+	Dim s As New NotesSession
+	Dim docCurr As NotesDocument
+	Dim strlstAgentArgs List As String
+	Dim strEventID As String
+	Dim strLocale As String
+	Dim strMode As String
+	Dim docEventProfile As NotesDocument
+	Dim docRegProfile As NotesDocument
+	Dim strURL As String
+	
+	'Call EnableDebug(STR_MODULE_NAME)
+	Call Debug(STR_MODULE_NAME &amp; |: Started.|)
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	Set docCurr = s.DocumentContext
+	
+	Call ExplodeQueryString(docCurr.Query_String(0), strlstAgentArgs)
+	
+	If Iselement(strlstAgentArgs("seminar")) Then
+		strEventID = strlstAgentArgs("seminar")	
+	Else
+		Error ERR_SYSTEM_ERROR, |The [seminar] parameter is missing from the URL [| &amp; docCurr.Query_String(0) &amp; |].|	
+	End If
+	
+	If Iselement(strlstAgentArgs("locale")) Then
+		strLocale = strlstAgentArgs("locale")
+	Else
+		Error ERR_SYSTEM_ERROR, |The [locale] parameter is missing from the URL [| &amp; docCurr.Query_String(0) &amp; |].|	
+	End If	
+	
+	'Get the mode (if present)
+	If Iselement(strlstAgentArgs("mode")) Then
+		strMode = strlstAgentArgs("mode")
+	End If
+	
+	Dim strQueryStringStart As String
+	strQueryStringStart = "?OpenForm"
+	Dim intStart As Integer
+	intStart = Instr(docCurr.path_info(0),"?OpenForm")
+	Dim strQueryString As String
+	strQueryString = Right(docCurr.path_info(0),Len(docCurr.path_info(0))- intStart)
+	
+	Set docEventProfile = docGetEventProfileByEventID(strEventID)
+	
+	'Re-direct to the 'Page not found' page if the Web Site Type is 'N' (No web site)
+	If (docEventProfile.ep_WebSiteType(0) = "N") Then	
+		strURL = |http://www.ibm.com/pagenotfound|	
+		Call Debug(STR_MODULE_NAME &amp; |: Event profile for event [| &amp; strEventID &amp; |] has the web site type option set to 'No web site'.  Redirecting to [| &amp; strURL &amp; |]|)		
+		docCurr.~$~$HTMLHEAD= |&lt;script&gt;window.location.href="| &amp; strURL &amp; |";&lt;/script&gt;|
+		Goto lblExit
+	End If
+	
+	'Validate the locale against the event profile to check that it is a valid locale for this event
+	strLocale = strValidateLocale(docEventProfile, strLocale)
+	
+	'Re-direct to the Registration Closed page if the event website is closed.
+	If (docEventProfile.kw_RegistrationStatus(0) = "Closed") Then
+		strURL = g_strWebPath &amp; |/registrationclosed.xsp?open&amp;seminar=| &amp; strEventID &amp; |&amp;locale=| &amp; strLocale	
+		Call Debug(STR_MODULE_NAME &amp; |: Event web site is closed.  Redirecting to [| &amp; strURL &amp; |]|)		
+		'docCurr.~$~$HTMLHEAD= |&lt;script&gt;window.location.href="| &amp; strURL &amp; |";&lt;/script&gt;|
+		docCurr.redirectTo = strURL
+		Goto lblExit
+	End If
+	
+	'Redirect to the correct ibm.com version of the page based on the setting in the locale profile for the locale 
+	'If (flgDoVersionRedirect(docCurr, strLocale, |enrollall|)) Then
+	'	Goto lblExit
+	'End If
+
+	'Re-direct to the Registration Not Yet Available page if the event is not active and an attempt is made to view the live version of the registration page
+	If ((docEventProfile.Status(0) &lt;&gt; "Active") And  (strMode &lt;&gt; "preview")) Then
+		strURL = g_strWebPath &amp; |/registrationnotyetavailable?OpenForm&amp;seminar=| &amp; strEventID &amp; |&amp;locale=| &amp; strLocale	
+		Call Debug(STR_MODULE_NAME &amp; |: Event is not active.  Redirecting to [| &amp; strURL &amp; |]|)
+		docCurr.redirectTo = strURL	
+		'docCurr.~$~$HTMLHEAD= |&lt;script&gt;window.location.href="| &amp; strURL &amp; |";&lt;/script&gt;|
+		'Goto lblExit
+		End
+	End If
+	
+	'Check whether this event uses invitations and if it does, process the invitation.
+	If (docEventProfile.ep_EnableInvitations(0) = "Yes") Then
+		
+		Call Debug(STR_MODULE_NAME &amp; |: This event uses an invitation process.|)	
+		
+		Dim flgUseInvitationCode As Boolean
+		Dim flgUseInvitationEmail As Boolean
+		Dim strInvID As String
+		Dim strInvEmail As String
+		Dim docInvitation As NotesDocument
+		Dim strInvitationStatus As String
+		Dim strResponseStatus As String
+		
+		'Find out what to use as the key to identify invitations
+		Select Case docEventProfile.ep_InvitationIDType(0)
+		Case |C|:
+			Call Debug(STR_MODULE_NAME &amp; |: Using invitation ID as unique key.|)				
+			flgUseInvitationCode = True
+			'Get the invitation ID (if present)
+			If Iselement(strlstAgentArgs("invid")) Then
+				strInvID = strlstAgentArgs("invid")
+			End If
+			Call Debug(STR_MODULE_NAME &amp; |: Processing invitation with ID [| &amp; strInvID &amp; |]...|)					
+		Case |E|:
+			Call Debug(STR_MODULE_NAME &amp; |: Using invitation e-mail as unique key.|)		
+			flgUseInvitationEmail = True
+			'Get the invitation e-mail (if present)
+			If Iselement(strlstAgentArgs("invemail")) Then
+				strInvEmail = strlstAgentArgs("invemail")
+			End If
+			Call Debug(STR_MODULE_NAME &amp; |: Processing invitation with e-mail [| &amp; strInvEmail &amp; |]...|)					
+		Case Else
+			Error ERR_SYSTEM_ERROR, |An unknown value [| &amp; docEventProfile.ep_InvitationIDType(0) &amp; |] was found for the [ep_InvitationIDType] field in the event profile for event [| &amp; strEventID &amp; |].|	
+		End Select
+		
+		'If an invitation ID/E-mail was supplied, it must be valid (whether or not this is an invitation only event)
+		If ((flgUseInvitationCode And strInvID &lt;&gt; ||) Or (flgUseInvitationEmail And strInvEmail &lt;&gt; ||)) Then			
+			
+			'Check that an invitation exists for the supplied ID or E-mail
+			If (flgUseInvitationCode) Then
+				Set docInvitation = docGetInvitationByKey(strEventID, strInvID)
+			Else
+				Set docInvitation = docGetInvitationByEmail(strEventID, strInvEmail)
+			End If
+			
+			If (docInvitation Is Nothing) Then
+				If (flgUseInvitationCode) Then
+					strURL = g_strWebPath &amp; |/noinvitationfound.xsp?open&amp;seminar=| &amp; strEventID &amp; |&amp;locale=| &amp; strLocale &amp; |&amp;invid=| &amp; strInvID							
+					Call Debug(STR_MODULE_NAME &amp; |: Invitation with invitation ID [| &amp; strInvID &amp; |] could not be found.  Redirecting to [| &amp; strURL &amp; |]|)		
+					Call LogError(STR_MODULE_NAME &amp; |: Invitation with invitation ID [| &amp; strInvID &amp; |] for event ID [| &amp; strEventID &amp; |] could not be found.  Redirecting to [| &amp; strURL &amp; |]|)		
+				Else
+					strURL = g_strWebPath &amp; |/noinvitationfound.xsp?open&amp;seminar=| &amp; strEventID &amp; |&amp;locale=| &amp; strLocale &amp; |&amp;invemail=| &amp; strInvEmail						
+					Call Debug(STR_MODULE_NAME &amp; |: Invitation with invitation e-mail [| &amp; strInvEmail &amp; |] could not be found.  Redirecting to [| &amp; strURL &amp; |]|)		
+					Call LogError(STR_MODULE_NAME &amp; |: Invitation with invitation e-mail [| &amp; strInvEmail &amp; |] for event ID [| &amp; strEventID &amp; |] could not be found.  Redirecting to [| &amp; strURL &amp; |]|)	
+				End If
+				docCurr.~$~$HTMLHEAD= |&lt;script&gt;window.location.href="| &amp; strURL &amp; |";&lt;/script&gt;|	
+				Goto lblExit
+			Else
+				If (flgUseInvitationCode) Then
+					Call Debug(STR_MODULE_NAME &amp; |: Found invitation with invitation ID [| &amp; strInvID &amp; |].|)	
+				Else
+					Call Debug(STR_MODULE_NAME &amp; |: Found invitation with invitation e-mail [| &amp; strInvEmail &amp; |].|)	
+				End If
+			End If
+			
+			'The invitation exists, so check that it is in 'Invited' status
+			strInvitationStatus = docInvitation.in_status(0)
+			
+			If (strInvitationStatus &lt;&gt; |Invited|) Then
+				If (flgUseInvitationCode) Then
+					strURL = g_strWebPath &amp; |/noinvitationfound.xsp?open&amp;seminar=| &amp; strEventID &amp; |&amp;locale=| &amp; strLocale &amp; |&amp;invid=| &amp; strInvID							
+					Call Debug(STR_MODULE_NAME &amp; |: Invitation with invitation ID [| &amp; strInvID &amp; |] was found but is NOT in 'Invited' status.  Redirecting to [| &amp; strURL &amp; |]|)		
+					Call LogError(STR_MODULE_NAME &amp; |: Invitation with invitation ID [| &amp; strInvID &amp; |] for event ID [| &amp; strEventID &amp; |] was found but is NOT in 'Invited' status.  Redirecting to [| &amp; strURL &amp; |]|)		
+				Else
+					strURL = g_strWebPath &amp; |/noinvitationfound.xsp?open&amp;seminar=| &amp; strEventID &amp; |&amp;locale=| &amp; strLocale &amp; |&amp;invemail=| &amp; strInvEmail
+					Call Debug(STR_MODULE_NAME &amp; |: Invitation with invitation e-mail [| &amp; strInvEmail &amp; |] was found but is NOT in 'Invited' status.  Redirecting to [| &amp; strURL &amp; |]|)		
+					Call LogError(STR_MODULE_NAME &amp; |: Invitation with invitation e-mail [| &amp; strInvEmail &amp; |] for event ID [| &amp; strEventID &amp; |] was found but is NOT in 'Invited' status.  Redirecting to [| &amp; strURL &amp; |]|)		
+				End If
+				docCurr.~$~$HTMLHEAD= |&lt;script&gt;window.location.href="| &amp; strURL &amp; |";&lt;/script&gt;|	
+				Goto lblExit
+			Else
+				Call Debug(STR_MODULE_NAME &amp; |: Invitation status is 'Invited'.|)	
+			End If
+			
+			'The invitation status is 'Invited', so check whether the user has already responded, i.e. they are trying to accept the invitation a second time
+			strResponseStatus = docInvitation.in_RSVPStatus(0)
+			
+			Call Debug(STR_MODULE_NAME &amp; |: Response status is '| &amp; strResponseStatus &amp; |'.|)	
+			
+			If (strResponseStatus = |Accepted|) Then
+				'The response status is 'Accepted' so check whether the user has already registered and has a registration document
+				If (flgAlreadyRegistered(docInvitation)) Then
+					'The user already has a registration document, so show the already registered message
+					If (flgUseInvitationCode) Then
+						strURL = g_strWebPath &amp; |/v16_alreadyaccepted?OpenForm&amp;seminar=| &amp; strEventID &amp; |&amp;locale=| &amp; strLocale &amp; |&amp;invid=| &amp; strInvID		
+						Call Debug(STR_MODULE_NAME &amp; |: Invitation with invitation ID [| &amp; strInvID &amp; |] was found, and the invitation status is 'Invited', but the invitation has already been accepted and an enrollment record already exists.  Redirecting to [| &amp; strURL &amp; |]|)		
+						Call LogError(STR_MODULE_NAME &amp; |: Invitation with invitation ID [| &amp; strInvID &amp; |] for event ID [| &amp; strEventID &amp; |] is valid, and the invitation status is 'Invited', but the invitation has already been accepted and an enrollment record already exists.  Redirecting to [| &amp; strURL &amp; |]|)		
+					Else
+						strURL = g_strWebPath &amp; |/v16_alreadyaccepted?OpenForm&amp;seminar=| &amp; strEventID &amp; |&amp;locale=| &amp; strLocale &amp; |&amp;invemail=| &amp; strInvEmail
+						Call Debug(STR_MODULE_NAME &amp; |: Invitation with invitation e-mail [| &amp; strInvEmail &amp; |] was found, and the invitation status is 'Invited', but the invitation has already been accepted and an enrollment record already exists.  Redirecting to [| &amp; strURL &amp; |]|)		
+						Call LogError(STR_MODULE_NAME &amp; |: Invitation with invitation e-mail [| &amp; strInvEmail &amp; |] for event ID [| &amp; strEventID &amp; |] is valid, and the invitation status is 'Invited', but the invitation has already been accepted and an enrollment record already exists.  Redirecting to [| &amp; strURL &amp; |]|)							
+					End If
+					docCurr.~$~$HTMLHEAD= |&lt;script&gt;window.location.href="| &amp; strURL &amp; |";&lt;/script&gt;|	
+					Goto lblExit
+				Else
+					Call Debug(STR_MODULE_NAME &amp; |: No enrollment record is associated with this invitation.|)	
+				End If
+			End If
+			
+			'We're here if:
+			'- The invitation is valid and the user has already accepted but there is no existing registration document 
+			'- The invitation is valid and the user has either not yet responded or has previously declined.
+			
+			'In either case, use the information from the invitation to pre-populate the registration
+			Call Debug(STR_MODULE_NAME &amp; |: Invitation is valid.|)
+			docCurr.en_attendeetype = docInvitation.en_attendeetype
+			docCurr.en_first = docInvitation.en_first
+			docCurr.en_last = docInvitation.en_last
+			docCurr.en_title = docInvitation.en_title		
+			docCurr.en_companyname = docInvitation.en_companyname			
+			docCurr.en_email = docInvitation.en_email
+			docCurr.en_badgenamefirst = docInvitation.en_first
+			docCurr.en_badgenamelast = docInvitation.en_last
+			'Store additional fields that may be present in the invitation
+			docCurr.en_prefix = docInvitation.en_prefix
+			docCurr.en_phone = docInvitation.en_phone
+			docCurr.en_mailstreet1 = docInvitation.en_mailstreet1
+			docCurr.en_mailstreet2 = docInvitation.en_mailstreet2
+			docCurr.en_mailstreet3 = docInvitation.en_mailstreet3		
+			docCurr.en_city = docInvitation.en_city					
+			docCurr.en_state = docInvitation.en_state
+			docCurr.en_zip = docInvitation.en_zip
+			docCurr.en_country = docInvitation.en_country
+			docCurr.en_siebelkey = docInvitation.en_siebelkey			
+		Else		
+			'There is no invitation ID/E-mail, and this is an invitation ONLY event, then it's an error
+			If (docEventProfile.ep_IsInvitationOnly(0) = "Yes") Then	
+				If (flgUseInvitationCode) Then
+					strURL = g_strWebPath &amp; |/noinvitationfound.xsp?open&amp;seminar=| &amp; strEventID &amp; |&amp;locale=| &amp; strLocale &amp; |&amp;invid=| &amp; strInvID							
+					Call Debug(STR_MODULE_NAME &amp; |: No invitation ID was supplied for an invitation ONLY event.  Redirecting to [| &amp; strURL &amp; |]|)		
+					Call LogError(STR_MODULE_NAME &amp; |: No invitation ID was supplied for an invitation ONLY event.  Event ID [| &amp; strEventID &amp; |] .  Redirecting to [| &amp; strURL &amp; |]|)		
+				Else
+					strURL = g_strWebPath &amp; |/noinvitationfound.xsp?open&amp;seminar=| &amp; strEventID &amp; |&amp;locale=| &amp; strLocale &amp; |&amp;invemail=| &amp; strInvEmail
+					Call Debug(STR_MODULE_NAME &amp; |: No invitation e-mail was supplied for an invitation ONLY event.  Redirecting to [| &amp; strURL &amp; |]|)		
+					Call LogError(STR_MODULE_NAME &amp; |: No invitation e-mail was supplied for an invitation ONLY event.  Event ID [| &amp; strEventID &amp; |] .  Redirecting to [| &amp; strURL &amp; |]|)					
+				End If
+				docCurr.~$~$HTMLHEAD= |&lt;script&gt;window.location.href="| &amp; strURL &amp; |";&lt;/script&gt;|	
+				Goto lblExit
+			End If
+			
+			Call Debug(STR_MODULE_NAME &amp; |: No invitation ID or e-mail was supplied, but this is NOT an invitation ONLY event, so allow registration.|)	
+		End If
+		
+	End If
+	
+	Call getRegistrationProfileInfo(docEventProfile, strLocale, docCurr)
+	'Get Locale specific labels
+	Call getLocalization(strLocale, "enrollall", docCurr)
+	'Get track and session data, if specified, and 'dynamically' create the HTML code
+	'If strMode = "test" Or (strMode = "preview" And strEventID = "BBDGD3ES") Then
+	'	Call CreateSessionSectionHTMLTest(docCurr, docEventProfile, strLocale)
+	'Else
+	Call CreateSessionSectionHTMLVer1_4(docCurr, docEventProfile, strLocale)
+	'End If
+	
+	Set docRegProfile = getRegistrationProfile(docEventProfile, strLocale)
+	Call docCurr.ReplaceItemValue("validateDoubleByteFields", "true")
+	If Not(docRegProfile Is Nothing) Then
+		If docRegProfile.rp_ValidateDoubleByte(0) = "No" Then
+			Call docCurr.ReplaceItemValue("validateDoubleByteFields", "false")
+		End If
+	End If
+	Call docCurr.ReplaceItemValue("validateSingleByteFields", "true")
+	If Not(docRegProfile Is Nothing) Then
+		If docRegProfile.rp_ValidateSingleByte(0) = "No" Then
+			Call docCurr.ReplaceItemValue("validateSingleByteFields", "false")
+		End If
+	End If
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Opened registration form.|)
+	
+lblExit:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Finished.|)
+	
+	Exit Sub
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	'Show the page not found error page
+	docCurr.~$~$HTMLHEAD= |&lt;script&gt;window.location.href="http://www.ibm.com/pagenotfound";&lt;/script&gt;|	
+	Resume lblExit
+	
+End Sub
+
+
+
+</lotusscript></code><code event='getRegistrationProfileInfo'><lotusscript
+>Function getRegistrationProfileInfo(docEventProfile As NotesDocument, strLocale As String, docCurr As NotesDocument)
+	
+	Const STR_MODULE_NAME = |getRegistrationProfileInfo|
+	
+	Dim view As NotesView
+	Dim docRegistrationProfile As NotesDocument
+	Dim itemFieldValues As NotesItem
+	Dim key As String
+	
+	'Trap errors
+	On Error Goto lblError
+	
+	'Build a key to look up the registration profile document for this event
+	key =  docEventProfile.ep_id(0) + strLocale
+	
+	Set view = g_dbCurr.GetView ("vLookupRegistrationProfilesByIDLocale" )
+	Set docRegistrationProfile = view.GetDocumentByKey (key,True )
+	
+	Call Debug(STR_MODULE_NAME &amp; |: key: | &amp; key)
+	
+	'Pass the reg profile to build the graphic table and stick the result in the computed for display field on EnrollAll
+	'docCurr.page_graphic = getGraphicTable(docRegistrationProfile)
+	
+	'Set the UNID of the reg profile to pull field by UNID in the enrollall form computed formula
+	'i.e. optional questions
+	docCurr.rp_UNID = docRegistrationProfile.UniversalID
+	
+	'If right column HTML is available, insert it
+	If (docRegistrationProfile.HasItem(|rp_RightColumnHTML|)) Then
+		docCurr.rp_RightColumnHTML = docRegistrationProfile.rp_RightColumnHTML
+	End If
+	
+	'If a DoubleClick Spotlight tag is available, insert it
+	If (g_docDBProfile.dp_EnableSpotlight(0) = |Yes|) Then
+		docCurr.rp_SpotlightTag = docRegistrationProfile.rp_SpotlightTag(0)
+	End If
+	
+lblExit:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: Finished.|)
+	
+	Exit Function
+	
+lblError:
+	
+	Call Debug(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Call LogError(STR_MODULE_NAME &amp; |: | &amp; Err() &amp; |: | &amp; Error() &amp; | in line | &amp; Erl)
+	Resume lblExit
+	
+End Function</lotusscript></code>
+<rundata processeddocs='0' exitcode='0'>
+<agentmodified><datetime dst='true'>20190402T200722,98-05</datetime></agentmodified></rundata>
+<item name='$POID'><datetime>20160309T165348,47-06</datetime></item></agent>
+
