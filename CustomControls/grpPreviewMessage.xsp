@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+<xp:panel>
+						<xp:this.rendered><![CDATA[#{javascript:var tmpMode = context.getUrlParameter('mode');
+tmpMode == 'preview';}]]></xp:this.rendered>
+						<hr class="ibm-rule" />
+						<p class="ibm-important">WARNING: Please do not distribute the URL of this preview page! The production URL will be available after QA.</p>
+												
+					</xp:panel>
+</xp:view>

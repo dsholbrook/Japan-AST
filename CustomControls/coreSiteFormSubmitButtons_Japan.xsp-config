@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteFormSubmitButtons_Japan</component-type>
+    <composite-name>coreSiteFormSubmitButtons_Japan</composite-name>
+    <composite-file>/coreSiteFormSubmitButtons_Japan.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;div style="padding:2px;font-size:12px;color:blue;border:solid 1px:blue;"&gt;&#xd;
+&lt;input type="button" value="submit" /&gt; &lt;input type="button" value="Cancel" /&gt; &#xd;
+* Standard IBM submit/cancel buttons (one per page)&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>Website UI</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>buttonTextForSubmit</property-name>
+      <property-class>string</property-class>
+      <display-name>Submit Button Text</display-name>
+    </property>
+    <property>
+      <property-name>hideCancel</property-name>
+      <property-class>boolean</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>buttonTextForCancel</property-name>
+      <property-class>string</property-class>
+      <display-name>Cancel Button Text</display-name>
+    </property>
+  </composite-component>
+</faces-config>

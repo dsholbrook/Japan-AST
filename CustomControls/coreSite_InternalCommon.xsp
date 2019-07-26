@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+	<xp:this.beforePageLoad><![CDATA[#{javascript:	
+
+try {
+	if (document1){
+		viewScope.currentUNID = document1.getDocument().getUniversalID();
+	}
+} catch (ex) {
+	viewScope.currentUNID = '';
+}
+
+viewScope.mobileProxy = facesContext.getExternalContext().getRequestHeaderMap().containsKey('x-ibm-wireless-proxy');
+var tmpClientType = facesContext.getExternalContext().getRequest().getHeader("User-Agent");
+viewScope.clientType = tmpClientType;
+
+var tmpMobile = {
+	"client":tmpClientType,
+	"iPad":tmpClientType.indexOf('iPad') >= 0 ,
+	"iPhone":tmpClientType.indexOf('iPhone') >= 0 ,
+	"android":tmpClientType.indexOf('Android') >= 0 ,
+	"webOS":tmpClientType.indexOf('webOS') >= 0 ,
+	"iPod":tmpClientType.indexOf('iPod') >= 0 ,
+	"blackBerry":tmpClientType.indexOf('BlackBerry') >= 0 ,
+	"windowsPhone":tmpClientType.indexOf('Windows Phone') >= 0 
+}
+tmpMobile.isMobile = ((viewScope.mobileProxy != '') || tmpMobile.iPad || tmpMobile.iPhone || tmpMobile.android || tmpMobile.webOS || tmpMobile.iPod || tmpMobile.blackBerry || tmpMobile.windowsPhone);
+tmpMobile.isSmall = ((viewScope.mobileProxy != '') || tmpMobile.iPhone || tmpMobile.android || tmpMobile.iPod || tmpMobile.blackBerry || tmpMobile.windowsPhone);
+
+viewScope.mobile = tmpMobile;
+viewScope.useStyledForm = !viewScope.mobile.isMobile;
+var tmpClient = {};
+
+tmpClient.clientType = viewScope.clientType
+tmpClient.mobile = viewScope.mobile;
+tmpClient.useStyledForm = viewScope.useStyledForm;
+tmpClient.isMobile = tmpMobile.isMobile;
+tmpClient.isSmall = tmpMobile.isSmall;
+tmpClient.mobile = viewScope.mobile;
+
+var tmpBaseURL = facesContext.getExternalContext().getRequestContextPath();
+
+XPage.addDataItem(tmpClient,'client');
+XPage.addDataItem(tmpBaseURL,'baseURL');
+ 
+
+  }]]></xp:this.beforePageLoad>
+
+
+
+
+
+	<xp:this.beforeRenderResponse><![CDATA[#{javascript:
+
+
+var tmpDoc = {
+	unid:viewScope.currentUNID
+}
+XPage.addDataItem(tmpDoc,'doc');
+	
+var tmpForms = XPage.getForms();
+
+var tmpClientFormObj = {};
+
+var tmpFormList = false;
+for (var aForm in tmpForms ){
+	var tmpForm = tmpForms[aForm];
+	if( !tmpFormList ){
+		tmpFormList = [aForm];
+	} else {
+		tmpFormList.push(aForm);
+	}
+	
+	var tmpFormSpec = XPage.getForm( tmpForm.formName );
+	if( tmpFormSpec && tmpFormSpec.fieldNames && tmpFormSpec.fieldNames.length ){
+		for( var i = 0 ; i < tmpFormSpec.fieldNames.length ; i++ ){
+			var tmpFieldName = tmpFormSpec.fieldNames[i];
+			var tmpFieldSpec = XPage.getFieldSpec(tmpFieldName);
+		}
+	}
+	
+}
+
+tmpClientFormObj.formSpecs = tmpForms;
+tmpClientFormObj.formNames = tmpFormList;
+tmpClientFormObj.fieldSpecs = viewScope.coreFieldSpecs
+
+
+XPage.addDataItem(tmpClientFormObj,'form',{replace:true});
+
+
+}]]></xp:this.beforeRenderResponse>
+	<xp:this.resources>
+		<xp:script src="/CoreWebCommon.jss" clientSide="false"></xp:script>
+	</xp:this.resources>
+	<textarea class="mc-hidden" style="display:none"
+		id="core-common-data-object">
+		<xp:text escape="false" disableTheme="true">
+			<xp:this.value><![CDATA[#{javascript:
+			
+var tmpRet = viewScope.coreCommonDataObject || {};
+
+if( !viewScope.coreCommonDataObject) return '{}';
+return toJson(viewScope.coreCommonDataObject);
+}]]></xp:this.value>
+		</xp:text>
+	</textarea>
+
+</xp:view>

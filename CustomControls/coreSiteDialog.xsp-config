@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteDialog</component-type>
+    <composite-name>coreSiteDialog</composite-name>
+    <composite-file>/coreSiteDialog.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <category>Website UI</category>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&#xd;
+&lt;div style="width:500px;border:dotted 3px:green;"&gt;&#xd;
+&lt;h3&gt;Dialog&lt;/h3&gt;&#xd;
+&lt;xp:callback facetName="facet_body"&gt;&lt;/xp:callback&gt;&#xd;
+&lt;/div&gt;&#xd;
+&lt;%=((!this.dialogID) ? ( "&lt;span style='color:red;fond-size:14px;'&gt;A dialog ID is needed to show the dialog.&lt;/span&gt;" ) : "")%&gt;&#xd;
+&lt;h4 style="color:#AAAAAA"&gt;How to use the standard dialog control&lt;/h4&gt;&#xd;
+&lt;p style="color:#AAAAAA"&gt;Drag a panel into the body facet below and add content to show. &lt;/p&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>dialogHeader</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>dialogID</property-name>
+      <property-class>string</property-class>
+      <display-name>ID</display-name>
+      <property-extension>
+        <required>true</required>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>dialogSize</property-name>
+      <property-class>string</property-class>
+      <display-name>Dialog Size</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>Small&#xd;
+Medium&#xd;
+Large</editor-parameter>
+          <default-value>Small</default-value>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>useDynamicContent</property-name>
+      <property-class>boolean</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+      <display-name>Use Dynamic Content?</display-name>
+    </property>
+  </composite-component>
+</faces-config>

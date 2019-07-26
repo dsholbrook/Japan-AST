@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteIBMContentCols</component-type>
+    <composite-name>coreSiteIBMContentCols</composite-name>
+    <composite-file>/coreSiteIBMContentCols.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;div style="margin:2px;border:dashed 2px:blue;padding:3px;"&gt;&#xd;
+&lt;table style="padding:1px;width:619px;"&gt;&lt;tr&gt;&#xd;
+&lt;td style="margin:1px;padding:15px:width:285px;overflow:auto;border:dashed 1px:blue;padding:1px;"&gt;&#xd;
+&lt;xp:callback facetName="facet_layout_left"&gt;&lt;/xp:callback&gt;&#xd;
+&lt;/td&gt;&#xd;
+&lt;td style="margin:1px;padding:15px:width:285px;overflow:auto;border:dashed 1px:blue;padding:2px;"&gt;&#xd;
+&lt;xp:callback facetName="facet_layout_right"&gt;&lt;/xp:callback&gt;&#xd;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>Website UI</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>colLayout</property-name>
+      <property-class>string</property-class>
+      <display-name>Column Layout</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>1-2&#xd;
+1-3&#xd;
+1-4&#xd;
+2-1&#xd;
+2-2&#xd;
+2-3</editor-parameter>
+          <default-value>2-2</default-value>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>setSameHeight</property-name>
+      <property-class>boolean</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+      <display-name>Set Same Height</display-name>
+    </property>
+  </composite-component>
+</faces-config>

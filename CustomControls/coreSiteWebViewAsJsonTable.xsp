@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+	
+	<xp:this.afterRenderResponse><![CDATA[#{javascript:
+
+return true;
+// TODO: Pull from Composite
+var tmpCB = context.getUrlParameter('callback');
+
+// The external context gives access to the servlet environment
+var exCon = facesContext.getExternalContext(); 
+
+// The writer is the closest you get to a PRINT statement
+// If you need to output binary data, use the stream instead
+var writer = facesContext.getResponseWriter();
+
+// The servlet's response, check the J2EE documentation what you can do
+var response = exCon.getResponse();
+
+// In this example we want to deliver xml and make sure it doesn't get cached
+
+if( tmpCB ){
+	response.setContentType("application/javascript; charset=utf8");
+} else {
+	response.setContentType("application/json; charset=utf8");
+}
+response.setHeader("Cache-Control", "no-cache");
+
+var tmpO = {};
+//tmpO.layout = [{"id":"RunDate","field":"RunDate", "name":"Date", "width": "80px","dataType":"date"},{"id":"RunDate","field":"RunDate", "name":"Time", "width": "60px"},{"id":"DocTitle","field":"DocTitle", "name":"Title", "width": "300px"},{"id":"$9","field":"$9", "name":"Last updated by", "width": "300px"}];
+tmpO.viewName = viewScope.viewLoading;
+
+tmpO.layout = gColLayout; //viewScope.layout
+tmpO.data = viewScope.currData.data ||['1','2'];
+//viewScope.currData;
+
+// Here all your output will be written
+if( tmpCB ){
+	writer.write(tmpCB + '(' + toJson(tmpO) + ')');
+} else {
+	writer.write(toJson(tmpO));
+}
+
+
+// We tell the writer we are through
+writer.endDocument();
+facesContext.responseComplete();
+
+}]]></xp:this.afterRenderResponse>
+	<xp:this.resources>
+		<xp:script src="/CoreWebCommon.jss" clientSide="false"></xp:script>
+	</xp:this.resources>
+	<xp:this.beforeRenderResponse><![CDATA[#{javascript:return;
+XPage.setNoForm();
+XPage.setNoRender();}]]></xp:this.beforeRenderResponse>
+	<xp:this.beforePageLoad><![CDATA[#{javascript:var tmpViewName = compositeData.viewName || '';
+viewScope.viewLoading = tmpViewName;
+
+if( !tmpViewName ){return};
+var tmpView = XPage.getView(tmpViewName);
+if( !tmpView || tmpView == null){return};
+
+var tmpRet = '';
+var tmpCols = [];
+var tmpColsAdded = 0;
+
+//var tmpTableID = compositeData.tableID ? compositeData.tableID : 'coretablemain';
+var tmpTableID = compositeData.tableID || compositeData.viewName || 'coretablemain';
+
+var tmpColCount = tmpView.getColumnCount();
+
+
+for( var i = 0 ; i < tmpColCount ; i++){
+	//--- Build table header based on view content
+	var tmpCol:NotesViewColumn = tmpView.getColumn(i+1);
+	var tmpTitle = tmpCol.getTitle();
+	var tmpColSpecs = {};
+	if( tmpTitle.startsWith("{")){
+		tmpColSpecs = XPage.fromJson(tmpTitle);
+	} else {
+		tmpColSpecs.title = tmpTitle;
+	}
+	
+	var tmpField = tmpCol.getItemName();
+	var tmpColPos = tmpCol.getColumnValuesIndex();
+	var tmpSorted = tmpCol.isResortAscending() || tmpCol.isResortDescending();
+	var tmpAddLink = tmpCol.isFontUnderline();
+	tmpColSpecs.colName = tmpCol.getItemName() || '';
+	if( tmpAddLink ){
+		tmpColSpecs.addLink = true;
+	}
+	//XPage.debug( 'Added - ' + tmpTitle  + ' col is ' + tmpColSpecs.colName );
+	if( tmpSorted && !(tmpColSpecs.sorted === false) ){
+		tmpColSpecs.sorted = true;
+		tmpColSpecs.orderable = true;
+	} else {
+		tmpColSpecs.sorted = false;
+		tmpColSpecs.orderable = false;
+	}
+	
+	tmpColSpecs.colPos = tmpCol.getColumnValuesIndex() || 0;
+	if( tmpCol.isFontStrikethrough() ){
+		tmpColSpecs.searchable = false;
+	}
+
+
+	if( tmpCol.isHidden() ){
+		tmpColSpecs.isVisible = false;
+		tmpColSpecs.visible = false;
+	} else {
+		tmpColSpecs.visible = true;
+		tmpColSpecs.isVisible = true;
+	}
+	
+	if( tmpCol.isFontBold() ){
+		//--- this is the ID column and should be turned into a checkbox
+		tmpColSpecs.searchable = false;		
+		tmpColSpecs.isSelect = true;
+		tmpColSpecs.visible = true;
+		tmpColSpecs.isVisible = true;
+		tmpColSpecs.orderable = false;
+		tmpColSpecs.sorted = false;
+		tmpColSpecs.title = '<input class="clc-dtcb-select-all" type="checkbox">';
+		tmpColSpecs.renderType = 'checkbox'
+		tmpColSpecs.addLink = false;
+	}
+	
+	
+	tmpCols.push(tmpColSpecs);
+	tmpColsAdded++;
+}
+
+var gColLayout = {columnCount: tmpColsAdded, columns: tmpCols};
+viewScope.currData = {data:[],layout:gColLayout};
+
+
+for (var i = 0; i < tmpView.getEntryCount(); i++) {
+	var tmpRec = [];
+	tmpRec.count = tmpView.getColumnCount();
+	
+	for (var j = 0; j < tmpView.getColumnCount(); j++) {
+		try {
+			var values:java.util.Vector = tmpView.getColumnValues(j);
+			tmpRec.push(values.elementAt(i));
+		} catch(ee) {
+			//--- invalid ok?
+		}
+	}
+
+	viewScope.currData.data.push(tmpRec);
+}
+
+
+XPage.addData("dataPayload", viewScope.currData);
+
+}]]></xp:this.beforePageLoad>
+	
+
+
+			
+</xp:view>

@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteForm</component-type>
+    <composite-name>coreSiteForm</composite-name>
+    <composite-file>/coreSiteForm.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&#xd;
+&lt;div style="width:500px;border:dotted 3px:green;"&gt;&#xd;
+&lt;h3&gt;Form&lt;/h3&gt;&#xd;
+&lt;xp:callback facetName="facet_FormArea"&gt;&lt;/xp:callback&gt;&#xd;
+&lt;/div&gt;&#xd;
+&lt;%=((!this.formName &amp;&amp; !this.doc) ? ( "&lt;span style='color:blue;fond-size:14px;'&gt;If no document or form is supplied, document1 will be used for this form.&lt;/span&gt;" ) : "")%&gt;&#xd;
+&lt;h4 style="color:#AAAAAA"&gt;How to use the standard form control&lt;/h4&gt;&#xd;
+&lt;p style="color:#AAAAAA"&gt;Drag a panel into the main facet below.&lt;/p&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>Website UI</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>formName</property-name>
+      <property-class>string</property-class>
+      <display-name>Form Name</display-name>
+      <property-extension>
+        <required>false</required>
+        <designer-extension>
+          <validation-formula/>
+        </designer-extension>
+      </property-extension>
+      <description>Optionally specify the form name to use for the submit.  Will automatically pull from the doc if provided.</description>
+    </property>
+    <property>
+      <property-name>formIBMClass</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>ibm-column-form&#xd;
+ibm-row-form</editor-parameter>
+        </designer-extension>
+      </property-extension>
+      <description>Controls the form layout based on IBM standards.  &#xd;
+Column is the default and has the label on the left and field on the right.&#xd;
+Row format shows the label over the field.</description>
+    </property>
+    <property>
+      <property-name>action</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>Default&#xd;
+Create&#xd;
+Save&#xd;
+Custom</editor-parameter>
+          <default-value>Default</default-value>
+        </designer-extension>
+      </property-extension>
+      <description>Default action only applies when a doc is provided.&#xd;
+Custom action should include a customAction to use when submitted.&#xd;
+Create will always create the formName related to this form.&#xd;
+Save will always save the document related to the unid provided.  &#xd;
+</description>
+    </property>
+    <property>
+      <property-name>unid</property-name>
+      <property-class>string</property-class>
+      <display-name>UNID</display-name>
+      <description>Optionally specify the UNID.  Will automatically pull from the doc if provided.</description>
+    </property>
+    <property>
+      <property-name>doc</property-name>
+      <property-class>java.lang.Object</property-class>
+      <description>Use a computed value and use the code: &#xd;
+return document1;&#xd;
+That will associated the backend document with this form and make everything automtaic.</description>
+    </property>
+    <property>
+      <property-name>customAction</property-name>
+      <property-class>string</property-class>
+      <display-name>Custom Action</display-name>
+      <description>Only valid when action = Custom.  This is the action used when the form is submitted.</description>
+    </property>
+    <property>
+      <property-name>dbPath</property-name>
+      <property-class>string</property-class>
+      <display-name>Database Path</display-name>
+      <description>Optionally specify the path.</description>
+    </property>
+    <property>
+      <property-name>updateViewName</property-name>
+      <property-class>string</property-class>
+      <display-name>Update view name</display-name>
+      <description>Optional, enter the name of the view to use in replace of /0/ when doing updates.  Use with a view and a form formula to submit an alternate form from the base form on the underlying document.  This is ignored if using a Custom action.</description>
+    </property>
+    <property>
+      <property-name>formMethod</property-name>
+      <property-class>string</property-class>
+      <display-name>Form Method</display-name>
+      <description>Optionally specify GET to alter the default POST action for form submit.</description>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>post&#xd;
+get</editor-parameter>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>fieldPlugins</property-name>
+      <property-class>java.lang.Object</property-class>
+      <display-name>Field Plugins</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.designer.domino.client.script.editor</editor>
+        </designer-extension>
+      </property-extension>
+      <description>Enter a valid JSON object with entries for each field that needs plug in(s) added.</description>
+    </property>
+    <property>
+      <property-name>formID</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <designer-extension>
+          <visible>return false;</visible>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>showWidgets</property-name>
+      <property-class>boolean</property-class>
+      <display-name>Show Widgets</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+          <visible>return false;</visible>
+        </designer-extension>
+      </property-extension>
+      <description>True uses widgets for controls automatically.</description>
+    </property>
+    <property>
+      <property-name>selectDisplay</property-name>
+      <property-class>string</property-class>
+      <display-name>Select UI Display</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>Default&#xd;
+No Widget&#xd;
+No Widget For Mobile</editor-parameter>
+        </designer-extension>
+      </property-extension>
+    </property>
+  </composite-component>
+</faces-config>

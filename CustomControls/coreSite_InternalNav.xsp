@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+	<!-- CONTENT_NAV_BEGIN -->
+
+	<xp:this.beforePageLoad><![CDATA[#{javascript:
+if( viewScope.htmlheadSiteAudience && viewScope.htmlheadSiteAudience.indexOf('v18') >= 0 ){
+	context.setSessionProperty("xsp.html.doctype", '<!DOCTYPE html>');
+} else {
+	context.setSessionProperty("xsp.html.doctype", '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">');
+}
+
+
+}]]></xp:this.beforePageLoad>
+	<nav role="navigation" aria-labelledby="ibm-pagetitle-h1">
+													<div id="ibm-content-nav">
+
+
+<xp:text escape="false" disableTheme="true">
+					<xp:this.value><![CDATA[#{javascript:
+var tmpConfig = compositeData.config || viewScope.siteNav.config || {};
+if( !tmpConfig.tabs ) return "";
+if( viewScope.htmlheadSiteAudience && viewScope.htmlheadSiteAudience.indexOf('v18') >= 0 ){
+	return "";
+}
+var tmpDBPath = XPage.getBaseURL();
+
+ 
+var tmpMarkup = "";
+var tmpTabs = tmpConfig.tabs;
+var tmpSubTabs = false;
+
+var tmpCoreActiveTab = false;
+var tmpCoreActiveSubTab = false;
+
+if (viewScope.siteNav){
+  var tmpSiteNav = viewScope.siteNav;
+  tmpCoreActiveTab = tmpSiteNav.activeTab
+  tmpCoreActiveSubTab = tmpSiteNav.activeSubTab
+   
+
+
+}
+
+for( var aEntry in tmpTabs){
+	var tmpTab = tmpTabs[aEntry];
+
+	//--- get active tab from component first ... then config ... correct?
+	var tmpATab = compositeData.activeTab || tmpConfig.activeTab || tmpCoreActiveTab || '';
+
+	tmpTab.isActive = (!tmpATab) ? false : (tmpTab.name == tmpATab); 
+
+	//--- if there are sub tabs, set them for later processing
+	if( tmpTab.isActive && tmpTab.tabs ) tmpSubTabs = tmpTab.tabs;
+	
+	var tmpClass = (tmpTab.isActive) ? (' class="ibm-active" ') : ('');
+	var tmpARIASel = (tmpTab.isActive) ? (' aria-selected="true" ') : ('');
+	
+	var tmpOnClick = (tmpTab.onclick || tmpTab.onClick || false);
+	if( tmpOnClick ){
+		tmpOnClick = ' onclick="' + tmpOnClick + ';return false;" ' 	
+	}
+	tmpOnClick = tmpOnClick || '';
+
+	var tmpHref = (tmpTab.href || false); // use '#' if href needed
+	if( tmpHref ){
+		tmpHref = tmpHref.replace('[tmpBaseURL]', tmpDBPath);
+		tmpHref = ' href="' + tmpHref + '" ' 	
+	}
+	tmpHref = tmpHref || '';
+
+	var tmpTabMarkup = '<li role="presentation" ' + tmpClass + '><a ' + tmpARIASel + ' role="tab"' + tmpOnClick + tmpHref + '>' + tmpTab.text + '</a></li>';
+	tmpMarkup += tmpTabMarkup;
+}
+
+var tmpPriTabMarkup = '<div id="ibm-primary-tabs"><ul class="ibm-tabs" role="tablist">' +  tmpMarkup + '</ul></div>'
+
+if( !tmpSubTabs ) return tmpPriTabMarkup;
+//--- process sub tabs
+
+tmpTabs = tmpSubTabs;
+tmpMarkup = ""
+
+for( var aEntry in tmpTabs){
+	var tmpTab = tmpTabs[aEntry];
+	//--- get active tab from component first ... then config ... correct?
+	var tmpATab = compositeData.activeSubTab || tmpConfig.activeSubTab || tmpCoreActiveSubTab || '';
+	tmpTab.isActive = (!tmpATab) ? false : (tmpTab.name == tmpATab); 
+	var tmpClass = (tmpTab.isActive) ? (' class="ibm-active" ') : ('');
+	var tmpARIASel = (tmpTab.isActive) ? (' aria-selected="true" ') : ('');
+
+	var tmpOnClick = (tmpTab.onclick || tmpTab.onClick || false);
+	if( tmpOnClick ){
+		tmpOnClick = ' onclick="' + tmpOnClick + ';return false;" ' 	
+	}
+	tmpOnClick = tmpOnClick || '';
+
+	var tmpHref = (tmpTab.href || false); // use '#' if href needed
+	if( tmpHref ){
+		tmpHref = tmpHref.replace('[tmpBaseURL]', tmpDBPath);
+		tmpHref = ' href="' + tmpHref + '" ' 	
+	}
+	tmpHref = tmpHref || '';
+
+	var tmpTabMarkup = '<li role="presentation" ' + tmpClass + '><a ' + tmpARIASel + ' role="tab" ' + tmpOnClick + tmpHref + '>' + tmpTab.text + '</a></li>';
+	tmpMarkup += tmpTabMarkup;
+}
+
+var tmpSubTabMarkup = '<div id="ibm-secondary-tabs"><ul class="ibm-tabs" role="tablist">' +  tmpMarkup + '</ul></div>'
+	
+return tmpPriTabMarkup + tmpSubTabMarkup;
+
+}]]></xp:this.value>
+				</xp:text>
+				
+								
+				
+				
+																
+							</div>
+							
+									
+												
+					</nav>
+	
+	<!-- CONTENT_NAV_END -->
+	</xp:view>

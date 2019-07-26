@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view
+	xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+	
+	<xp:panel>
+		
+		<h3 class="ibm-h3 ibm-light ibm-bold ibm-textcolor-blue-50">
+			<xp:text
+				escape="false"
+				disableTheme="true">
+				<xp:this.value><![CDATA[#{javascript:
+		if (viewScope.formSpecs.sections.optional.title == '' ){
+		return 'Badge information';	
+	}
+	var tmpRet = '';
+	tmpRet += '' + viewScope.formSpecs.sections.optional.title;
+	return tmpRet;
+	}]]></xp:this.value>
+			</xp:text>
+		</h3>
+		<xp:text
+			escape="false"
+			disableTheme="true">
+			<xp:this.value><![CDATA[#{javascript:
+	if (viewScope.formSpecs.sections.optional.message == '' ){
+		return '';	
+	}
+	var tmpRet = '<p>';
+	tmpRet += '' + viewScope.formSpecs.sections.optional.message;
+	tmpRet += "</p>";
+	return tmpRet;
+		
+}]]></xp:this.value>
+		</xp:text>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q1"
+			fieldLabel="Q1">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q1'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q2"
+			fieldLabel="Q2">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q2'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q3"
+			fieldLabel="Q3">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q3'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q4"
+			fieldLabel="Q4">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q4'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q5"
+			fieldLabel="Q5">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q5'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q6"
+			fieldLabel="Q6">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q6'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q7"
+			fieldLabel="Q7">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q7'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q8"
+			fieldLabel="Q8">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q8'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q9"
+			fieldLabel="Q9">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q9'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q10"
+			fieldLabel="Q10">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q10'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q11"
+			fieldLabel="Q11">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q11'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q12"
+			fieldLabel="Q12">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q12'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q13"
+			fieldLabel="Q13">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q13'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q14"
+			fieldLabel="Q14">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q14'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+		<xc:coreSiteField
+			isRequired="false"
+			labelPos="form default"
+			controlType="Text"
+			fieldName="optional_q15"
+			fieldLabel="Q15">
+			<xc:this.rendered><![CDATA[#{javascript:try {
+	return viewScope.formSpecs.fields['optional_q15'].hidden !== true; 
+} catch(ex){
+	
+}
+return false;}]]></xc:this.rendered>
+		</xc:coreSiteField>
+	</xp:panel>
+</xp:view>

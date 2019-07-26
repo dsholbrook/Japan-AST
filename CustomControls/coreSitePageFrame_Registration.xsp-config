@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSitePageFrame_Registration</component-type>
+    <composite-name>coreSitePageFrame_Registration</composite-name>
+    <composite-file>/coreSitePageFrame_Registration.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&lt;div style="border:solid 2px:black;"&gt;&#xd;
+&#xd;
+&lt;h3&gt;&lt;%=this.pageTitle || this.navID || "Core Site - Page Frame"%&gt;&lt;/h3&gt;&#xd;
+&lt;p style="color:#222222"&gt;Drag a panel or &lt;b&gt;coreSiteIBMContentLayout&lt;/b&gt; control into the area below.  &lt;/p&gt;&#xd;
+&lt;%=(this.navID) ? "&lt;p style='color:blue'&gt;&lt;b&gt;Related Navigational Area:&lt;/b&gt;" + this.navID + "&lt;br /&gt;* Use the &lt;b&gt;coreSiteNavContentLayout&lt;/b&gt; control to automatically the standard sidebar.&lt;/p&gt;" : "If your going to use a navID to link this page to a set of tabs, then use the &lt;b&gt;coreSiteNavContentLayout&lt;/b&gt; control which includes the standard sidebar."%&gt;&#xd;
+&#xd;
+&#xd;
+&lt;p&gt;&#xd;
+&lt;xp:callback facetName="facet_content_main" &gt;&lt;/xp:callback&gt;&#xd;
+&lt;/p&gt;&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>Website UI</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>pageTitle</property-name>
+      <property-class>string</property-class>
+      <display-name>Page TItle</display-name>
+    </property>
+    <property>
+      <property-name>siteName</property-name>
+      <property-class>string</property-class>
+      <display-name>Site Name</display-name>
+    </property>
+    <property>
+      <property-name>pageSubText</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>pageSubTitle</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>pageImage</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>leadspaceType</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>Tall&#xd;
+Short</editor-parameter>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>autoInitialize</property-name>
+      <property-class>boolean</property-class>
+      <display-name>Auto Initialize?</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+          <default-value>true</default-value>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>navID</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>tabID</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>subTabID</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>leadspaceBGImage</property-name>
+      <property-class>string</property-class>
+      <display-name>Leadspace Background Image</display-name>
+      <description>Optional, used for the faded background header.</description>
+    </property>
+    <property>
+      <property-name>leadspaceStyle</property-name>
+      <property-class>string</property-class>
+      <description>Example: &#xd;
+min-height: 71px;    padding-bottom: 72px;</description>
+      <display-name>Style for leadspead header</display-name>
+    </property>
+    <property>
+      <property-name>includeJSMustache</property-name>
+      <property-class>boolean</property-class>
+      <display-name>Include Mustache</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+          <visible>return false;</visible>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>includeDojo</property-name>
+      <property-class>boolean</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>leadspaceBGColor</property-name>
+      <property-class>string</property-class>
+      <display-name>Leadspace Background Color</display-name>
+    </property>
+  </composite-component>
+</faces-config>

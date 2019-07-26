@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteNavContentLayout</component-type>
+    <composite-name>coreSiteNavContentLayout</composite-name>
+    <composite-file>/coreSiteNavContentLayout.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&lt;div style="border:solid 2px:black;"&gt;&#xd;
+&lt;p style="color:#222222"&gt;&#xd;
+&lt;xp:callback facetName="facet_content_main" &gt;&lt;/xp:callback&gt;&#xd;
+&lt;br /&gt;Drag a panel into the above area for the main content on this page.&lt;/p&gt;&#xd;
+&lt;h2&gt;Optional custom sidebar content&lt;/h2&gt;&#xd;
+&lt;h4&gt;Custom Content - Above the sidebar:&lt;/h4&gt;&#xd;
+&lt;p&gt;&#xd;
+&lt;xp:callback facetName="facet_sidebar_top" &gt;&lt;/xp:callback&gt;&#xd;
+&lt;/p&gt;&#xd;
+&lt;h4&gt;Custom Content - Below the sidebar:&lt;/h4&gt;&#xd;
+&lt;p&gt;&#xd;
+&lt;xp:callback facetName="facet_sidebar_bottom" &gt;&lt;/xp:callback&gt;&#xd;
+&lt;/p&gt;&#xd;
+&#xd;
+&lt;/div&gt;&#xd;
+&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>Website UI</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>colLayout</property-name>
+      <property-class>string</property-class>
+      <display-name>Column Layout of the page</display-name>
+    </property>
+  </composite-component>
+</faces-config>

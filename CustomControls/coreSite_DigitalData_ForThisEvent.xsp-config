@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSite_DigitalData_ForThisEvent</component-type>
+    <composite-name>coreSite_DigitalData_ForThisEvent</composite-name>
+    <composite-file>/coreSite_DigitalData_ForThisEvent.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>false</in-palette>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>config</property-name>
+      <property-class>java.lang.Object</property-class>
+      <display-name>Configuration Object</display-name>
+    </property>
+    <property>
+      <property-name>activeTab</property-name>
+      <property-class>string</property-class>
+      <display-name>Active Tab Name</display-name>
+      <property-extension>
+        <designer-extension>
+          <default-value/>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>activeSubTab</property-name>
+      <property-class>string</property-class>
+      <display-name>Active Sub Tab Name</display-name>
+    </property>
+  </composite-component>
+</faces-config>

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteAttachmentsUI</component-type>
+    <composite-name>coreSiteAttachmentsUI</composite-name>
+    <composite-file>/coreSiteAttachmentsUI.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;div style="border:solid 1px:blue;width:500px"&gt;&#xd;
+&lt;h2&gt;File attachments&lt;/h2&gt;&#xd;
+&lt;p&gt;Custom Control - Provides the UI needed to add / remove attachments.  Link to document edit mode to control the UI.  See docs for details.&lt;/p&gt;&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>Website UI</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>DisplayOnly</property-name>
+      <property-class>boolean</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+      <display-name>Display Only?</display-name>
+    </property>
+    <property>
+      <property-name>ShowAddMoreOption</property-name>
+      <property-class>boolean</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+      <display-name>Show Add More Option</display-name>
+    </property>
+  </composite-component>
+</faces-config>

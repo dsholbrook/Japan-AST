@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteShowFieldValue</component-type>
+    <composite-name>coreSiteShowFieldValue</composite-name>
+    <composite-file>/coreSiteShowFieldValue.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;span style="margin:2px;border:dashed 1px:blue;padding:2px;color:blue"&gt;&#xd;
+Field: &#xd;
+&lt;%=this.fieldName || "No Field Name"%&gt;&#xd;
+&lt;/span&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>Website UI</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>fieldName</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <required>true</required>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>defaultValue</property-name>
+      <property-class>string</property-class>
+    </property>
+  </composite-component>
+</faces-config>

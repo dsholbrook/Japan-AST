@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+	
+	<xp:this.beforePageLoad><![CDATA[#{javascript:
+var tmpID = compositeData.unid || '';
+
+/*
+if( compositeData.showWidgets === true ){
+	viewScope.showWidgets = true;
+}
+*/
+
+if( compositeData.selectDisplay === "No Widget" ){
+	viewScope.selectWidgets = false;
+} else if( compositeData.selectDisplay === "No Widget For Mobile" ){
+	viewScope.selectWidgets = !viewScope.isMobile;
+}
+
+var tmpContextURL = context.getUrl().getQueryString();
+
+XPage.addData('cxurl',tmpContextURL);
+XPage.addData('clurl',view.getRequestUrl());
+
+XPage.addData('formShowWidgets', viewScope.showWidgets);
+
+var tmpDoc = compositeData.doc;
+if( !tmpDoc ){
+	//--- no document, check for document1
+	try {
+
+		tmpDoc = document1;
+		compositeData.doc = tmpDoc;
+	} catch (ex) {
+		//ok - just checking	
+	}
+}
+
+if( !compositeData.action ){
+	compositeData.action = 'Default';
+};
+
+//--- Assure we have a NotesDocument
+if( tmpDoc && tmpDoc.getDocument ){
+	tmpDoc = tmpDoc.getDocument();
+}
+
+//--- Get UNID from the NotesDocument if needed
+if (tmpDoc && tmpID == ''){
+	tmpID = tmpDoc.getUniversalID();
+}
+
+//--- If we have a document but not form name, set from the document provided
+if (tmpDoc && !compositeData.formName ){
+	compositeData.formName = tmpDoc.getItemValueString("Form");
+	
+}
+
+
+//--- Used to tell the fields inside the facet what the current document in use is
+//--- used to set values, etc.
+viewScope.current__FormLoadDoc = compositeData.doc;
+
+var tmpFormName = compositeData.formName;
+
+var tmpDB = session.getCurrentDatabase();
+var tmpDBPath = facesContext.getExternalContext().getRequestContextPath();
+
+viewScope.dbPath = tmpDBPath;
+//--- Used to tell the fields inside the facet what the current related form is
+viewScope.coreCurrentFormName = tmpFormName;
+
+var tmpAction = ''; 
+var tmpViewName = compositeData.updateViewName || '0';
+
+//--- Use a user defined action or build it automatically from the details provided
+
+if( compositeData.action == 'Custom' && compositeData.customAction){
+	tmpAction = compositeData.customAction;	
+} else if( compositeData.action == 'Create' || (compositeData.doc != null && compositeData.doc.isNewNote()) || (compositeData.action == 'Default' && !compositeData.doc && tmpFormName) ){
+	tmpAction = tmpDBPath + '/' + tmpFormName + '?CreateDocument';	
+} else {
+	tmpAction = tmpDBPath + '/' + tmpViewName + '/' + tmpID + '?savedocument';	
+}
+
+//--- Determine the class to use for this form, default to the column format.
+var tmpClass = compositeData.formIBMClass || 'ibm-column-form';
+
+compositeData.formID = tmpFormName;
+
+//--- Define the object that defines this form
+var tmpSpecs = {
+	formName: tmpFormName,
+	dbPath: '',
+	action: tmpAction,
+	ibmClass: tmpClass
+}
+
+tmpSpecs.showWidgets = viewScope.showWidgets;
+
+
+//--- Add specs to the XPage for later processing as needed
+XPage.addForm(tmpSpecs);
+
+}]]></xp:this.beforePageLoad>
+	<xp:this.resources>
+		<xp:script src="/CoreWebCommon.jss" clientSide="false"></xp:script>
+	</xp:this.resources>
+
+<style>
+
+    
+div.ibm-selectlist-styled:after {
+    background-color: white;
+}
+
+div.ibm-selectlist-styled {
+    padding: 0px;
+    margin:0px;
+    width:100%;
+}
+
+.ibm-column-form .ibm-input-group label, .ibm-row-form .ibm-input-group label {
+    padding-left: 4px;
+}
+
+	
+</style>
+
+	<xp:scriptBlock>
+			<xp:this.value><![CDATA[
+
+
+var tmpFormID = '#{javascript: compositeData.formID || ""}';
+
+
+window.coreSetup = window.coreSetup || {formPlugins:{}}
+var tmpFieldPlugins = #{javascript: compositeData.fieldPlugins || false};
+
+if( tmpFormID && tmpFieldPlugins ){
+	window.coreSetup.formPlugins[tmpFormID] = tmpFieldPlugins;
+}
+
+//--- In case V18 radio/check widgets are in use - run field state on widget change
+if( typeof(jQuery) != 'undefined' ){
+	jQuery(
+		function(){
+			$("input").on('ifChanged', function (e) {
+				var $tmpFld = $(e.target);
+				
+				 
+				var tmpName = $tmpFld.attr('name');
+				var tmpFieldID = $tmpFld.attr('id');
+				var tmpDebug = '';
+				//core.data.debug = '';
+				if( core && core.form ){
+					//console.log('val is ' + core.form.getFieldValue(tmpName));
+					var tmpFormField = core.form.formObj[tmpName];
+					//console.log('tmpFieldID ' + tmpFieldID );
+					
+					//core.data.debug += '<br />ID: ' + tmpFieldID ;
+					
+					var tmpFld = core.byId(tmpFieldID)
+					//core.form.formObj[tmpName][3].checked = e.target.checked;
+					//core.data.debug += '  > Chk ? ' + tmpFld.checked + " vs " + core.form.formObj[tmpName][3].checked; 
+					//console.log(tmpFld.checked);
+					//console.log(' -vs- ');
+					//console.log(core.form.formObj[tmpName][3].checked);
+					
+					//console.log('tmpFormField ' + tmpFormField );
+					core.form.runFieldState(tmpName);
+					//On the Android phone, the trigger happens before the input has the value
+					//this settimeout gives it 200 ms to update the value :/ 
+					//setTimeout(function(){ core.form.runFieldState(tmpName); }, 300);
+				}
+				//core.form.setFieldValue('demo_cat_other', core.data.debug);				
+			});	
+		})
+}
+
+
+			]]></xp:this.value>
+	</xp:scriptBlock>
+
+
+	<xp:text escape="false" disableTheme="true">
+
+		<xp:this.value><![CDATA[#{javascript:
+		
+var tmpFormName = compositeData.formName;
+var tmpSpec = XPage.getForm(tmpFormName);
+var tmpFormMethod = compositeData.formMethod || 'post'
+//--- only encode for posts
+var tmpEncodeType = (tmpFormMethod == 'get') ? '' : 'enctype="multipart/form-data" ';
+
+var tmpOutS = '<form id="form-' + tmpSpec.formName + '" class="' + tmpSpec.ibmClass + '" ' + tmpEncodeType + ' method="' + tmpFormMethod + '" action="' + tmpSpec.dbPath + tmpSpec.action ;
+var tmpOutE = '">';
+
+tmpOutS + tmpOutE}]]></xp:this.value>
+	</xp:text>
+	<xp:callback facetName="facet_FormArea"></xp:callback>
+	<xp:text escape="false" disableTheme="true">
+		<xp:this.value><![CDATA[#{javascript:var tmpOut = '</form>';
+var tmpFieldsOut = '<input type="hidden" name="en_demo_field_replace" value="SOME VALUE" /> <br />';
+tmpFieldsOut + tmpOut}]]></xp:this.value>
+	</xp:text>
+
+
+</xp:view>

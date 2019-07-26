@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+<xp:this.resources>
+
+<xp:script clientSide="true">
+
+<xp:this.contents><![CDATA[
+
+digitalData = {
+				page: {
+					category: {
+						primaryCategory: 'SB03'
+					},
+					pageInfo: {
+						effectiveDate: '2015-12-01',
+						expiryDate: '2020-12-31',
+						language: 'en-US',
+						publishDate: '2015-12-01',
+						publisher: 'IBM Corporation',
+						version: 'v18',
+						ibm: {
+							contentDelivery: 'Corelan Library',
+							contentProducer: 'Corelan Library',
+							country: 'US',
+							ibmDynamicCm: false,
+							owner: 'Joseph Francis/Boca Raton/Contr/IBM',
+							siteID: 'SPSEvent16',
+							subject: 'EV100',
+							type: 'CTA00'
+						}
+					}
+				}
+			};
+
+/*
+digitalData.page.pageInfo.nc = {
+	            id : {
+                    form : "form-Registration",                    
+                    email : "en_email",
+                    privacyDiv : "privacyid",
+                    country : "countryRes"
+                },
+                questionType : "",
+                questionChoice : "",
+                pageDesc : "Contact IBM form to send email feedback or questions to IBM in the United States",
+                offerCode : "",
+                dcSubject : "IM520",
+                granular : "off",
+                footer : "off",
+                preferenceareas : "",
+                trial : "",
+                Submit : "true",
+                SaveToGECS : "true"
+}
+
+*/
+	
+			]]></xp:this.contents>
+</xp:script>
+
+</xp:this.resources>	
+</xp:view>

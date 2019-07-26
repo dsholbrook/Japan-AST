@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+
+<xp:text escape="false" disableTheme="true">
+<xp:this.value><![CDATA[#{javascript:
+var tmpRet = '';
+try {
+	tmpRet = compositeData.defaultValue || '';
+	if(tmpRet == null) tmpRet = '';
+	
+	var tmpKey = compositeData.textName;
+	if(tmpKey == null) tmpKey = '';
+	if(viewScope.langStrings && viewScope.langStrings[tmpKey]){
+		tmpRet = viewScope.langStrings[tmpKey] || tmpRet;
+	}	
+
+} catch(ex){
+	tmpRet = "ERROR: " + ex.toString();
+}
+
+return tmpRet;
+
+}]]></xp:this.value></xp:text>
+
+
+</xp:view>

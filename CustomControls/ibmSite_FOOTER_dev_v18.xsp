@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+
+
+<!-- v17 SSIs: version 1.1 -->
+<!-- FOOTER_BEGIN -->
+<div id="ibm-footer-module">
+</div>
+<footer role="contentinfo" aria-label="IBM">
+<div id="ibm-footer">
+<h2 class="ibm-access">Footer links
+</h2>
+<ul>
+<li><a href="http://www.ibm.com/contact/">Contact</a></li>
+<li><a href="http://www.ibm.com/privacy/">Privacy</a></li>
+<li><a href="http://www.ibm.com/legal/">Terms of use</a></li>
+</ul>
+</div>
+</footer>
+
+<!-- FOOTER_END -->
+
+
+
+
+</xp:view>

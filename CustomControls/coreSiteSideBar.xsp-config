@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteSideBar</component-type>
+    <composite-name>coreSiteSideBar</composite-name>
+    <composite-file>/coreSiteSideBar.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>false</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;div style="border:solid 1px:blue;width:500px"&gt;&#xd;
+&lt;h2&gt;Standard sidebar&lt;/h2&gt;&#xd;
+&lt;p&gt;Custom Control - Shows details based on the navigation are the containing page is related to.&lt;/p&gt;&#xd;
+&lt;h3&gt;To use&lt;/h3&gt;&#xd;
+&lt;p&gt;Add to the right facet of your coreSitePageFrame when relating he page frame to a Navigational Area (&lt;b&gt;navID&lt;/b&gt; property).&lt;/p&gt;&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+      </designer-extension>
+    </composite-extension>
+  </composite-component>
+</faces-config>

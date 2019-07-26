@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+				<xp:panel
+					rendered="#{javascript:(viewScope.debugOutput || viewScope.debugOutputText)}">
+					<h3>VIEWSCOPE DEBUG</h3>
+				</xp:panel>
+
+				<xp:text escape="false" disableTheme="true"
+				value="#{javascript:return viewScope.debugOutput}">
+			</xp:text>
+			<xp:br></xp:br>
+			<xp:br></xp:br>
+			<xp:text escape="true" value="#{javascript:return viewScope.debugOutputText || '';}"></xp:text></xp:view>

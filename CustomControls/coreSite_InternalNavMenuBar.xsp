@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+	<xp:this.beforePageLoad><![CDATA[#{javascript:
+
+viewScope.navConfig = compositeData.config || viewScope.siteNav.config || {};
+		
+}]]></xp:this.beforePageLoad>
+	
+	
+	
+	<xp:panel>
+		<xp:this.rendered><![CDATA[#{javascript:
+
+if( viewScope.htmlheadSiteAudience && viewScope.htmlheadSiteAudience.indexOf('v18') < 0 ){
+	return false;
+}
+var tmpConfig = compositeData.config || viewScope.siteNav.config || {};
+
+
+if( !(tmpConfig && tmpConfig.tabs && tmpConfig.tabs.length > 0) ) return false;
+
+
+return true;}]]></xp:this.rendered>
+		<div class="ibm-sitenav-menu-container">
+		
+    <xp:text escape="false" disableTheme="true">
+    <xp:this.value><![CDATA[#{javascript:
+    	var tmpConfig = compositeData.config || viewScope.siteNav.config || {};
+    	
+    	
+	var tmpTabs = tmpConfig.tabs;
+	if( !tmpTabs ) return "";
+	var tmpDBPath = XPage.getBaseURL();
+	
+	 
+	var tmpMarkup = "";
+	
+	//var tmpCoreActiveTab = false;
+	//var tmpCoreActiveSubTab = false;
+	
+	var tmpCoreActiveTab = viewScope.siteNav.activeTab
+	var tmpCoreActiveSubTab = viewScope.siteNav.activeSubTab
+	
+	var tmpCaption = tmpConfig.caption || '';
+	
+	var tmpOut = '';
+	
+	tmpOut += '<div class="ibm-sitenav-menu-name"><a href="javascript:void(0)">' + tmpCaption + '</a></div>'
+
+	tmpOut += '<div class="ibm-sitenav-menu-list"><ul role="menubar">';
+		
+	for( var aEntry in tmpTabs){
+		var tmpTab = tmpTabs[aEntry];
+	
+		var tmpHasSubTabs = ( tmpTab.tabs && tmpTab.tabs.length > 0 );
+		//--- get active tab from component first ... then config ... correct?
+		var tmpATab = compositeData.activeTab || tmpConfig.activeTab || tmpCoreActiveTab || '';
+	
+		tmpTab.isActive = (!tmpATab) ? false : (tmpTab.name == tmpATab); 
+	
+		//--- if there are sub tabs, set them for later processing
+		if( tmpTab.isActive && tmpTab.tabs ) tmpSubTabs = tmpTab.tabs;
+		
+		var tmpClass = (tmpTab.isActive) ? ('ibm-highlight') : ('');
+		if( tmpHasSubTabs ){
+			tmpClass += ' ibm-haschildlist'
+		}
+		if( tmpClass ){
+			tmpClass = 'class="' + tmpClass + '"';
+		}
+		
+		var tmpARIASel = (tmpTab.isActive) ? (' aria-selected="true" ') : ('');
+		
+		var tmpOnClick = (tmpTab.onclick || tmpTab.onClick || false);
+		if( tmpOnClick ){
+			tmpOnClick = ' onclick="' + tmpOnClick + ';return false;" ' 	
+		}
+		tmpOnClick = tmpOnClick || '';
+	
+		var tmpHref = (tmpTab.href || false); // use '#' if href needed
+		if( tmpHref ){
+			tmpHref = tmpHref.replace('[tmpBaseURL]', tmpDBPath);
+			tmpHref = ' href="' + tmpHref + '" ' 	
+		}
+		tmpHref = tmpHref || '';
+		var tmpItemText = tmpTab.text || '';
+		
+		var tmpTabMarkup = '';
+		if( tmpHasSubTabs ){
+			tmpItemText = '<span role="menuitem">' + tmpItemText + '</span>'
+			tmpTabMarkup = '<li role="presentation" ' + tmpClass + '>' + tmpItemText + '';
+		} else {
+			tmpTabMarkup = '<li role="presentation" ' + tmpClass + '><a ' + tmpARIASel + ' role="menuitem"' + tmpOnClick + tmpHref + '>' + tmpItemText + '</a>';
+		}
+		//--- add to output
+		tmpOut += tmpTabMarkup;
+		
+		tmpTabMarkup = '';
+		if( tmpHasSubTabs ){
+			var tmpSubTabs = tmpTab.tabs;
+			//--- if there are sub-tabs,create them here
+			tmpOut += '<ul role="menu">'
+
+//=========================================
+			for( var aEntry in tmpSubTabs){
+				var tmpSubTab = tmpSubTabs[aEntry];
+			
+				//--- get active tab from component first ... then config ... correct?
+				var tmpATab = compositeData.activeSubTab || tmpConfig.activeSubTab || tmpCoreActiveSubTab || '';
+			
+				tmpSubTab.isActive = (!tmpATab) ? false : (tmpSubTab.name == tmpATab); 
+			
+				//--- if there are sub tabs, set them for later processing
+				if( tmpSubTab.isActive && tmpSubTab.tabs ) tmpSubTabs = tmpSubTab.tabs;
+				
+				var tmpClass = (tmpSubTab.isActive) ? ('ibm-highlight') : ('');
+				if( tmpClass ){
+					tmpClass = 'class="' + tmpClass + '"';
+				}
+				
+				var tmpARIASel = (tmpSubTab.isActive) ? (' aria-selected="true" ') : ('');
+				
+				var tmpOnClick = (tmpSubTab.onclick || tmpSubTab.onClick || false);
+				if( tmpOnClick ){
+					tmpOnClick = ' onclick="' + tmpOnClick + ';return false;" ' 	
+				}
+				tmpOnClick = tmpOnClick || '';
+			
+				var tmpHref = (tmpSubTab.href || false); // use '#' if href needed
+				if( tmpHref ){
+					tmpHref = tmpHref.replace('[tmpBaseURL]', tmpDBPath);
+					tmpHref = ' href="' + tmpHref + '" ' 	
+				}
+				tmpHref = tmpHref || '';
+				var tmpItemText = tmpSubTab.text || '';
+				
+				var tmpSubTabMarkup = '';
+				tmpSubTabMarkup = '<li role="presentation" ><a ' + tmpClass + '' + tmpARIASel + ' role="menuitem"' + tmpOnClick + tmpHref + '>' + tmpItemText + '</a>';
+				//--- add to output
+				tmpOut += tmpSubTabMarkup;
+			}
+		//=========================================
+		
+			tmpOut += '</ul>'
+		}	
+		
+		
+	//--- End the main tab LI
+	tmpOut += '</li>';
+	
+}
+
+
+
+
+		
+				
+		tmpOut += ''
+		tmpOut += ''
+		tmpOut += '</ul></div>'
+		return tmpOut;    	
+    }]]></xp:this.value></xp:text>
+    
+    
+            
+            
+        
+</div>    
+
+		
+	</xp:panel>
+	
+	
+<script>
+	if( typeof(IBMCore) != 'undefined' ){
+	    IBMCore.common.util.config.set({
+	        masthead: {
+	            type: 'alternate' 
+	        }
+	    });
+    }
+</script>
+
+
+	
+	
+	
+	</xp:view>

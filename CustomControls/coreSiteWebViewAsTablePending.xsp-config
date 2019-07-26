@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteWebViewAsTablePending</component-type>
+    <composite-name>coreSiteWebViewAsTablePending</composite-name>
+    <composite-file>/coreSiteWebViewAsTablePending.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;div style="border:solid 1px:blue;width:500px"&gt;&#xd;
+&lt;h2 style="color:blue;"&gt;Notes View as IBM Table&lt;/h2&gt;&#xd;
+&lt;p  style="font-size:16px;color:black;"&gt;See options to make sortable, add paging, etc.&lt;/p&gt;&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>Website UI</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>viewName</property-name>
+      <property-class>string</property-class>
+      <display-name>viewName</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor/>
+          <editor-parameter>Sent&#xd;
+Received&#xd;
+Meeting&#xd;
+Unread</editor-parameter>
+          <default-value/>
+        </designer-extension>
+        <required>true</required>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>columnCount</property-name>
+      <property-class>int</property-class>
+      <property-extension>
+        <designer-extension>
+          <visible>return false;</visible>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>columns</property-name>
+      <property-class>java.lang.Object</property-class>
+      <property-extension>
+        <designer-extension>
+          <visible>return false;</visible>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>overrides</property-name>
+      <property-class>java.lang.Object</property-class>
+    </property>
+    <property>
+      <property-name>dataInfo</property-name>
+      <property-class>boolean</property-class>
+      <display-name>Show Data Info</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>dataOrdering</property-name>
+      <property-class>boolean</property-class>
+      <display-name>Allow Data Ordering</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>dataPaging</property-name>
+      <property-class>boolean</property-class>
+      <display-name>Use Data Paging</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>dataSearching</property-name>
+      <property-class>boolean</property-class>
+      <display-name>Use Data Searching</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>caption</property-name>
+      <property-class>string</property-class>
+      <display-name>Caption</display-name>
+    </property>
+    <property>
+      <property-name>tableID</property-name>
+      <property-class>string</property-class>
+      <display-name>ID</display-name>
+    </property>
+    <property>
+      <property-name>showOnlyKey</property-name>
+      <property-class>string</property-class>
+      <display-name>Show Only Key</display-name>
+    </property>
+    <property>
+      <property-name>autoLink</property-name>
+      <property-class>string</property-class>
+      <display-name>Auto Create Link</display-name>
+    </property>
+    <property>
+      <property-name>showCheckboxes</property-name>
+      <property-class>boolean</property-class>
+      <display-name>Show Checkboxes</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+    </property>
+  </composite-component>
+</faces-config>

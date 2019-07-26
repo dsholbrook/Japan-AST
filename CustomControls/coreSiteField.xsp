@@ -1,0 +1,437 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+	<xp:this.beforePageLoad><![CDATA[#{javascript:var tmpFormName = viewScope.coreCurrentFormName;
+compositeData.formID = tmpFormName;
+
+var tmpFN = compositeData.fieldName;
+var tmpID = 'ff_' + tmpFN;
+
+
+
+//--- Support formSpecs in viewScope to override field details (used for profile / locale support)
+if (viewScope.formSpecs && viewScope.formSpecs.fields && viewScope.formSpecs.fields[tmpFN]){
+	var tmpFieldSpecs = viewScope.formSpecs.fields[tmpFN];
+	
+	if( tmpFieldSpecs.label ){ compositeData.fieldLabel = tmpFieldSpecs.label }date
+	if( typeof(tmpFieldSpecs.required) == 'boolean' ){ compositeData.isRequired = tmpFieldSpecs.required }	 	
+	if( typeof(tmpFieldSpecs.fieldName) == 'string' ){ compositeData.fieldName = tmpFieldSpecs.fieldName }
+	if( typeof(tmpFieldSpecs.orientation) == 'string' ){ compositeData.orientation = tmpFieldSpecs.orientation }
+		 	
+	if( tmpFieldSpecs.hidden === true){ 
+		compositeData.controlType = 'Hidden' 
+	} else if( tmpFieldSpecs.controlType ){
+		compositeData.controlType = tmpFieldSpecs.controlType
+	}
+	if( tmpFieldSpecs.list ){
+		var tmpList = tmpFieldSpecs.list;
+		compositeData.list = tmpList || compositeData.list || [];
+	}
+			
+	
+}
+
+
+
+var ibmVersion = "v17";
+
+if( viewScope.htmlheadSiteAudience && viewScope.htmlheadSiteAudience.indexOf('v18') >= 0 ){
+	ibmVersion = "v18"
+}
+
+XPage.addData("ibmVersion", ibmVersion);
+
+//if( viewScope.formInEditMode === false & compositeData.controlType!= 'Hidden'){
+//	compositeData.controlType = 'Display Only';
+//}
+
+
+//--- autoLoad
+if( (compositeData.autoLoad !== false) && compositeData.currentValue == null && viewScope.current__FormLoadDoc != null){
+
+	var tmpDataType = '';
+	if( compositeData.controlType == 'DatePicker' ){
+		tmpDataType = 'Date';
+	} 
+	
+	var tmpDocValue = XPage.getFieldValue(compositeData.fieldName, {doc:viewScope.current__FormLoadDoc, dataType:tmpDataType});
+ 	if( tmpDocValue != null ){
+	 	if( compositeData.controlType == 'Text Area' ){
+	 		if( XPage.isArray(tmpDocValue) ){
+	 			tmpDocValue = tmpDocValue.join("\n");
+	 		}
+		} 
+		compositeData.currentValue = tmpDocValue;
+ 	} 
+} 
+ 
+compositeData.controlType = compositeData.controlType || 'Text';
+ 
+var tmpFO = {
+	fieldName: compositeData.fieldName,
+	id: tmpID,
+	disableTrim: compositeData.disableTrim || false, 
+	controlType: compositeData.controlType || 'Text',
+	fieldLabel: compositeData.fieldLabel || '',
+	isRequired: compositeData.isRequired,	
+	requiredMessage: !compositeData.requiredMessage ? '' : (compositeData.requiredMessage || "" + (compositeData.fieldLabel || compositeData.fieldName))
+}
+
+if( tmpFO.controlType == 'DatePicker' ){
+	//tmpFO.isControl = true;
+}
+
+if( tmpFormName != '' ){
+	tmpFO.formName = tmpFormName;
+}
+
+if( compositeData.autoClearBlank != null ){
+	tmpFO.autoClearBlank = compositeData.autoClearBlank;
+} 
+
+XPage.addFieldSpec(tmpFO);
+
+}]]></xp:this.beforePageLoad>
+	<xp:this.resources>
+		<xp:script
+			src="/CoreWebCommon.jss"
+			clientSide="false">
+		</xp:script>
+	</xp:this.resources>
+	<xp:scriptBlock>
+		<xp:this.value><![CDATA[
+
+var tmpFormID = '#{javascript: compositeData.formID || ""}';
+var tmpFieldName = '#{javascript: compositeData.fieldName || ""}';
+
+
+
+var tmpUpdates = #{javascript: compositeData.pluginUpdates || false};
+var tmpValidations = #{javascript: compositeData.pluginValidations || false};
+var tmpTranslations = #{javascript: compositeData.pluginTranslations || false};
+
+
+
+if( tmpFieldName && ( tmpUpdates || tmpValidations || tmpTranslations ) ){
+	var tmpFormPlugins = window.coreSetup.formPlugins[tmpFormID]|| {};
+	var tmpPlugins = tmpFormPlugins[tmpFieldName] || {};
+	if( tmpUpdates ){
+		tmpPlugins.updates = tmpUpdates
+	};
+	if( tmpValidations ){
+		tmpPlugins.validations = tmpValidations
+	};
+	if( tmpTranslations ){
+		tmpPlugins.Translations = tmpTranslations
+	};
+	tmpFormPlugins[tmpFieldName] = tmpPlugins;
+	window.coreSetup.formPlugins[tmpFormID] = tmpFormPlugins;
+}
+
+
+			]]></xp:this.value>
+		<xp:this.rendered><![CDATA[#{javascript:var tmpUpdates = compositeData.pluginUpdates || false;
+var tmpValidations = compositeData.pluginValidations || false;
+var tmpTranslations = compositeData.pluginTranslations || false;
+
+return compositeData.controlType != 'Hidden' && (tmpUpdates || tmpValidations || tmpTranslations);}]]></xp:this.rendered>
+	</xp:scriptBlock>
+	<xp:text
+		escape="false"
+		disableTheme="true">
+		<xp:this.value><![CDATA[#{javascript:var tmpPStart = '<p';
+
+
+var tmpFieldNote = compositeData.fieldNote || '';
+
+if( tmpFieldNote != '' ){
+	tmpFieldNote = '<span class="ibm-item-note">' + tmpFieldNote + '</span>'
+}
+
+var tmpValidationArea = "";
+
+if( ibmVersion == 'v18' ){
+	var tmpErrorID = 'ffe_' + compositeData.fieldName;
+	tmpValidationArea = '<span style="display:none" id="' + tmpErrorID + '" class="ibm-item-note ibm-alert-link"></span>'
+}
+
+
+var tmpPEnd = tmpFieldNote + tmpValidationArea + '</p>';
+
+var tmpFieldName = compositeData.fieldName;
+
+var tmpSep = '';
+
+if(  compositeData.controlType == 'Checkbox' || compositeData.controlType == 'Radio'  ){
+	tmpPStart += ' class="clc-field-container ibm-form-elem-grp" ';
+	if( compositeData.orientation == "Vertical" ){
+		tmpSep = '<br />';
+	}
+} else {
+	tmpPStart += ' class="clc-field-container" ';
+}
+
+if ( compositeData.hiddenOnLoad === true ){
+	tmpPStart += ' style="display:none" '; 
+}
+
+tmpPStart += ' id="fldwrap-' + tmpFieldName+ '">';
+
+var tmpFieldLabel = compositeData.fieldLabel || '';
+var tmpIsTA = compositeData.controlType == 'Text Area';
+var tmpIsDisplayOnly = (compositeData.controlType == 'Display Only') || (viewScope.formInEditMode === false & compositeData.controlType!= 'Hidden');
+var tmpControl = tmpIsTA ? 'textarea' : 'input';
+var tmpIsCR = (compositeData.controlType == 'Checkbox' || compositeData.controlType == 'Radio');
+var tmpIsList = compositeData.controlType == 'ComboBox' || tmpIsCR;
+var tmpControlVal = tmpIsTA ? (compositeData.currentValue || ''): '';
+var tmpVal = compositeData.currentValue || '';
+var tmpFieldSpanAdd = '';
+var tmpLabelAttribs = '';
+var tmpAttribs = '';
+var tmpFieldMiscAttr = '';
+ 
+if( tmpIsCR ){
+	tmpLabelAttribs += '  class="ibm-form-grp-lbl" ';
+}else if( compositeData.controlType == 'DatePicker'){
+	var tmpFormat = compositeData.dateFormat || 'mmm dd yyyy';
+	tmpAttribs += ' data-widget="datepicker" size="20" ';
+	tmpAttribs += ' data-format="' + tmpFormat + '" ';	 
+} 
+
+var tmpDisplayOnlyValue = tmpVal;
+
+if( tmpIsList ){
+	var tmpSel = compositeData.list;
+	if( typeof tmpSel == 'string' ){
+		tmpSel = XPage.getList(tmpSel);
+	}
+
+	var tmpLen = 0;
+	if (tmpSel != null) {
+		tmpLen = tmpSel.length;
+	}	
+	
+	var tmpList = '';
+	if( compositeData.controlType == 'ComboBox'){
+		var tmpSelectText = 'Select one';
+		if( viewScope.formSpecs && viewScope.formSpecs.selectText ){
+			tmpSelectText = viewScope.formSpecs.selectText;
+		}
+		if( compositeData.allowMultiple ){
+			tmpSelectText = '';
+		}
+		tmpList = tmpSelectText == '' ? '' : '<option value="" ' + (tmpVal == '' ? ' selected="selected"' : '') + '>' + tmpSelectText + '</option>';
+		for( var i = 0 ; i < tmpLen ; i++){
+			var tmpSelVal = tmpSel[i];
+			var tmpSelLabel = tmpSelVal;
+			var tmpAliasPos = tmpSelVal.indexOfIgnoreCase('|');
+			if( tmpAliasPos >= 0 ){
+				tmpSelVal = tmpSelVal.mid(tmpAliasPos+1).trim();
+				tmpSelLabel = tmpSelLabel.left(tmpAliasPos).trim();
+			}
+
+			tmpList += '<option value="' + tmpSelVal + '"';
+			if ( tmpSelVal == tmpVal ){
+				tmpList += ' selected="selected" ';
+				if( tmpIsDisplayOnly ){
+					tmpDisplayOnlyValue = tmpSelLabel;
+				}
+			}  
+			tmpList += ' >'+ tmpSelLabel +'</option>';
+		}
+		tmpControlVal = tmpList;
+		tmpControl = 'select';
+	} else {
+		tmpControl = '';
+
+		if( typeof(tmpVal) != "string" && typeof(tmpVal) != "number" && tmpVal.length == 1 ){
+			tmpVal = "" + tmpVal[0];
+		}
+		
+		tmpFieldSpanAdd = ' class="ibm-input-group" ';
+		for( var i = 0 ; i < tmpLen ; i++){
+			var tmpSelVal = tmpSel[i];
+			var tmpSelLabel = tmpSelVal;
+			var tmpAliasPos = tmpSelVal.indexOfIgnoreCase('|');
+			if( tmpAliasPos >= 0 ){
+				tmpSelVal = tmpSelVal.mid(tmpAliasPos+1).trim();
+				tmpSelLabel = tmpSelLabel.left(tmpAliasPos).trim();
+			}
+
+			tmpList += '<input value="' + tmpSelVal + '"';
+			if ( tmpSelVal == tmpVal ){
+				tmpList += ' checked="true" ';
+				if( tmpIsDisplayOnly ){
+					//tmpDisplayOnlyValue = (tmpDisplayOnlyValue ||'') + ', ' + tmpSelLabel;
+				}
+			}  
+			var tmpItemID = tmpFieldName + "_" + i;
+			
+
+			if( compositeData.controlType == 'Radio' ){
+				tmpList += ' class="ibm-styled-radio"  ';
+			} else {
+				tmpList += ' class="ibm-styled-checkbox"  ';
+			}
+			tmpList += ' name="' + tmpFieldName + '" ';
+			tmpList += ' id="' + tmpItemID + '" ';
+			tmpList += ' type="' + compositeData.controlType.toLowerCase() + '" ';
+			tmpList += ' ><label id="ffl_' + tmpFieldName + '" for="' + tmpItemID + '">' + tmpSelLabel + '</label>' + tmpSep;
+		}
+		tmpControlVal = tmpList;
+	}
+	
+}
+
+var tmpFieldVal = compositeData.currentValue || '';
+
+if( compositeData.controlType == 'DatePicker' ){
+
+	var tmpDate = tmpFieldVal;
+	if( tmpDate ){
+		try {
+			var tmpMonth = tmpDate.getMonth()
+			var tmpYear = tmpDate.getYear() + 1900;
+			var tmpDay = '' + tmpDate.getDate();
+			if( tmpDay.length == 1 ){tmpDay = '0' + tmpDay};
+			var tmpMoDisp = @Replace(@Text(tmpMonth) , ["0","1","2","3","4","5","6","7","8","9","10","11"], ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"] );
+			tmpFieldVal = '' + tmpMoDisp + ' ' + tmpDay + ' ' + tmpYear;
+		} catch (ex) {
+			tmpFieldVal = ''	
+		}
+	
+	};
+}
+
+
+
+var tmpValDisp = (tmpIsTA || tmpIsList) ? '' : ' value="' + (tmpFieldVal) + '" ';
+if( tmpIsTA) {
+	if( compositeData.textAreaRows ){
+		tmpAttribs += ' rows="' + compositeData.textAreaRows + '" '
+	}
+	if( compositeData.textAreaCols ){
+		tmpAttribs += ' cols="' + compositeData.textAreaCols + '" '
+	}
+}
+ 
+if (compositeData.isRequired){
+	tmpAttribs += ' isRequired="true" requiredmsg="' + compositeData.requiredMessage + '" ';
+}
+
+if( tmpIsDisplayOnly ){
+	tmpFieldSpanAdd = ' id="' + 'fd_' + tmpFieldName + '" '; 
+}
+
+var tmpV18BR = ""
+if( ibmVersion == 'v18' ){
+	//no action now - needed BR at first
+}
+
+
+var tmpStyle = "";
+
+if( ibmVersion == "v18" ){
+	if( compositeData.fieldWidth ){
+		tmpStyle = "width:" + (compositeData.fieldWidth || 280) + "px;";
+	} else if( compositeData.controlType == 'DatePicker' ) {
+		tmpStyle = "width:200px;";
+	} else {
+		tmpStyle = "width:100%;";
+	}
+} else {
+	tmpStyle = "width:" + (compositeData.fieldWidth || 300) + "px;";
+}
+
+var tmpLabelBoldClass = 'ibm-bold';
+if (compositeData.labelNotBold === true ){
+	tmpLabelBoldClass = '';
+}
+
+
+var tmpReqText = (!tmpIsDisplayOnly && compositeData.isRequired) ? '<span class="ibm-required">*</span>' : '';
+var tmpOutL = '<label class="' + tmpLabelBoldClass + '" id="ffl_' + tmpFieldName + '" ' + tmpLabelAttribs + ' for="' + tmpFieldName + '" >' + tmpFieldLabel + tmpReqText + tmpFieldMiscAttr + '</label>' + tmpV18BR ;
+if( compositeData.labelPos == 'top' ){
+	tmpOutL += "";
+}
+var tmpFldSpan = '<span' + tmpFieldSpanAdd + '>';
+
+if( tmpFieldLabel == '' ){
+	tmpFldSpan = '';
+}
+
+if( compositeData.controlType == 'ComboBox' && viewScope.selectWidgets == false ){
+   tmpAttribs += ' data-init=false  '; 
+}
+if( compositeData.controlType == 'ComboBox' ){
+   tmpAttribs += ' data-minimum-results-for-search="0" '; 
+}
+if( compositeData.controlType == 'ComboBox' && compositeData.allowMultiple ){
+	tmpAttribs += ' multiple="multiple"';
+	//--- Allow placeholder for multiple type combo only ..
+	
+	//NOTE: >>> --- Not supported by select2 out of the box <<<
+	//--- ToDo: Figure out how to make select2 use this placeholder for the init config option placeholder
+	//       Northstar currently does the select2'ing, so have to override somehow
+	/*
+	if( (compositeData.placeholder) && compositeData.placeholder !== null ){
+		tmpAttribs += ' placeholder="' + compositeData.placeholder + '" '
+	}
+	*/	
+}
+
+var tmpInputType = "";
+if( compositeData.controlType == 'Text' || compositeData.controlType == 'DatePicker' || compositeData.controlType == 'Number' ){
+	tmpInputType = ' type="text" ';
+	if( (compositeData.placeholder) && compositeData.placeholder !== null ){
+		tmpAttribs += ' placeholder="' + compositeData.placeholder + '" '
+	}
+}
+ 
+var tmpOutS = '<' + tmpControl + tmpInputType + ' style="' + tmpStyle + '" name="' + tmpFieldName + '" id="ff_' + tmpFieldName + '" ' + tmpAttribs + tmpValDisp ;
+if ( compositeData.controlType == 'ComboBox' ){
+	tmpOutS += ' autocomplete="false" '
+
+}
+
+var tmpOutE = '>' + tmpControlVal;
+if( tmpControl != 'input'){
+	tmpOutE += '</' + tmpControl + '>';
+};
+var tmpFieldEnd = '</span>';
+if( tmpFieldLabel == '' ){
+	tmpFieldEnd = '';
+}
+
+if( tmpControl == '' ){
+	tmpOutS = '';
+	tmpOutE = tmpControlVal;
+}
+
+
+if( tmpIsDisplayOnly ){
+	if( typeof(tmpDisplayOnlyValue) == 'java.util.Vector' ){
+		tmpDisplayOnlyValue = XPage.toArray(tmpDisplayOnlyValue).join('</li><li>');
+		tmpDisplayOnlyValue = '<ul><li>' + tmpDisplayOnlyValue + '</li></ul>';	
+	}
+	
+}
+
+if( typeof(tmpFieldVal) == 'java.util.Vector' ){
+		tmpFieldVal = XPage.toArray(tmpFieldVal).join(', ');
+	}
+
+
+var tmpFieldOut = (!tmpIsDisplayOnly) ? (tmpOutS + tmpOutE) : (tmpDisplayOnlyValue);
+var tmpHidden = '\n<input type="hidden" id="ff_'+ compositeData.fieldName + '" name="' + compositeData.fieldName + '" value="' + (tmpFieldVal || '') + '" />';
+if( compositeData.controlType == 'Hidden' ){
+	return tmpHidden;
+} else if( tmpIsDisplayOnly ) {
+	return '\n'+tmpPStart + tmpOutL + tmpFldSpan + tmpFieldOut + tmpFieldEnd + tmpHidden + tmpPEnd
+} else {
+	return '\n'+tmpPStart + tmpOutL + tmpFldSpan + tmpFieldOut + tmpFieldEnd + tmpPEnd
+}
+
+
+}]]></xp:this.value>
+	</xp:text>
+</xp:view>

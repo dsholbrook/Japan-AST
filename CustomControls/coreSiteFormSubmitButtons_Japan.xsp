@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+<xp:scriptBlock>
+		<xp:this.value><![CDATA[
+
+jQuery( document ).ready(function() {		
+	$(document).on("keypress", 'form input', function (e) {
+	    var code = e.keyCode || e.which;
+	    if (code == 13) {
+	        e.preventDefault();
+	        return false;
+	    }
+	});		
+});		
+		]]></xp:this.value>
+</xp:scriptBlock>
+
+											
+												<p class="ibm-btn-row ibm-padding-top-1">
+													<xp:text
+														escape="false"
+														disableTheme="true">
+														<xp:this.value><![CDATA[#{javascript:var tmpCaptionSubmit = compositeData.buttonTextForSubmit || 'Submit';
+
+return '<input id="btn-submit" onclick="submitReg();" value="' + tmpCaptionSubmit + '" type="button" name="ibm-submit" class="ibm-btn-pri ibm-btn-blue-50" ></input>';
+														
+													}]]></xp:this.value>
+													</xp:text>
+													<xp:panel>
+														<xp:this.rendered><![CDATA[#{javascript:if( compositeData.hideCancel === true){
+	return false;
+}
+return true;}]]></xp:this.rendered>
+														<xp:text escape="false" disableTheme="true">
+															<xp:this.value><![CDATA[#{javascript:var tmpCaptionCancel = compositeData.buttonTextForCancel || 'Cancel';
+
+return '<input id="btn-cancel" onclick="window.history.back();return false;" value="' + tmpCaptionCancel + '" type="button" name="ibm-cancel" class="ibm-btn-sec ibm-btn-blue-50 ibm-btn-cancel" ></input>';
+														
+													}]]></xp:this.value>
+														</xp:text>
+													</xp:panel>
+													<span style="display:none;" id="btn-submit-spinner">&#160;<span class="ibm-spinner"></span></span>
+
+														
+												</p>
+											
+</xp:view>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteDevDebugOutput</component-type>
+    <composite-name>coreSiteDevDebugOutput</composite-name>
+    <composite-file>/coreSiteDevDebugOutput.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;div style="border:solid 1px:blue;width:500px"&gt;&#xd;
+&lt;h2 style="color:blue;"&gt;Debug Output&lt;/h2&gt;&#xd;
+&lt;p  style="color:blue;"&gt;Custom Control - Shows XPage.debug() output here.&lt;/p&gt;&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>Developer Tools</category>
+      </designer-extension>
+    </composite-extension>
+  </composite-component>
+</faces-config>

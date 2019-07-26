@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteIBMContentLayout</component-type>
+    <composite-name>coreSiteIBMContentLayout</composite-name>
+    <composite-file>/coreSiteIBMContentLayout.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;div style="border:dashed 2px:blue;"&gt;&#xd;
+&lt;h1&gt;IBM Page Layout - 6 Column&lt;/h1&gt;&#xd;
+&#xd;
+&lt;table style="width:550px;border:solid 2px:blue;padding:2px;"&gt;&lt;tr&gt;&#xd;
+&lt;td style="border:solid 1px:green;padding:2px;"&gt;&#xd;
+&lt;xp:callback facetName="facet_layout_left"&gt;&lt;/xp:callback&gt;&#xd;
+&lt;/td&gt;&#xd;
+&lt;td style="border:solid 2px:blue;padding:2px;"&gt;&#xd;
+&lt;xp:callback facetName="facet_layout_right"&gt;&lt;/xp:callback&gt;&#xd;
+&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&#xd;
+&#xd;
+&lt;h3&gt;To use&lt;/h3&gt;&#xd;
+&lt;p&gt;&lt;b&gt;Left side:&lt;/b&gt;Drag a panel to the left area for main content. &lt;br/&gt;&#xd;
+&lt;b&gt;Right side:&lt;/b&gt; Drag a panel , custom control or the &lt;b&gt;coreSiteSideBar&lt;/b&gt; custom control if related to a navigational area.&lt;/p&gt;&#xd;
+&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>Website UI</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>colLayout</property-name>
+      <property-class>string</property-class>
+      <display-name>Column Layout</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>6-0&#xd;
+5-1&#xd;
+4-2&#xd;
+3-3&#xd;
+2-4&#xd;
+1-5</editor-parameter>
+          <default-value>4-2</default-value>
+        </designer-extension>
+      </property-extension>
+    </property>
+  </composite-component>
+</faces-config>

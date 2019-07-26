@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteIBMInfoRelease</component-type>
+    <composite-name>coreSiteIBMInfoRelease</composite-name>
+    <composite-file>/coreSiteIBMInfoRelease.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <category>Website UI</category>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;div style="margin:2px;border:dashed 2px:blue;padding:3px;"&gt;&#xd;
+Notice and Choice Options&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>fomParam</property-name>
+      <property-class>string</property-class>
+      <display-name>form parameter</display-name>
+    </property>
+    <property>
+      <property-name>emailParam</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>privacyDivParam</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>countryParam</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>questionChoiceParam</property-name>
+      <property-class>string</property-class>
+    </property>
+  </composite-component>
+</faces-config>

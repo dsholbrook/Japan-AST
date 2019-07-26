@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+	<xp:this.beforePageLoad><![CDATA[#{javascript:var tmpFileList = @AttachmentNames() || '';
+viewScope.clAttachFileCount = @Attachments();
+var tmpBaseFilePreview = XPage.getBaseURL() + '/' + document1.getDocument().getUniversalID() + '/$file/'
+
+if( tmpFileList && typeof tmpFileList == 'string' ) {
+	tmpFileList = [tmpFileList]
+}
+
+var tmpDeleteDisplay = '';
+var tmpLinksDisplay = '';
+
+tmpDeleteDisplay += '<p class="ibm-form-elem-grp"><span class="ibm-input-group" >';
+if( XPage.isArray(tmpFileList)){
+	for (var i = 0 ; i < tmpFileList.length ; i++){
+		var tmpUniqueName = "%%Detach." + (100+i);
+		var tmpFAID = "clcore_fa_id_" + (100+i);
+		var tmpFileName = tmpFileList[i];
+		var tmpFNDisp = '<label id="ffl_' + tmpFAID + '" for="' + tmpFAID + '">' + tmpFileName + '</label>';
+		
+		tmpDeleteDisplay += '<input id="' + tmpFAID + '" name="' + tmpUniqueName + '" value="' + tmpFileName + '" type="checkbox" ></input>' + tmpFNDisp + '<br />'
+		tmpLinksDisplay +=  '<span><a target="_blank" class="ibm-inlinelink ibm-document-link" href="' + tmpBaseFilePreview + tmpFileName + '">' + tmpFileName + '</a><br /></span>'
+	}
+}
+tmpDeleteDisplay += '</span></p>'
+viewScope.clAttachDeleteHTML = tmpDeleteDisplay;
+viewScope.clAttachFileList = tmpFileList;       
+viewScope.clAttachLinksHTML = tmpLinksDisplay;     
+}]]></xp:this.beforePageLoad>
+
+	<xp:this.resources>
+		<xp:script src="/CoreWebCommon.jss" clientSide="false"></xp:script>
+	</xp:this.resources>
+	<h2 class="ibm-rule ibm-bold ibm-h3">Attachments</h2>
+
+	<xp:panel>
+		<xp:this.rendered><![CDATA[#{javascript:(viewScope.clAttachFileCount && viewScope.clAttachFileCount > 0); }]]></xp:this.rendered>
+		<div class="ibm-columns">
+			<div class="ibm-col-6-4">
+				<p>
+					<label>File attachment(s)</label>
+					<xp:text escape="false" disableTheme="true">
+						<xp:this.value><![CDATA[#{javascript:
+if( viewScope.clAttachLinksHTML == '' ){ return ''};
+return viewScope.clAttachLinksHTML;
+}]]></xp:this.value>
+					</xp:text>
+				</p>
+			</div>
+		</div>
+	</xp:panel>
+
+
+	<xp:panel>
+		<xp:this.rendered><![CDATA[#{javascript:!(viewScope.clAttachFileCount && viewScope.clAttachFileCount > 0); }]]></xp:this.rendered>
+		There are no attachments.
+		<br />
+	</xp:panel>
+
+	<xp:panel
+		rendered="#{javascript:return compositeData.DisplayOnly !== true;}">
+		
+		<xc:coreSiteIBMContentCols colLayout="2-2"><xp:this.facets>
+	<xp:panel xp:key="facet_layout_right">
+	
+	<xp:panel>
+		<xp:this.rendered><![CDATA[#{javascript:viewScope.clAttachFileCount && viewScope.clAttachFileCount > 0; 
+	}]]></xp:this.rendered>
+	
+	
+	<h2 class="ibm-rule-alternate ibm-bold ibm-h4">
+						Remove attachments
+					</h2>
+
+
+					<xp:text escape="false" disableTheme="true">
+						<xp:this.value><![CDATA[#{javascript:
+var tmpHeader = '<hr/><b>Mark attachments for deletion</b><br/>';
+if( viewScope.clAttachDeleteHTML == '' ){ return ''};
+return tmpHeader + viewScope.clAttachDeleteHTML;
+}]]></xp:this.value>
+					</xp:text>
+					
+	</xp:panel>
+	
+					
+					
+	</xp:panel>
+	<xp:panel xp:key="facet_layout_left">
+	
+	<h2 class="ibm-rule-alternate ibm-bold ibm-h4">Add attachments</h2>
+				<p>
+
+
+					<xp:text escape="false" disableTheme="true">
+						<xp:this.value><![CDATA[#{javascript://--- this builds the file upload control text to match the related subform.
+var tmpDB = session.getCurrentDatabase();
+var tmpSubForm = tmpDB.getForm("coreAppAttach_UploadControls");
+var tmpURL = tmpSubForm.getNotesURL().toLower();
+var tmpElemID = @Right(tmpURL,"nsf/");
+tmpElemID = @Left(tmpElemID,"?");
+var tmpRepl = session.getCurrentDatabase().getReplicaID().replace(":","");
+var tmpNamePrefix = '%%File.' + tmpRepl + '.' + tmpElemID + '.$Body.';
+ 
+var tmpInputs = '<p><label for="en_upload_1">Upload file 1:</label><span><input id="en_upload_1" type="file" name="' + tmpNamePrefix + '0.68" data-widget="fileinput" /></span></p>';
+tmpInputs += '<p><label for="en_upload_2">Upload file 2:</label><span><input id="en_upload_2" type="file" name="' + tmpNamePrefix + '0.88" data-widget="fileinput" /></span></p>';
+tmpInputs += '<p><label for="en_upload_3">Upload file 3:</label><span><input id="en_upload_3" type="file" name="' + tmpNamePrefix + '0.A8" data-widget="fileinput" /></span></p>';
+tmpInputs += '<p><label for="en_upload_4">Upload file 4:</label><span><input id="en_upload_4" type="file" name="' + tmpNamePrefix + '0.C8" data-widget="fileinput" /></span></p>';
+//tmpInputs += '<br /><br /><br /><b>Testing Multiple UI (does not submit)</b><br /><p><input id="______" type="file" data-widget="fileinput" data-multiple="true" /><p>'
+tmpInputs += '<p><label for="myInputField1">Upload multiple files:</label><span><input id="myInputField1" type="file" data-widget="fileinput" data-multiple="true" /></span><span class="ibm-item-note">Upload size limit (xxxx KB/MB)</span></p>';
+
+return tmpInputs;
+
+}]]></xp:this.value>
+
+
+					
+					</xp:text>
+<xp:scriptBlock>
+		<xp:this.value><![CDATA[
+
+/* Temp fix until in production
+
+if( typeof(jQuery) !== 'undefined' ){
+	jQuery(function(){
+		(function($){
+			$("[type=File]").clcfileinput();
+		})(jQuery);
+	});		
+}
+*/
+		
+		
+		]]></xp:this.value>
+</xp:scriptBlock>
+
+<!-- 
+
+<p>
+						<label for="myInputField4">Upload single file:</label>
+						<span>
+							<input id="myInputField4" type="file" data-widget="fileinput" />
+						</span>
+						<span class="ibm-item-note">Upload size limit (xxxx KB/MB)</span>
+					</p>
+					
+ -->
+
+					<xc:coreSiteField isRequired="false"
+						labelPos="form default" orientation="Horizontal"
+						controlType="Checkbox" fieldLabel="Need to add more files?"
+						fieldName="clattach_addmore"
+						currentValue="#{javascript:return '';}"
+						rendered="#{javascript:return compositeData.ShowAddMoreOption === true;}">
+						<xc:this.list><![CDATA[#{javascript:return ['Add more files when saved']}]]></xc:this.list>
+					</xc:coreSiteField>
+
+				</p>
+				
+	</xp:panel></xp:this.facets></xc:coreSiteIBMContentCols>
+		
+
+	</xp:panel>
+
+
+
+
+
+
+
+
+
+
+
+</xp:view>

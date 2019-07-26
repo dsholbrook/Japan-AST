@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+
+	<xc:coreSiteIBMContentLayout
+		colLayout="#{javascript:compositeData.colLayout || '4-2';}">
+		<xp:this.facets>
+			<xp:panel xp:key="facet_layout_left">
+				<xp:callback facetName="facet_content_main"></xp:callback>
+			</xp:panel>
+			<xp:panel xp:key="facet_layout_right">
+
+
+				<xp:callback facetName="facet_sidebar_top"></xp:callback>
+				
+				<xc:coreSiteSideBar></xc:coreSiteSideBar>
+				
+				<xp:callback facetName="facet_sidebar_bottom"></xp:callback>
+
+			</xp:panel>
+		</xp:this.facets>
+	</xc:coreSiteIBMContentLayout></xp:view>

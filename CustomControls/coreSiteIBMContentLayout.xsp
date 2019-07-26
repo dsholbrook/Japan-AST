@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+	<xp:text escape="false" disableTheme="true">
+		<xp:this.value><![CDATA[#{javascript:var tmpLayout = compositeData.colLayout || '6-4';
+var tmpCols = '' + tmpLayout.toString().charAt(0);
+var tmpUseMedClasses = true;//(tmpLayout == '6-4');
+var tmpColsMed = '';
+if( tmpUseMedClasses ){
+	tmpColsMed = ' ibm-col-medium-1-1 '
+}
+
+var tmpRet = '<div class="ibm-columns"><div class="ibm-col-6-' + tmpCols + tmpColsMed + '">'; 
+return tmpRet;
+}]]></xp:this.value>
+	</xp:text>
+
+
+	<xp:callback facetName="facet_layout_left"></xp:callback>
+
+	
+	<xp:panel>
+
+		<xp:this.rendered><![CDATA[#{javascript:var tmpLayout = compositeData.colLayout || '6-4';
+return (tmpLayout != '6-0')}]]></xp:this.rendered>
+		<xp:text escape="false" disableTheme="true">
+			<xp:this.value><![CDATA[#{javascript:var tmpLayout = compositeData.colLayout || '6-4';
+	var tmpCols = '' + tmpLayout.toString().charAt(2);
+
+	var tmpUseMedClasses = true;//(tmpLayout == '6-4');
+	var tmpColsMed = '';
+	if( tmpUseMedClasses ){
+		tmpColsMed = ' ibm-col-medium-1-1 '
+	}
+
+	var tmpRet = '</div><div class="ibm-col-6-' + tmpCols + tmpColsMed + '">';
+	return tmpRet;  
+	}]]></xp:this.value>
+		</xp:text>
+
+		<xp:callback facetName="facet_layout_right"></xp:callback>
+
+
+	</xp:panel>
+
+
+	<xp:text escape="false" disableTheme="true">
+<xp:this.value><![CDATA[#{javascript:
+return '</div></div>';   
+}]]></xp:this.value></xp:text>
+
+</xp:view>

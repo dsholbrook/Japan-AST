@@ -1,0 +1,530 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view
+	xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+	
+	<xc:BlueIDUserInfo></xc:BlueIDUserInfo>
+	<xp:this.beforePageLoad><![CDATA[#{javascript:
+
+//-- To assure we know if someone is autehticated already, move to the 304 server	
+/*
+
+var tmpCurrentURL = context.getUrl().toString();
+if( tmpCurrentURL.indexOf("www-950") >= 0){
+	tmpCurrentURL = tmpCurrentURL.replace("www-950","www-304");
+	facesContext.getExternalContext().redirect(tmpCurrentURL);
+	return;
+}
+
+*/	
+viewScope.pageTitle = 'IBM Events';
+viewScope.pageSubTitle = '';
+viewScope.clientAppLibraryName = 'grpClientApp';
+
+//-- Get or create langStrings
+viewScope.langStrings = {
+	"logintoregister": "It is now easier than ever to register for IBM events by signing into your IBM account.",
+	"reganonymous":"register without signing in",
+	"signintoregisterpretext":"You can optionally",
+	"signintoregisterposttext":"and complete the full form.",
+	"login":"Sign into your IBM account",	
+	"signintoregister":"Sign in to register",
+	"registeredheader":"You are registered",
+	"registeredtext":"Review your registration details below and contact us if changes are needed.",
+	"createaccount": "Create a new IBM account",
+	"registernow":"Register Now"
+};
+		
+//-- form specs override locally pulled values, no need to pull details for event is already pulled
+if( viewScope.formSpecs && viewScope.formSpecs.pageTitle ) {
+	viewScope.pageTitle = viewScope.formSpecs.pageTitle;
+	viewScope.pageSubTitle = viewScope.formSpecs.pageSubTitle || '';
+	
+}	
+
+viewScope.formSpecs = viewScope.formSpecs || {};
+	
+
+if (true){
+try {
+
+	//--- Get Query String
+	var tmpQS = context.getUrl().getQueryString();
+	
+	//--- Update Query String to look like this is a form for backward compatibility
+	tmpQS = tmpQS.replace("OpenPage","OpenForm");
+	document1.getDocument().replaceItemValue("query_string", tmpQS);
+	//--- Run the agent and use the current document as the context
+	var db = session.getCurrentDatabase();    
+	var agent = db.getAgent("WebQueryOpenSitePage"); //was (frmDemoWebQueryOpenAgentWQO)
+	var tmpID = context.getUrlParameter('seminar') || '';
+	viewScope.currentEventID = tmpID;
+	
+	var tmpLocale = context.getUrlParameter('locale') || 'en_US';
+	viewScope.locale = tmpLocale;
+	viewScope.isEnglish = tmpLocale == '' ? true : (tmpLocale.indexOf('en_') >= 0);
+	document1.getDocument().replaceItemValue("ep_ID", tmpID);
+	document1.getDocument().replaceItemValue("Locale", tmpLocale);
+	document1.getDocument().replaceItemValue("Form", "v18_enrollall");
+	document1.getDocument().computeWithForm(false,false);
+	
+	XPage.addData("isEnglish", viewScope.isEnglish );
+
+	agent.runWithDocumentContext(document1.getDocument())
+	viewScope.formSpecs.pageNavTitle = document1.getItemValueString('lc_RegPageTitle') || 'Registration'
+	viewScope.langStrings["registernow"] = document1.getItemValueString('lc_RegisterNow') || 'Registration'
+	
+	var tmpLSID = document1.getItemValueString('ls_UNID');
+	if( tmpLSID ){
+		var tmpLocaleDoc = session.getCurrentDatabase().getDocumentByUNID(tmpLSID);
+		if( tmpLocaleDoc != null ){
+			//--- LOAD VALUES NEEDED / IF ANY
+		}
+	}
+	
+	var tmpRefDB = session.getDatabase("", "events/wwe/grp/grpref.nsf");
+	
+	var tmpLocaleView:NotesView = tmpRefDB.getView("vLookupLocaleProfiles");
+	var tmpLocaleDoc:NotesDocument = tmpLocaleView.getDocumentByKey(tmpLocale, true);
+	var tmpLocaleDocUS:NotesDocument = tmpLocaleView.getDocumentByKey('en_ZZ', true);
+	
+	if( tmpLocaleDoc && tmpLocaleDoc != null ){
+		//-- Load general level translations
+
+		
+		
+		//-- Create (or get) mapping of fields to pull
+		var tmpLangFieldMap = {
+			"logintoregister": "lc_LoginToRegister",
+			"reganonymous":"lc_RegAnonymous",
+			"signintoregisterpretext":"lc_SignInRegPretext",
+			"signintoregisterposttext":"lc_SignInRegPosttext",
+			"login":"lc_Login",	
+			"signintoregister":"lc_SigninToRegister",
+			"registeredheader":"lc_RegisteredHeader",
+			"registeredtext":"lc_RegisteredText",
+			"createaccount": "lc_CreateAccount"
+		}
+		
+		//-- Load values into string mapping from doc
+		for( var aEntryName in tmpLangFieldMap ){
+			var tmpFN = tmpLangFieldMap[aEntryName];
+			
+			var tmpFV = tmpLocaleDoc.getItemValueString(tmpFN);
+			if( tmpFV && tmpFV != null ){
+				viewScope.langStrings[aEntryName] = tmpFV;
+			} else {
+				tmpFV = tmpLocaleDocUS.getItemValueString(tmpFN);
+				if( tmpFV && tmpFV != null ){
+					viewScope.langStrings[aEntryName] = tmpFV;
+				}
+			}
+
+		}
+
+	}
+	
+	
+	var tmpEPID = document1.getItemValueString('ep_UNID');
+	viewScope.formSpecs.EPID = tmpEPID;
+	if( tmpEPID ){
+		var tmpEPDoc = session.getCurrentDatabase().getDocumentByUNID(tmpEPID);
+		
+		
+		if( tmpEPDoc != null ){
+			viewScope.formSpecs.showAgenda = ('' + tmpEPDoc.getItemValue('ep_ShowAgendaPage')[0]) == '1';
+			viewScope.formSpecs.showSpeaker = ('' + tmpEPDoc.getItemValue('ep_ShowSpeakersPage')[0]) == '1';
+			viewScope.formSpecs.showSponsor = ('' + tmpEPDoc.getItemValue('ep_ShowSponsorsPage')[0]) == '1';
+			viewScope.formSpecs.showAdditional = ('' + tmpEPDoc.getItemValue('ep_ShowAdditionalPage')[0]) == '1';
+			
+			viewScope.formSpecs.pageSubTitle = (tmpEPDoc.getItemValueString('ep_StartDateWebDisplay') || '');
+			
+			var tmpOverride = tmpEPDoc.getItemValueString('ep_MetaTag_Keyword_Override');
+			if( tmpOverride ){
+				viewScope.htmlheadKeywords = tmpOverride; 
+			} else {
+				var tmpKW = tmpEPDoc.getItemValue('brand');
+				if(tmpKW){
+					viewScope.htmlheadKeywords = tmpKW.join(',');
+				}
+			}
+			
+			var tmpORDesc = tmpEPDoc.getItemValueString('ep_MetaTag_Keyword_Description');
+			if( tmpORDesc ){
+				viewScope.htmlheadDescription = tmpORDesc; 
+			} else {
+				var tmpDesc = tmpEPDoc.getItemValueString('eventname');
+				if(tmpDesc){
+					viewScope.htmlheadDescription = tmpDesc;
+				}
+			}
+			
+			try {
+				var tmpNName = session.createName(tmpEPDoc.getItemValueString('offeringQuestionsName'));
+				viewScope.htmlheadOwner = tmpNName.getAbbreviated();
+			} catch(ex){
+				//keep value from profile
+			}
+			
+			
+			
+			
+			
+		}
+	}
+	
+	var tmpEffectiveDate = "";
+
+	try {
+		var tmpDate = @Now();
+		var tmpYear = @Text(@Year(tmpDate));
+		var tmpMonthNumber = @Text(@Month(tmpDate));
+		var tmpMonth = @If(@Length(tmpMonthNumber) == 1, "0", "") + tmpMonthNumber;
+		var tmpDayNumber = @Text(@Day(tmpDate));
+		var tmpDay = @If(@Length(tmpDayNumber) == 1, "0", "") + tmpDayNumber;
+		tmpEffectiveDate = tmpYear + "-" + tmpMonth + "-" + tmpDay
+	} catch(ex){
+		tmpEffectiveDate = ex.toString();
+	}
+	viewScope.htmlheadIBMEffective = tmpEffectiveDate;
+		
+	
+	//viewScope.htmlheadIBMEffective = document1.getItemValueString('Meta_IBMEffective');
+	//viewScope.htmlheadSiteExpiryDate = document1.getItemValueString('Meta_IBMEffective');
+	
+	
+	
+	
+
+	
+	
+	if( viewScope.htmlheadDCTypeOverride ){
+		viewScope.htmlheadDCType = viewScope.htmlheadDCTypeOverride;
+	} else {
+		viewScope.htmlheadDCType = 'CTA00';
+	}
+	
+	viewScope.htmlheadSiteSiteID = 'IBM_EVENTS'
+
+	viewScope.htmlheadSitePrimaryCategory = 'Events'
+	
+	//viewScope.htmlheadDCType = document1.getItemValueString('Meta_DCType') || 'CTA00';
+	viewScope.htmlheadIBMSubjectTaxonomy = document1.getItemValueString('Meta_DCSubject') || 'EV100';
+
+
+	var tmpEXID = document1.getItemValueString('ex_UNID');
+	viewScope.formSpecs.EXID = tmpEXID;
+	
+	if( tmpEXID ){
+		var tmpEXDoc = session.getCurrentDatabase().getDocumentByUNID(tmpEXID);
+
+		if( tmpEXDoc != null ){
+			viewScope.formSpecs.additionalLinkTitle = tmpEXDoc.getItemValueString('AdditionalPageTitle')			 
+		}
+	}
+	
+	var tmpRPID = document1.getItemValueString('rp_UNID');
+	viewScope.formSpecs.RPID = tmpRPID;
+	
+	if( tmpRPID ){
+		var tmpRPDoc = session.getCurrentDatabase().getDocumentByUNID(tmpRPID);
+		if( tmpRPDoc != null ){
+			//--- Event Details
+			viewScope.formSpecs.pageTitle = (tmpRPDoc.getItemValueString('eventname'));
+			viewScope.formSpecs.sideHTML = (tmpRPDoc.getItemValueString('rp_RightColumnHTML')) || '';
+			viewScope.formSpecs.sideIncludeContact = (tmpRPDoc.getItemValueString('rp_RightColumnIncludeSupport')) == 'Yes';
+			
+			var tmpMsgDup = (tmpRPDoc.getItemValueString('rp_DuplicateMsg')) || '';
+			var tmpMsgConfirm = (tmpRPDoc.getItemValueString('rp_ConfirmationMsg')) || '';
+			viewScope.formSpecs.returnURL = (tmpRPDoc.getItemValueString('rp_returnUrl')) || '';
+			viewScope.formSpecs.messages = {
+				"duplicate": tmpMsgDup
+				,"confirmation": tmpMsgConfirm
+			}
+			var tmpEventSiteText = (tmpRPDoc.getItemValueString('rp_TopLinkText')) || '';
+			var tmpEventSiteURL = (tmpRPDoc.getItemValueString('rp_TopLinkURL')) || '';
+			if( tmpEventSiteText && tmpEventSiteURL ){
+				viewScope.formSpecs.eventSite = {
+					text: tmpEventSiteText,
+					url: tmpEventSiteURL
+				}
+			} 
+		}	
+	}
+	
+	
+	//--- Adding to viewScope to testing / viewing only
+	viewScope.queryString = tmpQS;
+//	viewScope.errorMessage = "";
+
+	var tmpOpenQS = context.getUrl().getQueryString();
+	if( tmpOpenQS == "" ){
+		tmpOpenQS = '?OpenPage'
+	}
+	
+	XPage.addData("qs", tmpOpenQS);
+	
+	var tmpNavTabs = [];
+	if(viewScope.formSpecs.showAgenda){
+		tmpNavTabs.push({"text":document1.getItemValueString('lc_AgendaPageTitle') || "Agenda","name":"agenda","href":"[tmpBaseURL]/Agenda.xsp" + tmpOpenQS});	
+	}
+	if(viewScope.formSpecs.showSponsor){
+		tmpNavTabs.push({"text":document1.getItemValueString('lc_SponsorPageTitle') || "Sponsors","name":"sponsors","href":"[tmpBaseURL]/Sponsors.xsp" + tmpQS});	
+	}
+	if(viewScope.formSpecs.showSpeaker){
+		tmpNavTabs.push({"text":document1.getItemValueString('lc_SpeakerPageTitle') || "Speakers","name":"speakers","href":"[tmpBaseURL]/Speakers.xsp" + tmpQS});	
+	}
+	tmpNavTabs.push({"text":document1.getItemValueString('lc_RegPageTitle') || "Registration","name":"registration","href":"[tmpBaseURL]/Registration.xsp" + tmpQS});
+	
+	if(viewScope.formSpecs.showAdditional){
+		tmpNavTabs.push({"text":viewScope.formSpecs.additionalLinkTitle || "Additional Info","name":"additional","href":"[tmpBaseURL]/Additional.xsp" + tmpQS});
+	}
+	
+	viewScope.formSpecs.navConfig = {
+		//caption: 'GRP',
+		"tabs":tmpNavTabs
+	}
+	
+	
+	viewScope.pageTitle = viewScope.formSpecs.pageTitle || viewScope.pageTitle; 
+	viewScope.pageSubTitle = viewScope.formSpecs.pageSubTitle || viewScope.pageSubTitle; 
+	
+	
+	var tmpSiteTitle = viewScope.pageTitle || '';
+	if( (viewScope.currentPageName == 'Additional') || (viewScope.currentPageLocaleTitleField && viewScope.currentPageLocaleTitleField != null)){
+	
+		var tmpPageTitle = '';
+		if(viewScope.currentPageName == 'Additional'){
+			tmpPageTitle = viewScope.formSpecs.additionalLinkTitle || 'Additional Information';
+		} else {
+			tmpPageTitle = document1.getItemValueString(viewScope.currentPageLocaleTitleField);
+		}
+		
+		var tmpEventTitle = document1.getItemValueString('lc_Events') || 'Events';
+		tmpSiteTitle = "IBM " + tmpEventTitle + " - " + tmpPageTitle + ": " + tmpSiteTitle;
+		viewScope.siteNav.windowTitle = tmpSiteTitle;		
+	}
+	
+	 
+	viewScope.siteNav.pageTitle = viewScope.pageTitle;
+	viewScope.siteNav.pageSubTitle = viewScope.pageSubTitle;
+
+
+} catch (ex) {
+	viewScope.errorMessage = ex.toString();	
+}	
+	
+}
+
+if( document1.getItemValueString('headerBackLD') != 'Light' ){
+	viewScope.mastheadClass = 'ibm-alternate-background';
+}
+
+
+
+try {
+	var tmpUserID = XPage.getHeaderValue("iv-user-l");
+	var tmpUserName = tmpUserID.replace(",","/");
+	var tmpKey = viewScope.currentEventID + "-" + tmpUserName;	
+	var tmpUNID = XPage.findUNIDInView("luRegByCreatedBy",tmpKey) || '';
+	if( tmpUserName.toLower() != 'Unauthenticated' && tmpUserName != '' ){
+		viewScope.isUserRegistered = (tmpUNID != '');
+	}
+	viewScope.hideRegisterButton = viewScope.isUserRegistered;
+} catch(ex){
+	
+}
+
+
+}]]>
+	</xp:this.beforePageLoad>
+	<xp:this.resources>
+		<xp:script
+			src="/CoreWebCommon.jss"
+			clientSide="false">
+		</xp:script>
+	</xp:this.resources>
+	
+	
+	<xp:text escape="false" disableTheme="true">
+	<xp:this.value><![CDATA[#{javascript:
+	var tmpRet = "";
+	var tmpHeaderPath = document1.getItemValueString('headerFilePath') || '';
+	var tmpBackColor = '';
+	tmpRet += '<style>';
+	tmpRet += '.ibm-landing-page #ibm-leadspace-body { padding-bottom: 10px; }';
+	tmpRet += '.ibm-landing-page #ibm-leadspace-head {background-size: cover; background-position: 50% 50%; } ';
+	
+	if( tmpHeaderPath ){
+		tmpRet += '#ibm-leadspace-head { background-image: url(' + tmpHeaderPath + '); }';
+	}
+	tmpRet += '.ibm-grid-xlarge .site-grp [class*="-link"]:before { font-size: 1.6em; }';
+	tmpRet += '.site-grp .ibm-icon-nolink { padding-left: 1.7em !important; }';
+	tmpRet += '.site-no-padding { padding-bottom: 0; }';
+	tmpRet += '</style>';
+	return tmpRet;
+	
+			
+	}]]></xp:this.value></xp:text>
+	
+	<xp:text escape="false" disableTheme="true">
+	<xp:this.value><![CDATA[#{javascript:
+	var tmpRet = "";
+	var tmpColor = 
+	tmpRet += '<div id="ibm-leadspace-head" ';
+	
+	var tmpHeaderClass = document1.getItemValueString('headerBGColorClass') || '';
+	tmpHeaderClass += " ibm-alternate "
+	if( tmpHeaderClass && tmpHeaderClass != null ){
+		tmpRet += ' class="' + tmpHeaderClass + '" ';
+	}
+	
+	tmpRet += '>';
+	return tmpRet;
+		return '"'
+	}]]></xp:this.value></xp:text>
+	<xp:scriptBlock>
+		<xp:this.value><![CDATA[
+				
+			
+
+(function($, IBM, CLC) {
+
+	var me = IBM.namespace(CLC, "header");
+
+	me.showDebug = true;
+	
+	var debug = function(theText){
+		if( !me.showDebug ){
+			return;
+		}
+		console.log(theText);
+	}
+	me.debug = debug;
+	
+ 	function endsWith(theString, thePattern) {
+	    var d = theString.length - thePattern.length;
+	    return d >= 0 && theString.lastIndexOf(thePattern) === d;
+	};
+
+ 	var login = function(theType){
+ 		var tmpType = theType || '1';
+ 		var tmpLoc = window.location + '';
+ 		if( endsWith(tmpLoc, 'xsp') ){
+ 			tmpLoc += '?open';
+ 		} 		 
+ 		window.location = tmpLoc + '&auth=' + tmpType + '';
+ 	}
+ 	me.login = login;
+
+ 	var register = function(){
+ 		var tmpQS = window.location.href;
+ 		var tmpPos = tmpQS.indexOf('?');
+ 		if( tmpPos > -1 ){
+ 			tmpQS = tmpQS.substring(tmpPos);
+ 		} else {
+ 			tmpQS = '?OpenPage;'
+ 		}
+ 		window.location = core.data.baseURL + '/Registration.xsp' + tmpQS;
+ 	}
+ 	me.register = register;
+
+ 	var init = function(){
+		debug('header init');
+		//debug(core.data.formSpecs);
+ 	}
+ 	me.init = init;
+	
+})(jQuery, IBMCore, CLRoot);
+
+header = CLRoot.header;
+
+jQuery( document ).ready(function() {
+
+	if( header ){
+		header.showDebug = false;
+		header.init();
+	}
+});
+	
+
+
+
+				
+				]]></xp:this.value>
+	</xp:scriptBlock>
+	<style>
+			.ibm-rule {
+    		height: auto;
+			}
+		</style> 
+		<div id="ibm-leadspace-body">
+			<div class="ibm-columns">
+			
+				<div class="ibm-col-1-1 ibm-col-xlarge-6-4 ibm-padding-bottom-20 ${javascript:viewScope.mastheadClass || ''}">
+					<h1 class="ibm-h1 ibm-bold">
+						<xp:text
+							escape="false"
+							disableTheme="true">
+							<xp:this.value><![CDATA[#{javascript:
+							
+							return viewScope.pageTitle;
+						}]]></xp:this.value>
+						</xp:text>
+					</h1>
+					<xp:panel>
+						<xp:this.rendered><![CDATA[#{javascript:viewScope.pageSubTitle && viewScope.pageSubTitle != ""}]]></xp:this.rendered>
+						<h4 class="ibm-light ibm-h4">
+							<xp:text
+								escape="false"
+								disableTheme="true">
+								<xp:this.value><![CDATA[#{javascript:
+							return viewScope.pageSubTitle;
+						}]]></xp:this.value>
+							</xp:text>
+						</h4>
+					</xp:panel>
+					<xp:panel>
+						<xp:this.rendered><![CDATA[#{javascript:return (!viewScope.auth && !viewScope.showForm) && viewScope.isRegPage && viewScope.allowRegister == true}]]></xp:this.rendered>
+						<p class="">
+							<a
+								href="#"
+								onclick="window.header.login('login');return false;"
+								id="reg-signin"
+								class="ibm-h4 ibm-masthead-signin-link ibm-inlinelink">
+								<xc:IBMEventsTranslation
+									textName="signintoregister"
+									defaultValue="Log in to register">
+								</xc:IBMEventsTranslation>
+							</a>
+						</p>
+					</xp:panel>
+					<xp:panel>
+						<xp:this.rendered><![CDATA[#{javascript:!viewScope.isRegPage && viewScope.hideRegisterButton !== true }]]></xp:this.rendered>
+						<xp:panel rendered="#{javascript:viewScope.isUserRegistered !== true}">
+							<p >
+							
+								<a
+									href="#"
+									onclick="window.header.register();return false;"
+									class="ibm-h4 ibm-signin-link ibm-inlinelink">
+									<xp:text escape="false" disableTheme="true">
+									<xp:this.value><![CDATA[#{javascript:
+										return viewScope.langStrings['registernow'] || 'Register Now';	
+									}]]></xp:this.value></xp:text>
+									
+								</a>
+								
+							</p>
+						</xp:panel>
+					</xp:panel>
+				</div>
+			</div>
+		</div>
+	<xp:text escape="false" disableTheme="true">
+	<xp:this.value><![CDATA[#{javascript:
+		return '</div>'
+	}]]></xp:this.value></xp:text>
+	
+	
+</xp:view>

@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>IBMEventsSponsor</component-type>
+    <composite-name>IBMEventsSponsor</composite-name>
+    <composite-file>/IBMEventsSponsor.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;div style="margin:2px;border:dashed 2px:#ccff00;padding:3px;"&gt;&#xd;
+&lt;b&gt;Sponsor&lt;/b&gt;&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>GRP</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>unid</property-name>
+      <property-class>string</property-class>
+      <display-name>UNID</display-name>
+    </property>
+    <property>
+      <property-name>sponsorName</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>sponsorBio</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>sponsorPhoto</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>sponsorBioIntro</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>sponsorBioMore</property-name>
+      <property-class>string</property-class>
+    </property>
+  </composite-component>
+</faces-config>

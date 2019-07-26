@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+<!-- FOOTER_BEGIN -->
+<div id="ibm-footer-module">
+</div>
+<footer role="contentinfo" aria-label="IBM">
+<div id="ibm-footer">
+<h2 class="ibm-access">Odkazy zásad
+</h2>
+<ul>
+<li><a href="http://www.ibm.com/contact/cz/cs/">Kontakt</a></li>
+<li><a href="http://www.ibm.com/privacy/cz/cs/">Soukromí</a></li>
+<li><a href="http://www.ibm.com/legal/cz/cs/">Pravidla použití</a></li>
+</ul>
+</div>
+</footer>
+<!-- FOOTER_END --></xp:view>

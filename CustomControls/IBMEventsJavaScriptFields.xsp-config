@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>IBMEventsJavaScriptFields</component-type>
+    <composite-name>IBMEventsJavaScriptFields</composite-name>
+    <composite-file>/IBMEventsJavaScriptFields.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;div style="margin:2px;border:solid 1px:#FF00FF;padding:3px;"&gt;&#xd;
+&lt;b&gt;Client Side JavaScript - Loaded from fields&lt;/b&gt;&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>GRP</category>
+      </designer-extension>
+    </composite-extension>
+  </composite-component>
+</faces-config>

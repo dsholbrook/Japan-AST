@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view
+	xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+	<xp:this.beforePageLoad><![CDATA[#{javascript:
+
+var tmpFormID = (compositeData.fomParam) ? 'form-' + compositeData.fomParam : 'form-frmMain';	
+var tmpEMail = (compositeData.emailParam) ? 'ff_' + compositeData.emailParam : 'ff_en_email';
+var tmpPriv = compositeData.privacyDivParam || 'privacyid';	
+var tmpCountry = (compositeData.countryParam) ? 'ff_' + compositeData.countryParam : 'ff_en_country';		
+var tmpQuestions = compositeData.questionChoiceParam || '1,2,3';
+
+viewScope.nc = {
+	id : {                    
+		form : tmpFormID,                    
+		email : tmpEMail,
+		privacyDiv : tmpPriv,
+		country : tmpCountry
+	},
+	questionChoice : tmpQuestions	
+}
+
+}]]></xp:this.beforePageLoad>
+	<xp:panel>
+		<xp:this.rendered><![CDATA[#{javascript:if( viewScope.htmlheadSiteAudience && viewScope.htmlheadSiteAudience.indexOf('v18') >= 0 ){
+	return true;
+}
+return true;
+}]]></xp:this.rendered>
+
+		<div id="privacyid"></div>
+
+
+	</xp:panel>
+
+</xp:view>

@@ -1,0 +1,1062 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+	
+	<xp:scriptBlock>
+		<xp:this.value><![CDATA[
+
+ 		
+if( typeof(IBMCore) != 'undefined' ){
+	IBMCore.common.util.config.set({ contentwidgets: {enabled:false}});
+}		
+		
+		]]></xp:this.value>
+		<xp:this.rendered><![CDATA[#{javascript:var tmpOverrideWidgets = context.getUrlParameter('widgets');
+if( tmpOverrideWidgets == 'y'){
+	viewScope.showWidgets = true;
+	return false;
+}
+if( tmpOverrideWidgets == 'n'){
+	viewScope.showWidgets = false;
+	return true;
+}
+
+if (viewScope.showWidgets != false){
+ 	return false;
+}
+return true;}]]></xp:this.rendered>
+	</xp:scriptBlock>
+	
+	<xp:scriptBlock>
+			<xp:this.value><![CDATA[
+			try {
+				var tmpBody = jQuery('body')[0];
+				if(tmpBody){
+					tmpBody.id = 'ibm-com';
+				}							
+			} catch(ex){
+				
+			}
+			]]></xp:this.value>
+	</xp:scriptBlock>
+	
+	<xp:this.afterPageLoad><![CDATA[#{javascript:
+
+
+
+var tmpID = context.getUrlParameter("id");
+viewScope.id = tmpID;
+
+
+	
+}]]></xp:this.afterPageLoad>
+
+<xp:scriptBlock>
+		<xp:this.value><![CDATA[
+
+digitalData = {
+		  "page":{
+		    "category":{
+		      "primaryCategory":"#{viewScope.htmlheadSitePrimaryCategory}"
+		    },
+		    "pageInfo":{
+		      "effectiveDate":"#{viewScope.htmlheadIBMEffective}",
+		      "expiryDate":"#{viewScope.htmlheadSiteExpiryDate}",
+		      "language":"#{viewScope.htmlheadSiteLanguage}",
+		      "publishDate":"#{viewScope.htmlheadIBMEffective}",
+		      "publisher":"IBM Corporation",
+		      "version":"v18",
+		      "ibm":{
+		        "contentDelivery":"HTML",
+		        "contentProducer":"v18.1.0 IBM Template Generator",
+		        "country":"#{viewScope.htmlheadSiteCountry}",
+		        "industry":"#{viewScope.htmlheadSiteIndustry}",
+		        "owner":"#{viewScope.htmlheadOwner}",
+		        "siteID":"#{viewScope.htmlheadSiteSiteID}",
+		        "subject":"#{viewScope.htmlheadIBMSubjectTaxonomy}",
+		        "type":"#{viewScope.htmlheadDCType}"
+		      },
+		      "pageID":"",
+		      "keywords":"#{viewScope.htmlheadKeywords}",
+		      "description":"#{viewScope.htmlheadDescription}"
+		    }
+		  }
+		};
+		 
+var tmpNCForm = "#{viewScope.nc.id.form}";
+		
+if (tmpNCForm != "") {
+	var tmpNCQuestions = "1,2,3";
+	try {
+		tmpNCQuestions = "#{javascript:viewScope.nc ? (viewScope.nc.questionChoice) : '1,2,3'}"
+	} catch(ex){
+		
+	}
+	
+	digitalData.page.pageInfo.nc = {
+		id : {
+			form : "#{viewScope.nc.id.form}",                    
+			email : "#{viewScope.nc.id.email}",
+			privacyDiv : "#{viewScope.nc.id.privacyDiv}",
+			country : "#{viewScope.nc.id.country}",
+		    customButton: "btn-submit"
+		},
+		questionType : "",
+		questionChoice : tmpNCQuestions,
+		pageDesc : "Contact IBM form to send email feedback or questions to IBM in the United States",
+		offerCode : "",
+		dcSubject : "IM520",
+		granular : "off",
+		footer : "off",
+		preferenceareas : "",
+		trial : "",
+		Submit : "true",
+		SaveToGECS : "true"
+	};
+}
+	
+	function logNoticeChoice(theStatus){
+	var tmpLogField = $('#nc_log_1');
+	tmpLogField.val(theStatus);
+	console.log("NC: " + theStatus );
+}
+
+function logNoticeChoiceInit(){
+	var tmpEMailField = $('#NC_CHECK_EMAIL');
+	tmpEMailField.on('click', function(){
+		logNoticeChoiceChange('EMAIL',this);
+	});
+	var tmpPhoneField = $('#NC_CHECK_PHONE');
+	tmpPhoneField.on('click', function(){
+		logNoticeChoiceChange('PHONE',this);
+	});			
+	
+	var tmpHiddenEMail = $('#nc_log_EMAIL');
+	var tmpHiddenPhone = $('#nc_log_PHONE');
+	
+	console.log("Debug - Set both log fields to not modified");
+	tmpHiddenEMail.val("NOT MODIFIED");
+	tmpHiddenPhone.val("NOT MODIFIED");
+}
+
+function logNoticeChoiceChange(theType, theTarget){
+	var tmpLogField = $('#nc_log_' + theType);
+	//--- Set to show value clicked instantly, then set a delay to get value
+	//--- ... just in case they are super quick and click the checkbox and the button in 400ms.
+	
+	tmpLogField.val("Changed, getting value");
+	setTimeout(function(){
+		logNoticeChoiceChangeRun(theType,theTarget);
+	},400);
+}
+
+function logNoticeChoiceChangeRun(theType, theTarget){
+	var tmpLogField = $('#nc_log_' + theType);
+
+	console.log("debug logNoticeChoiceChange: theType is: " + theType );
+	console.log("debug logNoticeChoiceChange: theTarget is: ", theTarget );
+
+	var tmpHiddenField = $('#NC_HIDDEN_' + theType);
+	if( tmpHiddenField && tmpHiddenField.length == 1 ){
+		console.log("debug logNoticeChoiceChange: tmpHiddenField is: ", tmpHiddenField.get(0) );
+		
+		var tmpVal = tmpHiddenField.val();
+		if( tmpVal == "" ){
+			tmpVal = "BLANK";
+		}
+		tmpLogField.val(tmpVal);
+		console.log("Logged change to " + theType + " value: " + tmpVal) 
+	} else {
+		var tmpErrorMessage = "No Field Found for " + theType;
+		tmpLogField.val(tmpErrorMessage);
+		console.log("Error logging field: " + tmpErrorMessage); 
+	}
+	
+}
+
+
+function verifyNoticeChoice(){
+	
+	//--- Look for the email field, all forms contain an e-mail address and hence related question
+	var tmpCheckEl = $('#NC_CHECK_EMAIL');
+	
+	if (tmpCheckEl.length === 0) {
+		
+		logNoticeChoice('Initially Not Found');
+		$.getScript( "//1.www.s81c.com/common/noticechoice/notice-choice.js" )
+		  .done(function( script, textStatus ) {
+		    logNoticeChoice('Have script and autoInit is ' + typeof(IBMCore.www.module.noticeChoice.autoInit));
+			setTimeout(function(){
+				var tmpReCheckEl = $('#NC_CHECK_EMAIL');
+				if (tmpReCheckEl.length === 0) {
+					logNoticeChoice('Error - Did not load on retry');
+				} else {
+					logNoticeChoice('Retry Properly Loaded Fields');
+					//--- Add Custom Logging on loaded fields and set initial log values
+					logNoticeChoiceInit();
+				}
+			},2000)
+		  })
+		  .fail(function( jqxhr, settings, exception ) {
+		     logNoticeChoice('Error - Script call for N&C Failed');
+		  });  
+	} else {
+		logNoticeChoice('Loaded As Expected');
+		//--- Add Custom Logging on loaded fields and set initial log values
+		logNoticeChoiceInit();
+	}
+	
+}
+
+jQuery(document).ready(function() {
+	setTimeout( verifyNoticeChoice, 3000 );		
+});
+		
+		
+		]]></xp:this.value>
+	</xp:scriptBlock>
+	
+
+	<xp:include>
+		<xp:this.pageName><![CDATA[${javascript:var tmpControlName = compositeData.includeJSMustache === true ? 'ibmSite_Mustache.xsp' : 'ibmSite_Blank.xsp';
+return tmpControlName;
+}]]></xp:this.pageName>
+	</xp:include>
+	
+	<xp:include>
+		<xp:this.pageName><![CDATA[${javascript:var tmpControlName = compositeData.includeDojo === true ? 'ibmSite_Dojo.xsp' : 'ibmSite_Blank.xsp';
+return tmpControlName;
+}]]></xp:this.pageName>
+	</xp:include>
+	
+	<xp:text
+		escape="false"
+		disableTheme="true">
+		<xp:this.value><![CDATA[#{javascript:
+		
+var tmpRet = '<style type="text/css">';
+try {
+	
+	var tmpBase = facesContext.getExternalContext().getRequestContextPath(); 
+	var tmpImage = compositeData.pageImage || viewScope.siteNav.config.pageImage;
+	if( !tmpImage ){return ''}; 
+	var tmpBGImage = compositeData.leadspaceBGImage || viewScope.siteNav.config.pageBGImage || '';
+	var tmpLeadStyle = compositeData.leadspaceStyle || viewScope.siteNav.config.leadStyle || '';
+	
+	
+	//--- DefaultBodyStyle = 'no-repeat 50% 0%';
+	
+	tmpRet += '#ibm-leadspace-head #ibm-leadspace-body {background: url(' + tmpImage + ')  no-repeat scroll 50% 0px transparent; background-position:left; } ';
+	
+	if( tmpBGImage ){
+		tmpRet += '.ibm-landing-page #ibm-leadspace-head {background: url(' + tmpBGImage + ') no-repeat scroll 50% 0px transparent }';
+	}
+	
+	if( tmpLeadStyle ){
+		tmpRet += '.ibm-landing-page #ibm-leadspace-head.ibm-alternate div#ibm-leadspace-body {  ' + tmpLeadStyle + '}';
+	}
+	
+} catch(ex){
+	
+}		
+
+tmpRet += '</style>';
+
+return tmpRet;
+ }]]></xp:this.value>
+		<xp:this.rendered><![CDATA[#{javascript:viewScope.ibmVersion != "v18";}]]></xp:this.rendered>
+	</xp:text>
+	<xp:include
+		pageName="${javascript:if( viewScope.useIBMOverrides == true ){
+	return 'ibmSite_Overrides.xsp'
+}
+return 'ibmSite_Blank.xsp';
+}"
+		>
+	</xp:include>
+	<xp:this.resources>
+
+
+		<xp:script src="/CoreWebCommon.jss" clientSide="false"></xp:script>
+		<xp:styleSheet href="/coreWebCommon.css"></xp:styleSheet>
+		
+
+
+<xp:headTag tagName="meta">
+ <xp:this.attributes>
+  <xp:parameter name="content" value="text/html; charset=UTF-8" />
+  <xp:parameter name="http-equiv" value="Content-Type" />
+ </xp:this.attributes>
+</xp:headTag>
+
+<xp:headTag tagName="meta">
+ <xp:this.attributes>
+  <xp:parameter name="name" value="viewport" />
+  <xp:parameter name="content" value="width=device-width, initial-scale=1" />
+ </xp:this.attributes>
+</xp:headTag>
+
+<xp:headTag tagName="link">
+ <xp:this.attributes>
+  <xp:parameter name="href" value="//www.ibm.com/favicon.ico" />
+  <xp:parameter name="rel" value="SHORTCUT ICON" />
+ </xp:this.attributes>
+</xp:headTag>
+
+
+<xp:headTag tagName="meta">
+ <xp:this.attributes>
+  <xp:parameter name="name" value="geo.country" />
+  <xp:parameter name="content" value="US" />
+ </xp:this.attributes>
+</xp:headTag>
+
+
+<xp:headTag tagName="meta">
+ <xp:this.attributes>
+  <xp:parameter name="content" value="© Copyright IBM Corp. 2015" />
+  <xp:parameter name="name" value="dcterms.rights" />
+ </xp:this.attributes>
+</xp:headTag>
+
+<xp:headTag tagName="meta">
+ <xp:this.attributes>
+  <xp:parameter name="content" value="#{javascript:viewScope.htmlheadIBMEffective || 'NA'}" />
+  <xp:parameter name="name" value="dcterms.date" />
+  <xp:parameter name="scheme" value="W3CDTF" />
+ </xp:this.attributes>
+</xp:headTag>
+
+<xp:headTag tagName="meta">
+ <xp:this.attributes>
+  <xp:parameter name="content" value="#{javascript:viewScope.htmlheadKeywords || 'NA'}" />
+  <xp:parameter name="name" value="keywords" />
+ </xp:this.attributes>
+</xp:headTag>
+
+<xp:headTag tagName="meta">
+ <xp:this.attributes>
+  <xp:parameter name="content" value="index,follow" />
+  <xp:parameter name="name" value="Robots" />
+ </xp:this.attributes>
+</xp:headTag>
+
+<xp:headTag tagName="meta">
+ <xp:this.attributes>
+  <xp:parameter name="content" value="v18.1.0 IBM Template Generator" />
+  <xp:parameter name="name" value="generator" />
+ </xp:this.attributes>
+</xp:headTag>
+
+<xp:script
+	src="/tealiumScript.js"
+	clientSide="true">
+</xp:script>
+
+
+<xp:headTag tagName="link">
+ <xp:this.attributes>
+  <xp:parameter name="href" value="//www.ibm.com/common/v18/css/www.css" />
+  <xp:parameter name="rel" value="stylesheet" />
+  <xp:parameter name="title" value="www" />
+  <xp:parameter name="type" value="text/css" />
+ </xp:this.attributes>
+</xp:headTag>
+
+
+<xp:headTag tagName="link">
+ <xp:this.attributes>
+  <xp:parameter name="href" value="//1.www.s81c.com/common/v18/css/tables.css" />
+  <xp:parameter name="rel" value="stylesheet" />
+  <xp:parameter name="title" value="www" />
+  <xp:parameter name="type" value="text/css" />
+ </xp:this.attributes>
+</xp:headTag>
+
+
+
+
+
+<xp:headTag tagName="script">
+ <xp:this.attributes>
+  <xp:parameter name="src" value="//1.www.s81c.com/common/v18/js/www.js" />
+  <xp:parameter name="type" value="text/javascript" />
+ </xp:this.attributes>
+</xp:headTag>
+
+
+
+
+
+<xp:headTag tagName="script">
+ <xp:this.attributes>
+  <xp:parameter name="src" value="//1.www.s81c.com/common/v18/js/tables.js" />
+  <xp:parameter name="type" value="text/javascript" />
+ </xp:this.attributes>
+</xp:headTag>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<xp:headTag tagName="link">
+ <xp:this.attributes>
+  <xp:parameter name="href" value="//1.www.s81c.com/common/v18/css/forms.css" />
+  <xp:parameter name="rel" value="stylesheet" />
+  <xp:parameter name="title" value="www" />
+  <xp:parameter name="type" value="text/css" />
+ </xp:this.attributes>
+</xp:headTag>
+
+
+
+<xp:headTag tagName="link">
+ <xp:this.attributes>
+  <xp:parameter name="href" value="//1.www.s81c.com/common/v18/css/syntaxhighlighter.css" />
+  <xp:parameter name="rel" value="stylesheet" />
+  <xp:parameter name="title" value="www" />
+  <xp:parameter name="type" value="text/css" />
+ </xp:this.attributes>
+</xp:headTag>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<xp:headTag tagName="script">
+ <xp:this.attributes>
+  <xp:parameter name="src" value="//1.www.s81c.com/common/v18/js/syntaxhighlighter.js" />
+  <xp:parameter name="type" value="text/javascript" />
+ </xp:this.attributes>
+</xp:headTag>
+
+
+
+<xp:headTag tagName="script">
+ <xp:this.attributes>
+  <xp:parameter name="src" value="//1.www.s81c.com/common/v18/js/forms.js" />
+  <xp:parameter name="type" value="text/javascript" />
+ </xp:this.attributes>
+</xp:headTag>
+
+
+
+
+
+
+
+
+
+<xp:script
+			src="/CLCore Base.js"
+			clientSide="true">
+		</xp:script>
+		
+		
+		
+	</xp:this.resources>
+<xp:scriptBlock>
+		<xp:this.value><![CDATA[
+		
+var tmpBaseURL = "#{javascript:facesContext.getExternalContext().getRequestContextPath()}";
+
+if( typeof(jQuery) == 'undefined' ){
+	dojo.registerModulePath("corelan", tmpBaseURL + "/corelan");
+	dojo.require("corelan.site.core");
+} else {
+		
+	jQuery(document).ready(function(){
+	
+		
+		CLCore.site.init();
+		
+	})
+}
+
+		
+		]]></xp:this.value>
+</xp:scriptBlock>
+	<xp:panel
+		rendered="#{javascript:compositeData.autoInitialize !== false;}">
+
+		<xp:scriptBlock>
+			<xp:this.value><![CDATA[
+
+
+function ___corelanpageloaded(){
+//console.log('___corelanpageloaded()');
+	//--- create a new global core object
+	if( typeof(corelan) != 'undefined' ){
+		core = new corelan.site.core();
+	} else {
+		core = CLCore.site;
+	}
+	
+		var tmpFormConfig;
+		var tmpConfigForAllForms = {};
+		
+		//--- Global Config Object: 
+		//  coreFormConfig - used for a single form implementation - specifies details about form.
+		try {
+			tmpFormConfig = coreFormConfig || {};
+		} catch(ex) {
+			//--- ok if nothing
+		}
+		
+	
+		
+	
+	
+		if( tmpFormConfig ){
+			tmpConfigForAllForms.defaultForm = tmpFormConfig; 	
+		}
+	
+	
+	
+	
+		if( tmpConfigForAllForms ){
+			//--- Initialize forms on this page
+			core.initForms(tmpConfigForAllForms);
+		} else {
+			//--- Initialize forms on this page as they normally would
+			core.initForms();
+		}
+		
+		
+	
+}
+
+
+
+if( typeof(jQuery) != 'undefined' && typeof($) == 'undefined' ){
+	window.$ = jQuery;
+}
+
+
+if( typeof(jQuery) != 'undefined' ){
+	jQuery( document ).ready(function() {
+			
+		
+	
+		___corelanpageloaded();
+		
+			
+		core.triggerReady();
+	});
+	
+} else {
+
+	dojo.addOnLoad(function(){
+		___corelanpageloaded();
+		//core.setAreaDisplay('ibm-top', true);		
+		dojo.publish("/corelan/pageloaded", {});
+		
+	});
+}
+
+
+
+]]></xp:this.value>
+		</xp:scriptBlock>
+
+	</xp:panel>
+
+
+	<xp:this.beforePageLoad><![CDATA[#{javascript://-- Below code sets the "create form" option to false for all XPages, we don't do forms that way for IBM.com sites
+XPage.setNoForm();
+
+//--- New Security Scan Code - 12-29-2016 - JF
+var tmpQS = context.getUrl().getQueryString();
+var tmpInvalids = ["(",")","{","}","[","]","//","%3C","%3E","%60","%27","%2F","%28"];
+//var tmpInvalids = [";","$","@","'","\"","'","<",">","(",")",",","\\"];
+var tmpIsValid = true;
+for( var iPos in tmpInvalids ){
+	if (tmpQS.indexOf(tmpInvalids[iPos]) > -1){
+		tmpIsValid = false;
+		break;
+	}
+}
+if( tmpIsValid === false ){
+	facesContext.getExternalContext().redirect('https://www.ibm.com/common/errorpages/404.html')
+}
+//--- END - New Security Scan Code
+
+if( context.getUrlParameter('overrides') == 'y'){
+	viewScope.useIBMOverrides = true;
+}
+
+
+var tmpPageTitle = '';
+
+var tmpNavID = compositeData.navID || viewScope.coreSite_navID || '';
+var tmpActiveTab = compositeData.tabID || viewScope.coreSite_navTabID || '';
+var tmpActiveSubTab = compositeData.subTabID || viewScope.coreSite_navSubTabID || '';
+
+if( tmpNavID ){
+  viewScope.coreSiteNavConfig = XPage.getNavConfig(tmpNavID)
+};
+
+
+var tmpProfileKey = viewScope.coreSiteID || 'Site';
+
+var tmpProfileView:NotesView = XPage.getView("luWebSiteProfiles");
+var tmpProfileDoc:NotesDocument = tmpProfileView.getDocumentByKey(tmpProfileKey, true);
+ 
+if (tmpProfileDoc && tmpProfileDoc != null){
+
+var tmpFields = {
+"htmlheadDescription":"wp_htmlhead_Title",
+"htmlheadOwner":"wp_htmlhead_Owner",
+"htmlheadDCType":"wp_htmlhead_DCType",
+"htmlheadDCSubject":"wp_htmlhead_DCSubject",
+"htmlheadIBMEffective":"wp_htmlhead_EffectiveDate",
+"htmlheadAbstract":"wp_htmlhead_Title",
+"htmlheadKeywords":"wp_htmlhead_Keywords",
+"htmlheadSiteName":"wp_site_name",
+"htmlheadSetupMethod":"wp_setup_method",
+"htmlheadControlForHTMLHEAD":"wp_htmlhead_control",
+"htmlheadControlForHEADER":"wp_masthead_control",
+"htmlheadControlForFOOTER":"wp_footer_control",
+"htmlheadSiteCodeVersion":"wp_code_version",
+
+"htmlheadSitePrimaryCategory":"wp_htmlhead_PrimaryCategory",
+"htmlheadSiteExpiryDate":"wp_htmlhead_ExpiryDate",
+"htmlheadSiteIndustry":"wp_htmlhead_Industry",
+"htmlheadSiteSiteID":"wp_htmlhead_SiteID",
+
+"htmlheadSiteLanguage":"wp_htmlhead_Language",
+"htmlheadSiteCountry":"wp_htmlhead_Country",
+
+"htmlheadSiteAudience":"wp_site_audience"
+
+}
+	
+	for (var aVar in tmpFields){
+		var tmpFieldName = tmpFields[aVar];
+		var tmpVarName = aVar;
+
+		var tmpVal = tmpProfileDoc.getItemValueString(tmpFieldName);
+		viewScope.put(tmpVarName,tmpVal);
+	}
+	
+}
+
+
+var tmpSuffix = viewScope.htmlheadSiteAudience;
+var tmpSuffixCode = viewScope.htmlheadSiteCodeVersion;
+if( tmpSuffixCode == 'prod' ){
+	tmpSuffixCode = '';
+}
+tmpSuffixCode = tmpSuffix + tmpSuffixCode;
+
+var ibmVersion = "v17";
+
+if( viewScope.htmlheadSiteAudience && viewScope.htmlheadSiteAudience.indexOf('v18') >= 0 ){
+	ibmVersion = "v18"
+}
+
+viewScope.ibmVersion = ibmVersion;
+
+if( htmlheadSetupMethod == "Default"){
+	//--- Build using standard templates
+	 
+	viewScope.coreSite_MASTHEAD = 'ibmSite_MASTHEAD_' + tmpSuffix; 
+	viewScope.coreSite_FOOTER = 'ibmSite_FOOTER_' + tmpSuffix;
+} else {
+	//--- Build using custom includes 
+	 
+	viewScope.coreSite_MASTHEAD = viewScope.htmlheadControlForMASTHEAD || 'ibmSite_MASTHEAD_ww'; 
+	viewScope.coreSite_FOOTER = viewScope.htmlheadControlForFOOTER || 'ibmSite_FOOTER_ww';
+}
+
+if( !viewScope.siteNav ){
+	viewScope.siteNav = {};
+} 
+if (!viewScope.siteNav.config){
+ 	viewScope.siteNav.config = {}
+}
+
+var tmpClientType = facesContext.getExternalContext().getRequest().getHeader("User-Agent");
+tmpClientType = (tmpClientType != null) ? tmpClientType : 'Unknown';
+viewScope.clientType = tmpClientType;
+
+var tmpMobile = {
+	"client":tmpClientType,
+	"iPad":tmpClientType.indexOf('iPad') >= 0 ,
+	"iPhone":tmpClientType.indexOf('iPhone') >= 0 ,
+	"android":tmpClientType.indexOf('Android') >= 0 ,
+	"webOS":tmpClientType.indexOf('webOS') >= 0 ,
+	"iPod":tmpClientType.indexOf('iPod') >= 0 ,
+	"blackBerry":tmpClientType.indexOf('BlackBerry') >= 0 ,
+	"windowsPhone":tmpClientType.indexOf('Windows Phone') >= 0 
+}
+tmpMobile.isMobile = (tmpMobile.iPad || tmpMobile.iPhone || tmpMobile.android || tmpMobile.webOS || tmpMobile.iPod || tmpMobile.blackBerry || tmpMobile.windowsPhone);
+tmpMobile.isSmall = (tmpMobile.iPhone || tmpMobile.android || tmpMobile.iPod || tmpMobile.blackBerry || tmpMobile.windowsPhone);
+
+viewScope.mobileSpecs = tmpMobile;
+viewScope.isMobile = tmpMobile.isMobile;
+
+XPage.addData('mobileSpecs',tmpMobile);
+XPage.addData('isMobile',viewScope.isMobile);
+
+
+
+
+if( viewScope.coreSiteNavConfig ){
+	XPage.initApp({
+			navConfig:viewScope.coreSiteNavConfig,
+			activeTab:tmpActiveTab,
+			activeSubTab:tmpActiveSubTab,
+			pageTitle: tmpPageTitle
+	});
+};
+
+var tmpLSType = compositeData.leadspaceType || viewScope.siteNav.config.leadspaceType || '';
+viewScope.lsType = tmpLSType;
+
+if( viewScope.lsType == "Control") {
+	var tmpLSControl = compositeData.leadStyle || viewScope.siteNav.config.leadStyle || '';
+	if( !tmpLSControl.toString().endsWith('.xsp') ){
+		tmpLSControl += '.xsp';
+	}
+	viewScope.lsControl = tmpLSControl;
+} else {
+	viewScope.lsControl = "ibmSite_Blank.xsp"
+}
+
+
+
+
+viewScope.htmlheadDescription = viewScope.htmlheadDescription || "IBM Event Site"
+viewScope.htmlheadOwner = viewScope.htmlheadOwner || "IBM Events Team"
+viewScope.htmlheadIBMSubjectTaxonomy = viewScope.htmlheadDCSubject || "SW900"
+viewScope.htmlheadDCType = viewScope.htmlheadDCType || "CTA04"
+viewScope.htmlheadIBMEffective = viewScope.htmlheadIBMEffective || "2015-05-01"
+viewScope.htmlheadSiteExpiryDate = viewScope.htmlheadSiteExpiryDate || "2020-12-31"
+
+viewScope.htmlheadAbstract = viewScope.htmlheadAbstract || "IBM Event Site"
+viewScope.htmlheadKeywords = viewScope.htmlheadKeywords || "Events Event"
+
+viewScope.htmlheadSitePrimaryCategory = viewScope.htmlheadSitePrimaryCategory || "Events"
+viewScope.htmlheadSiteSiteID = viewScope.htmlheadSiteSiteID || "IBM Events"
+viewScope.htmlheadSiteIndustry = viewScope.htmlheadSiteIndustry || ""
+viewScope.htmlheadSiteLanguage = viewScope.htmlheadSiteLanguage || "en-US"
+viewScope.htmlheadSiteCountry = viewScope.htmlheadSiteCountry || "US"
+}]]></xp:this.beforePageLoad>
+	<div id="ibm-top" class="ibm-landing-page clcore-event-container">
+			<xp:include
+				pageName="${javascript:var tmpControl = viewScope.coreSite_MASTHEAD || 'ibmSite_MASTHEAD_ww';
+return tmpControl + &quot;.xsp&quot;;
+}"
+				>
+			</xp:include>
+<div id="ibm-content-wrapper">
+
+
+
+
+<header role="banner" aria-labelledby="ibm-pagetitle-h1">
+
+			<xc:coreSite_InternalNavMenuBar></xc:coreSite_InternalNavMenuBar>
+			
+
+			<!-- LEADSPACE_BEGIN -->
+			<xp:panel>
+				<!-- V17 LEAD SPACE -->
+				<xp:text
+					escape="false"
+					disableTheme="true">
+					<xp:this.value><![CDATA[#{javascript:
+var tmpAltClass = ' class="ibm-alternate" ';
+var tmpHeight = compositeData.leadspaceType || viewScope.siteNav.config.leadspaceType || '';
+if(tmpHeight == 'Tall'){
+	tmpAltClass = '';
+}
+
+var tmpPageTitle = compositeData.pageTitle || viewScope.siteNav.pageTitle || '';
+if( tmpPageTitle == '' ){
+	return ''
+}
+return '<header role="banner" aria-labelledby="ibm-pagetitle-h1"><div id="ibm-leadspace-head" ' + tmpAltClass + '>';
+}]]></xp:this.value>
+					<xp:this.rendered><![CDATA[#{javascript:viewScope.ibmVersion != "v18";}]]></xp:this.rendered>
+				</xp:text>
+				<xp:panel>
+					<xp:this.rendered><![CDATA[#{javascript:var tmpPageTitle = compositeData.pageTitle || viewScope.siteNav.pageTitle || '';
+if( tmpPageTitle == '' ){
+	return true;
+}
+return false;}]]></xp:this.rendered>
+					<xp:text
+						escape="false"
+						disableTheme="true">
+						<xp:this.value><![CDATA[#{javascript:
+	var tmpSubText = compositeData.pageSubText || viewScope.siteNav.pageSubText || ''; 
+	return tmpSubText;
+}]]></xp:this.value>
+					</xp:text>
+				</xp:panel>
+				<xp:panel>
+					<xp:this.rendered><![CDATA[#{javascript:var tmpPageTitle = compositeData.pageTitle || viewScope.siteNav.pageTitle || '';
+if( tmpPageTitle == '' ){
+	return false;
+}
+return true;}]]></xp:this.rendered>
+					<xp:panel>
+						<xp:this.rendered><![CDATA[#{javascript:viewScope.ibmVersion != "v18";}]]></xp:this.rendered>
+						<div id="div1">
+							<div class="ibm-columns">
+								<div class="ibm-col-1-1">
+									<h1
+										id="ibm-pagetitle-h1"
+										class="ibm-h1"
+										style="max-width:600px;">
+										<xp:text
+											escape="false"
+											disableTheme="true"
+											value="#{javascript:return compositeData.pageTitle || viewScope.siteNav.pageTitle || ''}">
+										</xp:text>
+									</h1>
+									<xp:text
+										escape="false"
+										disableTheme="true">
+										<xp:this.value><![CDATA[#{javascript:var tmpH= '<p><em><span>';
+var tmpM = '</span>'
+var tmpF = '</em></p>'
+
+var tmpSubText = compositeData.pageSubText || viewScope.siteNav.pageSubText || ''; 
+var tmpSubHeader = compositeData.pageSubTitle || viewScope.siteNav.pageSubTitle  || '';
+
+if( tmpSubText == 'nav_page_sub_text' ) {
+	tmpSubText = '';
+} 
+
+
+return tmpH + tmpSubHeader + tmpM + tmpSubText + tmpF;}]]></xp:this.value>
+									</xp:text>
+								</div>
+							</div>
+						</div>
+						<xp:text
+							escape="false"
+							disableTheme="true">
+							<xp:this.value><![CDATA[#{javascript:
+
+var tmpPageTitle = compositeData.pageTitle || viewScope.siteNav.pageTitle || '';
+if( tmpPageTitle == '' ){
+	return ''
+}
+
+return '</div>';
+}]]></xp:this.value>
+						</xp:text>
+					</xp:panel>
+				</xp:panel>
+				
+				
+				<xp:this.rendered><![CDATA[#{javascript:viewScope.ibmVersion != "v18";}]]></xp:this.rendered>
+				
+				<!-- END V17 END LEAD SPACE -->
+			</xp:panel>
+
+<xp:include>
+		<xp:this.pageName><![CDATA[${javascript:javascript:
+			return viewScope.lsControl || 'ibmSite_Blank.xsp';
+		}]]></xp:this.pageName>
+</xp:include>
+			
+	<xp:panel>
+				<xp:this.rendered><![CDATA[#{javascript:var tmpLSType = compositeData.leadspaceType || viewScope.siteNav.config.leadspaceType || '';
+viewScope.ibmVersion == "v18" && tmpLSType === "Custom"}]]></xp:this.rendered>
+
+<xp:text escape="false" disableTheme="true">
+<xp:this.value><![CDATA[#{javascript:
+	var tmpLSHTML = compositeData.leadStyle || viewScope.siteNav.config.leadStyle || '';
+	tmpLSHTML = tmpLSHTML.replace("[tmpBaseURL]", XPage.getBaseURL());
+	return tmpLSHTML;	
+}]]></xp:this.value></xp:text>
+
+</xp:panel>
+		
+			
+			<xp:panel>
+				<xp:this.rendered><![CDATA[#{javascript:var tmpLSType = compositeData.leadspaceType || viewScope.siteNav.config.leadspaceType || '';
+viewScope.ibmVersion == "v18" && tmpLSType === "Standard"}]]></xp:this.rendered>
+				<!-- V18 LEADSPACE -->
+				
+<style>
+	/* styles/site-base.css */
+	 .ibm-landing-page #ibm-leadspace-body { padding-bottom: 30px; } .ibm-landing-page #ibm-leadspace-head {
+	
+	background-image: url(<xp:text escape="false" disableTheme="true">
+<xp:this.value><![CDATA[#{javascript:
+	return compositeData.pageImage || viewScope.siteNav.config.pageImage || '';
+	
+}]]></xp:this.value></xp:text>); background-size: cover; background-position: 50% 50%; }
+
+	.site-item-rtcol { margin:1.25em 0 0; }
+	.ibm-grid-xlarge .site-item-rtcol { border-width:0 0 0 1px; border-color: #ccc; border-style: dotted; padding:0 0 1.5em 1.25em;
+	margin:0 0 1.5em 1.25em; } .site-grp [class*="-link"]:before { font-size: 1.6em; } .site-grp .ibm-icon-nolink { padding-left:
+	1.7em !important; } .agenda-item h4, .site-no-padding { padding-bottom: 0; }
+</style>
+
+
+<div id="ibm-leadspace-head" class="ibm-alternate">
+	<div id="ibm-leadspace-body">
+		<div class="ibm-columns">
+			<div class="ibm-col-1-1 ibm-col-xlarge-6-4 ibm-padding-bottom-20 ibm-alternate-background">
+				
+
+					<xp:text escape="false" disableTheme="true">
+					<xp:this.value><![CDATA[#{javascript:
+					
+					var tmpPageTitle = compositeData.pageTitle || viewScope.siteNav.pageTitle || '';
+					var tmpImage = compositeData.pageImage || viewScope.siteNav.config.pageImage;
+					var tmpSubHeader = compositeData.pageSubTitle || viewScope.siteNav.pageSubTitle  || '';
+					
+					var tmpBackColor = compositeData.leadspaceBGColor || viewScope.siteNav.config.pageBGColor || "#333333";
+
+					var tmpBackImage = tmpImage || "";
+					
+					var tmpButtonText = tmpNavConfig.buttonText || "";
+					var tmpButtonColor = tmpNavConfig.buttonColor || "";
+					var tmpButtonURL = tmpNavConfig.buttonURL || "";
+					
+										
+					var tmpOut = '';
+					if( tmpPageTitle ){
+						tmpOut += '\n<h1 class="ibm-h1 ibm-bold ibm-padding-top-20">';
+						tmpOut += '' + tmpPageTitle;
+						tmpOut += '</h1>\n';
+						tmpOut += '\n';
+					}
+					if( tmpSubHeader ){
+						tmpOut += '\n<h4 class="ibm-light ibm-h4">';
+						tmpOut += '' + tmpSubHeader;
+						tmpOut += '</h4>\n';
+						tmpOut += '\n';
+					}
+					
+					/*					
+					tmpOut += '\n<p class="ibm-btn-row ibm-button-link">';
+					tmpOut += '\n';
+					tmpOut += '<a href="./Registration.xsp?open" class="ibm-btn-pri ibm-btn-blue-50">';
+					tmpOut += 'Register Now';
+					tmpOut += '</a>';
+					tmpOut += '</p>';
+					tmpOut += '\n';
+					*/
+					
+					return tmpOut;
+						
+					}]]></xp:this.value></xp:text>
+					
+			</div>
+		</div>
+	</div>
+</div>
+
+				
+				<!-- V18 LEADSPACE_END -->
+			</xp:panel>
+</header>
+			<!-- CONTENT_NAV_BEGIN -->
+			
+			<xc:coreSite_InternalNav></xc:coreSite_InternalNav>
+			
+			
+			<!-- CONTENT_NAV_END -->
+
+<xp:text escape="false" disableTheme="true">
+<xp:this.value><![CDATA[#{javascript:
+
+var tmpPageTitle = compositeData.pageTitle || viewScope.siteNav.pageTitle || '';
+if( tmpPageTitle == '' ){
+	return ''
+}
+
+return '</header>';
+}]]></xp:this.value></xp:text>
+
+			<main role="main" aria-labelledby="ibm-pagetitle-h1">
+			<div id="ibm-pcon">
+				<!-- CONTENT_BEGIN -->
+				<div id="ibm-content">
+				<xc:coreSite_InternalCommon></xc:coreSite_InternalCommon>
+					<!-- CONTENT_BODY -->
+					<div id="ibm-content-body">
+						<div id="ibm-content-main">
+							<xp:callback facetName="facet_content_main" ></xp:callback>
+						</div>
+						
+						<!-- FEATURES_BEGIN -->
+						<div>
+							<div id="ibm-contact-module">
+								<!--IBM Contact Module-->
+							</div>
+
+						</div>
+						<!-- FEATURES_END -->
+						<!-- CONTENT_BODY_END -->
+					</div>
+				</div>
+				<!-- CONTENT_END -->
+				<xp:text escape="false" disableTheme="true">
+				<xp:this.value><![CDATA[#{javascript:
+				var tmpRet = "";
+				//ToDo: Update to look for an array and include multiple
+				if( viewScope.clientAppLibraryName ){
+					var tmpBase = XPage.getBaseURL();
+					tmpRet += '<script type="text/javascript" src="' + tmpBase + '/' + viewScope.clientAppLibraryName + '"></script>';
+				}
+				return tmpRet;	
+				}]]></xp:this.value></xp:text>
+				
+			</div>
+			</main>
+			<div id="ibm-related-content">
+				<div id="ibm-merchandising-module">
+					<!--IBM Web Merchandising Module-->
+				</div>
+			</div>
+			</div>
+
+						<xp:include
+				pageName="${javascript:var tmpControl = viewScope.coreSite_FOOTER || 'ibmSite_FOOTER_ww';
+return tmpControl + &quot;.xsp&quot;;
+}"
+				>
+			</xp:include>
+
+		</div>
+		
+		<script src="//1.www.s81c.com/common/stats/ida_stats.js" type="text/javascript"></script>
+	
+
+
+</xp:view>
+

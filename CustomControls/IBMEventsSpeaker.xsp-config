@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>IBMEventsSpeaker</component-type>
+    <composite-name>IBMEventsSpeaker</composite-name>
+    <composite-file>/IBMEventsSpeaker.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;div style="margin:2px;border:dashed 2px:#FFcc00;padding:3px;"&gt;&#xd;
+&lt;b&gt;Speaker&lt;/b&gt;&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>GRP</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>unid</property-name>
+      <property-class>string</property-class>
+      <display-name>UNID</display-name>
+    </property>
+    <property>
+      <property-name>speakerName</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>speakerJobTitle</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>speakerOrganization</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>speakerBio</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>speakerPhoto</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>speakerBioIntro</property-name>
+      <property-class>string</property-class>
+    </property>
+    <property>
+      <property-name>speakerBioMore</property-name>
+      <property-class>string</property-class>
+    </property>
+  </composite-component>
+</faces-config>

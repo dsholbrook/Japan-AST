@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+<!-- FOOTER_BEGIN -->
+<div id="ibm-footer-module">
+</div>
+<footer role="contentinfo" aria-label="IBM">
+<div id="ibm-footer">
+<h2 class="ibm-access">Обща информация
+</h2>
+<ul>
+<li><a href="http://www.ibm.com/contact/bg/bg/">Контакт</a></li>
+<li><a href="http://www.ibm.com/privacy/bg/bg/">Поверителност</a></li>
+<li><a href="http://www.ibm.com/legal/bg/bg/">Условия за ползване</a></li>
+</ul>
+</div>
+</footer>
+<!-- FOOTER_END --></xp:view>

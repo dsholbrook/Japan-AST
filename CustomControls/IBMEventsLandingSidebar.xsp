@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view
+	xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+	<xp:this.resources>
+		<xp:script src="/CoreWebCommon.jss" clientSide="false">
+		</xp:script>
+	</xp:this.resources>
+
+<xp:text escape="false" disableTheme="true">
+<xp:this.value><![CDATA[#{javascript:
+	var tmpRet = '';
+	
+	if( viewScope.formSpecs.eventSite && viewScope.formSpecs.eventSite.text ){
+		tmpRet += '<div class="ibm-rule"><hr></div>';
+		tmpRet += '<p><a target="_blank" class="ibm-inlinelink ibm-forward-link" href="' + viewScope.formSpecs.eventSite.url + '" alt="' + viewScope.formSpecs.eventSite.text + '">';
+		tmpRet += '' + viewScope.formSpecs.eventSite.text;
+		tmpRet += '</a></p>';
+	}
+	if (viewScope.formSpecs.sideIncludeContact == true ){
+		try {
+		
+		
+			var tmpName = document1.getItemValueString('eventContactName') || ''
+			var tmpEMail = document1.getItemValueString('eventContactEMail') || ''
+			tmpName = tmpName || 'Event Manager';
+			var tmpContactMsg = 'If you have questions or need assistance contact ';
+			if( document1) {
+				tmpContactMsg = document1.getItemValueString('lc_ContactMsg') || tmpContactMsg;
+			}
+	
+			if(tmpEMail){
+				if(tmpRet){
+					tmpRet += '<div class="ibm-rule"><hr></div>';
+				}
+				tmpRet += '<p>' + tmpContactMsg + '&#160;<a class="ibm-inlinelink ibm-email-link" href="mailto:';
+				tmpRet += tmpEMail + '">';
+				tmpRet += '' + tmpEMail || '';
+				tmpRet += '</a></p>';
+			}
+			
+		} catch(ex){
+			
+		}
+	}
+	
+	var tmpRightHTML = viewScope.formSpecs.sideHTML || '';
+	if( tmpRightHTML && tmpRightHTML != null ){
+		if(tmpRet){
+			tmpRet += '<div class="ibm-rule"><hr></div>';
+		}
+		tmpRet += tmpRightHTML;
+	}
+	
+	return tmpRet;	
+}]]></xp:this.value></xp:text>
+
+</xp:view>

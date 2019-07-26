@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteField</component-type>
+    <composite-name>coreSiteField</composite-name>
+    <composite-file>/coreSiteField.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;div style="border:dotted 2px:green;"&gt;&#xd;
+&lt;div class="f_label&lt;%=(("" + this.labelPos)=="top")?"_top":""%&gt;"&gt;&#xd;
+&lt;%=this.fieldLabel || "Enter Value"%&gt; &lt;%=(("" + this.isRequired)=="true")?"&lt;span style='color:red'&gt;* &lt;/span&gt;":""%&gt;&lt;/div&gt;&#xd;
+&lt;div class="f_field&lt;%=(("" + this.labelPos)=="top")?"_bottom":""%&gt;"&gt;&#xd;
+&lt;input style="color:green;font-weight:bold;width:&lt;%=(this.fieldWidth || 289)%&gt;px" value="&lt;%=(this.fieldName || '* no field name')%&gt;" &gt;&#xd;
+&lt;/input&gt;&#xd;
+&lt;/div&gt;&#xd;
+&lt;div style="color:blue"&gt;&#xd;
+&lt;%=(("" + this.isRequired)=="true")?("(required)"):' '%&gt;&#xd;
+&lt;/div&gt;&#xd;
+&#xd;
+&lt;%=(this.fieldName) ? "" : '&lt;div style="border:solid 1px:red;color:red;font-size:20px;"&gt;Important: The &lt;b&gt;fieldName&lt;/b&gt; property is required.&lt;/div&gt;'%&gt;&#xd;
+&#xd;
+&lt;/div&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>Website UI</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>fieldName</property-name>
+      <property-class>string</property-class>
+      <display-name>Field name</display-name>
+      <property-extension>
+        <required>true</required>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>isRequired</property-name>
+      <property-class>boolean</property-class>
+      <display-name>Required?</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+          <default-value>false</default-value>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>fieldLabel</property-name>
+      <property-class>string</property-class>
+      <display-name>Label</display-name>
+    </property>
+    <property>
+      <property-name>fieldWidth</property-name>
+      <property-class>int</property-class>
+      <display-name>Width</display-name>
+    </property>
+    <property>
+      <property-name>currentValue</property-name>
+      <property-class>java.lang.Object</property-class>
+      <display-name>Value</display-name>
+    </property>
+    <property>
+      <property-name>requiredMessage</property-name>
+      <property-class>string</property-class>
+      <display-name>Required message</display-name>
+      <property-extension>
+        <designer-extension>
+          <visible>isRequired</visible>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>labelPos</property-name>
+      <property-class>string</property-class>
+      <display-name>Label position</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>form default&#xd;
+left&#xd;
+top</editor-parameter>
+          <default-value>form default</default-value>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>controlType</property-name>
+      <property-class>string</property-class>
+      <display-name>Control</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>Text&#xd;
+ComboBox&#xd;
+Checkbox&#xd;
+DatePicker&#xd;
+Radio&#xd;
+Text Area&#xd;
+Number&#xd;
+Display Only&#xd;
+Hidden</editor-parameter>
+          <default-value>Text</default-value>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>textAreaRows</property-name>
+      <property-class>int</property-class>
+      <display-name>Text area rows</display-name>
+      <property-extension>
+        <designer-extension>
+          <visible>controlType == 'Text Area';</visible>
+          <validation-formula/>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>textAreaCols</property-name>
+      <property-class>int</property-class>
+      <display-name>Text area columns</display-name>
+      <property-extension>
+        <designer-extension>
+          <visible>controlType == 'Text Area';</visible>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>list</property-name>
+      <property-class>java.lang.Object</property-class>
+      <display-name>Selection List</display-name>
+      <property-extension>
+        <designer-extension>
+          <visible>controlType == 'ComboBox' || controlType == 'Checkbox' || controlType == 'Radio'</visible>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>orientation</property-name>
+      <property-class>string</property-class>
+      <display-name>Orientation</display-name>
+      <property-extension>
+        <designer-extension>
+          <visible>controlType == 'Checkbox' || controlType == 'Radio'</visible>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>Vertical&#xd;
+Horizontal</editor-parameter>
+          <default-value/>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>hiddenOnLoad</property-name>
+      <property-class>boolean</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>autoLoad</property-name>
+      <property-class>boolean</property-class>
+      <display-name>Auto Load</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+      <description>True by default, specify false to disable automatic loading of data</description>
+    </property>
+    <property>
+      <property-name>disableTrim</property-name>
+      <property-class>boolean</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+      <description>Set to true to disable trimming for this field.  By default, all relevant fields will trim.</description>
+    </property>
+    <property>
+      <property-name>pluginUpdates</property-name>
+      <property-class>java.lang.Object</property-class>
+      <display-name>Update Plug-ins</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.designer.domino.client.script.editor</editor>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>pluginValidations</property-name>
+      <property-class>java.lang.Object</property-class>
+      <display-name>Validation Plug-ins</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.designer.domino.client.script.editor</editor>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>pluginTranslations</property-name>
+      <property-class>java.lang.Object</property-class>
+      <display-name>Translation Plug-ins</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.designer.domino.client.script.editor</editor>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>formID</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <designer-extension>
+          <visible>return false;</visible>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>fieldNote</property-name>
+      <property-class>string</property-class>
+      <display-name>Field note</display-name>
+      <description>Additional note with helpful info about this field for the end user</description>
+    </property>
+    <property>
+      <property-name>labelNotBold</property-name>
+      <property-class>boolean</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+      <display-name>Make the label not bold?</display-name>
+    </property>
+    <property>
+      <property-name>autoClearBlank</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>Default&#xd;
+Always&#xd;
+Never</editor-parameter>
+        </designer-extension>
+      </property-extension>
+      <description>Automatically clear the field value on save (post validate) when the field has been hidden in the UI.  This is ignored by Hidden, Display Only and Number fields.</description>
+    </property>
+    <property>
+      <property-name>allowMultiple</property-name>
+      <property-class>boolean</property-class>
+      <display-name>Select to allow multi-selection for Combobox</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+          <validation-formula>controlType == 'ComboBox'</validation-formula>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>placeholder</property-name>
+      <property-class>string</property-class>
+      <display-name>Placeholder Attribute</display-name>
+    </property>
+  </composite-component>
+</faces-config>

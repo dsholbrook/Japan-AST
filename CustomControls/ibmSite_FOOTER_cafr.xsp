@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+<!-- FOOTER_BEGIN --><div id="ibm-footer-module"></div><div id="ibm-footer"><h2 class="ibm-access">Liens vers les politiques</h2><ul><li><a href="http://www.ibm.com/contact/ca/fr/">Joindre IBM</a></li><li><a href="http://www.ibm.com/privacy/ca/fr/">Vie privÃ©e</a></li><li><a href="http://www.ibm.com/legal/ca/fr/">ModalitÃ©s d'utilisation</a></li></ul></div><!-- FOOTER_END -->
+
+</xp:view>

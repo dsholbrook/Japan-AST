@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+
+<xp:text escape="false" disableTheme="true">
+<xp:this.value><![CDATA[#{javascript:
+try {
+	var tmpPageID = compositeData.unid;
+	var tmpRet = "";
+	if( tmpPageID ){
+		viewScope.thisPage.PageID = tmpPageID;
+		var tmpPageDoc = session.getCurrentDatabase().getDocumentByUNID(tmpPageID);
+		if (tmpPageDoc && tmpPageDoc != null){
+			compositeData.speakerName = tmpPageDoc.getItemValueString('name');
+			compositeData.speakerJobTitle = tmpPageDoc.getItemValueString('jobtitle');
+			compositeData.speakerOrganization = tmpPageDoc.getItemValueString('organization');
+			compositeData.speakerPhoto = tmpPageDoc.getItemValueString('photoname');
+			var tmpBio = '';
+			var tmpBioIntro = '';
+			var tmpBioMore = '';
+			for( var i = 1 ; i <= 7; i++ ){
+				var tmpPar = tmpPageDoc.getItemValueString('biocontent' + i);
+				if(tmpPar){
+					if( tmpBio ){
+						tmpBio += '<br /><br />'
+					}
+					tmpBio += tmpPar;			
+					if( tmpBioIntro ){
+						if(tmpBioMore){
+							tmpBioMore += '<br /><br />'
+						}
+						tmpBioMore += tmpPar;
+					} else {
+						tmpBioIntro = tmpPar	
+					}
+				}
+			}
+			if( tmpBio ){
+				tmpBio = '<p>' + tmpBio + '</p>';
+			}
+			if( tmpBioIntro ){
+				tmpBioIntro = '<p>' + tmpBioIntro + '</p>';
+			}
+			if( tmpBioMore ){
+				tmpBioMore = '<p>' + tmpBioMore + '</p>';
+			}
+			
+			compositeData.speakerBio = tmpBio;
+			compositeData.speakerBioIntro = tmpBioIntro;
+			compositeData.speakerBioMore = tmpBioMore;
+		}
+	}
+	
+	var tmpFullTitle = compositeData.speakerName;
+	if( compositeData.speakerJobTitle ){
+		tmpFullTitle += ', ' + compositeData.speakerJobTitle;
+	}
+	if( compositeData.speakerOrganization ){
+		tmpFullTitle += ', ' + compositeData.speakerOrganization;
+	}
+	var tmpBaseURL = facesContext.getExternalContext().getRequestContextPath();
+	 
+	tmpRet += '\n<div class="ibm-container ibm-portrait-module">';
+	tmpRet += '\n<h3 class="ibm-padding-top-0 ibm-h4 ibm-rule pf-contact-header ibm-bold ibm-textcolor-blue-50">' + tmpFullTitle + '</h3>';
+	tmpRet += '\n<div data-widget="showhide" class="ibm-simple-show-hide ibm-container-body">';
+	if( compositeData.unid && compositeData.speakerPhoto ){
+		tmpRet += '<img border="0" src="' + tmpBaseURL + '/0/' + compositeData.unid + '/$FILE/' + compositeData.speakerPhoto + '" align="right" vspace="4" hspace="4" alt="' + compositeData.speakerName + '"  />\n';
+	}
+	tmpRet += '\n' + compositeData.speakerBioIntro;
+	var tmpMore = '';
+	if( compositeData.speakerBioMore ){
+		tmpRet += '\n<div class="ibm-container-body">';
+		//tmpRet += '\n<p class="ibm-show-hide-controls"><a href="#show" class="">Show more</a><a href="#hide" class="ibm-active">Show less</a></p>';
+		//tmpRet += '\n<p class="ibm-show-hide-controls ibm-icononly"><a href="#show" class="ibm-maximize-link"></a>&#160;<a href="#hide" class="ibm-minimize-link ibm-active"></a></p>';
+		if( viewScope.isEnglish ){
+			//icon and english text
+			tmpRet += '\n<p class="ibm-show-hide-controls "><a href="#show" class="ibm-inlinelink ibm-maximize-link">Show More</a>&#160;&#160;&#160;<a href="#hide" class="ibm-inlinelink ibm-minimize-link ibm-active">Show Less</a></p>';
+		} else {
+			//icon only
+			tmpRet += '\n<p class="ibm-show-hide-controls ibm-icononly"><a href="#show" class="ibm-maximize-link"></a>&#160;<a href="#hide" class="ibm-minimize-link ibm-active"></a></p>';
+		}
+		tmpRet += '\n  <div class="ibm-hideable">';
+		tmpRet += '\n' + compositeData.speakerBioMore;
+		tmpRet += '\n  </div>';
+		tmpRet += '\n</div>';
+		tmpRet += '\n';
+	
+	}
+	tmpRet += '\n';
+
+	tmpRet += '\n	</div>';
+	tmpRet += '\n</div>';
+	tmpRet += '\n<div style="clear:both"></div>';
+	tmpRet += '\n';
+
+} catch(ex){
+	tmpRet = "ERROR: " + ex.toString();
+}
+
+return tmpRet;
+
+}]]></xp:this.value></xp:text>
+
+
+</xp:view>

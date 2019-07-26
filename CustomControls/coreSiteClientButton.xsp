@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+<xp:text
+		escape="false"
+		disableTheme="true">
+		<xp:this.value><![CDATA[#{javascript:
+var tmpOnclick = '';
+//var tmpURL = compositeData.href || '';
+var tmpID = compositeData.webID || '';
+if( compositeData.onClickFunction ){
+	var tmpOnClickText = compositeData.onClickFunction || "";
+	tmpOnClickText = tmpOnClickText.replace(/'/g,'"');
+	tmpOnclick = " onclick='" + tmpOnClickText + ";return false;' ";
+//	tmpURL = 'javascript:void(0)'; 
+}
+if( tmpID ){
+	tmpID = ' id="' + tmpID + '"'
+	
+}
+
+var tmpAction = compositeData.actionName || '';
+if( tmpAction ){
+	 tmpAction = ' data-action="' + tmpAction + '" '
+}
+var tmpActionParams = compositeData.actionParams || '';
+if( tmpActionParams ){
+	 tmpActionParams = ' data-action-params="' + tmpActionParams + '" '
+}
+
+var tmpType = compositeData.buttonType || 'Primary';
+
+var tmpColor = compositeData.color || '';
+
+var tmpClasses = (tmpType == 'Secondary') ? 'ibm-btn-sec' : 'ibm-btn-pri';
+
+if( tmpColor ){
+	tmpClasses += ' ibm-btn-' + tmpColor + '-50';
+}
+
+var tmpSize = compositeData.buttonSize || '';
+
+if( tmpSize == 'Small' ){
+	tmpClasses += ' ibm-btn-small ';
+}
+
+tmpClasses = ' class="' + tmpClasses + '"'
+
+var tmpNewLink = '<input ' + tmpID + ' type="button" ' + tmpOnclick + tmpAction + tmpActionParams + tmpClasses + ' value="' + (compositeData.caption || '') + '" />'
+
+
+return tmpNewLink
+}]]></xp:this.value>
+	</xp:text>
+	
+</xp:view>

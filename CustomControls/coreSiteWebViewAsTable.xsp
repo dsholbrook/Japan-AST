@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+<style>
+.view-large-field {
+	height:80px;
+	overflow:auto;
+	border:solid 1px gray;
+	width:350px;
+}
+</style>	
+	<xp:this.data>
+		<xp:dominoView
+			searchMaxDocs="5000"
+			var="view1"
+			keys="#{javascript:compositeData.showOnlyKey || '';}"
+			keysExactMatch="true">
+			<xp:this.viewName><![CDATA[#{javascript:compositeData.viewName || '';
+}]]></xp:this.viewName>
+		</xp:dominoView>
+	</xp:this.data>
+
+	<xp:this.beforePageLoad><![CDATA[#{javascript:var tmpViewName = compositeData.viewName || '';
+if( !tmpViewName ){return};
+var tmpView = XPage.getView(tmpViewName);
+if( !tmpView || tmpView == null){return};
+
+var tmpRet = '';
+var tmpCols = [];
+var tmpColsAdded = 0;
+
+//var tmpTableID = compositeData.tableID ? compositeData.tableID : 'coretablemain';
+var tmpTableID = compositeData.tableID || compositeData.viewName || 'coretablemain';
+
+var tmpColCount = tmpView.getColumnCount();
+
+
+for( var i = 0 ; i < tmpColCount ; i++){
+	//--- Build table header based on view content
+	var tmpCol:NotesViewColumn = tmpView.getColumn(i+1);
+	var tmpTitle = tmpCol.getTitle();
+	var tmpColSpecs = {};
+	if( tmpTitle.startsWith("{")){
+		tmpColSpecs = XPage.fromJson(tmpTitle);
+	} else {
+		tmpColSpecs.title = tmpTitle;
+	}
+	
+	var tmpField = tmpCol.getItemName();
+	var tmpColPos = tmpCol.getColumnValuesIndex();
+	var tmpSorted = tmpCol.isResortAscending() || tmpCol.isResortDescending();
+	tmpColSpecs.colName = tmpCol.getItemName() || '';
+	//XPage.debug( 'Added - ' + tmpTitle  + ' col is ' + tmpColSpecs.colName );
+	if( tmpSorted && !(tmpColSpecs.sorted === false) ){
+		tmpColSpecs.sorted = true;
+		tmpColSpecs.orderable = true;
+	} else {
+		tmpColSpecs.sorted = false;
+		tmpColSpecs.orderable = false;
+	}
+	tmpColSpecs.colPos = tmpCol.getColumnValuesIndex() || '';
+	if( tmpCol.isFontStrikethrough() ){
+		tmpColSpecs.searchable = false;
+	}
+
+	if( tmpCol.isFontItalic() ){
+		tmpColSpecs.none = true;
+	}
+
+	if( tmpCol.isFontStrikethrough() ){
+		tmpColSpecs.searchable = false;
+	}
+	
+	if( tmpCol.isHidden() ){
+		tmpColSpecs.isVisible = false;
+		tmpColSpecs.visible = false;
+	} else {
+		tmpColSpecs.visible = true;
+		tmpColSpecs.isVisible = true;
+	}
+	
+	if( tmpCol.isFontUnderline() ){
+		tmpColSpecs.addLink = true;
+	}
+	
+	if( tmpCol.isFontBold() ){
+		//--- this is the ID column and should be turned into a checkbox
+		tmpColSpecs.searchable = false;		
+		tmpColSpecs.isSelect = true;
+		tmpColSpecs.visible = true;
+		tmpColSpecs.isVisible = true;
+		tmpColSpecs.orderable = false;
+		tmpColSpecs.sorted = false;
+		//tmpColSpecs.title = '<input class="clc-dtcb-select-all" type="checkbox">';
+	}
+	
+	
+	tmpCols.push(tmpColSpecs);
+	tmpColsAdded++;
+}
+
+compositeData.columnCount = tmpColsAdded;
+compositeData.columns = tmpCols;
+
+if( 0 == tmpColsAdded ){
+	XPage.debug( 'Invalid view setup - ' + tmpViewName + ' contact support.' );
+}
+
+XPage.addDataItem(tmpCols, 'table_cols_' + tmpTableID);
+
+}]]></xp:this.beforePageLoad>
+	<xp:this.resources>
+		<xp:script src="/CoreWebCommon.jss" clientSide="false"></xp:script>
+	</xp:this.resources>
+
+	<xp:text escape="false">
+		<xp:this.value><![CDATA[#{javascript:
+		
+	
+
+var tmpTableID = compositeData.tableID || compositeData.viewName || 'coretablemain';
+var tmpWrapStart = '<div id="' + tmpTableID + '-wrap" class="table-loading-only" style="position:absolute;left:10000px;" >';
+var tmpTStart = tmpWrapStart + '<table data-info="true" data-order="[]" data-ordering="true" data-paging="true" data-searching="true" data-tablerowselector="enable" style="width:100%;" id="' + tmpTableID + '" data-widget="datatable" class=""ibm-data-table ibm-padding-small" cellspacing="0" cellpadding="0" border="0" ';
+
+var tmpDataInfo = compositeData.dataInfo ? ' data-info="true" ' : '';
+var tmpDataOrdering = compositeData.dataOrdering ? ' data-ordering="true" ' : '';
+var tmpDataPaging = compositeData.dataPaging ? ' data-paging="true" ' : '';
+var tmpDataSearching = compositeData.dataSearching ? ' data-searching="true" ' : '';
+var tmpCaption = compositeData.caption ? '<caption><em>' + compositeData.caption + '</em></caption>' : '';
+var tmpSummary = compositeData.caption ? ' summary="' + compositeData.caption + '"' : '';
+
+try {
+	 		
+	var tmpRet = tmpTStart + tmpDataInfo + tmpDataOrdering + tmpDataPaging + tmpDataSearching + tmpSummary + '>' + tmpCaption + ' <thead>  <tr>';
+	
+	var tmpColCount = compositeData.columnCount || 0;
+	var tmpCols = compositeData.columns || {};
+	for( var i = 0 ; i < tmpColCount ; i++){
+		var tmpCol = tmpCols[i];
+		var tmpCustomConfig = (compositeData.overrides) ? compositeData.overrides[tmpCol.colName] : false;
+		
+		if( tmpCustomConfig && typeof(tmpCustomConfig) == 'object'){
+			tmpCol = XPage.mixin(tmpCol,tmpCustomConfig);	
+		}
+		
+		if (tmpCol.isSelect == true){
+			tmpRet += '<th data-orderable="false" ><input type="checkbox" /></th>';		
+		} else {
+			var tmpSortable = (tmpCol.sorted) ? ' data-orderable="true" ' : ' data-orderable="false" '; 
+			var tmpSearchable = (tmpCol.searchable != false) ? ' data-searchable="true" ' : ' data-searchable="false" '; 
+			var tmpShowClass = (tmpCol.visible) ? '' : ' class="never" ';
+			
+			if( tmpShowClass == '' ){
+				if( tmpCol.none ){
+					tmpShowClass = ' class="none" ';
+				}
+			} 
+			tmpRet += '<th ' + tmpSearchable + tmpShowClass + tmpSortable + ' scope="col">' + tmpCol.title + '</th>';
+		}
+	};
+	
+	tmpRet += '  </tr> </thead><tbody>';
+} catch(ex){
+	
+}
+return tmpRet;
+
+}]]></xp:this.value>
+	</xp:text>
+
+	<xp:repeat
+		var="rowData"
+		value="#{view1}"
+		rows="5000">
+		<xp:text
+			escape="false"
+			disableTheme="true">
+			<xp:this.value><![CDATA[#{javascript:var tmpRet = '<tr class="clc-dt-row">';
+try {
+	
+
+var tmpID = '';
+
+try {
+	tmpID = rowData.getColumnValue("docid");	
+} catch(ex){
+	
+}
+
+if (!tmpID){
+	tmpDoc = rowData.getDocument();
+	if( tmpDoc ){
+		tmpID = rowData.getDocument().getUniversalID();
+	}
+	
+}
+
+var tmpColCount = compositeData.columnCount || 0;
+var tmpCols = compositeData.columns || {};
+var tmpDBPath = XPage.getBaseURL();
+
+var tmpFirstAdded = false;
+
+var tmpAutoLink = (compositeData.autoLink === true);
+
+for( var i = 0 ; i < tmpColCount ; i++){
+	var tmpCol = tmpCols[i];
+		if( tmpCol.isSelect == true ){
+			tmpRet += '<td scope="col"><input data-unid="' + tmpID + '" class="clc-dtcb-select-row" type="checkbox" /></td>';			
+		} else {
+			var tmpValue = rowData.getColumnValue(tmpCol.colName);
+			//if( tmpAutoLink !== false && !tmpFirstAdded ){
+			if( tmpCol.addLink ){
+				tmpFirstAdded = true;
+				tmpRet += '<td scope="row" class="ibm-table-row">';
+				tmpRet += '<a href="' + tmpDBPath + '/0/' + tmpID + '?OpenDocument" >'  
+				tmpRet += tmpValue;
+				tmpRet += '</a>'
+				tmpRet += '</td>';
+			} else {
+				tmpRet += '<td>' + tmpValue + '</td>';
+			}
+		}
+};
+tmpRet += '</tr>';
+} catch(ex){
+	
+}
+return tmpRet;
+}]]></xp:this.value>
+		</xp:text>
+	</xp:repeat>
+	<xp:text escape="false">
+		<xp:this.value><![CDATA[#{javascript:
+return '</table></div>';
+
+}]]></xp:this.value>
+	</xp:text>
+
+<xp:scriptBlock>
+			<xp:this.value><![CDATA[
+			
+
+
+  
+
+jQuery(document).ready(function(){
+
+	if (IBMCore.common.util.config.get("contentwidgets.enabled") == false && IBMCore.common.widget.datatable) {
+			$("table[data-widget=datatable]:not([data-init=false])").each(function(){
+				IBMCore.common.widget.datatable.init(this);
+			});
+			if (IBMCore.common.widget.tablesrowselector) {
+				$("table[data-tablerowselector=enable]:not([data-init=false])").tablesrowselector();
+			}
+	}
+
+	var tmpTableID = "#{javascript:return compositeData.tableID || compositeData.viewName || 'coretablemain'}";
+	jQuery(CLCore.byId(tmpTableID+'-wrap')).css({'position':'','left':'0px'});
+	//jQuery(CLCore.byId(tmpTableID+'-wrap')).show();
+	
+	/*
+
+	
+	
+	//core.setAreaDisplay(tmpTableID, true);
+	
+
+	var tmpDataTableColSpecs = core.data['table_cols_' + tmpTableID] || [];
+
+	var tmpFirstSorted = 0;
+
+	for( var i = 0 ; i < tmpDataTableColSpecs.length ; i++ ){
+		var tmpCol = tmpDataTableColSpecs[i];
+		if( tmpCol.orderable == true ){
+			tmpFirstSorted = i;
+			break;
+		}
+	}
+	//--- Note: Need     responsive: false,     to make visible work
+	var tmpTableColSpecs = {
+		responsive: false,
+		"order": [tmpFirstSorted, "asc"],
+	   "columns": tmpDataTableColSpecs
+	}
+
+	core.tables = core.tables || {};
+	var $table = $(core.byId(tmpTableID));
+	//core.tables[tmpTableID] = IBMCore.common.widget.datatable.init('#' + tmpTableID, tmpTableColSpecs );
+	 //core.tables[tmpTableID] = $table.addClass("display").DataTable(tmpTableColSpecs);
+	
+	core.tables[tmpTableID].on("click", '.clc-dtcb-select-all', function(){
+		  // Get all rows with search applied
+	      var rows = core.tables[tmpTableID].rows({ 'search': 'applied' }).nodes();
+	      // Check/uncheck checkboxes for all rows in the table
+	      $('input[type="checkbox"]', rows).prop('checked', this.checked);
+	});
+	*/
+
+	//console.log('added ' + tmpTableID );
+	
+});
+
+
+	
+			]]></xp:this.value>
+	</xp:scriptBlock>
+	
+		
+</xp:view>

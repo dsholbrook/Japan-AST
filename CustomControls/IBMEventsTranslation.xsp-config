@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>IBMEventsTranslation</component-type>
+    <composite-name>IBMEventsTranslation</composite-name>
+    <composite-file>/IBMEventsTranslation.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;span style="margin:2px;border:dashed 1px:blue;padding:2px;color:blue"&gt;&#xd;
+Translation&#xd;
+&lt;%=this.textName || "Enter Value"%&gt;&#xd;
+&lt;/span&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>GRP</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>textName</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <required>true</required>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>defaultValue</property-name>
+      <property-class>string</property-class>
+    </property>
+  </composite-component>
+</faces-config>

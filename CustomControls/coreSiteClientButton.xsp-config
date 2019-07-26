@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteClientButton</component-type>
+    <composite-name>coreSiteClientButton</composite-name>
+    <composite-file>/coreSiteClientButton.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&#xd;
+&lt;button style="font-weight:bold;border:solid 1px blue;padding:2px;margin:0px;&#xd;
+color: white;&#xd;
+background-color:&#xd;
+&lt;%=(this.color == null) ? "#323232": ""%&gt;&#xd;
+&lt;%=(this.color == "gray") ? "#777677" : ""%&gt;&#xd;
+&lt;%=(this.color == "blue") ? "#4178be" : ""%&gt;&#xd;
+&lt;%=(this.color == "green") ? "#4b8400" : ""%&gt;&#xd;
+&lt;%=(this.color == "teal") ? "#008571" : ""%&gt;&#xd;
+&lt;%=(this.color == "purple") ? "#9855d4" : ""%&gt;&#xd;
+&lt;%=(this.color == "magenta") ? "#db2780" : ""%&gt;&#xd;
+&lt;%=(this.color == "red") ? "#e71d32" : ""%&gt;&#xd;
+&lt;%=(this.color == "orange") ? "#d74108" : ""%&gt;&#xd;
+"&gt;&#xd;
+&lt;%=(this.caption != null) ? "&amp;#160;&amp;#160;" + this.caption + "&amp;#160;&amp;#160;": '&lt;span style="font-size:14px;border:solid 1px:red;color:red;font-size:20px;"&gt;&lt;b&gt;NO CAPTION&lt;/b&gt;&lt;/span&gt;'%&gt;&#xd;
+&lt;/button&gt;&#xd;
+&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>Website UI</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>caption</property-name>
+      <property-class>string</property-class>
+      <display-name>Caption</display-name>
+    </property>
+    <property>
+      <property-name>onClickFunction</property-name>
+      <property-class>string</property-class>
+      <display-name>Function to run</display-name>
+    </property>
+    <property>
+      <property-name>webID</property-name>
+      <property-class>string</property-class>
+      <display-name>Unique ID</display-name>
+    </property>
+    <property>
+      <property-name>actionName</property-name>
+      <property-class>string</property-class>
+      <display-name>Action Name</display-name>
+    </property>
+    <property>
+      <property-name>color</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>gray&#xd;
+blue&#xd;
+green&#xd;
+teal&#xd;
+purple&#xd;
+magenta&#xd;
+red&#xd;
+orange</editor-parameter>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>buttonType</property-name>
+      <property-class>string</property-class>
+      <display-name>Button Type</display-name>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>Primary&#xd;
+Secondary</editor-parameter>
+        </designer-extension>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>actionParams</property-name>
+      <property-class>string</property-class>
+      <display-name>Action Params</display-name>
+    </property>
+    <property>
+      <property-name>buttonSize</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.workplace.designer.property.editors.comboParameterEditor</editor>
+          <editor-parameter>Normal&#xd;
+Small</editor-parameter>
+        </designer-extension>
+      </property-extension>
+    </property>
+  </composite-component>
+</faces-config>

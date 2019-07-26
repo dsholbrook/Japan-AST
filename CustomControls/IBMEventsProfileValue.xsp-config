@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>IBMEventsProfileValue</component-type>
+    <composite-name>IBMEventsProfileValue</composite-name>
+    <composite-file>/IBMEventsProfileValue.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;span style="margin:2px;border:dashed 1px:orange;padding:2px;color:orange"&gt;&#xd;
+&lt;%=this.profile || "eventProfile"%&gt; - &lt;%=this.fieldName || "Enter Field Name"%&gt;&#xd;
+&lt;/span&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+        <category>GRP</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>profile</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <required>false</required>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>fieldName</property-name>
+      <property-class>string</property-class>
+      <property-extension>
+        <required>true</required>
+      </property-extension>
+    </property>
+    <property>
+      <property-name>useViewScopeAsBase</property-name>
+      <property-class>boolean</property-class>
+      <property-extension>
+        <designer-extension>
+          <editor>com.ibm.std.BooleanCheckBox</editor>
+        </designer-extension>
+      </property-extension>
+      <description>Select this box to pull from viewScope.YOURPROFILENAME.YOURFIELD</description>
+    </property>
+  </composite-component>
+</faces-config>

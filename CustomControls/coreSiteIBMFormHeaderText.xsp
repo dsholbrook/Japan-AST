@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+<h2 class="ibm-rule"></h2>
+				<p>
+The fields indicated with an asterisk (*) are required to complete this transaction; other fields are optional. If you do not want to provide us with the required information, please use the back button on your browser to return to the previous page.
+				</p>
+</xp:view>

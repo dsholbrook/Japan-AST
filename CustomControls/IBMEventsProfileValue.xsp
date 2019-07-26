@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+<xp:text escape="false" disableTheme="true">
+<xp:this.value><![CDATA[#{javascript:
+var tmpRet = '';
+try {
+	tmpFieldName = compositeData.fieldName || '';
+	if( tmpFieldName ){
+		tmpProfileName = compositeData.profile || '';
+		if( tmpProfileName == '' ){
+			tmpProfileName = 'eventProfile'
+		}
+		if( tmpProfileName ){
+			if( compositeData.useViewScopeAsBase ){
+				if( viewScope[tmpProfileName] ){
+					tmpProfile = viewScope[tmpProfileName];
+					tmpRet = tmpProfile[tmpFieldName];
+				}
+			} else {
+				if( viewScope.formSpecs && viewScope.formSpecs[tmpProfileName] ){
+					tmpProfile = viewScope.formSpecs[tmpProfileName]
+					tmpRet = tmpProfile[tmpFieldName];
+				}
+			}
+		}
+	}
+	if(tmpRet == null) tmpRet = '';
+	
+
+} catch(ex){
+	tmpRet = "ERROR: " + ex.toString();
+}
+
+return tmpRet;
+
+}]]></xp:this.value></xp:text>
+
+
+</xp:view>

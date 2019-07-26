@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+
+	<xp:scriptBlock id="scriptBlock1">
+
+		<xp:this.value><![CDATA[
+
+
+
+
+;]]></xp:this.value>
+	</xp:scriptBlock>
+	
+	
+	<xp:text escape="false" disableTheme="true">
+		<xp:this.value><![CDATA[#{javascript:
+		var tmpName = compositeData.dialogID;
+		var tmpSize = compositeData.dialogSize;
+		var tmpExtraClass = '';
+		if( tmpSize == 'Medium' ){
+			tmpExtraClass = ' ibm-overlay-alt ';
+		} else if( tmpSize == 'Large' ){
+			tmpExtraClass = ' ibm-overlay-alt-two ';
+		} 
+return '<div class="ibm-common-overlay ' + tmpExtraClass + ' " data-widget="overlay" id="' + tmpName + '">'
+}]]></xp:this.value>
+	</xp:text>
+
+	
+
+				<xp:text escape="false" disableTheme="true">
+					<xp:this.value><![CDATA[#{javascript:
+		return compositeData.dialogHeader == null ? '' : '<h1 id="' + tmpName + '-header">' + compositeData.dialogHeader + '</h1>';}]]></xp:this.value>
+				</xp:text>
+			
+			
+			<xp:callback facetName="facet_body"
+						id="callbackBody">
+					</xp:callback>
+					<xp:text escape="false" disableTheme="true"
+						rendered="#{javascript:compositeData.useDynamicContent}">
+						<xp:this.value><![CDATA[#{javascript:
+		return '<div id="' + tmpName + '-body"></div>';}]]></xp:this.value>
+					</xp:text>
+					
+		
+	
+	
+	<xp:text escape="false" disableTheme="true">
+		<xp:this.value><![CDATA[#{javascript:return '</div>'
+}]]></xp:this.value>
+	</xp:text>
+
+</xp:view>

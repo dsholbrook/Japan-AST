@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view
+	xmlns:xp="http://www.ibm.com/xsp/core"
+	xmlns:xc="http://www.ibm.com/xsp/custom">
+	
+	<xp:this.beforePageLoad><![CDATA[#{javascript:viewScope.pageTitle = 'IBM Events';
+viewScope.pageSubTitle = '';
+viewScope.clientAppLibraryName = 'grpClientApp';
+
+	
+//-- form specs override locally pulled values, no need to pull details for event if already pulled
+if( viewScope.formSpecs && viewScope.formSpecs.pageTitle ) {
+	viewScope.pageTitle = viewScope.formSpecs.pageTitle;
+	viewScope.pageSubTitle = viewScope.formSpecs.pageSubTitle || '';
+	
+}	
+
+viewScope.formSpecs = viewScope.formSpecs || {};
+	
+
+if (false){
+try {
+
+	//--- Get Query String
+	var tmpQS = context.getUrl().getQueryString();
+	
+	
+	viewScope.HTMLEventList = 'Started'; 
+	
+	//--- Update Query String to look like this is a form for backward compatibility
+	tmpQS = tmpQS.replace("OpenPage","OpenForm");
+	document1.getDocument().replaceItemValue("query_string", tmpQS);
+	//--- Run the agent and use the current document as the context
+	var db = sessionAsSignerWithFullAccess.getCurrentDatabase();    
+	var agent = db.getAgent("WebQueryOpenLandingPageXX");
+	
+	if( agent == null ){
+		viewScope.HTMLEventList = '<br /> NULL'; 
+	} else {
+		viewScope.HTMLEventList = '<br />QS: ' + tmpQS;
+	}
+	
+	var tmpLocale = context.getUrlParameter('locale') || 'en_US';
+	viewScope.locale = tmpLocale;
+	viewScope.isEnglish = tmpLocale == '' ? true : (tmpLocale.indexOf('en_') >= 0);
+	document1.getDocument().replaceItemValue("Locale", tmpLocale);
+	document1.getDocument().replaceItemValue("Form", "v18_events");
+	document1.getDocument().computeWithForm(false,false);
+	
+	XPage.addData("isEnglish", viewScope.isEnglish );
+
+	agent.runWithDocumentContext(document1.getDocument())
+	
+	viewScope.formSpecs.pageTitle = document1.getItemValueString('LandingPageTitle') || 'IBM Events'
+	viewScope.formSpecs.pageSubTitle = document1.getItemValueString('LandingPageSubTitle') || ''
+	viewScope.pageTitle = document1.getItemValueString('LandingPageTitle') || 'IBM Events'
+	viewScope.pageSubTitle = document1.getItemValueString('LandingPageSubTitle') || ''
+	viewScope.inLandingPage = "Yes";
+	
+	
+	/*
+var tmpLSID = document1.getItemValueString('ls_UNID');
+	if( tmpLSID ){
+		var tmpLocaleDoc = session.getCurrentDatabase().getDocumentByUNID(tmpLSID);
+		if( tmpLocaleDoc != null ){
+			//--- LOAD VALUES NEEDED / IF ANY
+		}
+	}
+	
+
+*/
+
+
+	var tmpRefDB = session.getDatabase("G01ACXDB601/01/A/IBMEXT", "events/wwe/grp/grpref.nsf");
+	
+	var tmpLocaleView:NotesView = tmpRefDB.getView("vLookupLocaleProfiles");
+	var tmpLocaleDoc:NotesDocument = tmpLocaleView.getDocumentByKey(tmpLocale, true);
+	var tmpLocaleDocUS:NotesDocument = tmpLocaleView.getDocumentByKey('en_ZZ', true);
+	
+	if( tmpLocaleDoc && tmpLocaleDoc != null ){
+		//-- Load general level translations
+
+
+	}
+	
+	var tmpEffectiveDate = "";
+
+	try {
+		var tmpDate = @Now();
+		var tmpYear = @Text(@Year(tmpDate));
+		var tmpMonthNumber = @Text(@Month(tmpDate));
+		var tmpMonth = @If(@Length(tmpMonthNumber) == 1, "0", "") + tmpMonthNumber;
+		var tmpDayNumber = @Text(@Day(tmpDate));
+		var tmpDay = @If(@Length(tmpDayNumber) == 1, "0", "") + tmpDayNumber;
+		tmpEffectiveDate = tmpYear + "-" + tmpMonth + "-" + tmpDay
+	} catch(ex){
+		tmpEffectiveDate = ex.toString();
+	}
+	viewScope.htmlheadIBMEffective = tmpEffectiveDate;
+		
+	
+
+	
+	
+	if( viewScope.htmlheadDCTypeOverride ){
+		viewScope.htmlheadDCType = viewScope.htmlheadDCTypeOverride;
+	} else {
+		viewScope.htmlheadDCType = 'CTA00';
+	}
+	
+	viewScope.htmlheadSiteSiteID = 'IBM_EVENTS'
+
+	viewScope.htmlheadSitePrimaryCategory = 'Events'
+	
+	//viewScope.htmlheadDCType = document1.getItemValueString('Meta_DCType') || 'CTA00';
+	viewScope.htmlheadIBMSubjectTaxonomy = document1.getItemValueString('Meta_DCSubject') || 'EV100';
+
+
+	
+	//--- Adding to viewScope to testing / viewing only
+	viewScope.queryString = tmpQS;
+//	viewScope.errorMessage = "";
+
+
+
+
+
+
+	var tmpOpenQS = context.getUrl().getQueryString();
+	if( tmpOpenQS == "" ){
+		tmpOpenQS = '?OpenPage'
+	}
+	
+	XPage.addData("qs", tmpOpenQS);
+
+	viewScope.pageTitle = viewScope.formSpecs.pageTitle || viewScope.pageTitle; 
+	viewScope.pageSubTitle = viewScope.formSpecs.pageSubTitle || viewScope.pageSubTitle; 
+
+
+
+} catch (ex) {
+	viewScope.errorMessage = ex.toString();	
+}	
+	
+}
+
+if( document1.getItemValueString('headerBackLD') != 'Light' ){
+	viewScope.mastheadClass = 'ibm-alternate-background';
+}
+
+
+}]]>
+	</xp:this.beforePageLoad>
+	<xp:this.resources>
+		<xp:script
+			src="/CoreWebCommon.jss"
+			clientSide="false">
+		</xp:script>
+	</xp:this.resources>
+	
+	
+	<xp:text escape="false" disableTheme="true">
+	<xp:this.value><![CDATA[#{javascript:
+	var tmpRet = "";
+	var tmpHeaderPath = document1.getItemValueString('headerFilePath') || '';
+	var tmpBackColor = '';
+	tmpRet += '<style>';
+	tmpRet += '.ibm-landing-page #ibm-leadspace-body { padding-bottom: 10px; }';
+	tmpRet += '.ibm-landing-page #ibm-leadspace-head {background-size: cover; background-position: 50% 50%; } ';
+	
+	if( tmpHeaderPath ){
+		tmpRet += '#ibm-leadspace-head { background-image: url(' + tmpHeaderPath + '); }';
+	}
+	tmpRet += '.ibm-grid-xlarge .site-grp [class*="-link"]:before { font-size: 1.6em; }';
+	tmpRet += '.site-grp .ibm-icon-nolink { padding-left: 1.7em !important; }';
+	tmpRet += '.site-no-padding { padding-bottom: 0; }';
+	tmpRet += '</style>';
+	return tmpRet;
+	
+			
+	}]]></xp:this.value></xp:text>
+	
+	<xp:text escape="false" disableTheme="true">
+	<xp:this.value><![CDATA[#{javascript:
+	var tmpRet = "";
+	var tmpColor = 
+	tmpRet += '<div id="ibm-leadspace-head" ';
+	
+	var tmpHeaderClass = document1.getItemValueString('headerBGColorClass') || '';
+	tmpHeaderClass += " ibm-alternate "
+	if( tmpHeaderClass && tmpHeaderClass != null ){
+		tmpRet += ' class="' + tmpHeaderClass + '" ';
+	}
+	
+	tmpRet += '>';
+	return tmpRet;
+		return '"'
+	}]]></xp:this.value></xp:text>
+	
+		
+		<xp:scriptBlock>
+				<xp:this.value><![CDATA[
+				
+			
+
+(function($, IBM, CLC) {
+
+	var me = IBM.namespace(CLC, "header");
+
+	me.showDebug = true;
+	
+	var debug = function(theText){
+		if( !me.showDebug ){
+			return;
+		}
+		console.log(theText);
+	}
+	me.debug = debug;
+	
+ 	function endsWith(theString, thePattern) {
+	    var d = theString.length - thePattern.length;
+	    return d >= 0 && theString.lastIndexOf(thePattern) === d;
+	};
+
+ 	var login = function(theType){
+ 		var tmpType = theType || '1';
+ 		var tmpLoc = window.location + '';
+ 		if( endsWith(tmpLoc, 'xsp') ){
+ 			tmpLoc += '?open';
+ 		} 		 
+ 		window.location = tmpLoc + '&auth=' + tmpType + '';
+ 	}
+ 	me.login = login;
+
+ 	var register = function(){
+ 		window.location = core.data.baseURL + '/Registration.xsp' + core.data.qs;;
+ 	}
+ 	me.register = register;
+
+ 	var init = function(){
+		debug('header init');
+		//debug(core.data.formSpecs);
+ 	}
+ 	me.init = init;
+	
+})(jQuery, IBMCore, CLRoot);
+
+header = CLRoot.header;
+
+jQuery( document ).ready(function() {
+
+	if( header ){
+		header.showDebug = false;
+		header.init();
+	}
+});
+					
+				]]></xp:this.value>
+		</xp:scriptBlock>
+		<style>
+			.ibm-rule {
+    		height: auto;
+			}
+		</style> 
+		<div id="ibm-leadspace-body">
+			<div class="ibm-columns">
+			
+				<div class="ibm-col-1-1 ibm-col-xlarge-6-4 ibm-padding-bottom-20 ${javascript:viewScope.mastheadClass || ''}">
+					<h1 class="ibm-h1 ibm-bold">
+						<xp:text escape="false" disableTheme="true">
+							<xp:this.value><![CDATA[#{javascript:document1.getItemValueString('LandingPageTitle')
+						}]]></xp:this.value>
+						</xp:text>
+					</h1>
+					<xp:panel>
+						<h4 class="ibm-light ibm-h4">
+							<xp:text escape="false" disableTheme="true">
+								<xp:this.value><![CDATA[#{javascript:document1.getItemValueString('LandingPageSubTitle')
+						}]]></xp:this.value>
+							</xp:text>
+						</h4>
+					</xp:panel>
+				</div>
+			</div>
+		</div>
+	<xp:text escape="false" disableTheme="true">
+	<xp:this.value><![CDATA[#{javascript:
+		return '</div>'
+	}]]></xp:this.value></xp:text>
+	
+	
+</xp:view>

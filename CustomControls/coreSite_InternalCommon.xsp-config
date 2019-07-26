@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSite_InternalCommon</component-type>
+    <composite-name>coreSite_InternalCommon</composite-name>
+    <composite-file>/coreSite_InternalCommon.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>false</in-palette>
+        <render-markup>&lt;?xml version="1.0" encoding="UTF-8"?&gt;&#xd;
+&lt;xp:view xmlns:xp="http://www.ibm.com/xsp/core"&gt;&#xd;
+&lt;h2&gt;Site framework&lt;/h2&gt;&#xd;
+&lt;p&gt;The site framework provides the header, sidebar and tabs / navigation for this page.&lt;/p&gt;&#xd;
+&lt;/xp:view&gt;</render-markup>
+      </designer-extension>
+    </composite-extension>
+  </composite-component>
+</faces-config>

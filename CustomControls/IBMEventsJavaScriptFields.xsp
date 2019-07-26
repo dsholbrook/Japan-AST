@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+<xp:text escape="false" disableTheme="true">
+<xp:this.value><![CDATA[#{javascript:
+var tmpRet = "";
+var tmpJS = document1.getItemValueString('CustomJSHeader');
+
+if( tmpJS ){
+	tmpRet += "<script>";
+	tmpRet += tmpJS;
+	tmpRet += "</script>";
+}
+tmpJS = document1.getItemValueString('AmenityPackageJS');
+if( tmpJS ){
+	tmpRet += "<script>";
+	tmpRet += tmpJS;
+	tmpRet += "</script>";
+}
+
+tmpJS = document1.getItemValueString('AmenityValueJS');
+if( tmpJS ){
+	tmpRet += "<script>";
+	tmpRet += tmpJS;
+	tmpRet += "</script>";
+}
+
+tmpJS = document1.getItemValueString('AmenityUSDValueJS');
+if( tmpJS ){
+	tmpRet += "<script>";
+	tmpRet += tmpJS;
+	tmpRet += "</script>";
+}
+
+tmpJS = document1.getItemValueString('AmenityUnderClipJS');
+if( tmpJS ){
+	tmpRet += "<script>";
+	tmpRet += tmpJS;
+	tmpRet += "</script>";
+}
+
+/*
+tmpJS = document1.getItemValueString('BDSJobRolesJS');
+if( tmpJS ){
+	tmpRet += "<script>";
+	tmpRet += tmpJS;
+	tmpRet += "</script>";
+}
+*/
+
+return tmpRet;	
+}]]></xp:this.value></xp:text>
+
+
+
+</xp:view>

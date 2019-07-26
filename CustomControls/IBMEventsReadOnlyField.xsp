@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+
+
+<xp:text escape="false" disableTheme="true">
+<xp:this.value><![CDATA[#{javascript:
+
+
+try {
+	var tmpFieldName = compositeData.fieldName;
+	var tmpFieldWidth = compositeData.fieldWidth || '';
+	if( tmpFieldWidth ){
+		tmpFieldWidth = ' width:' + tmpFieldWidth + ';';
+	}
+	
+	return '<input name="' + tmpFieldName + '" value="" id="' + tmpFieldName + '" style="overflow: auto;font-weight:bold; border-style: none; text-wrap: normal;' + tmpFieldWidth + '" type="read-only" />';
+
+} catch(ex){
+	
+}
+
+return '';
+
+}]]></xp:this.value></xp:text>
+
+
+</xp:view>

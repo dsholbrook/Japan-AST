@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faces-config>
+  <faces-config-extension>
+    <namespace-uri>http://www.ibm.com/xsp/custom</namespace-uri>
+    <default-prefix>xc</default-prefix>
+  </faces-config-extension>
+  <composite-component>
+    <component-type>coreSiteIBMLink</component-type>
+    <composite-name>coreSiteIBMLink</composite-name>
+    <composite-file>/coreSiteIBMLink.xsp</composite-file>
+    <composite-extension>
+      <designer-extension>
+        <in-palette>true</in-palette>
+        <category>Website UI</category>
+      </designer-extension>
+    </composite-extension>
+    <property>
+      <property-name>className</property-name>
+      <property-class>string</property-class>
+      <display-name>IBM Link Class Name</display-name>
+    </property>
+    <property>
+      <property-name>title</property-name>
+      <property-class>string</property-class>
+      <display-name>Link Title</display-name>
+    </property>
+    <property>
+      <property-name>sizeText</property-name>
+      <property-class>string</property-class>
+      <display-name>Display Size</display-name>
+      <description>Example: 125 KB</description>
+    </property>
+    <property>
+      <property-name>href</property-name>
+      <property-class>string</property-class>
+      <display-name>Link HREF</display-name>
+    </property>
+  </composite-component>
+</faces-config>

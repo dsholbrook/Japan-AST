@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xp:view xmlns:xp="http://www.ibm.com/xsp/core">
+<xp:text escape="false" disableTheme="true">
+<xp:this.value><![CDATA[#{javascript:
+var tmpRet = '';
+var tmpClass = compositeData.className || "ibm-pdf-link";
+var tmpTitle =  compositeData.title || 'Download';
+var tmpSize = compositeData.sizeText || '';
+if( tmpSize ){
+	tmpSize = '&#160;(' + tmpSize + ')';
+}
+
+
+var tmpHREF =  compositeData.href || '#';
+tmpRet += '<ul class="ibm-link-list"> <li class="ibm-first"><a target="_blank" class="' + tmpClass + '" href="' + tmpHREF + '">' + tmpTitle + '<span class="ibm-item-note">' + tmpSize + '</span></a></li></ul>';
+return tmpRet;	
+}]]></xp:this.value></xp:text>
+
+
+
+</xp:view>
